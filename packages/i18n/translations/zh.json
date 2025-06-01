@@ -1,0 +1,815 @@
+{
+	"admin": {
+		"menu": {
+			"organizations": "組織",
+			"users": "用戶"
+		},
+		"organizations": {
+			"backToList": "返回組織列表",
+			"confirmDelete": {
+				"confirm": "刪除",
+				"message": "您確定要刪除此組織嗎？此操作無法撤銷。",
+				"title": "刪除組織"
+			},
+			"create": "新增",
+			"delete": "刪除",
+			"deleteOrganization": {
+				"deleted": "組織已成功刪除！",
+				"deleting": "正在刪除組織...",
+				"notDeleted": "無法刪除組織。請再試一次。"
+			},
+			"edit": "編輯",
+			"form": {
+				"createTitle": "新增組織",
+				"name": "組織名稱",
+				"notifications": {
+					"error": "無法保存組織。請稍後再試。",
+					"success": "組織已保存。"
+				},
+				"save": "保存",
+				"updateTitle": "編輯組織"
+			},
+			"loading": "正在加載組織...",
+			"membersCount": "{count} {count, plural, one {成員} other {成員}}",
+			"search": "搜索組織...",
+			"title": "管理組織"
+		},
+		"title": "管理",
+		"users": {
+			"confirmDelete": {
+				"confirm": "刪除",
+				"message": "您確定要刪除此用戶嗎？此操作無法撤銷。",
+				"title": "刪除用戶"
+			},
+			"delete": "刪除",
+			"deleteUser": {
+				"deleted": "用戶已成功刪除！",
+				"deleting": "正在刪除用戶...",
+				"notDeleted": "無法刪除用戶。請再試一次。"
+			},
+			"emailVerified": {
+				"verified": "電子郵件已驗證",
+				"waiting": "電子郵件等待驗證"
+			},
+			"impersonate": "模擬",
+			"impersonation": {
+				"impersonating": "正在模擬 {name}..."
+			},
+			"loading": "正在加載用戶...",
+			"resendVerificationMail": {
+				"error": "無法重新發送驗證郵件。請再試一次。",
+				"submitting": "正在重新發送驗證郵件...",
+				"success": "驗證郵件已發送。",
+				"title": "重新發送驗證郵件"
+			},
+			"search": "搜索姓名或電子郵件...",
+			"title": "管理用戶",
+			"assignAdminRole": "分配管理員角色",
+			"removeAdminRole": "移除管理員角色"
+		},
+		"description": "管理您的應用程序。"
+	},
+	"app": {
+		"menu": {
+			"accountSettings": "帳戶設置",
+			"admin": "管理員",
+			"aiDemo": "AI 演示",
+			"organizationSettings": "設置",
+			"start": "開始"
+		},
+		"userMenu": {
+			"accountSettings": "帳戶設置",
+			"colorMode": "顏色模式",
+			"documentation": "文檔",
+			"home": "主頁",
+			"logout": "登出"
+		}
+	},
+	"auth": {
+		"errors": {
+			"invalidEmailOrPassword": "您輸入的憑據無效。請檢查並重試。",
+			"unknown": "發生錯誤。請再試一次。",
+			"userNotFound": "此用戶不存在",
+			"failedToCreateUser": "無法新增用戶。請再試一次。",
+			"failedToCreateSession": "無法新增會話。請再試一次。",
+			"failedToUpdateUser": "無法更新用戶。請再試一次。",
+			"failedToGetSession": "無法獲取會話。",
+			"invalidPassword": "輸入的密碼不正確。",
+			"invalidEmail": "輸入的電子郵件無效。",
+			"invalidToken": "您輸入的令牌無效或已過期。",
+			"credentialAccountNotFound": "找不到帳戶。",
+			"emailCanNotBeUpdated": "無法更新電子郵件。請再試一次。",
+			"emailNotVerified": "請先驗證您的電子郵件，然後再登錄。",
+			"failedToGetUserInfo": "無法加載用戶信息。",
+			"idTokenNotSupported": "不支持 ID 令牌。",
+			"passwordTooLong": "密碼太長。",
+			"passwordTooShort": "密碼太短。",
+			"providerNotFound": "不支持此提供商。",
+			"socialAccountAlreadyLinked": "此帳戶已鏈接到用戶。",
+			"userEmailNotFound": "找不到電子郵件。",
+			"userAlreadyExists": "此用戶已存在。",
+			"invalidInvitation": "邀請無效或已過期。",
+			"sessionExpired": "會話已過期。"
+		},
+		"forgotPassword": {
+			"backToSignin": "返回登錄",
+			"email": "電子郵件",
+			"hints": {
+				"linkNotSent": {
+					"message": "很抱歉，我們無法向您發送重置密碼的鏈接。請稍後再試。",
+					"title": "鏈接未發送"
+				},
+				"linkSent": {
+					"message": "我們已向您發送了一個鏈接以繼續。請檢查您的收件箱。",
+					"title": "鏈接已發送"
+				}
+			},
+			"message": "請輸入您的電子郵件地址，我們將向您發送一個鏈接以重置您的密碼。",
+			"submit": "發送鏈接",
+			"title": "忘記密碼？"
+		},
+		"login": {
+			"continueWith": "或繼續使用",
+			"createAnAccount": "新增帳戶",
+			"dontHaveAnAccount": "還沒有帳戶？",
+			"forgotPassword": "忘記密碼？",
+			"hints": {
+				"invalidCredentials": "您輸入的電子郵件或密碼無效。請再試一次。",
+				"linkSent": {
+					"message": "我們已向您發送了一個鏈接以繼續。請檢查您的收件箱。",
+					"title": "鏈接已發送"
+				}
+			},
+			"loginWithPasskey": "使用密鑰登錄",
+			"modes": {
+				"magicLink": "魔法鏈接",
+				"password": "密碼"
+			},
+			"submit": "登錄",
+			"subtitle": "請輸入您的憑據以登錄。",
+			"title": "歡迎回來",
+			"sendMagicLink": "發送魔法鏈接"
+		},
+		"resetPassword": {
+			"backToSignin": "返回登錄",
+			"hints": {
+				"error": "很抱歉，我們無法重置您的密碼。請再試一次。",
+				"success": "您的密碼已成功重置。"
+			},
+			"message": "請輸入新密碼。",
+			"newPassword": "新密碼",
+			"submit": "重置密碼",
+			"title": "重置密碼"
+		},
+		"signup": {
+			"alreadyHaveAccount": "已經有帳戶了？",
+			"email": "電子郵件",
+			"hints": {
+				"signupFailed": "很抱歉，我們無法新增您的帳戶。請稍後再試。",
+				"verifyEmail": "我們已向您發送了一個鏈接以驗證您的電子郵件。請檢查您的收件箱。"
+			},
+			"message": "我們很高興您想加入我們。請填寫以下表格以新增您的帳戶。",
+			"name": "姓名",
+			"password": "密碼",
+			"signIn": "登錄",
+			"submit": "新增帳戶",
+			"title": "新增帳戶"
+		}
+	},
+	"blog": {
+		"description": "閱讀我們公司的最新消息",
+		"title": "我的精彩博客"
+	},
+	"changelog": {
+		"description": "隨時了解我們產品的最新變化。",
+		"title": "更新日誌"
+	},
+	"common": {
+		"confirmation": {
+			"cancel": "取消",
+			"confirm": "確認"
+		},
+		"menu": {
+			"blog": "博客",
+			"changelog": "更新日誌",
+			"contact": "聯繫",
+			"dashboard": "儀表板",
+			"docs": "文檔",
+			"faq": "常見問題",
+			"login": "登錄",
+			"pricing": "定價"
+		},
+		"tableOfContents": {
+			"title": "本頁內容"
+		}
+	},
+	"contact": {
+		"description": "我們在這裡為您提供幫助。請使用下面的表格與我們聯繫。",
+		"form": {
+			"email": "電子郵件",
+			"message": "信息",
+			"name": "姓名",
+			"notifications": {
+				"error": "很抱歉，我們無法發送您的信息。請稍後再試。",
+				"success": "您的信息已成功發送。我們將盡快與您聯繫。"
+			},
+			"submit": "發送信息"
+		},
+		"title": "聯繫我們"
+	},
+	"documentation": {
+		"title": "文檔"
+	},
+	"faq": {
+		"description": "您有任何問題嗎？我們為您提供支持。",
+		"title": "常見問題"
+	},
+	"mail": {
+		"common": {
+			"openLinkInBrowser": "如果您想在默認瀏覽器之外的其他瀏覽器中打開鏈接，請複製並粘貼此鏈接：",
+			"otp": "一次性密碼",
+			"useLink": "或使用以下鏈接："
+		},
+		"emailVerification": {
+			"body": "您好，\n請點擊下面的鏈接以驗證此新電子郵件地址。",
+			"confirmEmail": "驗證電子郵件",
+			"subject": "驗證您的電子郵件"
+		},
+		"forgotPassword": {
+			"body": "您好，\n您請求重置密碼。\n\n點擊下面的按鈕以重置您的密碼。",
+			"resetPassword": "重置密碼",
+			"subject": "重置您的密碼"
+		},
+		"magicLink": {
+			"body": "您好，\n您請求從 supastarter 獲取登錄電子郵件。\n\n點擊下面的鏈接以登錄。",
+			"login": "登錄",
+			"subject": "登錄到 supastarter"
+		},
+		"newUser": {
+			"body": "您好，\n感謝您註冊 supastarter。\n\n要開始使用我們的應用程序，請通過點擊下面的鏈接確認您的電子郵件地址。",
+			"confirmEmail": "確認電子郵件",
+			"subject": "確認您的電子郵件"
+		},
+		"newsletterSignup": {
+			"body": "感謝您註冊 supastarter 通訊。我們將為您提供最新的新聞和更新。",
+			"subject": "歡迎加入我們的通訊"
+		},
+		"organizationInvitation": {
+			"body": "您已被邀請加入組織 {organizationName}。點擊下面的按鈕或將鏈接複製並粘貼到您選擇的瀏覽器中以接受邀請並加入組織。",
+			"headline": "加入組織 {organizationName}",
+			"join": "加入組織",
+			"subject": "您已被邀請加入一個組織"
+		}
+	},
+	"newsletter": {
+		"email": "電子郵件",
+		"hints": {
+			"error": {
+				"message": "無法訂閱通訊。請稍後再試。"
+			},
+			"success": {
+				"message": "感謝您訂閱我們的通訊。我們將為您提供最新信息。",
+				"title": "已訂閱"
+			}
+		},
+		"submit": "訂閱",
+		"subtitle": "成為第一批獲得 Infowin SAAS 訪問權限的人。",
+		"title": "獲得早期訪問"
+	},
+	"onboarding": {
+		"account": {
+			"avatar": "頭像",
+			"avatarDescription": "點擊圓圈或將圖像拖到其中以上傳您的頭像。",
+			"name": "姓名"
+		},
+		"continue": "繼續",
+		"message": "只需幾個簡單的步驟即可開始。",
+		"notifications": {
+			"accountSetupFailed": "很抱歉，我們無法設置您的帳戶。請稍後再試。"
+		},
+		"step": "步驟 {step} / {total}",
+		"title": "設置您的帳戶"
+	},
+	"organizations": {
+		"createForm": {
+			"name": "組織名稱",
+			"notifications": {
+				"error": "很抱歉，我們無法新增您的組織。請稍後再試。",
+				"success": "您的組織已新增。您現在可以邀請成員。"
+			},
+			"submit": "新增組織",
+			"subtitle": "輸入您的組織名稱以開始。您可以稍後在組織設置中更改名稱。",
+			"title": "新增組織"
+		},
+		"invitationAlert": {
+			"description": "您需要登錄或新增帳戶才能加入組織。",
+			"title": "您已被邀請加入一個組織。"
+		},
+		"invitationModal": {
+			"accept": "接受",
+			"decline": "拒絕",
+			"description": "您已被邀請加入組織 {organizationName}。您想接受邀請並加入組織嗎？",
+			"title": "加入組織"
+		},
+		"organizationSelect": {
+			"createNewOrganization": "新增新組織",
+			"organizations": "組織",
+			"personalAccount": "個人帳戶"
+		},
+		"organizationsGrid": {
+			"createNewOrganization": "新增新組織",
+			"title": "您的組織"
+		},
+		"roles": {
+			"admin": "管理員",
+			"member": "成員",
+			"owner": "所有者"
+		},
+		"settings": {
+			"changeName": {
+				"title": "組織名稱"
+			},
+			"deleteOrganization": {
+				"confirmation": "您確定要刪除您的組織嗎？",
+				"description": "永久刪除您的組織。一旦您刪除您的組織，就無法恢復。要確認，請在下面輸入您的密碼：",
+				"submit": "刪除組織",
+				"title": "刪除組織"
+			},
+			"logo": {
+				"description": "上傳您的組織標誌。",
+				"title": "組織標誌"
+			},
+			"members": {
+				"activeMembers": "活躍成員",
+				"description": "查看您組織的所有活躍成員和待處理的邀請。",
+				"invitations": {
+					"empty": "您尚未邀請任何成員。",
+					"expiresAt": "過期時間 {date}",
+					"invitationStatus": {
+						"accepted": "已接受",
+						"canceled": "已取消",
+						"pending": "待處理",
+						"rejected": "已拒絕"
+					},
+					"revoke": "撤銷邀請",
+					"resend": "重新發送邀請"
+				},
+				"inviteMember": {
+					"description": "要邀請新成員，請向他們發送邀請。",
+					"email": "電子郵件",
+					"notifications": {
+						"error": {
+							"description": "我們無法邀請成員。請稍後再試。",
+							"title": "無法邀請成員"
+						},
+						"success": {
+							"description": "成員已被邀請。",
+							"title": "成員已邀請"
+						}
+					},
+					"role": "角色",
+					"submit": "邀請",
+					"title": "邀請成員"
+				},
+				"leaveOrganization": "離開組織",
+				"notifications": {
+					"removeMember": {
+						"error": {
+							"description": "無法將成員從您的組織中移除。請再試一次。"
+						},
+						"loading": {
+							"description": "正在從組織中移除成員..."
+						},
+						"success": {
+							"description": "成員已成功從您的組織中移除。"
+						}
+					},
+					"revokeInvitation": {
+						"error": {
+							"description": "無法撤銷邀請。請稍後再試。"
+						},
+						"loading": {
+							"description": "正在撤銷邀請..."
+						},
+						"success": {
+							"description": "邀請已被撤銷。"
+						}
+					},
+					"updateMembership": {
+						"error": {
+							"description": "無法更新組織成員資格。請再試一次。"
+						},
+						"loading": {
+							"description": "正在更新成員資格..."
+						},
+						"success": {
+							"description": "成員資格已成功更新"
+						}
+					},
+					"resendInvitation": {
+						"loading": {
+							"description": "正在重新發送邀請..."
+						},
+						"success": {
+							"description": "邀請已發送"
+						},
+						"error": {
+							"description": "無法發送邀請。請再試一次。"
+						}
+					}
+				},
+				"pendingInvitations": "待處理的邀請",
+				"removeMember": "移除成員",
+				"title": "成員"
+			},
+			"notifications": {
+				"organizationDeleted": "您的組織已被刪除。",
+				"organizationNameNotUpdated": "我們無法更新您的組織名稱。請稍後再試。",
+				"organizationNameUpdated": "您的組織名稱已更新。",
+				"organizationNotDeleted": "我們無法刪除您的組織。請稍後再試。"
+			},
+			"subtitle": "管理組織的設置。",
+			"title": "組織"
+		},
+		"start": {
+			"subtitle": "歡迎來到此組織的開始頁面！"
+		}
+	},
+	"pricing": {
+		"choosePlan": "選擇計劃",
+		"contactSales": "聯繫銷售",
+		"description": "選擇最適合您的計劃。",
+		"getStarted": "開始",
+		"month": "{count, plural, one {月} other {{count} 月}}",
+		"monthly": "每月",
+		"perSeat": "每個座位",
+		"products": {
+			"basic": {
+				"description": "適合小團隊。",
+				"features": {
+					"anotherFeature": "另一個驚人的功能",
+					"limitedSupport": "有限支持",
+					"oneMember": "1 名成員"
+				},
+				"title": "基礎"
+			},
+			"enterprise": {
+				"description": "根據您的需求定制的計劃",
+				"features": {
+					"enterpriseSupport": "企業支持",
+					"unlimitedMembers": "無限成員",
+					"unlimitedProjects": "無限項目"
+				},
+				"title": "企業"
+			},
+			"free": {
+				"description": "免費開始",
+				"features": {
+					"anotherFeature": "另一個驚人的功能",
+					"limitedSupport": "有限支持",
+					"oneMember": "1 名成員"
+				},
+				"title": "免費"
+			},
+			"lifetime": {
+				"description": "一次購買。永久使用。",
+				"features": {
+					"extendSupport": "延長支持",
+					"noRecurringCosts": "無需定期費用",
+					"unlimitedMembers": "無限成員"
+				},
+				"title": "終身"
+			},
+			"pro": {
+				"description": "最適合團隊",
+				"features": {
+					"anotherFeature": "另一個驚人的功能",
+					"fiveMembers": "最多 5 名成員",
+					"fullSupport": "全面支持"
+				},
+				"title": "專業"
+			}
+		},
+		"purchase": "購買",
+		"recommended": "推薦",
+		"subscribe": "訂閱",
+		"title": "定價",
+		"trialPeriod": "{days} {days, plural, one {天} other {天}} 免費試用",
+		"year": "{count, plural, one {年} other {{count} 年}}",
+		"yearly": "每年"
+	},
+	"settings": {
+		"account": {
+			"avatar": {
+				"description": "要更改您的頭像，請單擊此塊中的圖片並從您的計算機中選擇一個文件上傳。",
+				"notifications": {
+					"error": "無法更新頭像",
+					"success": "頭像已成功更新"
+				},
+				"title": "您的頭像"
+			},
+			"changeEmail": {
+				"description": "要更改您的電子郵件，請輸入新電子郵件並點擊保存。您需要確認新電子郵件才能生效。",
+				"notifications": {
+					"error": "無法更新電子郵件",
+					"success": "電子郵件已成功更新"
+				},
+				"title": "您的電子郵件"
+			},
+			"changeName": {
+				"notifications": {
+					"error": "無法更新姓名",
+					"success": "姓名已成功更新"
+				},
+				"title": "您的姓名"
+			},
+			"deleteAccount": {
+				"confirmation": "您確定要刪除您的帳戶嗎？",
+				"description": "永久刪除您的帳戶。一旦您刪除您的帳戶，就無法恢復。要確認，請在下面輸入您的密碼：",
+				"notifications": {
+					"error": "無法刪除帳戶",
+					"success": "帳戶已成功刪除"
+				},
+				"submit": "刪除帳戶",
+				"title": "刪除帳戶"
+			},
+			"language": {
+				"description": "要更改您的帳戶的應用程序語言，請從列表中選擇一種語言並點擊保存。",
+				"notifications": {
+					"error": "無法更新語言",
+					"success": "語言已成功更新"
+				},
+				"title": "您的語言"
+			},
+			"security": {
+				"activeSessions": {
+					"description": "這是您帳戶的所有活躍會話。單擊 X 以結束特定會話。",
+					"title": "活躍會話"
+				},
+				"changePassword": {
+					"currentPassword": "當前密碼",
+					"newPassword": "新密碼",
+					"notifications": {
+						"error": "無法更新密碼",
+						"success": "密碼已成功更新"
+					},
+					"title": "您的密碼"
+				},
+				"connectedAccounts": {
+					"connect": "連接",
+					"disconnect": "斷開",
+					"title": "已連接的帳戶"
+				},
+				"passkeys": {
+					"description": "使用密鑰作為密碼的安全替代品。",
+					"notifications": {
+						"addPasskey": {
+							"error": {
+								"title": "無法添加密鑰"
+							},
+							"success": {
+								"title": "密鑰已添加"
+							}
+						},
+						"deletePasskey": {
+							"error": {
+								"title": "無法刪除密鑰"
+							},
+							"loading": {
+								"title": "正在刪除密鑰..."
+							},
+							"success": {
+								"title": "密鑰已刪除"
+							}
+						}
+					},
+					"title": "密鑰"
+				},
+				"setPassword": {
+					"description": "您尚未設置密碼。要設置密碼，您需要通過密碼重置流程。單擊下面的按鈕以發送電子郵件以重置您的密碼，並按照電子郵件中的說明進行操作。",
+					"notifications": {
+						"error": "無法設置密碼",
+						"success": "密碼已成功設置"
+					},
+					"submit": "設置密碼",
+					"title": "您的密碼"
+				},
+				"title": "安全"
+			},
+			"subtitle": "管理您的個人帳戶設置。",
+			"title": "帳戶設置"
+		},
+		"billing": {
+			"activePlan": {
+				"title": "當前方案",
+				"status": {
+					"active": "活躍",
+					"canceled": "已取消",
+					"expired": "已過期",
+					"incomplete": "未完成",
+					"past_due": "逾期",
+					"paused": "已暫停",
+					"trialing": "試用中",
+					"unpaid": "未付款"
+				}
+			},
+			"changePlan": {
+				"title": "更改方案",
+				"description": "選擇一個新的方案以升級或降級您的訂閱。"
+			},
+			"cancelSubscription": {
+				"notifications": {
+					"error": {
+						"title": "無法取消訂閱"
+					},
+					"success": {
+						"title": "訂閱已取消"
+					}
+				}
+			},
+			"createCustomerPortal": {
+				"label": "管理賬單詳情",
+				"notifications": {
+					"error": {
+						"title": "無法新增客戶門戶會話。請再試一次。"
+					}
+				}
+			},
+			"pauseSubscription": {
+				"label": "暫停訂閱",
+				"notifications": {
+					"error": {
+						"title": "無法暫停訂閱"
+					},
+					"success": {
+						"title": "訂閱已暫停"
+					}
+				}
+			},
+			"resumeSubscription": {
+				"notifications": {
+					"error": {
+						"title": "無法恢復訂閱"
+					},
+					"success": {
+						"title": "訂閱已恢復"
+					}
+				}
+			},
+			"subscription": {
+				"cancel": "取消您的訂閱",
+				"changePlan": {
+					"description": "選擇要訂閱的計劃。",
+					"title": "更改您的計劃"
+				},
+				"status": {
+					"active": "活躍",
+					"canceled": "已取消",
+					"expired": "已過期",
+					"incomplete": "不完整",
+					"past_due": "逾期",
+					"paused": "已暫停",
+					"trialing": "試用中",
+					"unpaid": "未支付"
+				},
+				"title": "您的訂閱"
+			},
+			"title": "賬單"
+		},
+		"menu": {
+			"account": {
+				"billing": "賬單",
+				"dangerZone": "危險區域",
+				"general": "常規",
+				"security": "安全",
+				"title": "帳戶"
+			},
+			"organization": {
+				"billing": "賬單",
+				"general": "常規",
+				"members": "成員",
+				"title": "組織"
+			}
+		},
+		"save": "保存"
+	},
+	"start": {
+		"subtitle": "查看您精彩業務的最新統計數據。",
+		"welcome": "歡迎 {name}!"
+	},
+	"zod": {
+		"errors": {
+			"invalid_arguments": "無效的函數參數",
+			"invalid_date": "無效的日期",
+			"invalid_enum_value": "無效的枚舉值。預期 {- options}，收到 '{received}'",
+			"invalid_intersection_types": "無法合併交集結果",
+			"invalid_literal": "無效的文字值，預期 {expected}",
+			"invalid_return_type": "無效的函數返回類型",
+			"invalid_string": {
+				"cuid": "無效的 {validation}",
+				"datetime": "無效的 {validation}",
+				"email": "無效的 {validation}",
+				"endsWith": "無效的輸入：必須以 \"{endsWith}\" 結尾",
+				"regex": "無效",
+				"startsWith": "無效的輸入：必須以 \"{startsWith}\" 開頭",
+				"url": "無效的 {validation}",
+				"uuid": "無效的 {validation}"
+			},
+			"invalid_type": "預期 {expected}，收到 {received}",
+			"invalid_type_received_undefined": "必需",
+			"invalid_union": "無效的輸入",
+			"invalid_union_discriminator": "無效的鑑別器值。預期 {- options}",
+			"not_finite": "數字必須是有限的",
+			"not_multiple_of": "數字必須是 {multipleOf} 的倍數",
+			"too_big": {
+				"array": {
+					"exact": "數組必須包含正好 {maximum} 個元素",
+					"inclusive": "數組必須包含最多 {maximum} 個元素",
+					"not_inclusive": "數組必須包含少於 {maximum} 個元素"
+				},
+				"date": {
+					"exact": "日期必須正好是 {- maximum, datetime}",
+					"inclusive": "日期必須小於或等於 {- maximum, datetime}",
+					"not_inclusive": "日期必須小於 {- maximum, datetime}"
+				},
+				"number": {
+					"exact": "數字必須正好是 {maximum}",
+					"inclusive": "數字必須小於或等於 {maximum}",
+					"not_inclusive": "數字必須小於 {maximum}"
+				},
+				"set": {
+					"exact": "無效的輸入",
+					"inclusive": "無效的輸入",
+					"not_inclusive": "無效的輸入"
+				},
+				"string": {
+					"exact": "字符串必須正好包含 {maximum} 個字符",
+					"inclusive": "字符串必須包含最多 {maximum} 個字符",
+					"not_inclusive": "字符串必須包含少於 {maximum} 個字符"
+				}
+			},
+			"too_small": {
+				"array": {
+					"exact": "數組必須包含正好 {minimum} 個元素",
+					"inclusive": "數組必須包含至少 {minimum} 個元素",
+					"not_inclusive": "數組必須包含多於 {minimum} 個元素"
+				},
+				"date": {
+					"exact": "日期必須正好是 {- minimum, datetime}",
+					"inclusive": "日期必須大於或等於 {- minimum, datetime}",
+					"not_inclusive": "日期必須大於 {- minimum, datetime}"
+				},
+				"number": {
+					"exact": "數字必須正好是 {minimum}",
+					"inclusive": "數字必須大於或等於 {minimum}",
+					"not_inclusive": "數字必須大於 {minimum}"
+				},
+				"set": {
+					"exact": "無效的輸入",
+					"inclusive": "無效的輸入",
+					"not_inclusive": "無效的輸入"
+				},
+				"string": {
+					"exact": "字符串必須正好包含 {minimum} 個字符",
+					"inclusive": "字符串必須包含至少 {minimum} 個字符",
+					"not_inclusive": "字符串必須包含多於 {minimum} 個字符"
+				}
+			},
+			"unrecognized_keys": "對象中未識別的鍵：{- keys}"
+		},
+		"types": {
+			"array": "數組",
+			"bigint": "大整數",
+			"boolean": "布爾值",
+			"date": "日期",
+			"float": "浮點數",
+			"function": "函數",
+			"integer": "整數",
+			"map": "映射",
+			"nan": "非數值",
+			"never": "從不",
+			"null": "空",
+			"number": "數字",
+			"object": "對象",
+			"promise": "承諾",
+			"set": "集合",
+			"string": "字符串",
+			"symbol": "符號",
+			"undefined": "未定義",
+			"unknown": "未知",
+			"void": "空"
+		},
+		"validations": {
+			"cuid": "cuid",
+			"cuid2": "cuid2",
+			"datetime": "日期時間",
+			"email": "電子郵件",
+			"emoji": "表情符號",
+			"ip": "ip",
+			"regex": "正則表達式",
+			"ulid": "ulid",
+			"url": "url",
+			"uuid": "uuid"
+		}
+	}
+}
