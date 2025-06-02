@@ -57,8 +57,16 @@ export function DataTable<TData, TValue>({
 		<div className="space-y-4">
 			<DataTableToolbar
 				table={table}
-				searchKey={searchKey}
-				placeholder={searchPlaceholder}
+				searchableColumns={
+					searchKey
+						? [
+								{
+									id: searchKey,
+									title: searchPlaceholder ?? "內容",
+								},
+							]
+						: []
+				}
 			/>
 			<div className="rounded-md border">
 				<Table>
