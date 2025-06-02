@@ -1,9 +1,9 @@
 "use client";
 
+import { DataTableFacetedFilter } from "@saas/shared/components/DataTable/DataTableFacetedFilter";
+import { DataTableViewOptions } from "@saas/shared/components/DataTable/DataTableViewOptions";
 import type { Table } from "@tanstack/react-table";
 import { Input } from "@ui/components/input";
-import { DataTableFacetedFilter } from "./DataTableFacetedFilter";
-import { DataTableViewOptions } from "./DataTableViewOptions";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
@@ -66,6 +66,7 @@ export function DataTableToolbar<TData>({
 					)}
 				{isFiltered && (
 					<button
+						type="button"
 						onClick={() => table.resetColumnFilters()}
 						className="text-sm text-muted-foreground"
 					>

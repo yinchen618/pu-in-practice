@@ -59,3 +59,5 @@ Follow the documentation at supastarter.dev/docs/nextjs for supastarter specifc 
 
 引用的位置為：
 import { cn } from "@ui/lib";
+
+我的.env在根目錄下
