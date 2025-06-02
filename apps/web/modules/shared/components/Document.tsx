@@ -7,12 +7,27 @@ import { Toaster } from "@ui/components/toast";
 import { cn } from "@ui/lib";
 import { GeistSans } from "geist/font/sans";
 import { Provider as JotaiProvider } from "jotai";
+import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { cookies } from "next/headers";
+import { Poppins } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { PropsWithChildren } from "react";
 
+export const metadata: Metadata = {
+	title: {
+		absolute: "CW Asset SAAS",
+		default: "CW Asset SAAS",
+		template: "%s | CW Asset SAAS",
+	},
+};
+
+const sansFont = Poppins({
+	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
+	variable: "--font-sans",
+});
 export async function Document({
 	children,
 	locale,
@@ -28,7 +43,8 @@ export async function Document({
 		>
 			<body
 				className={cn(
-					"min-h-screen bg-background text-foreground antialiased",
+					"min-h-screen bg-background font-sans text-foreground antialiased",
+					sansFont.variable,
 				)}
 			>
 				<NuqsAdapter>
