@@ -7,11 +7,17 @@ import { Logo } from "@shared/components/Logo";
 import { cn } from "@ui/lib";
 import {
 	BotMessageSquareIcon,
+	BuildingIcon,
 	ChevronRightIcon,
 	HomeIcon,
+	PackageIcon,
+	ReceiptIcon,
 	SettingsIcon,
 	UserCog2Icon,
 	UserCogIcon,
+	UserIcon,
+	UsersIcon,
+	WalletIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -47,6 +53,48 @@ export function NavBar() {
 		},
 		...(activeOrganization
 			? [
+					{
+						label: "分潤表",
+						href: `${basePath}/profit-sharing`,
+						icon: WalletIcon,
+						isActive: pathname.startsWith(
+							`${basePath}/profit-sharing/`,
+						),
+					},
+					{
+						label: "支出列表",
+						href: `${basePath}/expenses`,
+						icon: ReceiptIcon,
+						isActive: pathname.startsWith(`${basePath}/expenses/`),
+					},
+					{
+						label: "客戶列表",
+						href: `${basePath}/customers`,
+						icon: UsersIcon,
+						isActive: pathname.startsWith(`${basePath}/customers/`),
+					},
+					{
+						label: "RM列表",
+						href: `${basePath}/relationship-managers`,
+						icon: UserIcon,
+						isActive: pathname.startsWith(
+							`${basePath}/relationship-managers/`,
+						),
+					},
+					{
+						label: "銀行帳戶列表",
+						href: `${basePath}/bank-accounts`,
+						icon: BuildingIcon,
+						isActive: pathname.startsWith(
+							`${basePath}/bank-accounts/`,
+						),
+					},
+					{
+						label: "產品列表",
+						href: `${basePath}/products`,
+						icon: PackageIcon,
+						isActive: pathname.startsWith(`${basePath}/products/`),
+					},
 					{
 						label: t("app.menu.organizationSettings"),
 						href: `${basePath}/settings`,

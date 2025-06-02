@@ -56,3 +56,6 @@ Key Conventions
 
 Follow Next.js docs for Data Fetching, Rendering, and Routing.
 Follow the documentation at supastarter.dev/docs/nextjs for supastarter specifc patterns.
+
+引用的位置為：
+import { cn } from "@ui/lib";
