@@ -8,13 +8,25 @@ export interface RMRecord {
 	id: string;
 	name: string;
 	email: string;
-	phone: string;
+	phone: string | null;
 	customerCount: number;
 	status: "active" | "inactive";
-	joinDate: string;
+	joinDate: Date;
+	organizationId: string;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
 export const columns: ColumnDef<RMRecord>[] = [
+	{
+		accessorKey: "id",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="ID" />
+		),
+		cell: ({ row }) => {
+			return <div>{row.original.id}</div>;
+		},
+	},
 	{
 		accessorKey: "name",
 		header: ({ column }) => (
@@ -58,5 +70,9 @@ export const columns: ColumnDef<RMRecord>[] = [
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="入職日期" />
 		),
+		cell: ({ row }) => {
+			const date = row.getValue("joinDate") as Date;
+			return new Date(date).toLocaleDateString("zh-TW");
+		},
 	},
 ];

@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import * as React from "react";
 
+import { Skeleton } from "@ui/components/skeleton";
 import {
 	Table,
 	TableBody,
@@ -27,6 +28,7 @@ interface DataTableProps<TData, TValue> {
 	data: TData[];
 	searchKey?: string;
 	searchPlaceholder?: string;
+	isLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -34,6 +36,7 @@ export function DataTable<TData, TValue>({
 	data,
 	searchKey,
 	searchPlaceholder,
+	isLoading = false,
 }: DataTableProps<TData, TValue>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] =
@@ -52,6 +55,53 @@ export function DataTable<TData, TValue>({
 			columnFilters,
 		},
 	});
+
+	const renderTableBody = () => {
+		if (isLoading) {
+			return (
+				<>
+					{Array.from({ length: 5 }).map((_, index) => (
+						<TableRow key={`loading-${index}`}>
+							{columns.map((_, cellIndex) => (
+								<TableCell key={`loading-cell-${cellIndex}`}>
+									<Skeleton className="h-4 w-full" />
+								</TableCell>
+							))}
+						</TableRow>
+					))}
+				</>
+			);
+		}
+
+		if (table.getRowModel().rows?.length) {
+			return table.getRowModel().rows.map((row) => (
+				<TableRow
+					key={row.id}
+					data-state={row.getIsSelected() && "selected"}
+				>
+					{row.getVisibleCells().map((cell) => (
+						<TableCell key={cell.id}>
+							{flexRender(
+								cell.column.columnDef.cell,
+								cell.getContext(),
+							)}
+						</TableCell>
+					))}
+				</TableRow>
+			));
+		}
+
+		return (
+			<TableRow>
+				<TableCell
+					colSpan={columns.length}
+					className="h-24 text-center"
+				>
+					暫無資料
+				</TableCell>
+			</TableRow>
+		);
+	};
 
 	return (
 		<div className="space-y-4">
@@ -89,36 +139,7 @@ export function DataTable<TData, TValue>({
 							</TableRow>
 						))}
 					</TableHeader>
-					<TableBody>
-						{table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={
-										row.getIsSelected() && "selected"
-									}
-								>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
-											)}
-										</TableCell>
-									))}
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className="h-24 text-center"
-								>
-									暫無資料
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
+					<TableBody>{renderTableBody()}</TableBody>
 				</Table>
 			</div>
 		</div>

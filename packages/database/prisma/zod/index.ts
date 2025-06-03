@@ -70,6 +70,8 @@ export const TwoFactorScalarFieldEnumSchema = z.enum(['id','secret','backupCodes
 
 export const OrganizationScalarFieldEnumSchema = z.enum(['id','name','slug','logo','createdAt','metadata','paymentsCustomerId']);
 
+export const RelationshipManagerScalarFieldEnumSchema = z.enum(['id','name','email','phone','status','customerCount','joinDate','organizationId','createdAt','updatedAt']);
+
 export const MemberScalarFieldEnumSchema = z.enum(['id','organizationId','userId','role','createdAt']);
 
 export const InvitationScalarFieldEnumSchema = z.enum(['id','organizationId','email','role','status','expiresAt','inviterId']);
@@ -225,6 +227,25 @@ export const OrganizationSchema = z.object({
 })
 
 export type Organization = z.infer<typeof OrganizationSchema>
+
+/////////////////////////////////////////
+// RELATIONSHIP MANAGER SCHEMA
+/////////////////////////////////////////
+
+export const RelationshipManagerSchema = z.object({
+  id: z.string().cuid(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string().nullable(),
+  status: z.string(),
+  customerCount: z.number().int(),
+  joinDate: z.coerce.date(),
+  organizationId: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type RelationshipManager = z.infer<typeof RelationshipManagerSchema>
 
 /////////////////////////////////////////
 // MEMBER SCHEMA
@@ -483,6 +504,7 @@ export const OrganizationIncludeSchema: z.ZodType<Prisma.OrganizationInclude> = 
   invitations: z.union([z.boolean(),z.lazy(() => InvitationFindManyArgsSchema)]).optional(),
   purchases: z.union([z.boolean(),z.lazy(() => PurchaseFindManyArgsSchema)]).optional(),
   aiChats: z.union([z.boolean(),z.lazy(() => AiChatFindManyArgsSchema)]).optional(),
+  relationshipManagers: z.union([z.boolean(),z.lazy(() => RelationshipManagerFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => OrganizationCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
@@ -500,6 +522,7 @@ export const OrganizationCountOutputTypeSelectSchema: z.ZodType<Prisma.Organizat
   invitations: z.boolean().optional(),
   purchases: z.boolean().optional(),
   aiChats: z.boolean().optional(),
+  relationshipManagers: z.boolean().optional(),
 }).strict();
 
 export const OrganizationSelectSchema: z.ZodType<Prisma.OrganizationSelect> = z.object({
@@ -514,7 +537,34 @@ export const OrganizationSelectSchema: z.ZodType<Prisma.OrganizationSelect> = z.
   invitations: z.union([z.boolean(),z.lazy(() => InvitationFindManyArgsSchema)]).optional(),
   purchases: z.union([z.boolean(),z.lazy(() => PurchaseFindManyArgsSchema)]).optional(),
   aiChats: z.union([z.boolean(),z.lazy(() => AiChatFindManyArgsSchema)]).optional(),
+  relationshipManagers: z.union([z.boolean(),z.lazy(() => RelationshipManagerFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => OrganizationCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+// RELATIONSHIP MANAGER
+//------------------------------------------------------
+
+export const RelationshipManagerIncludeSchema: z.ZodType<Prisma.RelationshipManagerInclude> = z.object({
+  organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
+}).strict()
+
+export const RelationshipManagerArgsSchema: z.ZodType<Prisma.RelationshipManagerDefaultArgs> = z.object({
+  select: z.lazy(() => RelationshipManagerSelectSchema).optional(),
+  include: z.lazy(() => RelationshipManagerIncludeSchema).optional(),
+}).strict();
+
+export const RelationshipManagerSelectSchema: z.ZodType<Prisma.RelationshipManagerSelect> = z.object({
+  id: z.boolean().optional(),
+  name: z.boolean().optional(),
+  email: z.boolean().optional(),
+  phone: z.boolean().optional(),
+  status: z.boolean().optional(),
+  customerCount: z.boolean().optional(),
+  joinDate: z.boolean().optional(),
+  organizationId: z.boolean().optional(),
+  createdAt: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
 }).strict()
 
 // MEMBER
@@ -1189,7 +1239,8 @@ export const OrganizationWhereInputSchema: z.ZodType<Prisma.OrganizationWhereInp
   members: z.lazy(() => MemberListRelationFilterSchema).optional(),
   invitations: z.lazy(() => InvitationListRelationFilterSchema).optional(),
   purchases: z.lazy(() => PurchaseListRelationFilterSchema).optional(),
-  aiChats: z.lazy(() => AiChatListRelationFilterSchema).optional()
+  aiChats: z.lazy(() => AiChatListRelationFilterSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerListRelationFilterSchema).optional()
 }).strict();
 
 export const OrganizationOrderByWithRelationInputSchema: z.ZodType<Prisma.OrganizationOrderByWithRelationInput> = z.object({
@@ -1203,7 +1254,8 @@ export const OrganizationOrderByWithRelationInputSchema: z.ZodType<Prisma.Organi
   members: z.lazy(() => MemberOrderByRelationAggregateInputSchema).optional(),
   invitations: z.lazy(() => InvitationOrderByRelationAggregateInputSchema).optional(),
   purchases: z.lazy(() => PurchaseOrderByRelationAggregateInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatOrderByRelationAggregateInputSchema).optional()
+  aiChats: z.lazy(() => AiChatOrderByRelationAggregateInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerOrderByRelationAggregateInputSchema).optional()
 }).strict();
 
 export const OrganizationWhereUniqueInputSchema: z.ZodType<Prisma.OrganizationWhereUniqueInput> = z.union([
@@ -1232,7 +1284,8 @@ export const OrganizationWhereUniqueInputSchema: z.ZodType<Prisma.OrganizationWh
   members: z.lazy(() => MemberListRelationFilterSchema).optional(),
   invitations: z.lazy(() => InvitationListRelationFilterSchema).optional(),
   purchases: z.lazy(() => PurchaseListRelationFilterSchema).optional(),
-  aiChats: z.lazy(() => AiChatListRelationFilterSchema).optional()
+  aiChats: z.lazy(() => AiChatListRelationFilterSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerListRelationFilterSchema).optional()
 }).strict());
 
 export const OrganizationOrderByWithAggregationInputSchema: z.ZodType<Prisma.OrganizationOrderByWithAggregationInput> = z.object({
@@ -1259,6 +1312,101 @@ export const OrganizationScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
   metadata: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+}).strict();
+
+export const RelationshipManagerWhereInputSchema: z.ZodType<Prisma.RelationshipManagerWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => RelationshipManagerWhereInputSchema),z.lazy(() => RelationshipManagerWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => RelationshipManagerWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => RelationshipManagerWhereInputSchema),z.lazy(() => RelationshipManagerWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  email: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  phone: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  customerCount: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  joinDate: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  organization: z.union([ z.lazy(() => OrganizationScalarRelationFilterSchema),z.lazy(() => OrganizationWhereInputSchema) ]).optional(),
+}).strict();
+
+export const RelationshipManagerOrderByWithRelationInputSchema: z.ZodType<Prisma.RelationshipManagerOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  email: z.lazy(() => SortOrderSchema).optional(),
+  phone: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  customerCount: z.lazy(() => SortOrderSchema).optional(),
+  joinDate: z.lazy(() => SortOrderSchema).optional(),
+  organizationId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  organization: z.lazy(() => OrganizationOrderByWithRelationInputSchema).optional()
+}).strict();
+
+export const RelationshipManagerWhereUniqueInputSchema: z.ZodType<Prisma.RelationshipManagerWhereUniqueInput> = z.union([
+  z.object({
+    id: z.string().cuid(),
+    organizationId_email: z.lazy(() => RelationshipManagerOrganizationIdEmailCompoundUniqueInputSchema)
+  }),
+  z.object({
+    id: z.string().cuid(),
+  }),
+  z.object({
+    organizationId_email: z.lazy(() => RelationshipManagerOrganizationIdEmailCompoundUniqueInputSchema),
+  }),
+])
+.and(z.object({
+  id: z.string().cuid().optional(),
+  organizationId_email: z.lazy(() => RelationshipManagerOrganizationIdEmailCompoundUniqueInputSchema).optional(),
+  AND: z.union([ z.lazy(() => RelationshipManagerWhereInputSchema),z.lazy(() => RelationshipManagerWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => RelationshipManagerWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => RelationshipManagerWhereInputSchema),z.lazy(() => RelationshipManagerWhereInputSchema).array() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  email: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  phone: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  customerCount: z.union([ z.lazy(() => IntFilterSchema),z.number().int() ]).optional(),
+  joinDate: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  organization: z.union([ z.lazy(() => OrganizationScalarRelationFilterSchema),z.lazy(() => OrganizationWhereInputSchema) ]).optional(),
+}).strict());
+
+export const RelationshipManagerOrderByWithAggregationInputSchema: z.ZodType<Prisma.RelationshipManagerOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  email: z.lazy(() => SortOrderSchema).optional(),
+  phone: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  customerCount: z.lazy(() => SortOrderSchema).optional(),
+  joinDate: z.lazy(() => SortOrderSchema).optional(),
+  organizationId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => RelationshipManagerCountOrderByAggregateInputSchema).optional(),
+  _avg: z.lazy(() => RelationshipManagerAvgOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => RelationshipManagerMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => RelationshipManagerMinOrderByAggregateInputSchema).optional(),
+  _sum: z.lazy(() => RelationshipManagerSumOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const RelationshipManagerScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.RelationshipManagerScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => RelationshipManagerScalarWhereWithAggregatesInputSchema),z.lazy(() => RelationshipManagerScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => RelationshipManagerScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => RelationshipManagerScalarWhereWithAggregatesInputSchema),z.lazy(() => RelationshipManagerScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  email: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  phone: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  customerCount: z.union([ z.lazy(() => IntWithAggregatesFilterSchema),z.number() ]).optional(),
+  joinDate: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  organizationId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
 }).strict();
 
 export const MemberWhereInputSchema: z.ZodType<Prisma.MemberWhereInput> = z.object({
@@ -2154,7 +2302,8 @@ export const OrganizationCreateInputSchema: z.ZodType<Prisma.OrganizationCreateI
   members: z.lazy(() => MemberCreateNestedManyWithoutOrganizationInputSchema).optional(),
   invitations: z.lazy(() => InvitationCreateNestedManyWithoutOrganizationInputSchema).optional(),
   purchases: z.lazy(() => PurchaseCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional()
+  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerCreateNestedManyWithoutOrganizationInputSchema).optional()
 }).strict();
 
 export const OrganizationUncheckedCreateInputSchema: z.ZodType<Prisma.OrganizationUncheckedCreateInput> = z.object({
@@ -2168,7 +2317,8 @@ export const OrganizationUncheckedCreateInputSchema: z.ZodType<Prisma.Organizati
   members: z.lazy(() => MemberUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   invitations: z.lazy(() => InvitationUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   purchases: z.lazy(() => PurchaseUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
 }).strict();
 
 export const OrganizationUpdateInputSchema: z.ZodType<Prisma.OrganizationUpdateInput> = z.object({
@@ -2182,7 +2332,8 @@ export const OrganizationUpdateInputSchema: z.ZodType<Prisma.OrganizationUpdateI
   members: z.lazy(() => MemberUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   invitations: z.lazy(() => InvitationUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   purchases: z.lazy(() => PurchaseUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const OrganizationUncheckedUpdateInputSchema: z.ZodType<Prisma.OrganizationUncheckedUpdateInput> = z.object({
@@ -2196,7 +2347,8 @@ export const OrganizationUncheckedUpdateInputSchema: z.ZodType<Prisma.Organizati
   members: z.lazy(() => MemberUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   invitations: z.lazy(() => InvitationUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   purchases: z.lazy(() => PurchaseUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const OrganizationCreateManyInputSchema: z.ZodType<Prisma.OrganizationCreateManyInput> = z.object({
@@ -2227,6 +2379,96 @@ export const OrganizationUncheckedUpdateManyInputSchema: z.ZodType<Prisma.Organi
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+}).strict();
+
+export const RelationshipManagerCreateInputSchema: z.ZodType<Prisma.RelationshipManagerCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string().optional().nullable(),
+  status: z.string().optional(),
+  customerCount: z.number().int().optional(),
+  joinDate: z.coerce.date().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  organization: z.lazy(() => OrganizationCreateNestedOneWithoutRelationshipManagersInputSchema)
+}).strict();
+
+export const RelationshipManagerUncheckedCreateInputSchema: z.ZodType<Prisma.RelationshipManagerUncheckedCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string().optional().nullable(),
+  status: z.string().optional(),
+  customerCount: z.number().int().optional(),
+  joinDate: z.coerce.date().optional(),
+  organizationId: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const RelationshipManagerUpdateInputSchema: z.ZodType<Prisma.RelationshipManagerUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  customerCount: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  joinDate: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutRelationshipManagersNestedInputSchema).optional()
+}).strict();
+
+export const RelationshipManagerUncheckedUpdateInputSchema: z.ZodType<Prisma.RelationshipManagerUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  customerCount: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  joinDate: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const RelationshipManagerCreateManyInputSchema: z.ZodType<Prisma.RelationshipManagerCreateManyInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string().optional().nullable(),
+  status: z.string().optional(),
+  customerCount: z.number().int().optional(),
+  joinDate: z.coerce.date().optional(),
+  organizationId: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const RelationshipManagerUpdateManyMutationInputSchema: z.ZodType<Prisma.RelationshipManagerUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  customerCount: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  joinDate: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const RelationshipManagerUncheckedUpdateManyInputSchema: z.ZodType<Prisma.RelationshipManagerUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  customerCount: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  joinDate: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const MemberCreateInputSchema: z.ZodType<Prisma.MemberCreateInput> = z.object({
@@ -3009,6 +3251,16 @@ export const TwoFactorMinOrderByAggregateInputSchema: z.ZodType<Prisma.TwoFactor
   userId: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
+export const RelationshipManagerListRelationFilterSchema: z.ZodType<Prisma.RelationshipManagerListRelationFilter> = z.object({
+  every: z.lazy(() => RelationshipManagerWhereInputSchema).optional(),
+  some: z.lazy(() => RelationshipManagerWhereInputSchema).optional(),
+  none: z.lazy(() => RelationshipManagerWhereInputSchema).optional()
+}).strict();
+
+export const RelationshipManagerOrderByRelationAggregateInputSchema: z.ZodType<Prisma.RelationshipManagerOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
 export const OrganizationCountOrderByAggregateInputSchema: z.ZodType<Prisma.OrganizationCountOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   name: z.lazy(() => SortOrderSchema).optional(),
@@ -3042,6 +3294,58 @@ export const OrganizationMinOrderByAggregateInputSchema: z.ZodType<Prisma.Organi
 export const OrganizationScalarRelationFilterSchema: z.ZodType<Prisma.OrganizationScalarRelationFilter> = z.object({
   is: z.lazy(() => OrganizationWhereInputSchema).optional(),
   isNot: z.lazy(() => OrganizationWhereInputSchema).optional()
+}).strict();
+
+export const RelationshipManagerOrganizationIdEmailCompoundUniqueInputSchema: z.ZodType<Prisma.RelationshipManagerOrganizationIdEmailCompoundUniqueInput> = z.object({
+  organizationId: z.string(),
+  email: z.string()
+}).strict();
+
+export const RelationshipManagerCountOrderByAggregateInputSchema: z.ZodType<Prisma.RelationshipManagerCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  email: z.lazy(() => SortOrderSchema).optional(),
+  phone: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  customerCount: z.lazy(() => SortOrderSchema).optional(),
+  joinDate: z.lazy(() => SortOrderSchema).optional(),
+  organizationId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const RelationshipManagerAvgOrderByAggregateInputSchema: z.ZodType<Prisma.RelationshipManagerAvgOrderByAggregateInput> = z.object({
+  customerCount: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const RelationshipManagerMaxOrderByAggregateInputSchema: z.ZodType<Prisma.RelationshipManagerMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  email: z.lazy(() => SortOrderSchema).optional(),
+  phone: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  customerCount: z.lazy(() => SortOrderSchema).optional(),
+  joinDate: z.lazy(() => SortOrderSchema).optional(),
+  organizationId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const RelationshipManagerMinOrderByAggregateInputSchema: z.ZodType<Prisma.RelationshipManagerMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  email: z.lazy(() => SortOrderSchema).optional(),
+  phone: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  customerCount: z.lazy(() => SortOrderSchema).optional(),
+  joinDate: z.lazy(() => SortOrderSchema).optional(),
+  organizationId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const RelationshipManagerSumOrderByAggregateInputSchema: z.ZodType<Prisma.RelationshipManagerSumOrderByAggregateInput> = z.object({
+  customerCount: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const MemberOrganizationIdUserIdCompoundUniqueInputSchema: z.ZodType<Prisma.MemberOrganizationIdUserIdCompoundUniqueInput> = z.object({
@@ -3686,6 +3990,13 @@ export const AiChatCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Pri
   connect: z.union([ z.lazy(() => AiChatWhereUniqueInputSchema),z.lazy(() => AiChatWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
+export const RelationshipManagerCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerCreateNestedManyWithoutOrganizationInput> = z.object({
+  create: z.union([ z.lazy(() => RelationshipManagerCreateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerCreateWithoutOrganizationInputSchema).array(),z.lazy(() => RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => RelationshipManagerCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => RelationshipManagerCreateManyOrganizationInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => RelationshipManagerWhereUniqueInputSchema),z.lazy(() => RelationshipManagerWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
 export const MemberUncheckedCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Prisma.MemberUncheckedCreateNestedManyWithoutOrganizationInput> = z.object({
   create: z.union([ z.lazy(() => MemberCreateWithoutOrganizationInputSchema),z.lazy(() => MemberCreateWithoutOrganizationInputSchema).array(),z.lazy(() => MemberUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => MemberUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => MemberCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => MemberCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
@@ -3712,6 +4023,13 @@ export const AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema: z.Zo
   connectOrCreate: z.union([ z.lazy(() => AiChatCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => AiChatCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
   createMany: z.lazy(() => AiChatCreateManyOrganizationInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => AiChatWhereUniqueInputSchema),z.lazy(() => AiChatWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const RelationshipManagerUncheckedCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerUncheckedCreateNestedManyWithoutOrganizationInput> = z.object({
+  create: z.union([ z.lazy(() => RelationshipManagerCreateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerCreateWithoutOrganizationInputSchema).array(),z.lazy(() => RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => RelationshipManagerCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => RelationshipManagerCreateManyOrganizationInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => RelationshipManagerWhereUniqueInputSchema),z.lazy(() => RelationshipManagerWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
 export const MemberUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Prisma.MemberUpdateManyWithoutOrganizationNestedInput> = z.object({
@@ -3770,6 +4088,20 @@ export const AiChatUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Pri
   deleteMany: z.union([ z.lazy(() => AiChatScalarWhereInputSchema),z.lazy(() => AiChatScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
+export const RelationshipManagerUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Prisma.RelationshipManagerUpdateManyWithoutOrganizationNestedInput> = z.object({
+  create: z.union([ z.lazy(() => RelationshipManagerCreateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerCreateWithoutOrganizationInputSchema).array(),z.lazy(() => RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => RelationshipManagerCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => RelationshipManagerUpsertWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUpsertWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => RelationshipManagerCreateManyOrganizationInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => RelationshipManagerWhereUniqueInputSchema),z.lazy(() => RelationshipManagerWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => RelationshipManagerWhereUniqueInputSchema),z.lazy(() => RelationshipManagerWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => RelationshipManagerWhereUniqueInputSchema),z.lazy(() => RelationshipManagerWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => RelationshipManagerWhereUniqueInputSchema),z.lazy(() => RelationshipManagerWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => RelationshipManagerUpdateWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUpdateWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => RelationshipManagerUpdateManyWithWhereWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUpdateManyWithWhereWithoutOrganizationInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => RelationshipManagerScalarWhereInputSchema),z.lazy(() => RelationshipManagerScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
 export const MemberUncheckedUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Prisma.MemberUncheckedUpdateManyWithoutOrganizationNestedInput> = z.object({
   create: z.union([ z.lazy(() => MemberCreateWithoutOrganizationInputSchema),z.lazy(() => MemberCreateWithoutOrganizationInputSchema).array(),z.lazy(() => MemberUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => MemberUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => MemberCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => MemberCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
@@ -3824,6 +4156,34 @@ export const AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema: z.Zo
   update: z.union([ z.lazy(() => AiChatUpdateWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => AiChatUpdateWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => AiChatUpdateManyWithWhereWithoutOrganizationInputSchema),z.lazy(() => AiChatUpdateManyWithWhereWithoutOrganizationInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => AiChatScalarWhereInputSchema),z.lazy(() => AiChatScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const RelationshipManagerUncheckedUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Prisma.RelationshipManagerUncheckedUpdateManyWithoutOrganizationNestedInput> = z.object({
+  create: z.union([ z.lazy(() => RelationshipManagerCreateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerCreateWithoutOrganizationInputSchema).array(),z.lazy(() => RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => RelationshipManagerCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => RelationshipManagerUpsertWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUpsertWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => RelationshipManagerCreateManyOrganizationInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => RelationshipManagerWhereUniqueInputSchema),z.lazy(() => RelationshipManagerWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => RelationshipManagerWhereUniqueInputSchema),z.lazy(() => RelationshipManagerWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => RelationshipManagerWhereUniqueInputSchema),z.lazy(() => RelationshipManagerWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => RelationshipManagerWhereUniqueInputSchema),z.lazy(() => RelationshipManagerWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => RelationshipManagerUpdateWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUpdateWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => RelationshipManagerUpdateManyWithWhereWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUpdateManyWithWhereWithoutOrganizationInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => RelationshipManagerScalarWhereInputSchema),z.lazy(() => RelationshipManagerScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const OrganizationCreateNestedOneWithoutRelationshipManagersInputSchema: z.ZodType<Prisma.OrganizationCreateNestedOneWithoutRelationshipManagersInput> = z.object({
+  create: z.union([ z.lazy(() => OrganizationCreateWithoutRelationshipManagersInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutRelationshipManagersInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => OrganizationCreateOrConnectWithoutRelationshipManagersInputSchema).optional(),
+  connect: z.lazy(() => OrganizationWhereUniqueInputSchema).optional()
+}).strict();
+
+export const OrganizationUpdateOneRequiredWithoutRelationshipManagersNestedInputSchema: z.ZodType<Prisma.OrganizationUpdateOneRequiredWithoutRelationshipManagersNestedInput> = z.object({
+  create: z.union([ z.lazy(() => OrganizationCreateWithoutRelationshipManagersInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutRelationshipManagersInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => OrganizationCreateOrConnectWithoutRelationshipManagersInputSchema).optional(),
+  upsert: z.lazy(() => OrganizationUpsertWithoutRelationshipManagersInputSchema).optional(),
+  connect: z.lazy(() => OrganizationWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => OrganizationUpdateToOneWithWhereWithoutRelationshipManagersInputSchema),z.lazy(() => OrganizationUpdateWithoutRelationshipManagersInputSchema),z.lazy(() => OrganizationUncheckedUpdateWithoutRelationshipManagersInputSchema) ]).optional(),
 }).strict();
 
 export const OrganizationCreateNestedOneWithoutMembersInputSchema: z.ZodType<Prisma.OrganizationCreateNestedOneWithoutMembersInput> = z.object({
@@ -5254,6 +5614,40 @@ export const AiChatCreateManyOrganizationInputEnvelopeSchema: z.ZodType<Prisma.A
   skipDuplicates: z.boolean().optional()
 }).strict();
 
+export const RelationshipManagerCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerCreateWithoutOrganizationInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string().optional().nullable(),
+  status: z.string().optional(),
+  customerCount: z.number().int().optional(),
+  joinDate: z.coerce.date().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerUncheckedCreateWithoutOrganizationInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string().optional().nullable(),
+  status: z.string().optional(),
+  customerCount: z.number().int().optional(),
+  joinDate: z.coerce.date().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const RelationshipManagerCreateOrConnectWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerCreateOrConnectWithoutOrganizationInput> = z.object({
+  where: z.lazy(() => RelationshipManagerWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => RelationshipManagerCreateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema) ]),
+}).strict();
+
+export const RelationshipManagerCreateManyOrganizationInputEnvelopeSchema: z.ZodType<Prisma.RelationshipManagerCreateManyOrganizationInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => RelationshipManagerCreateManyOrganizationInputSchema),z.lazy(() => RelationshipManagerCreateManyOrganizationInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
 export const MemberUpsertWithWhereUniqueWithoutOrganizationInputSchema: z.ZodType<Prisma.MemberUpsertWithWhereUniqueWithoutOrganizationInput> = z.object({
   where: z.lazy(() => MemberWhereUniqueInputSchema),
   update: z.union([ z.lazy(() => MemberUpdateWithoutOrganizationInputSchema),z.lazy(() => MemberUncheckedUpdateWithoutOrganizationInputSchema) ]),
@@ -5318,6 +5712,110 @@ export const AiChatUpdateManyWithWhereWithoutOrganizationInputSchema: z.ZodType<
   data: z.union([ z.lazy(() => AiChatUpdateManyMutationInputSchema),z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationInputSchema) ]),
 }).strict();
 
+export const RelationshipManagerUpsertWithWhereUniqueWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerUpsertWithWhereUniqueWithoutOrganizationInput> = z.object({
+  where: z.lazy(() => RelationshipManagerWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => RelationshipManagerUpdateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUncheckedUpdateWithoutOrganizationInputSchema) ]),
+  create: z.union([ z.lazy(() => RelationshipManagerCreateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUncheckedCreateWithoutOrganizationInputSchema) ]),
+}).strict();
+
+export const RelationshipManagerUpdateWithWhereUniqueWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerUpdateWithWhereUniqueWithoutOrganizationInput> = z.object({
+  where: z.lazy(() => RelationshipManagerWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => RelationshipManagerUpdateWithoutOrganizationInputSchema),z.lazy(() => RelationshipManagerUncheckedUpdateWithoutOrganizationInputSchema) ]),
+}).strict();
+
+export const RelationshipManagerUpdateManyWithWhereWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerUpdateManyWithWhereWithoutOrganizationInput> = z.object({
+  where: z.lazy(() => RelationshipManagerScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => RelationshipManagerUpdateManyMutationInputSchema),z.lazy(() => RelationshipManagerUncheckedUpdateManyWithoutOrganizationInputSchema) ]),
+}).strict();
+
+export const RelationshipManagerScalarWhereInputSchema: z.ZodType<Prisma.RelationshipManagerScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => RelationshipManagerScalarWhereInputSchema),z.lazy(() => RelationshipManagerScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => RelationshipManagerScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => RelationshipManagerScalarWhereInputSchema),z.lazy(() => RelationshipManagerScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  email: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  phone: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  customerCount: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  joinDate: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
+export const OrganizationCreateWithoutRelationshipManagersInputSchema: z.ZodType<Prisma.OrganizationCreateWithoutRelationshipManagersInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  slug: z.string().optional().nullable(),
+  logo: z.string().optional().nullable(),
+  createdAt: z.coerce.date(),
+  metadata: z.string().optional().nullable(),
+  paymentsCustomerId: z.string().optional().nullable(),
+  members: z.lazy(() => MemberCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  invitations: z.lazy(() => InvitationCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  purchases: z.lazy(() => PurchaseCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional()
+}).strict();
+
+export const OrganizationUncheckedCreateWithoutRelationshipManagersInputSchema: z.ZodType<Prisma.OrganizationUncheckedCreateWithoutRelationshipManagersInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  slug: z.string().optional().nullable(),
+  logo: z.string().optional().nullable(),
+  createdAt: z.coerce.date(),
+  metadata: z.string().optional().nullable(),
+  paymentsCustomerId: z.string().optional().nullable(),
+  members: z.lazy(() => MemberUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  invitations: z.lazy(() => InvitationUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  purchases: z.lazy(() => PurchaseUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
+}).strict();
+
+export const OrganizationCreateOrConnectWithoutRelationshipManagersInputSchema: z.ZodType<Prisma.OrganizationCreateOrConnectWithoutRelationshipManagersInput> = z.object({
+  where: z.lazy(() => OrganizationWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => OrganizationCreateWithoutRelationshipManagersInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutRelationshipManagersInputSchema) ]),
+}).strict();
+
+export const OrganizationUpsertWithoutRelationshipManagersInputSchema: z.ZodType<Prisma.OrganizationUpsertWithoutRelationshipManagersInput> = z.object({
+  update: z.union([ z.lazy(() => OrganizationUpdateWithoutRelationshipManagersInputSchema),z.lazy(() => OrganizationUncheckedUpdateWithoutRelationshipManagersInputSchema) ]),
+  create: z.union([ z.lazy(() => OrganizationCreateWithoutRelationshipManagersInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutRelationshipManagersInputSchema) ]),
+  where: z.lazy(() => OrganizationWhereInputSchema).optional()
+}).strict();
+
+export const OrganizationUpdateToOneWithWhereWithoutRelationshipManagersInputSchema: z.ZodType<Prisma.OrganizationUpdateToOneWithWhereWithoutRelationshipManagersInput> = z.object({
+  where: z.lazy(() => OrganizationWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => OrganizationUpdateWithoutRelationshipManagersInputSchema),z.lazy(() => OrganizationUncheckedUpdateWithoutRelationshipManagersInputSchema) ]),
+}).strict();
+
+export const OrganizationUpdateWithoutRelationshipManagersInputSchema: z.ZodType<Prisma.OrganizationUpdateWithoutRelationshipManagersInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  logo: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  members: z.lazy(() => MemberUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  invitations: z.lazy(() => InvitationUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  purchases: z.lazy(() => PurchaseUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional()
+}).strict();
+
+export const OrganizationUncheckedUpdateWithoutRelationshipManagersInputSchema: z.ZodType<Prisma.OrganizationUncheckedUpdateWithoutRelationshipManagersInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  logo: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  members: z.lazy(() => MemberUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  invitations: z.lazy(() => InvitationUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  purchases: z.lazy(() => PurchaseUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
+}).strict();
+
 export const OrganizationCreateWithoutMembersInputSchema: z.ZodType<Prisma.OrganizationCreateWithoutMembersInput> = z.object({
   id: z.string().cuid().optional(),
   name: z.string(),
@@ -5328,7 +5826,8 @@ export const OrganizationCreateWithoutMembersInputSchema: z.ZodType<Prisma.Organ
   paymentsCustomerId: z.string().optional().nullable(),
   invitations: z.lazy(() => InvitationCreateNestedManyWithoutOrganizationInputSchema).optional(),
   purchases: z.lazy(() => PurchaseCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional()
+  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerCreateNestedManyWithoutOrganizationInputSchema).optional()
 }).strict();
 
 export const OrganizationUncheckedCreateWithoutMembersInputSchema: z.ZodType<Prisma.OrganizationUncheckedCreateWithoutMembersInput> = z.object({
@@ -5341,7 +5840,8 @@ export const OrganizationUncheckedCreateWithoutMembersInputSchema: z.ZodType<Pri
   paymentsCustomerId: z.string().optional().nullable(),
   invitations: z.lazy(() => InvitationUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   purchases: z.lazy(() => PurchaseUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
 }).strict();
 
 export const OrganizationCreateOrConnectWithoutMembersInputSchema: z.ZodType<Prisma.OrganizationCreateOrConnectWithoutMembersInput> = z.object({
@@ -5427,7 +5927,8 @@ export const OrganizationUpdateWithoutMembersInputSchema: z.ZodType<Prisma.Organ
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   invitations: z.lazy(() => InvitationUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   purchases: z.lazy(() => PurchaseUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const OrganizationUncheckedUpdateWithoutMembersInputSchema: z.ZodType<Prisma.OrganizationUncheckedUpdateWithoutMembersInput> = z.object({
@@ -5440,7 +5941,8 @@ export const OrganizationUncheckedUpdateWithoutMembersInputSchema: z.ZodType<Pri
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   invitations: z.lazy(() => InvitationUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   purchases: z.lazy(() => PurchaseUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const UserUpsertWithoutMembersInputSchema: z.ZodType<Prisma.UserUpsertWithoutMembersInput> = z.object({
@@ -5516,7 +6018,8 @@ export const OrganizationCreateWithoutInvitationsInputSchema: z.ZodType<Prisma.O
   paymentsCustomerId: z.string().optional().nullable(),
   members: z.lazy(() => MemberCreateNestedManyWithoutOrganizationInputSchema).optional(),
   purchases: z.lazy(() => PurchaseCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional()
+  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerCreateNestedManyWithoutOrganizationInputSchema).optional()
 }).strict();
 
 export const OrganizationUncheckedCreateWithoutInvitationsInputSchema: z.ZodType<Prisma.OrganizationUncheckedCreateWithoutInvitationsInput> = z.object({
@@ -5529,7 +6032,8 @@ export const OrganizationUncheckedCreateWithoutInvitationsInputSchema: z.ZodType
   paymentsCustomerId: z.string().optional().nullable(),
   members: z.lazy(() => MemberUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   purchases: z.lazy(() => PurchaseUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
 }).strict();
 
 export const OrganizationCreateOrConnectWithoutInvitationsInputSchema: z.ZodType<Prisma.OrganizationCreateOrConnectWithoutInvitationsInput> = z.object({
@@ -5615,7 +6119,8 @@ export const OrganizationUpdateWithoutInvitationsInputSchema: z.ZodType<Prisma.O
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   members: z.lazy(() => MemberUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   purchases: z.lazy(() => PurchaseUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const OrganizationUncheckedUpdateWithoutInvitationsInputSchema: z.ZodType<Prisma.OrganizationUncheckedUpdateWithoutInvitationsInput> = z.object({
@@ -5628,7 +6133,8 @@ export const OrganizationUncheckedUpdateWithoutInvitationsInputSchema: z.ZodType
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   members: z.lazy(() => MemberUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   purchases: z.lazy(() => PurchaseUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const UserUpsertWithoutInvitationsInputSchema: z.ZodType<Prisma.UserUpsertWithoutInvitationsInput> = z.object({
@@ -5704,7 +6210,8 @@ export const OrganizationCreateWithoutPurchasesInputSchema: z.ZodType<Prisma.Org
   paymentsCustomerId: z.string().optional().nullable(),
   members: z.lazy(() => MemberCreateNestedManyWithoutOrganizationInputSchema).optional(),
   invitations: z.lazy(() => InvitationCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional()
+  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerCreateNestedManyWithoutOrganizationInputSchema).optional()
 }).strict();
 
 export const OrganizationUncheckedCreateWithoutPurchasesInputSchema: z.ZodType<Prisma.OrganizationUncheckedCreateWithoutPurchasesInput> = z.object({
@@ -5717,7 +6224,8 @@ export const OrganizationUncheckedCreateWithoutPurchasesInputSchema: z.ZodType<P
   paymentsCustomerId: z.string().optional().nullable(),
   members: z.lazy(() => MemberUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   invitations: z.lazy(() => InvitationUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
 }).strict();
 
 export const OrganizationCreateOrConnectWithoutPurchasesInputSchema: z.ZodType<Prisma.OrganizationCreateOrConnectWithoutPurchasesInput> = z.object({
@@ -5803,7 +6311,8 @@ export const OrganizationUpdateWithoutPurchasesInputSchema: z.ZodType<Prisma.Org
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   members: z.lazy(() => MemberUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   invitations: z.lazy(() => InvitationUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const OrganizationUncheckedUpdateWithoutPurchasesInputSchema: z.ZodType<Prisma.OrganizationUncheckedUpdateWithoutPurchasesInput> = z.object({
@@ -5816,7 +6325,8 @@ export const OrganizationUncheckedUpdateWithoutPurchasesInputSchema: z.ZodType<P
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   members: z.lazy(() => MemberUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   invitations: z.lazy(() => InvitationUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const UserUpsertWithoutPurchasesInputSchema: z.ZodType<Prisma.UserUpsertWithoutPurchasesInput> = z.object({
@@ -5892,7 +6402,8 @@ export const OrganizationCreateWithoutAiChatsInputSchema: z.ZodType<Prisma.Organ
   paymentsCustomerId: z.string().optional().nullable(),
   members: z.lazy(() => MemberCreateNestedManyWithoutOrganizationInputSchema).optional(),
   invitations: z.lazy(() => InvitationCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseCreateNestedManyWithoutOrganizationInputSchema).optional()
+  purchases: z.lazy(() => PurchaseCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerCreateNestedManyWithoutOrganizationInputSchema).optional()
 }).strict();
 
 export const OrganizationUncheckedCreateWithoutAiChatsInputSchema: z.ZodType<Prisma.OrganizationUncheckedCreateWithoutAiChatsInput> = z.object({
@@ -5905,7 +6416,8 @@ export const OrganizationUncheckedCreateWithoutAiChatsInputSchema: z.ZodType<Pri
   paymentsCustomerId: z.string().optional().nullable(),
   members: z.lazy(() => MemberUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   invitations: z.lazy(() => InvitationUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
+  purchases: z.lazy(() => PurchaseUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
 }).strict();
 
 export const OrganizationCreateOrConnectWithoutAiChatsInputSchema: z.ZodType<Prisma.OrganizationCreateOrConnectWithoutAiChatsInput> = z.object({
@@ -5991,7 +6503,8 @@ export const OrganizationUpdateWithoutAiChatsInputSchema: z.ZodType<Prisma.Organ
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   members: z.lazy(() => MemberUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   invitations: z.lazy(() => InvitationUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  purchases: z.lazy(() => PurchaseUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const OrganizationUncheckedUpdateWithoutAiChatsInputSchema: z.ZodType<Prisma.OrganizationUncheckedUpdateWithoutAiChatsInput> = z.object({
@@ -6004,7 +6517,8 @@ export const OrganizationUncheckedUpdateWithoutAiChatsInputSchema: z.ZodType<Pri
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   members: z.lazy(() => MemberUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   invitations: z.lazy(() => InvitationUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  purchases: z.lazy(() => PurchaseUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
+  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const UserUpsertWithoutAiChatsInputSchema: z.ZodType<Prisma.UserUpsertWithoutAiChatsInput> = z.object({
@@ -6439,6 +6953,18 @@ export const AiChatCreateManyOrganizationInputSchema: z.ZodType<Prisma.AiChatCre
   updatedAt: z.coerce.date().optional()
 }).strict();
 
+export const RelationshipManagerCreateManyOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerCreateManyOrganizationInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string().optional().nullable(),
+  status: z.string().optional(),
+  customerCount: z.number().int().optional(),
+  joinDate: z.coerce.date().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
 export const MemberUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.MemberUpdateWithoutOrganizationInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   role: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -6546,6 +7072,42 @@ export const AiChatUncheckedUpdateManyWithoutOrganizationInputSchema: z.ZodType<
   userId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   messages: z.union([ z.lazy(() => JsonNullValueInputSchema),z.array(z.object({ role: z.enum(['user', 'assistant']), content: z.string() })) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const RelationshipManagerUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerUpdateWithoutOrganizationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  customerCount: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  joinDate: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const RelationshipManagerUncheckedUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerUncheckedUpdateWithoutOrganizationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  customerCount: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  joinDate: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const RelationshipManagerUncheckedUpdateManyWithoutOrganizationInputSchema: z.ZodType<Prisma.RelationshipManagerUncheckedUpdateManyWithoutOrganizationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  customerCount: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  joinDate: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -6916,6 +7478,58 @@ export const OrganizationFindUniqueArgsSchema: z.ZodType<Omit<Prisma.Organizatio
 
 export const OrganizationFindUniqueOrThrowArgsSchema: z.ZodType<Omit<Prisma.OrganizationFindUniqueOrThrowArgs, "select" | "include">> = z.object({
   where: OrganizationWhereUniqueInputSchema,
+}).strict() ;
+
+export const RelationshipManagerFindFirstArgsSchema: z.ZodType<Omit<Prisma.RelationshipManagerFindFirstArgs, "select" | "include">> = z.object({
+  where: RelationshipManagerWhereInputSchema.optional(),
+  orderBy: z.union([ RelationshipManagerOrderByWithRelationInputSchema.array(),RelationshipManagerOrderByWithRelationInputSchema ]).optional(),
+  cursor: RelationshipManagerWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ RelationshipManagerScalarFieldEnumSchema,RelationshipManagerScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const RelationshipManagerFindFirstOrThrowArgsSchema: z.ZodType<Omit<Prisma.RelationshipManagerFindFirstOrThrowArgs, "select" | "include">> = z.object({
+  where: RelationshipManagerWhereInputSchema.optional(),
+  orderBy: z.union([ RelationshipManagerOrderByWithRelationInputSchema.array(),RelationshipManagerOrderByWithRelationInputSchema ]).optional(),
+  cursor: RelationshipManagerWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ RelationshipManagerScalarFieldEnumSchema,RelationshipManagerScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const RelationshipManagerFindManyArgsSchema: z.ZodType<Omit<Prisma.RelationshipManagerFindManyArgs, "select" | "include">> = z.object({
+  where: RelationshipManagerWhereInputSchema.optional(),
+  orderBy: z.union([ RelationshipManagerOrderByWithRelationInputSchema.array(),RelationshipManagerOrderByWithRelationInputSchema ]).optional(),
+  cursor: RelationshipManagerWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ RelationshipManagerScalarFieldEnumSchema,RelationshipManagerScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const RelationshipManagerAggregateArgsSchema: z.ZodType<Prisma.RelationshipManagerAggregateArgs> = z.object({
+  where: RelationshipManagerWhereInputSchema.optional(),
+  orderBy: z.union([ RelationshipManagerOrderByWithRelationInputSchema.array(),RelationshipManagerOrderByWithRelationInputSchema ]).optional(),
+  cursor: RelationshipManagerWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const RelationshipManagerGroupByArgsSchema: z.ZodType<Prisma.RelationshipManagerGroupByArgs> = z.object({
+  where: RelationshipManagerWhereInputSchema.optional(),
+  orderBy: z.union([ RelationshipManagerOrderByWithAggregationInputSchema.array(),RelationshipManagerOrderByWithAggregationInputSchema ]).optional(),
+  by: RelationshipManagerScalarFieldEnumSchema.array(),
+  having: RelationshipManagerScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const RelationshipManagerFindUniqueArgsSchema: z.ZodType<Omit<Prisma.RelationshipManagerFindUniqueArgs, "select" | "include">> = z.object({
+  where: RelationshipManagerWhereUniqueInputSchema,
+}).strict() ;
+
+export const RelationshipManagerFindUniqueOrThrowArgsSchema: z.ZodType<Omit<Prisma.RelationshipManagerFindUniqueOrThrowArgs, "select" | "include">> = z.object({
+  where: RelationshipManagerWhereUniqueInputSchema,
 }).strict() ;
 
 export const MemberFindFirstArgsSchema: z.ZodType<Omit<Prisma.MemberFindFirstArgs, "select" | "include">> = z.object({
@@ -7445,6 +8059,52 @@ export const OrganizationUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.Organiz
 
 export const OrganizationDeleteManyArgsSchema: z.ZodType<Prisma.OrganizationDeleteManyArgs> = z.object({
   where: OrganizationWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const RelationshipManagerCreateArgsSchema: z.ZodType<Omit<Prisma.RelationshipManagerCreateArgs, "select" | "include">> = z.object({
+  data: z.union([ RelationshipManagerCreateInputSchema,RelationshipManagerUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const RelationshipManagerUpsertArgsSchema: z.ZodType<Omit<Prisma.RelationshipManagerUpsertArgs, "select" | "include">> = z.object({
+  where: RelationshipManagerWhereUniqueInputSchema,
+  create: z.union([ RelationshipManagerCreateInputSchema,RelationshipManagerUncheckedCreateInputSchema ]),
+  update: z.union([ RelationshipManagerUpdateInputSchema,RelationshipManagerUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const RelationshipManagerCreateManyArgsSchema: z.ZodType<Prisma.RelationshipManagerCreateManyArgs> = z.object({
+  data: z.union([ RelationshipManagerCreateManyInputSchema,RelationshipManagerCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const RelationshipManagerCreateManyAndReturnArgsSchema: z.ZodType<Prisma.RelationshipManagerCreateManyAndReturnArgs> = z.object({
+  data: z.union([ RelationshipManagerCreateManyInputSchema,RelationshipManagerCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const RelationshipManagerDeleteArgsSchema: z.ZodType<Omit<Prisma.RelationshipManagerDeleteArgs, "select" | "include">> = z.object({
+  where: RelationshipManagerWhereUniqueInputSchema,
+}).strict() ;
+
+export const RelationshipManagerUpdateArgsSchema: z.ZodType<Omit<Prisma.RelationshipManagerUpdateArgs, "select" | "include">> = z.object({
+  data: z.union([ RelationshipManagerUpdateInputSchema,RelationshipManagerUncheckedUpdateInputSchema ]),
+  where: RelationshipManagerWhereUniqueInputSchema,
+}).strict() ;
+
+export const RelationshipManagerUpdateManyArgsSchema: z.ZodType<Prisma.RelationshipManagerUpdateManyArgs> = z.object({
+  data: z.union([ RelationshipManagerUpdateManyMutationInputSchema,RelationshipManagerUncheckedUpdateManyInputSchema ]),
+  where: RelationshipManagerWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const RelationshipManagerUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.RelationshipManagerUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ RelationshipManagerUpdateManyMutationInputSchema,RelationshipManagerUncheckedUpdateManyInputSchema ]),
+  where: RelationshipManagerWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const RelationshipManagerDeleteManyArgsSchema: z.ZodType<Prisma.RelationshipManagerDeleteManyArgs> = z.object({
+  where: RelationshipManagerWhereInputSchema.optional(),
   limit: z.number().optional(),
 }).strict() ;
 

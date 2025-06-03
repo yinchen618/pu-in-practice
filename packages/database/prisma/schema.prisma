@@ -130,20 +130,38 @@ model TwoFactor {
 }
 
 model Organization {
-    id                 String       @id @default(cuid())
-    name               String
-    slug               String?
-    logo               String?
-    createdAt          DateTime
-    metadata           String?
-    paymentsCustomerId String?
-    members            Member[]
-    invitations        Invitation[]
-    purchases          Purchase[]
-    aiChats            AiChat[]
+    id                   String                @id @default(cuid())
+    name                 String
+    slug                 String?
+    logo                 String?
+    createdAt            DateTime
+    metadata             String?
+    paymentsCustomerId   String?
+    members              Member[]
+    invitations          Invitation[]
+    purchases            Purchase[]
+    aiChats              AiChat[]
+    relationshipManagers RelationshipManager[]
 
     @@unique([slug])
     @@map("organization")
+}
+
+model RelationshipManager {
+    id             String       @id @default(cuid())
+    name           String
+    email          String
+    phone          String?
+    status         String       @default("active") // active, inactive
+    customerCount  Int          @default(0)
+    joinDate       DateTime     @default(now())
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+
+    @@unique([organizationId, email])
+    @@map("relationship_manager")
 }
 
 model Member {
