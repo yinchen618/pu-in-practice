@@ -4,14 +4,17 @@ import { useActiveOrganization } from "@saas/organizations/hooks/use-active-orga
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
 import { useEffect, useState } from "react";
-import { columns } from "./components/columns";
+import { createColumns } from "./components/columns";
 import type { RMRecord } from "./components/columns";
 import { CreateRMDialog } from "./components/create-rm-dialog";
+import { EditRMDialog } from "./components/edit-rm-dialog";
 
 export default function RelationshipManagersPage() {
 	const { activeOrganization, loaded } = useActiveOrganization();
 	const [data, setData] = useState<RMRecord[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [editingRM, setEditingRM] = useState<RMRecord | null>(null);
+	const [editDialogOpen, setEditDialogOpen] = useState(false);
 
 	const fetchData = async () => {
 		if (!activeOrganization?.id) return;
@@ -43,6 +46,19 @@ export default function RelationshipManagersPage() {
 			setIsLoading(false);
 		}
 	};
+
+	const handleEdit = (rmRecord: RMRecord) => {
+		setEditingRM(rmRecord);
+		setEditDialogOpen(true);
+	};
+
+	const handleEditSuccess = () => {
+		fetchData();
+		setEditingRM(null);
+	};
+
+	// 創建 columns，傳入編輯函數
+	const columns = createColumns(handleEdit);
 
 	useEffect(() => {
 		if (activeOrganization?.id && loaded) {
@@ -76,7 +92,22 @@ export default function RelationshipManagersPage() {
 				}
 			/>
 
-			<DataTable columns={columns} data={data} isLoading={isLoading} />
+			<DataTable
+				columns={columns}
+				data={data}
+				isLoading={isLoading}
+				searchKey="name"
+				searchPlaceholder="搜尋 RM 名稱"
+			/>
+
+			{editingRM && (
+				<EditRMDialog
+					rmRecord={editingRM}
+					open={editDialogOpen}
+					onOpenChange={setEditDialogOpen}
+					onSuccess={handleEditSuccess}
+				/>
+			)}
 		</div>
 	);
 }

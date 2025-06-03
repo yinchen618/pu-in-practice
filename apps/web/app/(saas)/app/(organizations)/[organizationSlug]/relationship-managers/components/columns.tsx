@@ -3,6 +3,8 @@
 import { DataTableColumnHeader } from "@saas/shared/components/DataTable/DataTableColumnHeader";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@ui/components/badge";
+import { Button } from "@ui/components/button";
+import { Edit2 } from "lucide-react";
 
 export interface RMRecord {
 	id: string;
@@ -17,7 +19,9 @@ export interface RMRecord {
 	updatedAt: Date;
 }
 
-export const columns: ColumnDef<RMRecord>[] = [
+export const createColumns = (
+	onEdit: (rmRecord: RMRecord) => void,
+): ColumnDef<RMRecord>[] => [
 	{
 		accessorKey: "id",
 		header: ({ column }) => (
@@ -73,6 +77,23 @@ export const columns: ColumnDef<RMRecord>[] = [
 		cell: ({ row }) => {
 			const date = row.getValue("joinDate") as Date;
 			return new Date(date).toLocaleDateString("zh-TW");
+		},
+	},
+	{
+		id: "actions",
+		header: "操作",
+		cell: ({ row }) => {
+			const rmRecord = row.original;
+
+			return (
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => onEdit(rmRecord)}
+				>
+					<Edit2 className="size-4" />
+				</Button>
+			);
 		},
 	},
 ];

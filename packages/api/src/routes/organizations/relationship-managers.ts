@@ -1,6 +1,8 @@
 import {
 	createRelationshipManager,
+	deleteRelationshipManager,
 	getRelationshipManagersByOrganizationId,
+	updateRelationshipManager,
 } from "@repo/database";
 import { Hono } from "hono";
 import { describeRoute } from "hono-openapi";
@@ -14,6 +16,13 @@ const CreateRMSchema = z.object({
 	name: z.string().min(1, "姓名是必填的"),
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
+});
+
+const UpdateRMSchema = z.object({
+	name: z.string().min(1, "姓名是必填的"),
+	email: z.string().email("請輸入有效的電子郵件"),
+	phone: z.string().optional(),
+	status: z.enum(["active", "inactive"]),
 });
 
 export const relationshipManagersRouter = new Hono()
@@ -117,6 +126,119 @@ export const relationshipManagersRouter = new Hono()
 				if (error.code === "P2002") {
 					throw new HTTPException(400, {
 						message: "該電子郵件已被使用",
+					});
+				}
+				throw error;
+			}
+		},
+	)
+	.put(
+		"/relationship-managers/:id",
+		describeRoute({
+			tags: ["RelationshipManagers"],
+			summary: "Update relationship manager",
+			description: "Update an existing relationship manager",
+			responses: {
+				200: {
+					description: "Updated relationship manager",
+					content: {
+						"application/json": {
+							schema: resolver(
+								z.object({
+									relationshipManager: z.object({
+										id: z.string(),
+										name: z.string(),
+										email: z.string(),
+										phone: z.string().nullable(),
+										status: z.string(),
+										customerCount: z.number(),
+										joinDate: z.date(),
+										organizationId: z.string(),
+										createdAt: z.date(),
+										updatedAt: z.date(),
+									}),
+								}),
+							),
+						},
+					},
+				},
+			},
+		}),
+		validator("param", z.object({ id: z.string() })),
+		validator("json", UpdateRMSchema),
+		async (c) => {
+			const { id } = c.req.valid("param");
+			const data = c.req.valid("json");
+			const user = c.get("user");
+
+			try {
+				const relationshipManager = await updateRelationshipManager(
+					id,
+					data,
+				);
+
+				// 驗證用戶是否有權限修改此 RM（通過組織成員資格）
+				await verifyOrganizationMembership(
+					relationshipManager.organizationId,
+					user.id,
+				);
+
+				return c.json({ relationshipManager });
+			} catch (error: any) {
+				if (error.code === "P2002") {
+					throw new HTTPException(400, {
+						message: "該電子郵件已被使用",
+					});
+				}
+				if (error.code === "P2025") {
+					throw new HTTPException(404, {
+						message: "找不到該客戶關係經理",
+					});
+				}
+				throw error;
+			}
+		},
+	)
+	.delete(
+		"/relationship-managers/:id",
+		describeRoute({
+			tags: ["RelationshipManagers"],
+			summary: "Delete relationship manager",
+			description: "Delete an existing relationship manager",
+			responses: {
+				200: {
+					description: "Deleted relationship manager",
+					content: {
+						"application/json": {
+							schema: resolver(
+								z.object({
+									message: z.string(),
+								}),
+							),
+						},
+					},
+				},
+			},
+		}),
+		validator("param", z.object({ id: z.string() })),
+		async (c) => {
+			const { id } = c.req.valid("param");
+			const user = c.get("user");
+
+			try {
+				const relationshipManager = await deleteRelationshipManager(id);
+
+				// 驗證用戶是否有權限刪除此 RM（通過組織成員資格）
+				await verifyOrganizationMembership(
+					relationshipManager.organizationId,
+					user.id,
+				);
+
+				return c.json({ message: "客戶關係經理已成功刪除" });
+			} catch (error: any) {
+				if (error.code === "P2025") {
+					throw new HTTPException(404, {
+						message: "找不到該客戶關係經理",
 					});
 				}
 				throw error;

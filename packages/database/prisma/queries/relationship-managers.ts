@@ -8,6 +8,13 @@ export interface CreateRelationshipManagerData {
 	organizationId: string;
 }
 
+export interface UpdateRelationshipManagerData {
+	name?: string;
+	email?: string;
+	phone?: string;
+	status?: "active" | "inactive";
+}
+
 export async function getRelationshipManagersByOrganizationId(
 	organizationId: string,
 ) {
@@ -44,7 +51,7 @@ export async function getRelationshipManagerById(id: string) {
 
 export async function updateRelationshipManager(
 	id: string,
-	data: Partial<CreateRelationshipManagerData>,
+	data: UpdateRelationshipManagerData,
 ) {
 	return await db.relationshipManager.update({
 		where: {
