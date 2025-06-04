@@ -6,7 +6,6 @@ import { UserMenu } from "@saas/shared/components/UserMenu";
 import { Logo } from "@shared/components/Logo";
 import { cn } from "@ui/lib";
 import {
-	BotMessageSquareIcon,
 	BuildingIcon,
 	ChevronRightIcon,
 	HomeIcon,
@@ -43,18 +42,18 @@ export function NavBar() {
 			icon: HomeIcon,
 			isActive: pathname === basePath,
 		},
-		{
-			label: t("app.menu.aiChatbot"),
-			href: activeOrganization
-				? `/app/${activeOrganization.slug}/chatbot`
-				: "/app/chatbot",
-			icon: BotMessageSquareIcon,
-			isActive: pathname.includes("/chatbot"),
-		},
+		// {
+		// 	label: t("app.menu.aiChatbot"),
+		// 	href: activeOrganization
+		// 		? `/app/${activeOrganization.slug}/chatbot`
+		// 		: "/app/chatbot",
+		// 	icon: BotMessageSquareIcon,
+		// 	isActive: pathname.includes("/chatbot"),
+		// },
 		...(activeOrganization
 			? [
 					{
-						label: "分潤表",
+						label: "分潤",
 						href: `${basePath}/profit-sharing`,
 						icon: WalletIcon,
 						isActive: pathname.startsWith(
@@ -62,19 +61,19 @@ export function NavBar() {
 						),
 					},
 					{
-						label: "支出列表",
+						label: "支出",
 						href: `${basePath}/expenses`,
 						icon: ReceiptIcon,
 						isActive: pathname.startsWith(`${basePath}/expenses/`),
 					},
 					{
-						label: "客戶列表",
+						label: "客戶",
 						href: `${basePath}/customers`,
 						icon: UsersIcon,
 						isActive: pathname.startsWith(`${basePath}/customers/`),
 					},
 					{
-						label: "RM列表",
+						label: "RM",
 						href: `${basePath}/relationship-managers`,
 						icon: UserIcon,
 						isActive: pathname.startsWith(
@@ -82,18 +81,18 @@ export function NavBar() {
 						),
 					},
 					{
-						label: "銀行帳戶列表",
+						label: "產品",
+						href: `${basePath}/products`,
+						icon: PackageIcon,
+						isActive: pathname.startsWith(`${basePath}/products/`),
+					},
+					{
+						label: "銀行帳戶",
 						href: `${basePath}/bank-accounts`,
 						icon: BuildingIcon,
 						isActive: pathname.startsWith(
 							`${basePath}/bank-accounts/`,
 						),
-					},
-					{
-						label: "產品列表",
-						href: `${basePath}/products`,
-						icon: PackageIcon,
-						isActive: pathname.startsWith(`${basePath}/products/`),
 					},
 					{
 						label: t("app.menu.organizationSettings"),

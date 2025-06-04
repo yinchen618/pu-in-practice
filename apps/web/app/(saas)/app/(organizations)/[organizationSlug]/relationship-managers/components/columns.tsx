@@ -22,15 +22,15 @@ export interface RMRecord {
 export const createColumns = (
 	onEdit: (rmRecord: RMRecord) => void,
 ): ColumnDef<RMRecord>[] => [
-	{
-		accessorKey: "id",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="ID" />
-		),
-		cell: ({ row }) => {
-			return <div>{row.original.id}</div>;
-		},
-	},
+	// {
+	// 	accessorKey: "id",
+	// 	header: ({ column }) => (
+	// 		<DataTableColumnHeader column={column} title="ID" />
+	// 	),
+	// 	cell: ({ row }) => {
+	// 		return <div>{row.original.id}</div>;
+	// 	},
+	// },
 	{
 		accessorKey: "name",
 		header: ({ column }) => (

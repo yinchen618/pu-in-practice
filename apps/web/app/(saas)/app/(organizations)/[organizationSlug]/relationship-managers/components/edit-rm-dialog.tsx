@@ -1,6 +1,17 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@ui/components/alert-dialog";
 import { Button } from "@ui/components/button";
 import {
 	Dialog,
@@ -19,6 +30,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@ui/components/select";
+import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -47,6 +59,7 @@ export function EditRMDialog({
 	onSuccess,
 }: EditRMDialogProps) {
 	const [isLoading, setIsLoading] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 
 	const {
 		register,
@@ -103,6 +116,35 @@ export function EditRMDialog({
 			// 這裡可以添加 toast 通知
 		} finally {
 			setIsLoading(false);
+		}
+	};
+
+	const handleDelete = async () => {
+		setIsDeleting(true);
+		try {
+			const response = await fetch(
+				`/api/organizations/relationship-managers/${rmRecord.id}`,
+				{
+					method: "DELETE",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				},
+			);
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.message || "刪除失敗");
+			}
+
+			onOpenChange(false);
+			onSuccess?.();
+		} catch (error) {
+			console.error("刪除 RM 失敗:", error);
+			// 這裡可以添加 toast 通知
+		} finally {
+			setIsDeleting(false);
 		}
 	};
 
@@ -204,17 +246,58 @@ export function EditRMDialog({
 							</div>
 						</div>
 					</div>
-					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => onOpenChange(false)}
-						>
-							取消
-						</Button>
-						<Button type="submit" disabled={isLoading}>
-							{isLoading ? "更新中..." : "更新"}
-						</Button>
+					<DialogFooter className="flex justify-between items-center">
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								<Button
+									type="button"
+									variant="error"
+									size="sm"
+									disabled={isDeleting || isLoading}
+								>
+									<Trash2 className="mr-2 size-4" />
+									刪除
+								</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										確認刪除
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										你確定要刪除客戶關係經理「
+										{rmRecord.name}」嗎？ 此操作無法復原。
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>取消</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={handleDelete}
+										disabled={isDeleting}
+										className="bg-red-600 hover:bg-red-700"
+									>
+										{isDeleting ? "刪除中..." : "確認刪除"}
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+
+						<div className="flex gap-2 ml-auto">
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => onOpenChange(false)}
+								disabled={isLoading || isDeleting}
+							>
+								取消
+							</Button>
+							<Button
+								type="submit"
+								disabled={isLoading || isDeleting}
+							>
+								{isLoading ? "更新中..." : "更新"}
+							</Button>
+						</div>
 					</DialogFooter>
 				</form>
 			</DialogContent>
