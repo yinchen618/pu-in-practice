@@ -833,3 +833,161 @@ useEffect(() => {
 | 編輯時欄位為空 | 未使用 useEffect 重置 | 在 useEffect 中呼叫 `form.reset()` |
 
 這套表單配置確保了與 Shadcn UI 設計系統的完整整合，並提供最佳的用戶體驗。
+
+## API 錯誤處理和表單欄位視覺回饋規則
+
+### API 回應錯誤處理標準模式
+
+**❌ 錯誤的錯誤處理（會導致 JSON 解析失敗）：**
+
+```typescript
+// 錯誤：直接假設回應是 JSON 格式
+if (!response.ok) {
+  const error = await response.json();
+  throw new Error(error.message || "操作失敗");
+}
+```
+
+**✅ 正確的錯誤處理模式：**
+
+```typescript
+// 正確：先讀取為文字，再嘗試解析 JSON
+if (!response.ok) {
+  let errorMessage = "操作失敗";
+  try {
+    const responseText = await response.text();
+    // 嘗試解析為 JSON
+    try {
+      const error = JSON.parse(responseText);
+      errorMessage = error.message || errorMessage;
+    } catch {
+      // 如果不是 JSON 格式，使用純文字作為錯誤訊息
+      errorMessage = responseText || errorMessage;
+    }
+  } catch {
+    // 如果連讀取文字都失敗了，使用預設錯誤訊息
+    errorMessage = "操作失敗";
+  }
+  
+  // 根據錯誤類型設定對應欄位錯誤
+  if (errorMessage.includes("代碼已被使用") || errorMessage.includes("代碼重複")) {
+    form.setError("code", {
+      type: "server",
+      message: errorMessage,
+    });
+    return; // 不拋出錯誤，讓表單繼續顯示
+  }
+  
+  throw new Error(errorMessage);
+}
+```
+
+### 表單欄位錯誤視覺回饋
+
+**必須使用 `fieldState` 來實現錯誤狀態的視覺回饋：**
+
+```typescript
+<FormField
+  control={form.control}
+  name="code"
+  render={({ field, fieldState }) => (
+    <FormItem>
+      <FormLabel>代碼 *</FormLabel>
+      <FormControl>
+        <Input
+          placeholder="輸入代碼"
+          {...field}
+          className={fieldState.error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+```
+
+### 常見服務器錯誤的欄位映射
+
+根據錯誤訊息內容，將錯誤設定到對應的表單欄位：
+
+```typescript
+// 代碼重複錯誤
+if (errorMessage.includes("代碼已被使用") || errorMessage.includes("代碼重複")) {
+  form.setError("code", { type: "server", message: errorMessage });
+  return;
+}
+
+// 名稱重複錯誤
+if (errorMessage.includes("名稱已存在") || errorMessage.includes("名稱重複")) {
+  form.setError("name", { type: "server", message: errorMessage });
+  return;
+}
+
+// 電子郵件錯誤
+if (errorMessage.includes("電子郵件") || errorMessage.includes("email")) {
+  form.setError("email", { type: "server", message: errorMessage });
+  return;
+}
+
+// 通用錯誤，拋出到 catch 區塊
+throw new Error(errorMessage);
+```
+
+### 錯誤處理最佳實踐
+
+1. **統一錯誤解析**：所有 API 呼叫都使用相同的錯誤解析邏輯
+2. **欄位級錯誤**：特定欄位錯誤直接設定到對應欄位，不要拋出到全域
+3. **視覺回饋**：錯誤狀態的欄位必須有紅色邊框等視覺提示
+4. **保持表單開啟**：欄位級錯誤時，使用 `return` 而非 `throw`，讓使用者可以修正後重新提交
+5. **錯誤訊息一致性**：使用服務器回傳的原始錯誤訊息，保持一致性
+
+### 完整的表單提交錯誤處理範例
+
+```typescript
+const onSubmit = async (data: FormData) => {
+  setIsLoading(true);
+  try {
+    const response = await fetch("/api/endpoint", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      let errorMessage = "操作失敗";
+      try {
+        const responseText = await response.text();
+        try {
+          const error = JSON.parse(responseText);
+          errorMessage = error.message || errorMessage;
+        } catch {
+          errorMessage = responseText || errorMessage;
+        }
+      } catch {
+        errorMessage = "操作失敗";
+      }
+
+      // 根據錯誤類型設定欄位錯誤
+      if (errorMessage.includes("代碼已被使用")) {
+        form.setError("code", { type: "server", message: errorMessage });
+        return;
+      }
+      
+      throw new Error(errorMessage);
+    }
+
+    // 成功處理
+    form.reset();
+    onOpenChange(false);
+    onSuccess?.();
+  } catch (error) {
+    console.error("操作失敗:", error);
+    // 這裡可以添加 toast 通知
+  } finally {
+    setIsLoading(false);
+  }
+};
+```
+
+這套錯誤處理模式確保了一致的用戶體驗和穩定的 API 錯誤處理。

@@ -111,8 +111,35 @@ export function EditProductDialog({
 			);
 
 			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.message || "更新失敗");
+				let errorMessage = "更新失敗";
+				try {
+					const responseText = await response.text();
+					// 嘗試解析為 JSON
+					try {
+						const error = JSON.parse(responseText);
+						errorMessage = error.message || errorMessage;
+					} catch {
+						// 如果不是 JSON 格式，使用純文字作為錯誤訊息
+						errorMessage = responseText || errorMessage;
+					}
+				} catch {
+					// 如果連讀取文字都失敗了，使用預設錯誤訊息
+					errorMessage = "更新失敗";
+				}
+
+				// 如果是產品代碼重複的錯誤，顯示在 code 欄位下方
+				if (
+					errorMessage.includes("產品代碼已被使用") ||
+					errorMessage.includes("代碼已被使用")
+				) {
+					form.setError("code", {
+						type: "server",
+						message: errorMessage,
+					});
+					return; // 不要拋出錯誤，讓表單繼續顯示
+				}
+
+				throw new Error(errorMessage);
 			}
 
 			onOpenChange(false);
@@ -144,8 +171,22 @@ export function EditProductDialog({
 			);
 
 			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.message || "刪除失敗");
+				let errorMessage = "刪除失敗";
+				try {
+					const responseText = await response.text();
+					// 嘗試解析為 JSON
+					try {
+						const error = JSON.parse(responseText);
+						errorMessage = error.message || errorMessage;
+					} catch {
+						// 如果不是 JSON 格式，使用純文字作為錯誤訊息
+						errorMessage = responseText || errorMessage;
+					}
+				} catch {
+					// 如果連讀取文字都失敗了，使用預設錯誤訊息
+					errorMessage = "刪除失敗";
+				}
+				throw new Error(errorMessage);
 			}
 
 			onOpenChange(false);
@@ -191,7 +232,7 @@ export function EditProductDialog({
 							<FormField
 								control={form.control}
 								name="code"
-								render={({ field }) => (
+								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
 											產品代碼 *
@@ -201,6 +242,11 @@ export function EditProductDialog({
 												<Input
 													placeholder="輸入產品代碼"
 													{...field}
+													className={
+														fieldState.error
+															? "border-red-500 focus:border-red-500 focus:ring-red-500"
+															: ""
+													}
 												/>
 											</FormControl>
 											<FormMessage />

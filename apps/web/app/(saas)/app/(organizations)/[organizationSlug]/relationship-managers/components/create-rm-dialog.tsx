@@ -11,8 +11,15 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@ui/components/dialog";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@ui/components/form";
 import { Input } from "@ui/components/input";
-import { Label } from "@ui/components/label";
 import {
 	Select,
 	SelectContent,
@@ -46,21 +53,15 @@ export function CreateRMDialog({
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		reset,
-		setValue,
-		watch,
-	} = useForm<CreateRMFormData>({
+	const form = useForm<CreateRMFormData>({
 		resolver: zodResolver(createRMSchema),
 		defaultValues: {
+			name: "",
+			email: "",
+			phone: "",
 			category: "RM",
 		},
 	});
-
-	const categoryValue = watch("category");
 
 	const onSubmit = async (data: CreateRMFormData) => {
 		setIsLoading(true);
@@ -81,12 +82,36 @@ export function CreateRMDialog({
 			);
 
 			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.message || "新增失敗");
+				let errorMessage = "新增失敗";
+				try {
+					const responseText = await response.text();
+					try {
+						const error = JSON.parse(responseText);
+						errorMessage = error.message || errorMessage;
+					} catch {
+						errorMessage = responseText || errorMessage;
+					}
+				} catch {
+					errorMessage = "新增失敗";
+				}
+
+				// 根據錯誤類型設定對應欄位錯誤
+				if (
+					errorMessage.includes("電子郵件") ||
+					errorMessage.includes("email")
+				) {
+					form.setError("email", {
+						type: "server",
+						message: errorMessage,
+					});
+					return;
+				}
+
+				throw new Error(errorMessage);
 			}
 
 			// 重置表單並關閉對話框
-			reset();
+			form.reset();
 			setOpen(false);
 			onSuccess?.();
 		} catch (error) {
@@ -112,109 +137,137 @@ export function CreateRMDialog({
 						填寫下方資訊來新增一位客戶關係經理。
 					</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit(onSubmit)}>
-					<div className="grid gap-4 py-4">
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="name" className="text-right">
-								姓名 *
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="name"
-									{...register("name")}
-									placeholder="輸入姓名"
-								/>
-								{errors.name && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.name.message}
-									</p>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<div className="grid gap-4 py-4">
+							<FormField
+								control={form.control}
+								name="name"
+								render={({ field, fieldState }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											姓名 *
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													placeholder="輸入姓名"
+													{...field}
+													className={
+														fieldState.error
+															? "border-red-500 focus:border-red-500 focus:ring-red-500"
+															: ""
+													}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="email" className="text-right">
-								電子郵件 *
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="email"
-									type="email"
-									{...register("email")}
-									placeholder="輸入電子郵件"
-								/>
-								{errors.email && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.email.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="email"
+								render={({ field, fieldState }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											電子郵件 *
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													type="email"
+													placeholder="輸入電子郵件"
+													{...field}
+													className={
+														fieldState.error
+															? "border-red-500 focus:border-red-500 focus:ring-red-500"
+															: ""
+													}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="phone" className="text-right">
-								電話
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="phone"
-									type="tel"
-									{...register("phone")}
-									placeholder="輸入電話號碼"
-								/>
-								{errors.phone && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.phone.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="phone"
+								render={({ field, fieldState }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											電話
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													type="tel"
+													placeholder="輸入電話號碼"
+													{...field}
+													value={field.value || ""}
+													className={
+														fieldState.error
+															? "border-red-500 focus:border-red-500 focus:ring-red-500"
+															: ""
+													}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="category" className="text-right">
-								RM 類別 *
-							</Label>
-							<div className="col-span-3">
-								<Select
-									value={categoryValue}
-									onValueChange={(value) =>
-										setValue(
-											"category",
-											value as "FINDER" | "RM" | "BOTH",
-										)
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="選擇 RM 類別" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="RM">RM</SelectItem>
-										<SelectItem value="FINDER">
-											FINDER
-										</SelectItem>
-										<SelectItem value="BOTH">
-											BOTH
-										</SelectItem>
-									</SelectContent>
-								</Select>
-								{errors.category && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.category.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="category"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											RM 類別 *
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇 RM 類別" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value="RM">
+														RM
+													</SelectItem>
+													<SelectItem value="FINDER">
+														FINDER
+													</SelectItem>
+													<SelectItem value="BOTH">
+														BOTH
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
+							/>
 						</div>
-					</div>
-					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => setOpen(false)}
-						>
-							取消
-						</Button>
-						<Button type="submit" disabled={isLoading}>
-							{isLoading ? "新增中..." : "新增"}
-						</Button>
-					</DialogFooter>
-				</form>
+						<DialogFooter>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setOpen(false)}
+							>
+								取消
+							</Button>
+							<Button type="submit" disabled={isLoading}>
+								{isLoading ? "新增中..." : "新增"}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	);
