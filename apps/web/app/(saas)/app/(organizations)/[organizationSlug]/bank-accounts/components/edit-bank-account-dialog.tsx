@@ -1,17 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@ui/components/alert-dialog";
 import { Button } from "@ui/components/button";
 import {
 	Dialog,
@@ -161,6 +150,10 @@ export function EditBankAccountDialog({
 	};
 
 	const handleDelete = async () => {
+		if (!confirm("您確定要刪除這個銀行帳戶嗎？此操作無法復原。")) {
+			return;
+		}
+
 		setIsDeleting(true);
 		try {
 			const response = await fetch(
@@ -353,52 +346,28 @@ export function EditBankAccountDialog({
 								)}
 							/>
 						</div>
-						<DialogFooter className="gap-2">
-							<AlertDialog>
-								<AlertDialogTrigger asChild>
-									<Button
-										type="button"
-										variant="error"
-										size="sm"
-									>
-										<Trash2 className="mr-2 size-4" />
-										刪除
-									</Button>
-								</AlertDialogTrigger>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>
-											確認刪除
-										</AlertDialogTitle>
-										<AlertDialogDescription>
-											您確定要刪除這個銀行帳戶嗎？此操作無法復原。
-										</AlertDialogDescription>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogCancel>
-											取消
-										</AlertDialogCancel>
-										<AlertDialogAction
-											onClick={handleDelete}
-											disabled={isDeleting}
-										>
-											{isDeleting
-												? "刪除中..."
-												: "確認刪除"}
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
+						<DialogFooter className="flex justify-between">
 							<Button
 								type="button"
-								variant="outline"
-								onClick={() => onOpenChange(false)}
+								variant="error"
+								onClick={handleDelete}
+								disabled={isDeleting}
 							>
-								取消
+								<Trash2 className="mr-2 size-4" />
+								{isDeleting ? "刪除中..." : "刪除"}
 							</Button>
-							<Button type="submit" disabled={isLoading}>
-								{isLoading ? "更新中..." : "更新"}
-							</Button>
+							<div className="flex gap-2">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => onOpenChange(false)}
+								>
+									取消
+								</Button>
+								<Button type="submit" disabled={isLoading}>
+									{isLoading ? "更新中..." : "更新"}
+								</Button>
+							</div>
 						</DialogFooter>
 					</form>
 				</Form>

@@ -396,7 +396,7 @@ export function EditExpenseDialog({
 						<DialogFooter className="flex justify-between">
 							<Button
 								type="button"
-								variant="destructive"
+								variant="error"
 								onClick={handleDelete}
 								disabled={isDeleting}
 							>

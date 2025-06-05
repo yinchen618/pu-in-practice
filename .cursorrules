@@ -62,3 +62,602 @@ import { cn } from "@ui/lib";
 
 我的.env在根目錄下
 "新增"的字樣，都改為"新增"
+
+## Button 組件使用規則
+
+### 支援的 Button variant 選項
+Button 組件只支援以下 variant 值，請勿使用其他變體名稱：
+
+**可用的 variant 選項：**
+- `primary` - 主要按鈕（預設藍色，用於主要操作）
+- `error` - 錯誤/危險按鈕（紅色，用於刪除等危險操作）
+- `outline` - 輪廓按鈕（透明背景有邊框）
+- `secondary` - 次要按鈕（灰色，預設選項）
+- `light` - 淺色按鈕（淺灰色背景）
+- `ghost` - 幽靈按鈕（透明背景，hover 時顯示）
+- `link` - 連結樣式按鈕（下劃線樣式）
+
+**支援的 size 選項：**
+- `sm` - 小尺寸按鈕
+- `md` - 中等尺寸按鈕（預設）
+- `lg` - 大尺寸按鈕
+- `icon` - 圖示按鈕（正方形）
+
+### 常見錯誤用法 ❌
+**絕對不要使用以下錯誤的 variant 名稱：**
+- ❌ `variant="destructive"` - 這不存在，應該使用 `variant="error"`
+- ❌ `variant="danger"` - 這不存在，應該使用 `variant="error"`
+- ❌ `variant="delete"` - 這不存在，應該使用 `variant="error"`
+- ❌ `variant="warning"` - 這不存在，請根據用途選擇合適的 variant
+- ❌ `variant="success"` - 這不存在，使用 `variant="primary"` 或 `variant="secondary"`
+
+### 正確用法範例 ✅
+
+```tsx
+// 刪除按鈕 - 使用 error variant
+<Button variant="error" onClick={handleDelete}>
+  刪除
+</Button>
+
+// 主要操作按鈕
+<Button variant="primary" type="submit">
+  提交
+</Button>
+
+// 取消按鈕
+<Button variant="outline" onClick={onCancel}>
+  取消
+</Button>
+
+// 次要操作按鈕
+<Button variant="secondary">
+  查看詳情
+</Button>
+
+// 連結樣式按鈕
+<Button variant="link" onClick={onNavigate}>
+  了解更多
+</Button>
+```
+
+### TypeScript 錯誤排除
+如果遇到 Button variant 相關的 TypeScript 錯誤：
+1. 檢查 variant 值是否在上述支援清單中
+2. 危險操作（刪除、重設等）統一使用 `variant="error"`
+3. 如果需要其他樣式，考慮使用 `className` 進行客製化或聯繫團隊討論擴展 variant 選項
+
+### 按鈕語意化使用建議
+- **刪除、重設、清空等危險操作**：使用 `variant="error"`
+- **主要提交、確認操作**：使用 `variant="primary"`
+- **取消、關閉操作**：使用 `variant="outline"`
+- **一般操作**：使用 `variant="secondary"`（預設）
+- **導航連結**：使用 `variant="link"`
+
+## 完整 CRUD 表格實現流程
+
+### 概述
+以 `/expenses` 模組為參考，建立一個完整的 CRUD 表格功能需要以下步驟。這個流程涵蓋從資料庫設計到前端 UI 的完整實現。
+
+### 1. 資料庫層 (packages/database)
+
+#### 1.1 Prisma Schema 定義
+在 `packages/database/prisma/schema.prisma` 中定義模型：
+
+```prisma
+model YourModel {
+  id             String       @id @default(cuid())
+  field1         String       // 必填欄位
+  field2         Decimal      @db.Decimal(15, 2) // 數值欄位
+  field3         String?      // 可選欄位
+  field4         DateTime     @default(now())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("your_table_name")
+}
+```
+
+#### 1.2 資料庫查詢函數
+在 `packages/database/prisma/queries/your-model.ts` 中實現 CRUD 操作：
+
+```typescript
+import { db } from "../client";
+
+export interface CreateYourModelData {
+  field1: string;
+  field2: number;
+  field3?: string;
+  organizationId: string;
+}
+
+export interface UpdateYourModelData {
+  field1?: string;
+  field2?: number;
+  field3?: string;
+}
+
+export async function createYourModel(data: CreateYourModelData) {
+  return await db.yourModel.create({ data });
+}
+
+export async function getYourModelsByOrganizationId(organizationId: string) {
+  return await db.yourModel.findMany({
+    where: { organizationId },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function updateYourModel(id: string, data: UpdateYourModelData) {
+  return await db.yourModel.update({
+    where: { id },
+    data,
+  });
+}
+
+export async function deleteYourModel(id: string) {
+  return await db.yourModel.delete({ where: { id } });
+}
+```
+
+### 2. API 層 (packages/api)
+
+#### 2.1 API 路由實現
+在 `packages/api/src/routes/organizations/your-model.ts` 中實現 RESTful API：
+
+```typescript
+import { Hono } from "hono";
+import { describeRoute } from "hono-openapi";
+import { resolver, validator } from "hono-openapi/zod";
+import { z } from "zod";
+import { authMiddleware } from "../../middleware/auth";
+import { verifyOrganizationMembership } from "./lib/membership";
+import {
+  createYourModel,
+  deleteYourModel,
+  getYourModelsByOrganizationId,
+  updateYourModel,
+} from "@repo/database";
+
+const CreateSchema = z.object({
+  field1: z.string().min(1, "field1 是必填的"),
+  field2: z.number().min(0, "field2 不能為負數"),
+  field3: z.string().optional(),
+});
+
+const UpdateSchema = CreateSchema.partial();
+
+export const yourModelsRouter = new Hono()
+  .use(authMiddleware)
+  .get("/your-models", 
+    validator("query", z.object({ organizationId: z.string() })),
+    async (c) => {
+      const { organizationId } = c.req.valid("query");
+      const user = c.get("user");
+      
+      await verifyOrganizationMembership(organizationId, user.id);
+      
+      const data = await getYourModelsByOrganizationId(organizationId);
+      return c.json({ data });
+    }
+  )
+  .post("/your-models",
+    validator("json", CreateSchema.extend({ organizationId: z.string() })),
+    async (c) => {
+      const data = c.req.valid("json");
+      const user = c.get("user");
+      
+      await verifyOrganizationMembership(data.organizationId, user.id);
+      
+      const result = await createYourModel(data);
+      return c.json({ data: result }, 201);
+    }
+  )
+  .put("/your-models/:id",
+    validator("param", z.object({ id: z.string() })),
+    validator("json", UpdateSchema),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const data = c.req.valid("json");
+      const user = c.get("user");
+      
+      const result = await updateYourModel(id, data);
+      await verifyOrganizationMembership(result.organizationId, user.id);
+      
+      return c.json({ data: result });
+    }
+  )
+  .delete("/your-models/:id",
+    validator("param", z.object({ id: z.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const user = c.get("user");
+      
+      const result = await deleteYourModel(id);
+      await verifyOrganizationMembership(result.organizationId, user.id);
+      
+      return c.json({ message: "記錄已成功刪除" });
+    }
+  );
+```
+
+#### 2.2 路由註冊
+在 `packages/api/src/routes/organizations/router.ts` 中註冊路由：
+
+```typescript
+import { yourModelsRouter } from "./your-model";
+
+export const organizationsRouter = new Hono()
+  .basePath("/organizations")
+  .route("/", yourModelsRouter)
+  // ... 其他路由
+```
+
+### 3. 前端實現 (apps/web)
+
+#### 3.1 資料型別定義
+在 `apps/web/app/(saas)/app/(organizations)/[organizationSlug]/your-models/components/columns.tsx` 中定義：
+
+```typescript
+export interface YourModelRecord {
+  id: string;
+  field1: string;
+  field2: number;
+  field3?: string | null;
+  organizationId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### 3.2 表格欄位配置
+在同一檔案中實現 columns：
+
+```typescript
+import { DataTableColumnHeader } from "@saas/shared/components/DataTable/DataTableColumnHeader";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Button } from "@ui/components/button";
+import { Edit2 } from "lucide-react";
+
+export function createColumns(
+  onEdit: (record: YourModelRecord) => void,
+): ColumnDef<YourModelRecord>[] {
+  return [
+    {
+      accessorKey: "field1",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="欄位1" />
+      ),
+    },
+    {
+      accessorKey: "field2",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="欄位2" />
+      ),
+      cell: ({ row }) => {
+        const value = row.getValue("field2") as number;
+        return value.toLocaleString();
+      },
+    },
+    {
+      id: "actions",
+      header: "操作",
+      cell: ({ row }) => {
+        const record = row.original;
+        return (
+          <Button variant="ghost" size="sm" onClick={() => onEdit(record)}>
+            <Edit2 className="size-4" />
+          </Button>
+        );
+      },
+    },
+  ];
+}
+```
+
+#### 3.3 新增對話框
+創建 `create-your-model-dialog.tsx`：
+
+```typescript
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@ui/components/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@ui/components/form";
+import { Input } from "@ui/components/input";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const createSchema = z.object({
+  field1: z.string().min(1, "field1 是必填的"),
+  field2: z.number().min(0, "field2 不能為負數"),
+  field3: z.string().optional(),
+});
+
+type CreateFormData = z.infer<typeof createSchema>;
+
+interface CreateDialogProps {
+  organizationId: string;
+  onSuccess?: () => void;
+}
+
+export function CreateYourModelDialog({
+  organizationId,
+  onSuccess,
+}: CreateDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<CreateFormData>({
+    resolver: zodResolver(createSchema),
+    defaultValues: {
+      field2: 0,
+    },
+  });
+
+  const onSubmit = async (data: CreateFormData) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/organizations/your-models", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, organizationId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("新增失敗");
+      }
+
+      form.reset();
+      setOpen(false);
+      onSuccess?.();
+    } catch (error) {
+      console.error("新增失敗:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus className="mr-2 size-4" />
+          新增記錄
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>新增記錄</DialogTitle>
+          <DialogDescription>填寫下方資訊來新增記錄。</DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="grid gap-4 py-4">
+              <FormField
+                control={form.control}
+                name="field1"
+                render={({ field }) => (
+                  <FormItem className="grid grid-cols-4 items-center gap-4">
+                    <FormLabel className="text-right">欄位1 *</FormLabel>
+                    <div className="col-span-3">
+                      <FormControl>
+                        <Input placeholder="輸入欄位1" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              {/* 其他欄位 */}
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                取消
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "新增中..." : "新增"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+#### 3.4 編輯對話框
+創建 `edit-your-model-dialog.tsx`（結構類似新增對話框，但支援編輯和刪除）。
+
+**編輯對話框按鈕佈局規則：**
+- 刪除按鈕必須放在 DialogFooter 的最左邊
+- 使用 `variant="error"` 為刪除按鈕
+- 取消和確認按鈕放在右邊，使用 flex gap 分組
+
+```typescript
+<DialogFooter className="flex justify-between">
+  <Button
+    type="button"
+    variant="error"
+    onClick={handleDelete}
+    disabled={isDeleting}
+  >
+    {isDeleting ? "刪除中..." : "刪除"}
+  </Button>
+  <div className="flex gap-2">
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => onOpenChange(false)}
+    >
+      取消
+    </Button>
+    <Button type="submit" disabled={isLoading}>
+      {isLoading ? "更新中..." : "更新"}
+    </Button>
+  </div>
+</DialogFooter>
+```
+
+#### 3.5 主頁面實現
+創建 `page.tsx`：
+
+```typescript
+"use client";
+
+import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { DataTable } from "@saas/shared/components/DataTable";
+import { PageHeader } from "@saas/shared/components/PageHeader";
+import { useEffect, useState } from "react";
+import type { YourModelRecord } from "./components/columns";
+import { createColumns } from "./components/columns";
+import { CreateYourModelDialog } from "./components/create-your-model-dialog";
+import { EditYourModelDialog } from "./components/edit-your-model-dialog";
+
+export default function YourModelsPage() {
+  const { activeOrganization, loaded } = useActiveOrganization();
+  const [data, setData] = useState<YourModelRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [editingRecord, setEditingRecord] = useState<YourModelRecord | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  const fetchData = async () => {
+    if (!activeOrganization?.id) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/organizations/your-models?organizationId=${activeOrganization.id}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        setData(result.data || []);
+      }
+    } catch (error) {
+      console.error("獲取數據失敗:", error);
+      setData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = (record: YourModelRecord) => {
+    setEditingRecord(record);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    fetchData();
+    setEditingRecord(null);
+  };
+
+  const columns = createColumns(handleEdit);
+
+  useEffect(() => {
+    if (activeOrganization?.id && loaded) {
+      fetchData();
+    }
+  }, [activeOrganization?.id, loaded]);
+
+  if (!loaded) {
+    return <div className="container py-6">載入中...</div>;
+  }
+
+  return (
+    <div className="container space-y-8 py-6">
+      <PageHeader
+        title="記錄列表"
+        subtitle="管理所有記錄"
+        actions={
+          activeOrganization && (
+            <CreateYourModelDialog
+              organizationId={activeOrganization.id}
+              onSuccess={fetchData}
+            />
+          )
+        }
+      />
+
+      <DataTable
+        columns={columns}
+        data={data}
+        isLoading={isLoading}
+        searchKey="field1"
+        searchPlaceholder="搜尋記錄"
+      />
+
+      {editingRecord && (
+        <EditYourModelDialog
+          record={editingRecord}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSuccess={handleEditSuccess}
+        />
+      )}
+    </div>
+  );
+}
+```
+
+### 4. 檔案結構檢查清單
+
+實現完整的 CRUD 表格功能需要創建以下檔案：
+
+#### 後端檔案:
+- `packages/database/prisma/schema.prisma` - 資料庫模型定義
+- `packages/database/prisma/queries/your-model.ts` - 資料庫查詢函數
+- `packages/api/src/routes/organizations/your-model.ts` - API 路由實現
+- 更新 `packages/api/src/routes/organizations/router.ts` - 路由註冊
+
+#### 前端檔案:
+- `apps/web/app/(saas)/app/(organizations)/[organizationSlug]/your-models/page.tsx` - 主頁面
+- `apps/web/app/(saas)/app/(organizations)/[organizationSlug]/your-models/components/columns.tsx` - 表格欄位定義
+- `apps/web/app/(saas)/app/(organizations)/[organizationSlug]/your-models/components/create-your-model-dialog.tsx` - 新增對話框
+- `apps/web/app/(saas)/app/(organizations)/[organizationSlug]/your-models/components/edit-your-model-dialog.tsx` - 編輯對話框
+
+### 5. 重要注意事項
+
+1. **權限驗證**: 所有 API 都必須驗證用戶是否為組織成員
+2. **表單驗證**: 前端和後端都要進行 Zod 驗證
+3. **錯誤處理**: 適當的錯誤處理和用戶反饋
+4. **載入狀態**: 提供適當的載入指示器
+5. **資料重新整理**: 操作成功後重新獲取資料
+6. **型別安全**: 確保前後端型別一致性
+7. **響應式設計**: 使用 Tailwind 進行響應式佈局
+
+### 6. 常用模式
+
+- 使用 `useActiveOrganization` 獲取當前組織
+- 使用 `DataTable` 組件顯示表格
+- 使用 `PageHeader` 組件顯示頁面標題和操作按鈕
+- 使用 `Dialog` 組件實現彈出式表單
+- 使用 `react-hook-form` + `zod` 進行表單驗證
+- 使用 `useState` 管理組件狀態
+- 使用 `useEffect` 處理資料獲取
