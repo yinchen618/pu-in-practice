@@ -10,8 +10,15 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@ui/components/dialog";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@ui/components/form";
 import { Input } from "@ui/components/input";
-import { Label } from "@ui/components/label";
 import {
 	Select,
 	SelectContent,
@@ -51,26 +58,25 @@ export function EditProductDialog({
 	onSuccess,
 }: EditProductDialogProps) {
 	const [isLoading, setIsLoading] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		reset,
-		setValue,
-		watch,
-	} = useForm<EditProductFormData>({
+	const form = useForm<EditProductFormData>({
 		resolver: zodResolver(editProductSchema),
+		defaultValues: {
+			name: "",
+			code: "",
+			category: "EQ",
+			description: "",
+			status: "active",
+			price: undefined,
+			currency: "TWD",
+		},
 	});
-
-	const categoryValue = watch("category");
-	const statusValue = watch("status");
-	const currencyValue = watch("currency");
 
 	// 當產品記錄改變時重置表單
 	useEffect(() => {
 		if (productRecord) {
-			reset({
+			form.reset({
 				name: productRecord.name,
 				code: productRecord.code,
 				category: productRecord.category as
@@ -87,7 +93,7 @@ export function EditProductDialog({
 				currency: productRecord.currency || "TWD",
 			});
 		}
-	}, [productRecord, reset]);
+	}, [productRecord, form]);
 
 	const onSubmit = async (data: EditProductFormData) => {
 		setIsLoading(true);
@@ -119,6 +125,39 @@ export function EditProductDialog({
 		}
 	};
 
+	const handleDelete = async () => {
+		if (!confirm("確定要刪除這個產品嗎？此操作無法撤銷。")) {
+			return;
+		}
+
+		setIsDeleting(true);
+		try {
+			const response = await fetch(
+				`/api/organizations/products/${productRecord.id}`,
+				{
+					method: "DELETE",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				},
+			);
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.message || "刪除失敗");
+			}
+
+			onOpenChange(false);
+			onSuccess?.();
+		} catch (error) {
+			console.error("刪除產品失敗:", error);
+			// 這裡可以添加 toast 通知
+		} finally {
+			setIsDeleting(false);
+		}
+	};
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[500px]">
@@ -126,205 +165,247 @@ export function EditProductDialog({
 					<DialogTitle>編輯產品</DialogTitle>
 					<DialogDescription>編輯產品資訊。</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit(onSubmit)}>
-					<div className="grid gap-4 py-4">
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="name" className="text-right">
-								產品名稱 *
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="name"
-									{...register("name")}
-									placeholder="輸入產品名稱"
-								/>
-								{errors.name && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.name.message}
-									</p>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<div className="grid gap-4 py-4">
+							<FormField
+								control={form.control}
+								name="name"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											產品名稱 *
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													placeholder="輸入產品名稱"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="code" className="text-right">
-								產品代碼 *
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="code"
-									{...register("code")}
-									placeholder="輸入產品代碼"
-								/>
-								{errors.code && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.code.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="code"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											產品代碼 *
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													placeholder="輸入產品代碼"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="category" className="text-right">
-								類別 *
-							</Label>
-							<div className="col-span-3">
-								<Select
-									value={categoryValue}
-									onValueChange={(value) =>
-										setValue(
-											"category",
-											value as
-												| "AQ"
-												| "Bond"
-												| "DCI"
-												| "EQ"
-												| "FCN"
-												| "Fund"
-												| "FX",
-										)
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="選擇產品類別" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="AQ">AQ</SelectItem>
-										<SelectItem value="Bond">
-											債券
-										</SelectItem>
-										<SelectItem value="DCI">DCI</SelectItem>
-										<SelectItem value="EQ">股票</SelectItem>
-										<SelectItem value="FCN">FCN</SelectItem>
-										<SelectItem value="Fund">
-											基金
-										</SelectItem>
-										<SelectItem value="FX">外匯</SelectItem>
-									</SelectContent>
-								</Select>
-								{errors.category && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.category.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="category"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											類別 *
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇產品類別" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value="AQ">
+														AQ
+													</SelectItem>
+													<SelectItem value="Bond">
+														債券
+													</SelectItem>
+													<SelectItem value="DCI">
+														DCI
+													</SelectItem>
+													<SelectItem value="EQ">
+														股票
+													</SelectItem>
+													<SelectItem value="FCN">
+														FCN
+													</SelectItem>
+													<SelectItem value="Fund">
+														基金
+													</SelectItem>
+													<SelectItem value="FX">
+														外匯
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="status" className="text-right">
-								狀態 *
-							</Label>
-							<div className="col-span-3">
-								<Select
-									value={statusValue}
-									onValueChange={(value) =>
-										setValue(
-											"status",
-											value as "active" | "inactive",
-										)
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="選擇狀態" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="active">
-											銷售中
-										</SelectItem>
-										<SelectItem value="inactive">
-											已下架
-										</SelectItem>
-									</SelectContent>
-								</Select>
-								{errors.status && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.status.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="status"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											狀態 *
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇狀態" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value="active">
+														銷售中
+													</SelectItem>
+													<SelectItem value="inactive">
+														已下架
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="price" className="text-right">
-								價格
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="price"
-									type="number"
-									step="0.01"
-									{...register("price", {
-										valueAsNumber: true,
-									})}
-									placeholder="輸入價格"
-								/>
-								{errors.price && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.price.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="price"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											價格
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													type="number"
+													step="0.01"
+													placeholder="輸入價格"
+													{...field}
+													onChange={(e) => {
+														const value =
+															e.target.value;
+														field.onChange(
+															value === ""
+																? undefined
+																: Number(value),
+														);
+													}}
+													value={field.value || ""}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="currency" className="text-right">
-								幣別
-							</Label>
-							<div className="col-span-3">
-								<Select
-									value={currencyValue}
-									onValueChange={(value) =>
-										setValue("currency", value)
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="選擇幣別" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="TWD">TWD</SelectItem>
-										<SelectItem value="USD">USD</SelectItem>
-										<SelectItem value="EUR">EUR</SelectItem>
-										<SelectItem value="JPY">JPY</SelectItem>
-										<SelectItem value="CNY">CNY</SelectItem>
-									</SelectContent>
-								</Select>
-								{errors.currency && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.currency.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="currency"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											幣別
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇幣別" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value="TWD">
+														TWD
+													</SelectItem>
+													<SelectItem value="USD">
+														USD
+													</SelectItem>
+													<SelectItem value="EUR">
+														EUR
+													</SelectItem>
+													<SelectItem value="JPY">
+														JPY
+													</SelectItem>
+													<SelectItem value="CNY">
+														CNY
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
+							/>
+							<FormField
+								control={form.control}
+								name="description"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-start gap-4">
+										<FormLabel className="text-right mt-2">
+											描述
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Textarea
+													placeholder="輸入產品描述"
+													className="min-h-[80px]"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
 						</div>
-						<div className="grid grid-cols-4 items-start gap-4">
-							<Label
-								htmlFor="description"
-								className="text-right mt-2"
+						<DialogFooter className="flex justify-between">
+							<Button
+								type="button"
+								variant="error"
+								onClick={handleDelete}
+								disabled={isDeleting}
 							>
-								描述
-							</Label>
-							<div className="col-span-3">
-								<Textarea
-									id="description"
-									{...register("description")}
-									placeholder="輸入產品描述"
-									className="min-h-[80px]"
-								/>
-								{errors.description && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.description.message}
-									</p>
-								)}
+								{isDeleting ? "刪除中..." : "刪除"}
+							</Button>
+							<div className="flex gap-2">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => onOpenChange(false)}
+								>
+									取消
+								</Button>
+								<Button type="submit" disabled={isLoading}>
+									{isLoading ? "更新中..." : "更新"}
+								</Button>
 							</div>
-						</div>
-					</div>
-					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => onOpenChange(false)}
-						>
-							取消
-						</Button>
-						<Button type="submit" disabled={isLoading}>
-							{isLoading ? "更新中..." : "更新產品"}
-						</Button>
-					</DialogFooter>
-				</form>
+						</DialogFooter>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	);

@@ -11,8 +11,15 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@ui/components/dialog";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@ui/components/form";
 import { Input } from "@ui/components/input";
-import { Label } from "@ui/components/label";
 import {
 	Select,
 	SelectContent,
@@ -49,23 +56,17 @@ export function CreateProductDialog({
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		reset,
-		setValue,
-		watch,
-	} = useForm<CreateProductFormData>({
+	const form = useForm<CreateProductFormData>({
 		resolver: zodResolver(createProductSchema),
 		defaultValues: {
+			name: "",
+			code: "",
 			category: "EQ",
+			description: "",
+			price: undefined,
 			currency: "TWD",
 		},
 	});
-
-	const categoryValue = watch("category");
-	const currencyValue = watch("currency");
 
 	const onSubmit = async (data: CreateProductFormData) => {
 		setIsLoading(true);
@@ -88,7 +89,7 @@ export function CreateProductDialog({
 			}
 
 			// 重置表單並關閉對話框
-			reset();
+			form.reset();
 			setOpen(false);
 			onSuccess?.();
 		} catch (error) {
@@ -114,175 +115,208 @@ export function CreateProductDialog({
 						填寫下方資訊來新增一個產品。
 					</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit(onSubmit)}>
-					<div className="grid gap-4 py-4">
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="name" className="text-right">
-								產品名稱 *
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="name"
-									{...register("name")}
-									placeholder="輸入產品名稱"
-								/>
-								{errors.name && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.name.message}
-									</p>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<div className="grid gap-4 py-4">
+							<FormField
+								control={form.control}
+								name="name"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											產品名稱 *
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													placeholder="輸入產品名稱"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="code" className="text-right">
-								產品代碼 *
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="code"
-									{...register("code")}
-									placeholder="輸入產品代碼"
-								/>
-								{errors.code && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.code.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="code"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											產品代碼 *
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													placeholder="輸入產品代碼"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="category" className="text-right">
-								類別 *
-							</Label>
-							<div className="col-span-3">
-								<Select
-									value={categoryValue}
-									onValueChange={(value) =>
-										setValue(
-											"category",
-											value as
-												| "AQ"
-												| "Bond"
-												| "DCI"
-												| "EQ"
-												| "FCN"
-												| "Fund"
-												| "FX",
-										)
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="選擇產品類別" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="AQ">AQ</SelectItem>
-										<SelectItem value="Bond">
-											債券
-										</SelectItem>
-										<SelectItem value="DCI">DCI</SelectItem>
-										<SelectItem value="EQ">股票</SelectItem>
-										<SelectItem value="FCN">FCN</SelectItem>
-										<SelectItem value="Fund">
-											基金
-										</SelectItem>
-										<SelectItem value="FX">外匯</SelectItem>
-									</SelectContent>
-								</Select>
-								{errors.category && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.category.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="category"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											類別 *
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇產品類別" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value="AQ">
+														AQ
+													</SelectItem>
+													<SelectItem value="Bond">
+														債券
+													</SelectItem>
+													<SelectItem value="DCI">
+														DCI
+													</SelectItem>
+													<SelectItem value="EQ">
+														股票
+													</SelectItem>
+													<SelectItem value="FCN">
+														FCN
+													</SelectItem>
+													<SelectItem value="Fund">
+														基金
+													</SelectItem>
+													<SelectItem value="FX">
+														外匯
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="price" className="text-right">
-								價格
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="price"
-									type="number"
-									step="0.01"
-									{...register("price", {
-										valueAsNumber: true,
-									})}
-									placeholder="輸入價格"
-								/>
-								{errors.price && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.price.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="price"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											價格
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													type="number"
+													step="0.01"
+													placeholder="輸入價格"
+													{...field}
+													onChange={(e) => {
+														const value =
+															e.target.value;
+														field.onChange(
+															value === ""
+																? undefined
+																: Number(value),
+														);
+													}}
+													value={field.value || ""}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="currency" className="text-right">
-								幣別
-							</Label>
-							<div className="col-span-3">
-								<Select
-									value={currencyValue}
-									onValueChange={(value) =>
-										setValue("currency", value)
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="選擇幣別" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="TWD">TWD</SelectItem>
-										<SelectItem value="USD">USD</SelectItem>
-										<SelectItem value="EUR">EUR</SelectItem>
-										<SelectItem value="JPY">JPY</SelectItem>
-										<SelectItem value="CNY">CNY</SelectItem>
-									</SelectContent>
-								</Select>
-								{errors.currency && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.currency.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="currency"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											幣別
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇幣別" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value="TWD">
+														TWD
+													</SelectItem>
+													<SelectItem value="USD">
+														USD
+													</SelectItem>
+													<SelectItem value="EUR">
+														EUR
+													</SelectItem>
+													<SelectItem value="JPY">
+														JPY
+													</SelectItem>
+													<SelectItem value="CNY">
+														CNY
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
 								)}
-							</div>
+							/>
+							<FormField
+								control={form.control}
+								name="description"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-start gap-4">
+										<FormLabel className="text-right mt-2">
+											描述
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Textarea
+													placeholder="輸入產品描述"
+													className="min-h-[80px]"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
 						</div>
-						<div className="grid grid-cols-4 items-start gap-4">
-							<Label
-								htmlFor="description"
-								className="text-right mt-2"
+						<DialogFooter>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => {
+									form.reset();
+									setOpen(false);
+								}}
 							>
-								描述
-							</Label>
-							<div className="col-span-3">
-								<Textarea
-									id="description"
-									{...register("description")}
-									placeholder="輸入產品描述"
-									className="min-h-[80px]"
-								/>
-								{errors.description && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.description.message}
-									</p>
-								)}
-							</div>
-						</div>
-					</div>
-					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => {
-								reset();
-								setOpen(false);
-							}}
-						>
-							取消
-						</Button>
-						<Button type="submit" disabled={isLoading}>
-							{isLoading ? "新增中..." : "新增產品"}
-						</Button>
-					</DialogFooter>
-				</form>
+								取消
+							</Button>
+							<Button type="submit" disabled={isLoading}>
+								{isLoading ? "新增中..." : "新增產品"}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	);

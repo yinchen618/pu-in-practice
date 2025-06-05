@@ -661,3 +661,175 @@ export default function YourModelsPage() {
 - 使用 `react-hook-form` + `zod` 進行表單驗證
 - 使用 `useState` 管理組件狀態
 - 使用 `useEffect` 處理資料獲取
+
+## 表單組件正確使用規則
+
+### React Hook Form + Shadcn UI Form 組件配置
+
+**❌ 錯誤的表單配置（會導致 input 無法輸入）：**
+
+```typescript
+// 錯誤：直接使用 register 而不是 Form 組件
+const { register, handleSubmit, formState: { errors } } = useForm();
+
+return (
+  <form onSubmit={handleSubmit(onSubmit)}>
+    <Label htmlFor="name">姓名</Label>
+    <Input {...register("name")} />
+    {errors.name && <p>{errors.name.message}</p>}
+  </form>
+);
+```
+
+**✅ 正確的表單配置：**
+
+```typescript
+// 正確：使用 Form 組件包裝，搭配 FormField
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@ui/components/form";
+
+const form = useForm<FormData>({
+  resolver: zodResolver(schema),
+  defaultValues: {
+    name: "",
+  },
+});
+
+return (
+  <Form {...form}>
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <FormField
+        control={form.control}
+        name="name"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>姓名</FormLabel>
+            <FormControl>
+              <Input placeholder="輸入姓名" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </form>
+  </Form>
+);
+```
+
+### 關鍵點說明
+
+1. **必須使用 Form 組件**：所有使用 react-hook-form 的表單都必須用 `<Form {...form}>` 包裝
+2. **使用 FormField 代替 register**：每個欄位都要用 `FormField` 配合 `render` prop
+3. **FormControl 包裝 Input**：Input 組件必須被 `FormControl` 包裝
+4. **使用 FormMessage 顯示錯誤**：用 `FormMessage` 取代手動顯示錯誤訊息
+5. **form.control 傳遞給 FormField**：確保 `control={form.control}` 正確傳遞
+
+### Select 組件的正確配置
+
+```typescript
+<FormField
+  control={form.control}
+  name="category"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>類別</FormLabel>
+      <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue placeholder="選擇類別" />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          <SelectItem value="option1">選項1</SelectItem>
+          <SelectItem value="option2">選項2</SelectItem>
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+```
+
+### 數字欄位的正確處理
+
+```typescript
+<FormField
+  control={form.control}
+  name="price"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>價格</FormLabel>
+      <FormControl>
+        <Input
+          type="number"
+          step="0.01"
+          placeholder="輸入價格"
+          {...field}
+          onChange={(e) => {
+            const value = e.target.value;
+            field.onChange(value === "" ? undefined : Number(value));
+          }}
+          value={field.value || ""}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+```
+
+### 表單重置和預設值
+
+```typescript
+// 新增表單：明確設定預設值
+const form = useForm<FormData>({
+  resolver: zodResolver(schema),
+  defaultValues: {
+    name: "",
+    category: "default",
+    price: undefined,
+  },
+});
+
+// 編輯表單：使用 useEffect 重置表單
+useEffect(() => {
+  if (editData) {
+    form.reset({
+      name: editData.name,
+      category: editData.category,
+      price: editData.price || undefined,
+    });
+  }
+}, [editData, form]);
+```
+
+### 檢查清單
+
+創建任何表單對話框時，確保：
+
+1. ✅ 導入 Form 相關組件：`Form`, `FormControl`, `FormField`, `FormItem`, `FormLabel`, `FormMessage`
+2. ✅ 使用 `const form = useForm()` 而非解構賦值
+3. ✅ 用 `<Form {...form}>` 包裝整個表單
+4. ✅ 每個欄位都使用 `FormField` 和 `render` prop
+5. ✅ Input 組件被 `FormControl` 包裝
+6. ✅ 使用 `FormMessage` 顯示錯誤
+7. ✅ 數字欄位正確處理 `onChange` 和 `value`
+8. ✅ Select 組件正確配置 `onValueChange` 和 `defaultValue`
+
+### 常見錯誤及解決方案
+
+| 問題 | 原因 | 解決方案 |
+|------|------|----------|
+| Input 無法輸入 | 未使用 Form 組件包裝 | 用 `<Form {...form}>` 包裝表單 |
+| 錯誤訊息不顯示 | 使用手動錯誤處理 | 改用 `FormMessage` 組件 |
+| Select 無法選擇 | 未正確配置 FormControl | 用 `FormControl` 包裝 `SelectTrigger` |
+| 數字欄位有問題 | 未處理字串轉數字 | 自訂 `onChange` 處理邏輯 |
+| 編輯時欄位為空 | 未使用 useEffect 重置 | 在 useEffect 中呼叫 `form.reset()` |
+
+這套表單配置確保了與 Shadcn UI 設計系統的完整整合，並提供最佳的用戶體驗。
