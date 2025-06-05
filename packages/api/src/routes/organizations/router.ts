@@ -7,6 +7,7 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 import { bankAccountsRouter } from "./bank-accounts";
 import { customersRouter } from "./customers";
+import { expensesRouter } from "./expenses";
 import { relationshipManagersRouter } from "./relationship-managers";
 
 export const organizationsRouter = new Hono()
@@ -14,6 +15,7 @@ export const organizationsRouter = new Hono()
 	.route("/", relationshipManagersRouter)
 	.route("/", customersRouter)
 	.route("/", bankAccountsRouter)
+	.route("/", expensesRouter)
 	.get(
 		"/generate-slug",
 		validator(

@@ -144,6 +144,7 @@ model Organization {
     relationshipManagers RelationshipManager[]
     customers            Customer[]
     bankAccounts         BankAccount[]
+    expenses             Expense[]
 
     @@unique([slug])
     @@map("organization")
@@ -285,4 +286,21 @@ model BankAccount {
 
     @@unique([organizationId, accountNumber])
     @@map("bank_account")
+}
+
+model Expense {
+    id             String       @id @default(cuid())
+    category       String // 餐飲, 機票, 酒店, 快遞, 交通
+    amount         Decimal      @db.Decimal(15, 2)
+    currency       String       @default("TWD")
+    exchangeRate   Decimal      @default(1) @db.Decimal(10, 4) // X.XXXX format for exchange rate
+    receiptUrl     String? // 上傳收據 URL，先留空
+    description    String? // 支出描述
+    date           DateTime     @default(now()) // 支出日期
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+
+    @@map("expense")
 }
