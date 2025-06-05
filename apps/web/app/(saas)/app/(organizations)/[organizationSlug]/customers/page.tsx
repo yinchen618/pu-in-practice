@@ -90,7 +90,7 @@ export default function CustomersPage() {
 	}
 
 	return (
-		<div className="container max-w-6xl space-y-8 py-6">
+		<div className="container space-y-8 py-6">
 			<PageHeader
 				title="客戶列表"
 				subtitle="管理所有客戶資料"

@@ -3,6 +3,8 @@
 import { DataTableColumnHeader } from "@saas/shared/components/DataTable/DataTableColumnHeader";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@ui/components/badge";
+import { Button } from "@ui/components/button";
+import { Edit2 } from "lucide-react";
 
 export interface BankAccountRecord {
 	id: string;
@@ -12,9 +14,14 @@ export interface BankAccountRecord {
 	currency: string;
 	balance: number;
 	status: "active" | "inactive";
+	organizationId: string;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
-export const columns: ColumnDef<BankAccountRecord>[] = [
+export const createColumns = (
+	onEdit: (bankAccountRecord: BankAccountRecord) => void,
+): ColumnDef<BankAccountRecord>[] => [
 	{
 		accessorKey: "bankName",
 		header: ({ column }) => (
@@ -64,6 +71,33 @@ export const columns: ColumnDef<BankAccountRecord>[] = [
 				<Badge status={status === "active" ? "success" : "info"}>
 					{status === "active" ? "使用中" : "已停用"}
 				</Badge>
+			);
+		},
+	},
+	{
+		accessorKey: "createdAt",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="建立日期" />
+		),
+		cell: ({ row }) => {
+			const date = row.getValue("createdAt") as Date;
+			return new Date(date).toLocaleDateString("zh-TW");
+		},
+	},
+	{
+		id: "actions",
+		header: "操作",
+		cell: ({ row }) => {
+			const bankAccountRecord = row.original;
+
+			return (
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => onEdit(bankAccountRecord)}
+				>
+					<Edit2 className="size-4" />
+				</Button>
 			);
 		},
 	},
