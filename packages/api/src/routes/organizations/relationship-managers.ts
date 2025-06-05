@@ -16,6 +16,7 @@ const CreateRMSchema = z.object({
 	name: z.string().min(1, "姓名是必填的"),
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
+	category: z.enum(["FINDER", "RM", "BOTH"]).optional().default("RM"),
 });
 
 const UpdateRMSchema = z.object({
@@ -23,6 +24,7 @@ const UpdateRMSchema = z.object({
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
 	status: z.enum(["active", "inactive"]),
+	category: z.enum(["FINDER", "RM", "BOTH"]).optional(),
 });
 
 export const relationshipManagersRouter = new Hono()
@@ -47,6 +49,7 @@ export const relationshipManagersRouter = new Hono()
 											email: z.string(),
 											phone: z.string().nullable(),
 											status: z.string(),
+											category: z.string(),
 											customerCount: z.number(),
 											joinDate: z.date(),
 											organizationId: z.string(),
@@ -93,6 +96,7 @@ export const relationshipManagersRouter = new Hono()
 										email: z.string(),
 										phone: z.string().nullable(),
 										status: z.string(),
+										category: z.string(),
 										customerCount: z.number(),
 										joinDate: z.date(),
 										organizationId: z.string(),
@@ -151,6 +155,7 @@ export const relationshipManagersRouter = new Hono()
 										email: z.string(),
 										phone: z.string().nullable(),
 										status: z.string(),
+										category: z.string(),
 										customerCount: z.number(),
 										joinDate: z.date(),
 										organizationId: z.string(),

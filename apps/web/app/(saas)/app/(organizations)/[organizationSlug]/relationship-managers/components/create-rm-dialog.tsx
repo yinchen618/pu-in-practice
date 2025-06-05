@@ -13,6 +13,13 @@ import {
 } from "@ui/components/dialog";
 import { Input } from "@ui/components/input";
 import { Label } from "@ui/components/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@ui/components/select";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -22,6 +29,7 @@ const createRMSchema = z.object({
 	name: z.string().min(1, "姓名是必填的"),
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
+	category: z.enum(["FINDER", "RM", "BOTH"]),
 });
 
 type CreateRMFormData = z.infer<typeof createRMSchema>;
@@ -43,9 +51,16 @@ export function CreateRMDialog({
 		handleSubmit,
 		formState: { errors },
 		reset,
+		setValue,
+		watch,
 	} = useForm<CreateRMFormData>({
 		resolver: zodResolver(createRMSchema),
+		defaultValues: {
+			category: "RM",
+		},
 	});
+
+	const categoryValue = watch("category");
 
 	const onSubmit = async (data: CreateRMFormData) => {
 		setIsLoading(true);
@@ -148,6 +163,40 @@ export function CreateRMDialog({
 								{errors.phone && (
 									<p className="mt-1 text-sm text-red-500">
 										{errors.phone.message}
+									</p>
+								)}
+							</div>
+						</div>
+						<div className="grid grid-cols-4 items-center gap-4">
+							<Label htmlFor="category" className="text-right">
+								RM 類別 *
+							</Label>
+							<div className="col-span-3">
+								<Select
+									value={categoryValue}
+									onValueChange={(value) =>
+										setValue(
+											"category",
+											value as "FINDER" | "RM" | "BOTH",
+										)
+									}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="選擇 RM 類別" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="RM">RM</SelectItem>
+										<SelectItem value="FINDER">
+											FINDER
+										</SelectItem>
+										<SelectItem value="BOTH">
+											BOTH
+										</SelectItem>
+									</SelectContent>
+								</Select>
+								{errors.category && (
+									<p className="mt-1 text-sm text-red-500">
+										{errors.category.message}
 									</p>
 								)}
 							</div>

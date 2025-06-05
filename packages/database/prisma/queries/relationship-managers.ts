@@ -5,6 +5,7 @@ export interface CreateRelationshipManagerData {
 	name: string;
 	email: string;
 	phone?: string;
+	category?: "FINDER" | "RM" | "BOTH";
 	organizationId: string;
 }
 
@@ -13,6 +14,7 @@ export interface UpdateRelationshipManagerData {
 	email?: string;
 	phone?: string;
 	status?: "active" | "inactive";
+	category?: "FINDER" | "RM" | "BOTH";
 }
 
 export async function getRelationshipManagersByOrganizationId(

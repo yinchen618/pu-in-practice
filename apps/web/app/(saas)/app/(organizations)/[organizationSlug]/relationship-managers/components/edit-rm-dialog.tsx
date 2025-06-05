@@ -41,6 +41,7 @@ const editRMSchema = z.object({
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
 	status: z.enum(["active", "inactive"]),
+	category: z.enum(["FINDER", "RM", "BOTH"]),
 });
 
 type EditRMFormData = z.infer<typeof editRMSchema>;
@@ -75,10 +76,12 @@ export function EditRMDialog({
 			email: rmRecord.email,
 			phone: rmRecord.phone || "",
 			status: rmRecord.status,
+			category: rmRecord.category,
 		},
 	});
 
 	const statusValue = watch("status");
+	const categoryValue = watch("category");
 
 	useEffect(() => {
 		if (open) {
@@ -86,6 +89,7 @@ export function EditRMDialog({
 			setValue("email", rmRecord.email);
 			setValue("phone", rmRecord.phone || "");
 			setValue("status", rmRecord.status);
+			setValue("category", rmRecord.category);
 		}
 	}, [open, rmRecord, setValue]);
 
@@ -241,6 +245,40 @@ export function EditRMDialog({
 								{errors.status && (
 									<p className="mt-1 text-sm text-red-500">
 										{errors.status.message}
+									</p>
+								)}
+							</div>
+						</div>
+						<div className="grid grid-cols-4 items-center gap-4">
+							<Label htmlFor="category" className="text-right">
+								類別 *
+							</Label>
+							<div className="col-span-3">
+								<Select
+									value={categoryValue}
+									onValueChange={(value) =>
+										setValue(
+											"category",
+											value as "FINDER" | "RM" | "BOTH",
+										)
+									}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="選擇類別" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="FINDER">
+											FINDER
+										</SelectItem>
+										<SelectItem value="RM">RM</SelectItem>
+										<SelectItem value="BOTH">
+											BOTH
+										</SelectItem>
+									</SelectContent>
+								</Select>
+								{errors.category && (
+									<p className="mt-1 text-sm text-red-500">
+										{errors.category.message}
 									</p>
 								)}
 							</div>

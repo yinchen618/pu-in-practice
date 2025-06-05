@@ -13,6 +13,7 @@ export interface RMRecord {
 	phone: string | null;
 	customerCount: number;
 	status: "active" | "inactive";
+	category: "FINDER" | "RM" | "BOTH";
 	joinDate: Date;
 	organizationId: string;
 	createdAt: Date;
@@ -48,6 +49,44 @@ export const createColumns = (
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="電話" />
 		),
+	},
+	{
+		accessorKey: "category",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="RM 類別" />
+		),
+		cell: ({ row }) => {
+			const category = row.getValue("category") as string;
+			const getCategoryLabel = (category: string) => {
+				switch (category) {
+					case "FINDER":
+						return "FINDER";
+					case "RM":
+						return "RM";
+					case "BOTH":
+						return "BOTH";
+					default:
+						return category;
+				}
+			};
+			const getCategoryStatus = (category: string) => {
+				switch (category) {
+					case "FINDER":
+						return "warning";
+					case "RM":
+						return "info";
+					case "BOTH":
+						return "success";
+					default:
+						return "info";
+				}
+			};
+			return (
+				<Badge status={getCategoryStatus(category)}>
+					{getCategoryLabel(category)}
+				</Badge>
+			);
+		},
 	},
 	{
 		accessorKey: "customerCount",

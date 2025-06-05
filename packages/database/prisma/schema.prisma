@@ -155,6 +155,7 @@ model RelationshipManager {
     email          String
     phone          String?
     status         String       @default("active") // active, inactive
+    category       String       @default("RM") // FINDER, RM, BOTH
     customerCount  Int          @default(0)
     joinDate       DateTime     @default(now())
     organizationId String
