@@ -36,7 +36,6 @@ const createCustomerSchema = z.object({
 	name: z.string().min(1, "客戶名稱是必填的"),
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
-	bankAccount: z.string().min(1, "銀行帳戶是必填的"),
 	rm1Id: z.string().optional(),
 	rm1ProfitShare: z
 		.number()
@@ -90,7 +89,6 @@ export function CreateCustomerDialog({
 			name: "",
 			email: "",
 			phone: "",
-			bankAccount: "",
 			rm1Id: "none",
 			rm1ProfitShare: undefined,
 			rm2Id: "none",
@@ -200,40 +198,22 @@ export function CreateCustomerDialog({
 							/>
 						</div>
 
-						<div className="grid grid-cols-2 gap-4">
-							<FormField
-								control={form.control}
-								name="phone"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>電話</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="輸入電話號碼"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="bankAccount"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>銀行帳戶</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="輸入銀行帳戶"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
+						<FormField
+							control={form.control}
+							name="phone"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>電話</FormLabel>
+									<FormControl>
+										<Input
+											placeholder="輸入電話號碼"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
 						<div className="grid grid-cols-2 gap-4">
 							<FormField
@@ -524,7 +504,7 @@ export function CreateCustomerDialog({
 								取消
 							</Button>
 							<Button type="submit" disabled={isLoading}>
-								{isLoading ? "創建中..." : "創建客戶"}
+								{isLoading ? "創建中..." : "創建"}
 							</Button>
 						</DialogFooter>
 					</form>

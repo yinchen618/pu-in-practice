@@ -15,6 +15,12 @@ export interface BankAccountRecord {
 	balance: number;
 	status: "active" | "inactive";
 	organizationId: string;
+	customerId?: string;
+	customer?: {
+		id: string;
+		name: string;
+		email: string;
+	};
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -22,6 +28,18 @@ export interface BankAccountRecord {
 export const createColumns = (
 	onEdit: (bankAccountRecord: BankAccountRecord) => void,
 ): ColumnDef<BankAccountRecord>[] => [
+	{
+		accessorKey: "customer",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="客戶" />
+		),
+		cell: ({ row }) => {
+			const customer = row.getValue(
+				"customer",
+			) as BankAccountRecord["customer"];
+			return customer ? customer.name : "未指定客戶";
+		},
+	},
 	{
 		accessorKey: "bankName",
 		header: ({ column }) => (

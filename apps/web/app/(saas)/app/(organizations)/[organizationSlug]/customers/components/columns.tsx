@@ -10,8 +10,16 @@ export interface CustomerRecord {
 	name: string;
 	email: string;
 	phone: string | null;
-	bankAccount: string;
 	organizationId: string;
+	bankAccounts?: {
+		id: string;
+		bankName: string;
+		accountName: string;
+		accountNumber: string;
+		currency: string;
+		balance: number;
+		status: string;
+	}[];
 	rm1Id: string | null;
 	rm1ProfitShare: number | null;
 	rm2Id: string | null;
@@ -39,11 +47,18 @@ export const createColumns = (
 		),
 	},
 	{
-		accessorKey: "bankAccount",
+		accessorKey: "bankAccounts",
 		size: 180,
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="銀行帳戶" />
 		),
+		cell: ({ row }) => {
+			const bankAccounts = row.getValue(
+				"bankAccounts",
+			) as CustomerRecord["bankAccounts"];
+			const count = bankAccounts?.length || 0;
+			return count > 0 ? `${count} 個帳戶` : "無銀行帳戶";
+		},
 	},
 	{
 		accessorKey: "email",

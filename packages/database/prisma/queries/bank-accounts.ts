@@ -8,6 +8,7 @@ export interface CreateBankAccountData {
 	currency?: string;
 	balance?: number;
 	organizationId: string;
+	customerId?: string;
 }
 
 export interface UpdateBankAccountData {
@@ -17,12 +18,22 @@ export interface UpdateBankAccountData {
 	currency?: string;
 	balance?: number;
 	status?: "active" | "inactive";
+	customerId?: string;
 }
 
 export async function getBankAccountsByOrganizationId(organizationId: string) {
 	return await db.bankAccount.findMany({
 		where: {
 			organizationId,
+		},
+		include: {
+			customer: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+				},
+			},
 		},
 		orderBy: {
 			createdAt: "desc",
@@ -40,6 +51,15 @@ export async function createBankAccount(data: CreateBankAccountData) {
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		},
+		include: {
+			customer: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+				},
+			},
+		},
 	});
 }
 
@@ -47,6 +67,15 @@ export async function getBankAccountById(id: string) {
 	return await db.bankAccount.findUnique({
 		where: {
 			id,
+		},
+		include: {
+			customer: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+				},
+			},
 		},
 	});
 }
@@ -62,6 +91,15 @@ export async function updateBankAccount(
 		data: {
 			...data,
 			updatedAt: new Date(),
+		},
+		include: {
+			customer: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+				},
+			},
 		},
 	});
 }

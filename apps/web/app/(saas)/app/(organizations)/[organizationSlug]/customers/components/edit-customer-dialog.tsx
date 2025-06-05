@@ -36,7 +36,6 @@ const editCustomerSchema = z.object({
 	name: z.string().min(1, "客戶名稱是必填的"),
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
-	bankAccount: z.string().min(1, "銀行帳戶是必填的"),
 	rm1Id: z.string().optional(),
 	rm1ProfitShare: z
 		.number()
@@ -98,7 +97,6 @@ export function EditCustomerDialog({
 			name: customerRecord.name,
 			email: customerRecord.email,
 			phone: customerRecord.phone || "",
-			bankAccount: customerRecord.bankAccount,
 			rm1Id: customerRecord.rm1Id || "none",
 			rm1ProfitShare: customerRecord.rm1ProfitShare || undefined,
 			rm2Id: customerRecord.rm2Id || "none",
@@ -242,22 +240,6 @@ export function EditCustomerDialog({
 										<FormControl>
 											<Input
 												placeholder="輸入電話號碼"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="bankAccount"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>銀行帳戶</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="輸入銀行帳戶"
 												{...field}
 											/>
 										</FormControl>

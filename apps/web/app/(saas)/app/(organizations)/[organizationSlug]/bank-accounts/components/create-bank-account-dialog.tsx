@@ -11,8 +11,15 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@ui/components/dialog";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@ui/components/form";
 import { Input } from "@ui/components/input";
-import { Label } from "@ui/components/label";
 import {
 	Select,
 	SelectContent,
@@ -21,11 +28,12 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const createBankAccountSchema = z.object({
+	customerId: z.string().optional(),
 	bankName: z.string().min(1, "銀行名稱是必填的"),
 	accountName: z.string().min(1, "帳戶名稱是必填的"),
 	accountNumber: z.string().min(1, "帳號是必填的"),
@@ -34,6 +42,12 @@ const createBankAccountSchema = z.object({
 });
 
 type CreateBankAccountFormData = z.infer<typeof createBankAccountSchema>;
+
+interface Customer {
+	id: string;
+	name: string;
+	email: string;
+}
 
 interface CreateBankAccountDialogProps {
 	organizationId: string;
@@ -46,15 +60,9 @@ export function CreateBankAccountDialog({
 }: CreateBankAccountDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [customers, setCustomers] = useState<Customer[]>([]);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		reset,
-		setValue,
-		watch,
-	} = useForm<CreateBankAccountFormData>({
+	const form = useForm<CreateBankAccountFormData>({
 		resolver: zodResolver(createBankAccountSchema),
 		defaultValues: {
 			currency: "TWD",
@@ -62,7 +70,34 @@ export function CreateBankAccountDialog({
 		},
 	});
 
-	const currencyValue = watch("currency");
+	// 獲取客戶列表
+	const fetchCustomers = async () => {
+		try {
+			const response = await fetch(
+				`/api/organizations/customers?organizationId=${organizationId}`,
+				{
+					method: "GET",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				},
+			);
+
+			if (response.ok) {
+				const result = await response.json();
+				setCustomers(result.customers || []);
+			}
+		} catch (error) {
+			console.error("獲取客戶列表失敗:", error);
+		}
+	};
+
+	useEffect(() => {
+		if (open && organizationId) {
+			fetchCustomers();
+		}
+	}, [open, organizationId]);
 
 	const onSubmit = async (data: CreateBankAccountFormData) => {
 		setIsLoading(true);
@@ -75,6 +110,8 @@ export function CreateBankAccountDialog({
 				},
 				body: JSON.stringify({
 					...data,
+					customerId:
+						data.customerId === "none" ? null : data.customerId,
 					organizationId,
 				}),
 			});
@@ -85,7 +122,7 @@ export function CreateBankAccountDialog({
 			}
 
 			// 重置表單並關閉對話框
-			reset();
+			form.reset();
 			setOpen(false);
 			onSuccess?.();
 		} catch (error) {
@@ -111,143 +148,177 @@ export function CreateBankAccountDialog({
 						填寫下方資訊來新增一個銀行帳戶。
 					</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit(onSubmit)}>
-					<div className="grid gap-4 py-4">
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="bankName" className="text-right">
-								銀行名稱 *
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="bankName"
-									{...register("bankName")}
-									placeholder="輸入銀行名稱"
-								/>
-								{errors.bankName && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.bankName.message}
-									</p>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<div className="grid gap-4 py-4">
+							<FormField
+								control={form.control}
+								name="customerId"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>客戶</FormLabel>
+										<Select
+											onValueChange={field.onChange}
+											value={field.value || "none"}
+										>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="選擇客戶（可選）" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value="none">
+													未指定客戶
+												</SelectItem>
+												{customers.map((customer) => (
+													<SelectItem
+														key={customer.id}
+														value={customer.id}
+													>
+														{customer.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
 								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="accountName" className="text-right">
-								帳戶名稱 *
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="accountName"
-									{...register("accountName")}
-									placeholder="輸入帳戶名稱"
-								/>
-								{errors.accountName && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.accountName.message}
-									</p>
+							/>
+							<FormField
+								control={form.control}
+								name="bankName"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>銀行名稱 *</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="輸入銀行名稱"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
 								)}
-							</div>
+							/>
+							<FormField
+								control={form.control}
+								name="accountName"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>帳戶名稱 *</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="輸入帳戶名稱"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="accountNumber"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>帳號 *</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="輸入帳號"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="currency"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>幣別 *</FormLabel>
+										<Select
+											onValueChange={field.onChange}
+											value={field.value}
+										>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="選擇幣別" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value="SGD">
+													新加坡幣 (SGD)
+												</SelectItem>
+												<SelectItem value="HKD">
+													港幣 (HKD)
+												</SelectItem>
+												<SelectItem value="TWD">
+													新台幣 (TWD)
+												</SelectItem>
+												<SelectItem value="USD">
+													美元 (USD)
+												</SelectItem>
+												<SelectItem value="EUR">
+													歐元 (EUR)
+												</SelectItem>
+												<SelectItem value="JPY">
+													日圓 (JPY)
+												</SelectItem>
+												<SelectItem value="CNY">
+													人民幣 (CNY)
+												</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="balance"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>初始餘額</FormLabel>
+										<FormControl>
+											<Input
+												type="number"
+												step="0.01"
+												min="0"
+												placeholder="0.00"
+												{...field}
+												onChange={(e) =>
+													field.onChange(
+														e.target.value
+															? Number.parseFloat(
+																	e.target
+																		.value,
+																)
+															: 0,
+													)
+												}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label
-								htmlFor="accountNumber"
-								className="text-right"
+						<DialogFooter>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setOpen(false)}
 							>
-								帳號 *
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="accountNumber"
-									{...register("accountNumber")}
-									placeholder="輸入帳號"
-								/>
-								{errors.accountNumber && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.accountNumber.message}
-									</p>
-								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="currency" className="text-right">
-								幣別 *
-							</Label>
-							<div className="col-span-3">
-								<Select
-									value={currencyValue}
-									onValueChange={(value) =>
-										setValue("currency", value)
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="選擇幣別" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="SGD">
-											新加坡幣 (SGD)
-										</SelectItem>
-										<SelectItem value="HKD">
-											港幣 (HKD)
-										</SelectItem>
-										<SelectItem value="TWD">
-											新台幣 (TWD)
-										</SelectItem>
-										<SelectItem value="USD">
-											美元 (USD)
-										</SelectItem>
-										<SelectItem value="EUR">
-											歐元 (EUR)
-										</SelectItem>
-										<SelectItem value="JPY">
-											日圓 (JPY)
-										</SelectItem>
-										<SelectItem value="CNY">
-											人民幣 (CNY)
-										</SelectItem>
-									</SelectContent>
-								</Select>
-								{errors.currency && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.currency.message}
-									</p>
-								)}
-							</div>
-						</div>
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="balance" className="text-right">
-								初始餘額
-							</Label>
-							<div className="col-span-3">
-								<Input
-									id="balance"
-									type="number"
-									step="0.01"
-									min="0"
-									placeholder="0.00"
-									{...register("balance", {
-										valueAsNumber: true,
-									})}
-								/>
-								{errors.balance && (
-									<p className="mt-1 text-sm text-red-500">
-										{errors.balance.message}
-									</p>
-								)}
-							</div>
-						</div>
-					</div>
-					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => setOpen(false)}
-						>
-							取消
-						</Button>
-						<Button type="submit" disabled={isLoading}>
-							{isLoading ? "創建中..." : "創建"}
-						</Button>
-					</DialogFooter>
-				</form>
+								取消
+							</Button>
+							<Button type="submit" disabled={isLoading}>
+								{isLoading ? "創建中..." : "創建"}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	);

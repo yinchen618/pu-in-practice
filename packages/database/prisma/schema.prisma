@@ -180,9 +180,11 @@ model Customer {
   name           String
   email          String
   phone          String?
-  bankAccount    String
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Bank accounts relationship
+  bankAccounts BankAccount[]
 
   // RM relationships
   rm1Id          String?
@@ -282,8 +284,13 @@ model BankAccount {
   status         String       @default("active") // active, inactive
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+
+  // Customer relationship
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([organizationId, accountNumber])
   @@map("bank_account")

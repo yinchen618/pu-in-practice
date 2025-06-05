@@ -17,7 +17,6 @@ const CreateCustomerSchema = z.object({
 	name: z.string().min(1, "客戶名稱是必填的"),
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
-	bankAccount: z.string().min(1, "銀行帳戶是必填的"),
 	rm1Id: z.string().optional(),
 	rm1ProfitShare: z.number().min(0).max(100).optional().nullable(),
 	rm2Id: z.string().optional(),
@@ -32,7 +31,6 @@ const UpdateCustomerSchema = z.object({
 	name: z.string().min(1, "客戶名稱是必填的"),
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
-	bankAccount: z.string().min(1, "銀行帳戶是必填的"),
 	rm1Id: z.string().optional().nullable(),
 	rm1ProfitShare: z.number().min(0).max(100).optional().nullable(),
 	rm2Id: z.string().optional().nullable(),
@@ -64,8 +62,18 @@ export const customersRouter = new Hono()
 											name: z.string(),
 											email: z.string(),
 											phone: z.string().nullable(),
-											bankAccount: z.string(),
 											organizationId: z.string(),
+											bankAccounts: z.array(
+												z.object({
+													id: z.string(),
+													bankName: z.string(),
+													accountName: z.string(),
+													accountNumber: z.string(),
+													currency: z.string(),
+													balance: z.number(),
+													status: z.string(),
+												}),
+											),
 											rm1Id: z.string().nullable(),
 											rm1ProfitShare: z
 												.number()
@@ -118,6 +126,11 @@ export const customersRouter = new Hono()
 			// 轉換數據格式，添加關聯名稱
 			const customers = customersData.map((customer: any) => ({
 				...customer,
+				bankAccounts:
+					customer.bankAccounts?.map((account: any) => ({
+						...account,
+						balance: Number(account.balance),
+					})) || [],
 				rm1Name: customer.rm1?.name || null,
 				rm2Name: customer.rm2?.name || null,
 				finder1Name: customer.finder1?.name || null,
@@ -164,8 +177,18 @@ export const customersRouter = new Hono()
 										name: z.string(),
 										email: z.string(),
 										phone: z.string().nullable(),
-										bankAccount: z.string(),
 										organizationId: z.string(),
+										bankAccounts: z.array(
+											z.object({
+												id: z.string(),
+												bankName: z.string(),
+												accountName: z.string(),
+												accountNumber: z.string(),
+												currency: z.string(),
+												balance: z.number(),
+												status: z.string(),
+											}),
+										),
 										rm1Id: z.string().nullable(),
 										rm1ProfitShare: z.number().nullable(),
 										rm2Id: z.string().nullable(),
@@ -210,6 +233,11 @@ export const customersRouter = new Hono()
 				// 轉換數據格式，添加關聯名稱
 				const customer = {
 					...customerData,
+					bankAccounts:
+						customerData.bankAccounts?.map((account: any) => ({
+							...account,
+							balance: Number(account.balance),
+						})) || [],
 					rm1Name: customerData.rm1?.name || null,
 					rm2Name: customerData.rm2?.name || null,
 					finder1Name: customerData.finder1?.name || null,
@@ -258,8 +286,18 @@ export const customersRouter = new Hono()
 										name: z.string(),
 										email: z.string(),
 										phone: z.string().nullable(),
-										bankAccount: z.string(),
 										organizationId: z.string(),
+										bankAccounts: z.array(
+											z.object({
+												id: z.string(),
+												bankName: z.string(),
+												accountName: z.string(),
+												accountNumber: z.string(),
+												currency: z.string(),
+												balance: z.number(),
+												status: z.string(),
+											}),
+										),
 										rm1Id: z.string().nullable(),
 										rm1ProfitShare: z.number().nullable(),
 										rm2Id: z.string().nullable(),
@@ -305,6 +343,11 @@ export const customersRouter = new Hono()
 				// 轉換數據格式，添加關聯名稱
 				const customer = {
 					...customerData,
+					bankAccounts:
+						customerData.bankAccounts?.map((account: any) => ({
+							...account,
+							balance: Number(account.balance),
+						})) || [],
 					rm1Name: customerData.rm1?.name || null,
 					rm2Name: customerData.rm2?.name || null,
 					finder1Name: customerData.finder1?.name || null,

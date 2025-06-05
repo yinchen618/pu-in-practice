@@ -5,7 +5,6 @@ export interface CreateCustomerData {
 	name: string;
 	email: string;
 	phone?: string;
-	bankAccount: string;
 	organizationId: string;
 	rm1Id?: string;
 	rm1ProfitShare?: number | null;
@@ -21,7 +20,6 @@ export interface UpdateCustomerData {
 	name?: string;
 	email?: string;
 	phone?: string;
-	bankAccount?: string;
 	rm1Id?: string | null;
 	rm1ProfitShare?: number | null;
 	rm2Id?: string | null;
@@ -38,6 +36,17 @@ export async function getCustomersByOrganizationId(organizationId: string) {
 			organizationId,
 		},
 		include: {
+			bankAccounts: {
+				select: {
+					id: true,
+					bankName: true,
+					accountName: true,
+					accountNumber: true,
+					currency: true,
+					balance: true,
+					status: true,
+				},
+			},
 			rm1: {
 				select: {
 					id: true,
@@ -78,6 +87,17 @@ export async function createCustomer(data: CreateCustomerData) {
 			updatedAt: new Date(),
 		},
 		include: {
+			bankAccounts: {
+				select: {
+					id: true,
+					bankName: true,
+					accountName: true,
+					accountNumber: true,
+					currency: true,
+					balance: true,
+					status: true,
+				},
+			},
 			rm1: {
 				select: {
 					id: true,
@@ -112,6 +132,17 @@ export async function getCustomerById(id: string) {
 			id,
 		},
 		include: {
+			bankAccounts: {
+				select: {
+					id: true,
+					bankName: true,
+					accountName: true,
+					accountNumber: true,
+					currency: true,
+					balance: true,
+					status: true,
+				},
+			},
 			rm1: {
 				select: {
 					id: true,
@@ -150,6 +181,17 @@ export async function updateCustomer(id: string, data: UpdateCustomerData) {
 			updatedAt: new Date(),
 		},
 		include: {
+			bankAccounts: {
+				select: {
+					id: true,
+					bankName: true,
+					accountName: true,
+					accountNumber: true,
+					currency: true,
+					balance: true,
+					status: true,
+				},
+			},
 			rm1: {
 				select: {
 					id: true,

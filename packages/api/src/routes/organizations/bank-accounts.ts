@@ -18,6 +18,7 @@ const CreateBankAccountSchema = z.object({
 	accountNumber: z.string().min(1, "帳號是必填的"),
 	currency: z.string().optional(),
 	balance: z.number().optional(),
+	customerId: z.string().optional(),
 });
 
 const UpdateBankAccountSchema = z.object({
@@ -27,6 +28,7 @@ const UpdateBankAccountSchema = z.object({
 	currency: z.string().optional(),
 	balance: z.number().optional(),
 	status: z.enum(["active", "inactive"]).optional(),
+	customerId: z.string().optional(),
 });
 
 export const bankAccountsRouter = new Hono()
@@ -54,6 +56,14 @@ export const bankAccountsRouter = new Hono()
 											balance: z.number(),
 											status: z.string(),
 											organizationId: z.string(),
+											customerId: z.string().nullable(),
+											customer: z
+												.object({
+													id: z.string(),
+													name: z.string(),
+													email: z.string(),
+												})
+												.nullable(),
 											createdAt: z.date(),
 											updatedAt: z.date(),
 										}),
@@ -99,6 +109,14 @@ export const bankAccountsRouter = new Hono()
 										balance: z.number(),
 										status: z.string(),
 										organizationId: z.string(),
+										customerId: z.string().nullable(),
+										customer: z
+											.object({
+												id: z.string(),
+												name: z.string(),
+												email: z.string(),
+											})
+											.nullable(),
 										createdAt: z.date(),
 										updatedAt: z.date(),
 									}),
@@ -156,6 +174,14 @@ export const bankAccountsRouter = new Hono()
 										balance: z.number(),
 										status: z.string(),
 										organizationId: z.string(),
+										customerId: z.string().nullable(),
+										customer: z
+											.object({
+												id: z.string(),
+												name: z.string(),
+												email: z.string(),
+											})
+											.nullable(),
 										createdAt: z.date(),
 										updatedAt: z.date(),
 									}),

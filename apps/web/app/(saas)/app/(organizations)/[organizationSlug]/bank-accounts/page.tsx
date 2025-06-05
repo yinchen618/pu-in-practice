@@ -97,8 +97,8 @@ export default function BankAccountsPage() {
 				columns={columns}
 				data={data}
 				isLoading={isLoading}
-				searchKey="accountName"
-				searchPlaceholder="搜尋帳戶名稱"
+				searchKey="bankName"
+				searchPlaceholder="搜尋銀行名稱或帳戶名稱"
 			/>
 
 			{editingBankAccount && (
