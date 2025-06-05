@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客戶管理 ProfitShare 功能測試</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; white-space: pre-wrap; }
+        input, select { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 3px; }
+        .form-group { margin: 10px 0; }
+        label { display: inline-block; width: 150px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>客戶管理 ProfitShare 功能測試</h1>
+        
+        <div class="section">
+            <h2>1. 獲取客戶列表</h2>
+            <button onclick="getCustomers()">獲取客戶列表</button>
+            <div id="customers-result" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. 創建新客戶（包含 ProfitShare）</h2>
+            <div class="form-group">
+                <label>客戶名稱:</label>
+                <input type="text" id="customer-name" value="測試客戶">
+            </div>
+            <div class="form-group">
+                <label>電子郵件:</label>
+                <input type="email" id="customer-email" value="test@example.com">
+            </div>
+            <div class="form-group">
+                <label>電話:</label>
+                <input type="text" id="customer-phone" value="0912345678">
+            </div>
+            <div class="form-group">
+                <label>銀行帳戶:</label>
+                <input type="text" id="customer-bank" value="123456789">
+            </div>
+            <div class="form-group">
+                <label>RM1 利潤分享 (%):</label>
+                <input type="number" id="rm1-profit" value="25.5" step="0.01" min="0" max="100">
+            </div>
+            <div class="form-group">
+                <label>RM2 利潤分享 (%):</label>
+                <input type="number" id="rm2-profit" value="15.25" step="0.01" min="0" max="100">
+            </div>
+            <div class="form-group">
+                <label>Finder1 利潤分享 (%):</label>
+                <input type="number" id="finder1-profit" value="10.75" step="0.01" min="0" max="100">
+            </div>
+            <div class="form-group">
+                <label>Finder2 利潤分享 (%):</label>
+                <input type="number" id="finder2-profit" value="5.5" step="0.01" min="0" max="100">
+            </div>
+            <button onclick="createCustomer()">創建客戶</button>
+            <div id="create-result" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. 更新客戶 ProfitShare</h2>
+            <div class="form-group">
+                <label>客戶 ID:</label>
+                <input type="text" id="update-customer-id" placeholder="輸入客戶 ID">
+            </div>
+            <div class="form-group">
+                <label>新 RM1 利潤分享 (%):</label>
+                <input type="number" id="update-rm1-profit" value="30.0" step="0.01" min="0" max="100">
+            </div>
+            <div class="form-group">
+                <label>新 RM2 利潤分享 (%):</label>
+                <input type="number" id="update-rm2-profit" value="20.0" step="0.01" min="0" max="100">
+            </div>
+            <button onclick="updateCustomer()">更新客戶</button>
+            <div id="update-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/organizations';
+        const ORG_ID = 'cm4qlqhqr0000qlqhqr0000ql'; // 請替換為實際的組織 ID
+
+        async function apiCall(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                const data = await response.json();
+                return { success: response.ok, data, status: response.status };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function getCustomers() {
+            const result = await apiCall(`/customers?organizationId=${ORG_ID}`);
+            document.getElementById('customers-result').textContent = JSON.stringify(result, null, 2);
+        }
+
+        async function createCustomer() {
+            const customerData = {
+                name: document.getElementById('customer-name').value,
+                email: document.getElementById('customer-email').value,
+                phone: document.getElementById('customer-phone').value,
+                bankAccount: document.getElementById('customer-bank').value,
+                organizationId: ORG_ID,
+                rm1ProfitShare: parseFloat(document.getElementById('rm1-profit').value) || null,
+                rm2ProfitShare: parseFloat(document.getElementById('rm2-profit').value) || null,
+                finder1ProfitShare: parseFloat(document.getElementById('finder1-profit').value) || null,
+                finder2ProfitShare: parseFloat(document.getElementById('finder2-profit').value) || null
+            };
+
+            const result = await apiCall('/customers', {
+                method: 'POST',
+                body: JSON.stringify(customerData)
+            });
+            
+            document.getElementById('create-result').textContent = JSON.stringify(result, null, 2);
+            
+            // 如果創建成功，自動填入更新表單的客戶 ID
+            if (result.success && result.data.customer) {
+                document.getElementById('update-customer-id').value = result.data.customer.id;
+            }
+        }
+
+        async function updateCustomer() {
+            const customerId = document.getElementById('update-customer-id').value;
+            if (!customerId) {
+                alert('請輸入客戶 ID');
+                return;
+            }
+
+            const updateData = {
+                name: "更新後的客戶名稱",
+                email: "updated@example.com",
+                phone: "0987654321",
+                bankAccount: "987654321",
+                rm1ProfitShare: parseFloat(document.getElementById('update-rm1-profit').value) || null,
+                rm2ProfitShare: parseFloat(document.getElementById('update-rm2-profit').value) || null,
+                finder1ProfitShare: 12.5,
+                finder2ProfitShare: 7.25
+            };
+
+            const result = await apiCall(`/customers/${customerId}`, {
+                method: 'PUT',
+                body: JSON.stringify(updateData)
+            });
+            
+            document.getElementById('update-result').textContent = JSON.stringify(result, null, 2);
+        }
+
+        // 頁面載入時自動獲取客戶列表
+        window.onload = function() {
+            getCustomers();
+        };
+    </script>
+</body>
+</html> 

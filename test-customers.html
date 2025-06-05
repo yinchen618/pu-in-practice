@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客戶管理測試</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+        input, select { margin: 5px; padding: 8px; }
+        .form-group { margin: 10px 0; }
+        label { display: inline-block; width: 120px; }
+        #results { background: #f8f9fa; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>客戶管理 API 測試</h1>
+        
+        <div class="section">
+            <h2>創建客戶</h2>
+            <div class="form-group">
+                <label>客戶名稱:</label>
+                <input type="text" id="customerName" placeholder="輸入客戶名稱">
+            </div>
+            <div class="form-group">
+                <label>電子郵件:</label>
+                <input type="email" id="customerEmail" placeholder="輸入電子郵件">
+            </div>
+            <div class="form-group">
+                <label>電話:</label>
+                <input type="text" id="customerPhone" placeholder="輸入電話">
+            </div>
+            <div class="form-group">
+                <label>銀行帳戶:</label>
+                <input type="text" id="bankAccount" placeholder="輸入銀行帳戶">
+            </div>
+            <button onclick="createCustomer()">創建客戶</button>
+        </div>
+
+        <div class="section">
+            <h2>獲取客戶列表</h2>
+            <div class="form-group">
+                <label>組織ID:</label>
+                <input type="text" id="organizationId" placeholder="輸入組織ID">
+            </div>
+            <button onclick="getCustomers()">獲取客戶</button>
+        </div>
+
+        <div id="results">
+            <h3>結果:</h3>
+            <pre id="output"></pre>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api'; // 假設API運行在3001端口
+
+        async function createCustomer() {
+            const data = {
+                name: document.getElementById('customerName').value,
+                email: document.getElementById('customerEmail').value,
+                phone: document.getElementById('customerPhone').value,
+                bankAccount: document.getElementById('bankAccount').value,
+                organizationId: document.getElementById('organizationId').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/organizations/customers`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('output').textContent = `錯誤: ${error.message}`;
+            }
+        }
+
+        async function getCustomers() {
+            const organizationId = document.getElementById('organizationId').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/organizations/customers?organizationId=${organizationId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+                document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('output').textContent = `錯誤: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html> 

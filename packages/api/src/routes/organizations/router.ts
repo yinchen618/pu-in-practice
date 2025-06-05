@@ -5,11 +5,13 @@ import { describeRoute } from "hono-openapi";
 import { validator } from "hono-openapi/zod";
 import { nanoid } from "nanoid";
 import { z } from "zod";
+import { customersRouter } from "./customers";
 import { relationshipManagersRouter } from "./relationship-managers";
 
 export const organizationsRouter = new Hono()
 	.basePath("/organizations")
 	.route("/", relationshipManagersRouter)
+	.route("/", customersRouter)
 	.get(
 		"/generate-slug",
 		validator(
