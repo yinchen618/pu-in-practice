@@ -8,7 +8,7 @@ export interface CreateBankAccountData {
 	currency?: string;
 	balance?: number;
 	organizationId: string;
-	customerId?: string;
+	customerId?: string | null;
 }
 
 export interface UpdateBankAccountData {
@@ -18,7 +18,7 @@ export interface UpdateBankAccountData {
 	currency?: string;
 	balance?: number;
 	status?: "active" | "inactive";
-	customerId?: string;
+	customerId?: string | null;
 }
 
 export async function getBankAccountsByOrganizationId(organizationId: string) {
@@ -42,15 +42,22 @@ export async function getBankAccountsByOrganizationId(organizationId: string) {
 }
 
 export async function createBankAccount(data: CreateBankAccountData) {
+	const createData = {
+		id: nanoid(),
+		bankName: data.bankName,
+		accountName: data.accountName,
+		accountNumber: data.accountNumber,
+		balance: data.balance || 0,
+		currency: data.currency || "TWD",
+		status: "active",
+		organizationId: data.organizationId,
+		customerId: data.customerId || null,
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+
 	return await db.bankAccount.create({
-		data: {
-			id: nanoid(),
-			...data,
-			balance: data.balance || 0,
-			currency: data.currency || "TWD",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		},
+		data: createData,
 		include: {
 			customer: {
 				select: {

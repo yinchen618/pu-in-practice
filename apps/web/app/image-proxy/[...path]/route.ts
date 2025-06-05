@@ -14,7 +14,10 @@ export const GET = async (
 		return new Response("Invalid path", { status: 400 });
 	}
 
-	if (bucket === config.storage.bucketNames.avatars) {
+	if (
+		bucket === config.storage.bucketNames.avatars ||
+		bucket === config.storage.bucketNames.receipts
+	) {
 		const signedUrl = await getSignedUrl(filePath, {
 			bucket,
 			expiresIn: 60 * 60,

@@ -49,7 +49,7 @@ const getS3Client = () => {
 
 export const getSignedUploadUrl: GetSignedUploadUrlHandler = async (
 	path,
-	{ bucket },
+	{ bucket, contentType = "image/jpeg" },
 ) => {
 	const s3Client = getS3Client();
 	try {
@@ -58,7 +58,7 @@ export const getSignedUploadUrl: GetSignedUploadUrlHandler = async (
 			new PutObjectCommand({
 				Bucket: bucket,
 				Key: path,
-				ContentType: "image/jpeg",
+				ContentType: contentType,
 			}),
 			{
 				expiresIn: 60,

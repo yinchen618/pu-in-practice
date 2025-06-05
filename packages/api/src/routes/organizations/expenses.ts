@@ -20,6 +20,7 @@ const CreateExpenseSchema = z.object({
 	currency: z.string().optional(),
 	exchangeRate: z.number().min(0, "匯率不能為負數").optional(),
 	receiptUrl: z.string().optional(),
+	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
 	date: z.coerce.date().optional(),
 });
@@ -30,6 +31,7 @@ const UpdateExpenseSchema = z.object({
 	currency: z.string().optional(),
 	exchangeRate: z.number().min(0, "匯率不能為負數").optional(),
 	receiptUrl: z.string().optional(),
+	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
 	date: z.coerce.date().optional(),
 });
@@ -57,6 +59,9 @@ export const expensesRouter = new Hono()
 											currency: z.string(),
 											exchangeRate: z.number(),
 											receiptUrl: z.string().nullable(),
+											receiptUrls: z
+												.array(z.string())
+												.optional(),
 											description: z.string().nullable(),
 											date: z.date(),
 											organizationId: z.string(),
@@ -102,6 +107,9 @@ export const expensesRouter = new Hono()
 										currency: z.string(),
 										exchangeRate: z.number(),
 										receiptUrl: z.string().nullable(),
+										receiptUrls: z
+											.array(z.string())
+											.optional(),
 										description: z.string().nullable(),
 										date: z.date(),
 										organizationId: z.string(),
@@ -131,9 +139,9 @@ export const expensesRouter = new Hono()
 				const expense = await createExpense(data);
 				return c.json({ expense }, 201);
 			} catch (error: any) {
-				console.error("創建支出失敗:", error);
+				console.error("新增支出失敗:", error);
 				throw new HTTPException(500, {
-					message: "創建支出失敗",
+					message: "新增支出失敗",
 				});
 			}
 		},
@@ -158,6 +166,9 @@ export const expensesRouter = new Hono()
 										currency: z.string(),
 										exchangeRate: z.number(),
 										receiptUrl: z.string().nullable(),
+										receiptUrls: z
+											.array(z.string())
+											.optional(),
 										description: z.string().nullable(),
 										date: z.date(),
 										organizationId: z.string(),

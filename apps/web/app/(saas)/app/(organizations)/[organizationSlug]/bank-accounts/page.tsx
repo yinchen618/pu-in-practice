@@ -58,7 +58,7 @@ export default function BankAccountsPage() {
 		setEditingBankAccount(null);
 	};
 
-	// 創建 columns，傳入編輯函數
+	// 新增 columns，傳入編輯函數
 	const columns = createColumns(handleEdit);
 
 	useEffect(() => {

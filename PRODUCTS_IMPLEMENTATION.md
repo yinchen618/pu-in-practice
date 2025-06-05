@@ -33,7 +33,7 @@
 文件：`packages/database/prisma/queries/products.ts`
 - `getProductsByOrganizationId()`: 獲取組織的所有產品
 - `getProductById()`: 根據ID獲取產品
-- `createProduct()`: 創建新產品
+- `createProduct()`: 新增新產品
 - `updateProduct()`: 更新產品
 - `deleteProduct()`: 刪除產品
 - `getProductByCode()`: 根據代碼獲取產品
@@ -41,7 +41,7 @@
 ### 3. 後端API路由 (Backend API)
 文件：`packages/api/src/routes/organizations/products.ts`
 - `GET /api/organizations/products`: 獲取產品列表
-- `POST /api/organizations/products`: 創建新產品
+- `POST /api/organizations/products`: 新增新產品
 - `PUT /api/organizations/products/:id`: 更新產品
 - `DELETE /api/organizations/products/:id`: 刪除產品
 
@@ -62,12 +62,12 @@ API特性：
 
 #### 數據表格列定義
 文件：`apps/web/app/(saas)/app/(organizations)/[organizationSlug]/products/components/columns.tsx`
-- 產品名稱、代碼、類別、價格、描述、狀態、創建日期
+- 產品名稱、代碼、類別、價格、描述、狀態、新增日期
 - 類別標籤帶有顏色編碼
 - 價格格式化顯示
 - 編輯按鈕
 
-#### 創建產品對話框
+#### 新增產品對話框
 文件：`apps/web/app/(saas)/app/(organizations)/[organizationSlug]/products/components/create-product-dialog.tsx`
 - 表單驗證
 - 產品類別選擇
@@ -108,7 +108,7 @@ API特性：
 
 1. 訪問組織頁面的"產品"標籤
 2. 查看現有產品列表
-3. 點擊"新增產品"創建產品
+3. 點擊"新增產品"新增產品
 4. 點擊編輯按鈕修改產品信息
 5. 使用搜索功能快速找到產品
 

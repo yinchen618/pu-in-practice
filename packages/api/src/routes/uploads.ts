@@ -40,7 +40,10 @@ export const uploadsRouter = new Hono().basePath("/uploads").post(
 		// ATTENTION: be careful with how you give access to write to the storage
 		// always check if the user has the right to write to the desired bucket before giving them a signed url
 
-		if (bucket === config.storage.bucketNames.avatars) {
+		if (
+			bucket === config.storage.bucketNames.avatars ||
+			bucket === config.storage.bucketNames.receipts
+		) {
 			const signedUrl = await getSignedUploadUrl(path, { bucket });
 			return c.json({ signedUrl });
 		}

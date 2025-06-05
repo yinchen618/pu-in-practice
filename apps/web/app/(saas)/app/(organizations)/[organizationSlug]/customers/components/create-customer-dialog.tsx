@@ -133,10 +133,10 @@ export function CreateCustomerDialog({
 				onSuccess();
 			} else {
 				const errorData = await response.json();
-				console.error("創建客戶失敗:", errorData);
+				console.error("新增客戶失敗:", errorData);
 			}
 		} catch (error) {
-			console.error("創建客戶失敗:", error);
+			console.error("新增客戶失敗:", error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -504,7 +504,7 @@ export function CreateCustomerDialog({
 								取消
 							</Button>
 							<Button type="submit" disabled={isLoading}>
-								{isLoading ? "創建中..." : "創建"}
+								{isLoading ? "新增中..." : "新增"}
 							</Button>
 						</DialogFooter>
 					</form>

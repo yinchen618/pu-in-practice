@@ -18,7 +18,7 @@ const CreateBankAccountSchema = z.object({
 	accountNumber: z.string().min(1, "帳號是必填的"),
 	currency: z.string().optional(),
 	balance: z.number().optional(),
-	customerId: z.string().optional(),
+	customerId: z.string().nullable().optional(),
 });
 
 const UpdateBankAccountSchema = z.object({
@@ -28,7 +28,7 @@ const UpdateBankAccountSchema = z.object({
 	currency: z.string().optional(),
 	balance: z.number().optional(),
 	status: z.enum(["active", "inactive"]).optional(),
-	customerId: z.string().optional(),
+	customerId: z.string().nullable().optional(),
 });
 
 export const bankAccountsRouter = new Hono()
@@ -146,6 +146,11 @@ export const bankAccountsRouter = new Hono()
 				if (error.code === "P2002") {
 					throw new HTTPException(400, {
 						message: "該帳號已存在",
+					});
+				}
+				if (error.code === "P2003") {
+					throw new HTTPException(400, {
+						message: "指定的客戶不存在",
 					});
 				}
 				throw error;

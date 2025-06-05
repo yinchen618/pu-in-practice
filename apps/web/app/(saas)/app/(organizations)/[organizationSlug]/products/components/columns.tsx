@@ -130,7 +130,7 @@ export const createColumns = (
 	{
 		accessorKey: "createdAt",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="創建日期" />
+			<DataTableColumnHeader column={column} title="新增日期" />
 		),
 		cell: ({ row }) => {
 			const date = row.getValue("createdAt") as Date;

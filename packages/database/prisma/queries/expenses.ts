@@ -7,6 +7,7 @@ export interface CreateExpenseData {
 	currency?: string;
 	exchangeRate?: number;
 	receiptUrl?: string;
+	receiptUrls?: string[];
 	description?: string;
 	date?: Date;
 	organizationId: string;
@@ -18,6 +19,7 @@ export interface UpdateExpenseData {
 	currency?: string;
 	exchangeRate?: number;
 	receiptUrl?: string;
+	receiptUrls?: string[];
 	description?: string;
 	date?: Date;
 }

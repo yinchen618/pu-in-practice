@@ -82,7 +82,7 @@ export function CreateRMDialog({
 
 			if (!response.ok) {
 				const error = await response.json();
-				throw new Error(error.message || "創建失敗");
+				throw new Error(error.message || "新增失敗");
 			}
 
 			// 重置表單並關閉對話框
@@ -90,7 +90,7 @@ export function CreateRMDialog({
 			setOpen(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("創建 RM 失敗:", error);
+			console.error("新增 RM 失敗:", error);
 			// 這裡可以添加 toast 通知
 		} finally {
 			setIsLoading(false);
@@ -211,7 +211,7 @@ export function CreateRMDialog({
 							取消
 						</Button>
 						<Button type="submit" disabled={isLoading}>
-							{isLoading ? "創建中..." : "創建"}
+							{isLoading ? "新增中..." : "新增"}
 						</Button>
 					</DialogFooter>
 				</form>

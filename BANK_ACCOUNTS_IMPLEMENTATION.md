@@ -5,24 +5,24 @@
 ### 1. 資料庫層面
 - ✅ 在 `packages/database/prisma/schema.prisma` 中添加了 `BankAccount` 模型
 - ✅ 建立了與 `Organization` 的關聯關係
-- ✅ 創建了資料庫遷移 (`20250605010722_add_bank_account`)
+- ✅ 新增了資料庫遷移 (`20250605010722_add_bank_account`)
 - ✅ 生成了 Prisma 客戶端
 
 ### 2. 查詢函數
-- ✅ 創建了 `packages/database/prisma/queries/bank-accounts.ts`
+- ✅ 新增了 `packages/database/prisma/queries/bank-accounts.ts`
 - ✅ 實現了以下函數：
   - `getBankAccountsByOrganizationId()` - 獲取組織的所有銀行帳戶
-  - `createBankAccount()` - 創建新銀行帳戶
+  - `createBankAccount()` - 新增新銀行帳戶
   - `getBankAccountById()` - 根據 ID 獲取銀行帳戶
   - `updateBankAccount()` - 更新銀行帳戶
   - `deleteBankAccount()` - 刪除銀行帳戶
 - ✅ 在 `packages/database/prisma/queries/index.ts` 中導出新函數
 
 ### 3. API 路由
-- ✅ 創建了 `packages/api/src/routes/organizations/bank-accounts.ts`
+- ✅ 新增了 `packages/api/src/routes/organizations/bank-accounts.ts`
 - ✅ 實現了完整的 CRUD API：
   - `GET /api/organizations/bank-accounts` - 獲取銀行帳戶列表
-  - `POST /api/organizations/bank-accounts` - 創建新銀行帳戶
+  - `POST /api/organizations/bank-accounts` - 新增新銀行帳戶
   - `PUT /api/organizations/bank-accounts/:id` - 更新銀行帳戶
   - `DELETE /api/organizations/bank-accounts/:id` - 刪除銀行帳戶
 - ✅ 添加了適當的驗證和錯誤處理
@@ -33,8 +33,8 @@
   - 添加了編輯功能
   - 更新了 `BankAccountRecord` 接口
   - 實現了 `createColumns` 函數
-- ✅ 創建了 `create-bank-account-dialog.tsx` - 新增銀行帳戶對話框
-- ✅ 創建了 `edit-bank-account-dialog.tsx` - 編輯銀行帳戶對話框
+- ✅ 新增了 `create-bank-account-dialog.tsx` - 新增銀行帳戶對話框
+- ✅ 新增了 `edit-bank-account-dialog.tsx` - 編輯銀行帳戶對話框
 - ✅ 更新了主頁面 `page.tsx`，實現了完整的數據獲取和管理功能
 
 ### 5. 功能特性
@@ -73,14 +73,14 @@ model BankAccount {
 | 方法 | 端點 | 描述 |
 |------|------|------|
 | GET | `/api/organizations/bank-accounts?organizationId={id}` | 獲取組織的銀行帳戶列表 |
-| POST | `/api/organizations/bank-accounts` | 創建新銀行帳戶 |
+| POST | `/api/organizations/bank-accounts` | 新增新銀行帳戶 |
 | PUT | `/api/organizations/bank-accounts/{id}` | 更新銀行帳戶 |
 | DELETE | `/api/organizations/bank-accounts/{id}` | 刪除銀行帳戶 |
 
 ## 使用方式
 
 1. 訪問 `/app/{organizationSlug}/bank-accounts` 頁面
-2. 點擊「新增銀行帳戶」按鈕創建新帳戶
+2. 點擊「新增銀行帳戶」按鈕新增新帳戶
 3. 點擊表格中的編輯按鈕修改現有帳戶
 4. 使用搜尋框按帳戶名稱搜尋
 5. 在編輯對話框中可以刪除帳戶

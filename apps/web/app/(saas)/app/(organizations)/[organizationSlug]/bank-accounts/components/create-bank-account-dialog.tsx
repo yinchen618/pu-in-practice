@@ -65,6 +65,10 @@ export function CreateBankAccountDialog({
 	const form = useForm<CreateBankAccountFormData>({
 		resolver: zodResolver(createBankAccountSchema),
 		defaultValues: {
+			customerId: "none",
+			bankName: "",
+			accountName: "",
+			accountNumber: "",
 			currency: "TWD",
 			balance: 0,
 		},
@@ -102,23 +106,35 @@ export function CreateBankAccountDialog({
 	const onSubmit = async (data: CreateBankAccountFormData) => {
 		setIsLoading(true);
 		try {
+			// 準備要發送的資料
+			const requestData = {
+				...data,
+				customerId:
+					data.customerId === "none" || !data.customerId
+						? null
+						: data.customerId,
+				organizationId,
+			};
+
 			const response = await fetch("/api/organizations/bank-accounts", {
 				method: "POST",
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({
-					...data,
-					customerId:
-						data.customerId === "none" ? null : data.customerId,
-					organizationId,
-				}),
+				body: JSON.stringify(requestData),
 			});
 
 			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.message || "創建失敗");
+				let errorMessage = "新增失敗";
+				try {
+					const error = await response.json();
+					errorMessage = error.message || errorMessage;
+				} catch {
+					// 如果無法解析 JSON，使用預設錯誤訊息
+					errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+				}
+				throw new Error(errorMessage);
 			}
 
 			// 重置表單並關閉對話框
@@ -126,7 +142,7 @@ export function CreateBankAccountDialog({
 			setOpen(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("創建銀行帳戶失敗:", error);
+			console.error("新增銀行帳戶失敗:", error);
 			// 這裡可以添加 toast 通知
 		} finally {
 			setIsLoading(false);
@@ -275,35 +291,6 @@ export function CreateBankAccountDialog({
 									</FormItem>
 								)}
 							/>
-							<FormField
-								control={form.control}
-								name="balance"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>初始餘額</FormLabel>
-										<FormControl>
-											<Input
-												type="number"
-												step="0.01"
-												min="0"
-												placeholder="0.00"
-												{...field}
-												onChange={(e) =>
-													field.onChange(
-														e.target.value
-															? Number.parseFloat(
-																	e.target
-																		.value,
-																)
-															: 0,
-													)
-												}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
 						</div>
 						<DialogFooter>
 							<Button
@@ -314,7 +301,7 @@ export function CreateBankAccountDialog({
 								取消
 							</Button>
 							<Button type="submit" disabled={isLoading}>
-								{isLoading ? "創建中..." : "創建"}
+								{isLoading ? "新增中..." : "新增"}
 							</Button>
 						</DialogFooter>
 					</form>

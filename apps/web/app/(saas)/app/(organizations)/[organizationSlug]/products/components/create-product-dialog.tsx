@@ -84,7 +84,7 @@ export function CreateProductDialog({
 
 			if (!response.ok) {
 				const error = await response.json();
-				throw new Error(error.message || "創建失敗");
+				throw new Error(error.message || "新增失敗");
 			}
 
 			// 重置表單並關閉對話框
@@ -92,7 +92,7 @@ export function CreateProductDialog({
 			setOpen(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("創建產品失敗:", error);
+			console.error("新增產品失敗:", error);
 			// 這裡可以添加 toast 通知
 		} finally {
 			setIsLoading(false);
@@ -279,7 +279,7 @@ export function CreateProductDialog({
 							取消
 						</Button>
 						<Button type="submit" disabled={isLoading}>
-							{isLoading ? "創建中..." : "創建產品"}
+							{isLoading ? "新增中..." : "新增產品"}
 						</Button>
 					</DialogFooter>
 				</form>

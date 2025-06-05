@@ -12,7 +12,8 @@ export interface ExpenseRecord {
 	amount: number;
 	currency: string;
 	exchangeRate: number;
-	receiptUrl?: string | null;
+	receiptUrl?: string | null; // 保留舊欄位以支援向後相容
+	receiptUrls?: string[]; // 新的多檔案支援
 	description?: string | null;
 	date: Date;
 	organizationId: string;
@@ -122,9 +123,18 @@ export function createColumns(
 				<DataTableColumnHeader column={column} title="收據" />
 			),
 			cell: ({ row }) => {
-				const receiptUrl = row.getValue("receiptUrl") as string | null;
-				return receiptUrl ? (
-					<Badge status="success">已上傳</Badge>
+				const expenseRecord = row.original;
+				const receiptUrls = expenseRecord.receiptUrls;
+				const receiptUrl = expenseRecord.receiptUrl;
+
+				// 計算總收據數量
+				const totalReceipts =
+					(receiptUrls?.length || 0) + (receiptUrl ? 1 : 0);
+
+				return totalReceipts > 0 ? (
+					<Badge status="success">
+						已上傳 {totalReceipts > 1 ? `(${totalReceipts}個)` : ""}
+					</Badge>
 				) : (
 					<Badge status="warning">未上傳</Badge>
 				);

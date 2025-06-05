@@ -49,7 +49,6 @@ const editBankAccountSchema = z.object({
 	accountName: z.string().min(1, "帳戶名稱是必填的"),
 	accountNumber: z.string().min(1, "帳號是必填的"),
 	currency: z.string().min(1, "幣別是必填的"),
-	balance: z.number().min(0, "餘額不能為負數"),
 	status: z.enum(["active", "inactive"]),
 });
 
@@ -86,7 +85,6 @@ export function EditBankAccountDialog({
 			accountName: bankAccountRecord.accountName,
 			accountNumber: bankAccountRecord.accountNumber,
 			currency: bankAccountRecord.currency,
-			balance: bankAccountRecord.balance,
 			status: bankAccountRecord.status,
 		},
 	});
@@ -122,7 +120,6 @@ export function EditBankAccountDialog({
 				accountName: bankAccountRecord.accountName,
 				accountNumber: bankAccountRecord.accountNumber,
 				currency: bankAccountRecord.currency,
-				balance: bankAccountRecord.balance,
 				status: bankAccountRecord.status,
 			});
 			fetchCustomers();
@@ -326,35 +323,7 @@ export function EditBankAccountDialog({
 									</FormItem>
 								)}
 							/>
-							<FormField
-								control={form.control}
-								name="balance"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>餘額 *</FormLabel>
-										<FormControl>
-											<Input
-												type="number"
-												step="0.01"
-												min="0"
-												placeholder="0.00"
-												{...field}
-												onChange={(e) =>
-													field.onChange(
-														e.target.value
-															? Number.parseFloat(
-																	e.target
-																		.value,
-																)
-															: 0,
-													)
-												}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+
 							<FormField
 								control={form.control}
 								name="status"

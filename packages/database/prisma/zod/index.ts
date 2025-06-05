@@ -106,7 +106,7 @@ export const AiChatScalarFieldEnumSchema = z.enum(['id','organizationId','userId
 
 export const BankAccountScalarFieldEnumSchema = z.enum(['id','bankName','accountName','accountNumber','currency','balance','status','organizationId','customerId','createdAt','updatedAt']);
 
-export const ExpenseScalarFieldEnumSchema = z.enum(['id','category','amount','currency','exchangeRate','receiptUrl','description','date','organizationId','createdAt','updatedAt']);
+export const ExpenseScalarFieldEnumSchema = z.enum(['id','category','amount','currency','exchangeRate','receiptUrl','receiptUrls','description','date','organizationId','createdAt','updatedAt']);
 
 export const ProductScalarFieldEnumSchema = z.enum(['id','name','code','category','description','status','price','currency','organizationId','createdAt','updatedAt']);
 
@@ -401,6 +401,7 @@ export const ExpenseSchema = z.object({
   currency: z.string(),
   exchangeRate: z.instanceof(Prisma.Decimal, { message: "Field 'exchangeRate' must be a Decimal. Location: ['Models', 'Expense']"}),
   receiptUrl: z.string().nullable(),
+  receiptUrls: z.string().array(),
   description: z.string().nullable(),
   date: z.coerce.date(),
   organizationId: z.string(),
@@ -916,6 +917,7 @@ export const ExpenseSelectSchema: z.ZodType<Prisma.ExpenseSelect> = z.object({
   currency: z.boolean().optional(),
   exchangeRate: z.boolean().optional(),
   receiptUrl: z.boolean().optional(),
+  receiptUrls: z.boolean().optional(),
   description: z.boolean().optional(),
   date: z.boolean().optional(),
   organizationId: z.boolean().optional(),
@@ -2277,6 +2279,7 @@ export const ExpenseWhereInputSchema: z.ZodType<Prisma.ExpenseWhereInput> = z.ob
   currency: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   exchangeRate: z.union([ z.lazy(() => DecimalFilterSchema),z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   receiptUrl: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  receiptUrls: z.lazy(() => StringNullableListFilterSchema).optional(),
   description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   date: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
@@ -2292,6 +2295,7 @@ export const ExpenseOrderByWithRelationInputSchema: z.ZodType<Prisma.ExpenseOrde
   currency: z.lazy(() => SortOrderSchema).optional(),
   exchangeRate: z.lazy(() => SortOrderSchema).optional(),
   receiptUrl: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  receiptUrls: z.lazy(() => SortOrderSchema).optional(),
   description: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
   organizationId: z.lazy(() => SortOrderSchema).optional(),
@@ -2313,6 +2317,7 @@ export const ExpenseWhereUniqueInputSchema: z.ZodType<Prisma.ExpenseWhereUniqueI
   currency: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   exchangeRate: z.union([ z.lazy(() => DecimalFilterSchema),z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   receiptUrl: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  receiptUrls: z.lazy(() => StringNullableListFilterSchema).optional(),
   description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   date: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
@@ -2328,6 +2333,7 @@ export const ExpenseOrderByWithAggregationInputSchema: z.ZodType<Prisma.ExpenseO
   currency: z.lazy(() => SortOrderSchema).optional(),
   exchangeRate: z.lazy(() => SortOrderSchema).optional(),
   receiptUrl: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  receiptUrls: z.lazy(() => SortOrderSchema).optional(),
   description: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
   organizationId: z.lazy(() => SortOrderSchema).optional(),
@@ -2350,6 +2356,7 @@ export const ExpenseScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Expen
   currency: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
   exchangeRate: z.union([ z.lazy(() => DecimalWithAggregatesFilterSchema),z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   receiptUrl: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  receiptUrls: z.lazy(() => StringNullableListFilterSchema).optional(),
   description: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   date: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
   organizationId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
@@ -3757,6 +3764,7 @@ export const ExpenseCreateInputSchema: z.ZodType<Prisma.ExpenseCreateInput> = z.
   currency: z.string().optional(),
   exchangeRate: z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }).optional(),
   receiptUrl: z.string().optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseCreatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.string().optional().nullable(),
   date: z.coerce.date().optional(),
   createdAt: z.coerce.date().optional(),
@@ -3771,6 +3779,7 @@ export const ExpenseUncheckedCreateInputSchema: z.ZodType<Prisma.ExpenseUnchecke
   currency: z.string().optional(),
   exchangeRate: z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }).optional(),
   receiptUrl: z.string().optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseCreatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.string().optional().nullable(),
   date: z.coerce.date().optional(),
   organizationId: z.string(),
@@ -3785,6 +3794,7 @@ export const ExpenseUpdateInputSchema: z.ZodType<Prisma.ExpenseUpdateInput> = z.
   currency: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   exchangeRate: z.union([ z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   receiptUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseUpdatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -3799,6 +3809,7 @@ export const ExpenseUncheckedUpdateInputSchema: z.ZodType<Prisma.ExpenseUnchecke
   currency: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   exchangeRate: z.union([ z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   receiptUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseUpdatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -3813,6 +3824,7 @@ export const ExpenseCreateManyInputSchema: z.ZodType<Prisma.ExpenseCreateManyInp
   currency: z.string().optional(),
   exchangeRate: z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }).optional(),
   receiptUrl: z.string().optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseCreatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.string().optional().nullable(),
   date: z.coerce.date().optional(),
   organizationId: z.string(),
@@ -3827,6 +3839,7 @@ export const ExpenseUpdateManyMutationInputSchema: z.ZodType<Prisma.ExpenseUpdat
   currency: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   exchangeRate: z.union([ z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   receiptUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseUpdatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -3840,6 +3853,7 @@ export const ExpenseUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ExpenseUnch
   currency: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   exchangeRate: z.union([ z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   receiptUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseUpdatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -4967,6 +4981,14 @@ export const DecimalWithAggregatesFilterSchema: z.ZodType<Prisma.DecimalWithAggr
   _max: z.lazy(() => NestedDecimalFilterSchema).optional()
 }).strict();
 
+export const StringNullableListFilterSchema: z.ZodType<Prisma.StringNullableListFilter> = z.object({
+  equals: z.string().array().optional().nullable(),
+  has: z.string().optional().nullable(),
+  hasEvery: z.string().array().optional(),
+  hasSome: z.string().array().optional(),
+  isEmpty: z.boolean().optional()
+}).strict();
+
 export const ExpenseCountOrderByAggregateInputSchema: z.ZodType<Prisma.ExpenseCountOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   category: z.lazy(() => SortOrderSchema).optional(),
@@ -4974,6 +4996,7 @@ export const ExpenseCountOrderByAggregateInputSchema: z.ZodType<Prisma.ExpenseCo
   currency: z.lazy(() => SortOrderSchema).optional(),
   exchangeRate: z.lazy(() => SortOrderSchema).optional(),
   receiptUrl: z.lazy(() => SortOrderSchema).optional(),
+  receiptUrls: z.lazy(() => SortOrderSchema).optional(),
   description: z.lazy(() => SortOrderSchema).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
   organizationId: z.lazy(() => SortOrderSchema).optional(),
@@ -6348,10 +6371,19 @@ export const CustomerUpdateOneWithoutBankAccountsNestedInputSchema: z.ZodType<Pr
   update: z.union([ z.lazy(() => CustomerUpdateToOneWithWhereWithoutBankAccountsInputSchema),z.lazy(() => CustomerUpdateWithoutBankAccountsInputSchema),z.lazy(() => CustomerUncheckedUpdateWithoutBankAccountsInputSchema) ]).optional(),
 }).strict();
 
+export const ExpenseCreatereceiptUrlsInputSchema: z.ZodType<Prisma.ExpenseCreatereceiptUrlsInput> = z.object({
+  set: z.string().array()
+}).strict();
+
 export const OrganizationCreateNestedOneWithoutExpensesInputSchema: z.ZodType<Prisma.OrganizationCreateNestedOneWithoutExpensesInput> = z.object({
   create: z.union([ z.lazy(() => OrganizationCreateWithoutExpensesInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutExpensesInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => OrganizationCreateOrConnectWithoutExpensesInputSchema).optional(),
   connect: z.lazy(() => OrganizationWhereUniqueInputSchema).optional()
+}).strict();
+
+export const ExpenseUpdatereceiptUrlsInputSchema: z.ZodType<Prisma.ExpenseUpdatereceiptUrlsInput> = z.object({
+  set: z.string().array().optional(),
+  push: z.union([ z.string(),z.string().array() ]).optional(),
 }).strict();
 
 export const OrganizationUpdateOneRequiredWithoutExpensesNestedInputSchema: z.ZodType<Prisma.OrganizationUpdateOneRequiredWithoutExpensesNestedInput> = z.object({
@@ -7867,6 +7899,7 @@ export const ExpenseCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.Expen
   currency: z.string().optional(),
   exchangeRate: z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }).optional(),
   receiptUrl: z.string().optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseCreatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.string().optional().nullable(),
   date: z.coerce.date().optional(),
   createdAt: z.coerce.date().optional(),
@@ -7880,6 +7913,7 @@ export const ExpenseUncheckedCreateWithoutOrganizationInputSchema: z.ZodType<Pri
   currency: z.string().optional(),
   exchangeRate: z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }).optional(),
   receiptUrl: z.string().optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseCreatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.string().optional().nullable(),
   date: z.coerce.date().optional(),
   createdAt: z.coerce.date().optional(),
@@ -8125,6 +8159,7 @@ export const ExpenseScalarWhereInputSchema: z.ZodType<Prisma.ExpenseScalarWhereI
   currency: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   exchangeRate: z.union([ z.lazy(() => DecimalFilterSchema),z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   receiptUrl: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  receiptUrls: z.lazy(() => StringNullableListFilterSchema).optional(),
   description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   date: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
@@ -10580,6 +10615,7 @@ export const ExpenseCreateManyOrganizationInputSchema: z.ZodType<Prisma.ExpenseC
   currency: z.string().optional(),
   exchangeRate: z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }).optional(),
   receiptUrl: z.string().optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseCreatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.string().optional().nullable(),
   date: z.coerce.date().optional(),
   createdAt: z.coerce.date().optional(),
@@ -10856,6 +10892,7 @@ export const ExpenseUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.Expen
   currency: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   exchangeRate: z.union([ z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   receiptUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseUpdatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -10869,6 +10906,7 @@ export const ExpenseUncheckedUpdateWithoutOrganizationInputSchema: z.ZodType<Pri
   currency: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   exchangeRate: z.union([ z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   receiptUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseUpdatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -10882,6 +10920,7 @@ export const ExpenseUncheckedUpdateManyWithoutOrganizationInputSchema: z.ZodType
   currency: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   exchangeRate: z.union([ z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   receiptUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  receiptUrls: z.union([ z.lazy(() => ExpenseUpdatereceiptUrlsInputSchema),z.string().array() ]).optional(),
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),

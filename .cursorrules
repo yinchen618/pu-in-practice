@@ -61,3 +61,4 @@ Follow the documentation at supastarter.dev/docs/nextjs for supastarter specifc 
 import { cn } from "@ui/lib";
 
 我的.env在根目錄下
+"新增"的字樣，都改為"新增"
