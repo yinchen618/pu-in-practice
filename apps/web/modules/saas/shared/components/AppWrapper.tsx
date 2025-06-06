@@ -1,9 +1,14 @@
+"use client";
 import { config } from "@repo/config";
 import { NavBar } from "@saas/shared/components/NavBar";
+import { sidebarCollapsed } from "@saas/shared/lib/state";
 import { cn } from "@ui/lib";
+import { useAtom } from "jotai";
 import type { PropsWithChildren } from "react";
 
 export function AppWrapper({ children }: PropsWithChildren) {
+	const [isSidebarCollapsed] = useAtom(sidebarCollapsed);
+
 	return (
 		<div
 			className={cn(
@@ -13,11 +18,17 @@ export function AppWrapper({ children }: PropsWithChildren) {
 		>
 			<NavBar />
 			<div
-				className={cn(" md:pr-4 py-4 flex", [
-					config.ui.saas.useSidebarLayout
-						? "min-h-[calc(100vh)] md:ml-[280px]"
-						: "",
-				])}
+				className={cn(
+					" md:pr-4 py-4 flex transition-all duration-300",
+					[
+						config.ui.saas.useSidebarLayout && !isSidebarCollapsed
+							? "min-h-[calc(100vh)] md:ml-[280px]"
+							: "md:ml-[60px]",
+						config.ui.saas.useSidebarLayout && isSidebarCollapsed
+							? "min-h-[calc(100vh)] md:ml-[60px]"
+							: "",
+					],
+				)}
 			>
 				<main
 					className={cn(

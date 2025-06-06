@@ -32,7 +32,7 @@ export const createColumns = (
 	{
 		accessorKey: "code",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="產品代碼" />
+			<DataTableColumnHeader column={column} title="產品代碼(ISIN)" />
 		),
 	},
 	{
