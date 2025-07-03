@@ -346,7 +346,7 @@ export function EditBankAccountDialog({
 								)}
 							/>
 						</div>
-						<DialogFooter className="flex justify-between">
+						<DialogFooter className="!justify-between">
 							<Button
 								type="button"
 								variant="error"

@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { db } from "../client";
 
 export async function getProductsByOrganizationId(organizationId: string) {
@@ -19,15 +20,7 @@ export async function getProductById(id: string) {
 	});
 }
 
-export async function createProduct(data: {
-	name: string;
-	code: string;
-	category: string;
-	description?: string;
-	price?: number;
-	currency?: string;
-	organizationId: string;
-}) {
+export async function createProduct(data: Prisma.ProductCreateInput) {
 	return db.product.create({
 		data,
 	});
@@ -35,15 +28,7 @@ export async function createProduct(data: {
 
 export async function updateProduct(
 	id: string,
-	data: {
-		name?: string;
-		code?: string;
-		category?: string;
-		description?: string;
-		status?: string;
-		price?: number;
-		currency?: string;
-	},
+	data: Prisma.ProductUpdateInput,
 ) {
 	return db.product.update({
 		where: {

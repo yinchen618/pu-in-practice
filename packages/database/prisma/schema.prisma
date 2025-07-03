@@ -316,18 +316,17 @@ model Expense {
 }
 
 model Product {
-  id             String       @id @default(cuid())
-  name           String
-  code           String // 產品代碼
-  category       String // AQ, Bond, DCI, EQ, FCN, Fund, FX
-  description    String?
-  status         String       @default("active") // active, inactive
-  price          Decimal?     @db.Decimal(15, 2)
-  currency       String       @default("TWD")
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id               String       @id @default(cuid())
+  category         String // AQ, Bond, DCI, EQ, FCN, Fund, FX
+  name             String
+  code             String
+  currency         String       @default("USD") // 產品幣別
+  distributionType String       @default("MONTHLY") // 配息方式: MONTHLY(每月配息), NONE(無固定配息), ACCUMULATE(每月累積), REBATE(基金管理費退佣), IRREGULAR(不固定)
+  status           String       @default("active") // 狀態: active(銷售中), inactive(已下架)
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   @@unique([organizationId, code])
   @@map("product")

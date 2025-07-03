@@ -7,16 +7,19 @@ import { useEffect, useState } from "react";
 import { createColumns } from "./components/columns";
 import type { CustomerRecord } from "./components/columns";
 import { CreateCustomerDialog } from "./components/create-customer-dialog";
+import { CustomerFilters } from "./components/customer-filters";
 import { EditCustomerDialog } from "./components/edit-customer-dialog";
 
 interface RelationshipManager {
 	id: string;
 	name: string;
+	category: "RM" | "FINDER" | "BOTH";
 }
 
 export default function CustomersPage() {
 	const { activeOrganization, loaded } = useActiveOrganization();
 	const [data, setData] = useState<CustomerRecord[]>([]);
+	const [filteredData, setFilteredData] = useState<CustomerRecord[]>([]);
 	const [relationshipManagers, setRelationshipManagers] = useState<
 		RelationshipManager[]
 	>([]);
@@ -43,16 +46,20 @@ export default function CustomersPage() {
 
 			if (response.ok) {
 				const result = await response.json();
-				setData(result.customers || []);
+				const customers = result.customers || [];
+				setData(customers);
+				setFilteredData(customers);
 				setRelationshipManagers(result.relationshipManagers || []);
 			} else {
 				console.error("獲取客戶數據失敗", await response.text());
 				setData([]);
+				setFilteredData([]);
 				setRelationshipManagers([]);
 			}
 		} catch (error) {
 			console.error("獲取數據失敗:", error);
 			setData([]);
+			setFilteredData([]);
 			setRelationshipManagers([]);
 		} finally {
 			setIsLoading(false);
@@ -67,6 +74,10 @@ export default function CustomersPage() {
 	const handleEditSuccess = () => {
 		fetchData();
 		setEditingCustomer(null);
+	};
+
+	const handleFilterChange = (newFilteredData: CustomerRecord[]) => {
+		setFilteredData(newFilteredData);
 	};
 
 	// 新增 columns，傳入編輯函數
@@ -105,9 +116,15 @@ export default function CustomersPage() {
 				}
 			/>
 
+			<CustomerFilters
+				data={data}
+				relationshipManagers={relationshipManagers}
+				onFilterChange={handleFilterChange}
+			/>
+
 			<DataTable
 				columns={columns}
-				data={data}
+				data={filteredData}
 				isLoading={isLoading}
 				searchKey="name"
 				searchPlaceholder="搜尋客戶名稱"

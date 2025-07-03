@@ -14,23 +14,32 @@ import { z } from "zod";
 import { authMiddleware } from "../../middleware/auth";
 import { verifyOrganizationMembership } from "./lib/membership";
 
+const ProductCategory = z.enum([
+	"AQ",
+	"Bond",
+	"DCI",
+	"EQ",
+	"FCN",
+	"Fund",
+	"FX",
+]);
+
 const CreateProductSchema = z.object({
+	category: ProductCategory,
 	name: z.string().min(1, "產品名稱是必填的"),
 	code: z.string().min(1, "產品代碼是必填的"),
-	category: z.enum(["AQ", "Bond", "DCI", "EQ", "FCN", "Fund", "FX"]),
-	description: z.string().optional(),
-	price: z.number().positive().optional(),
-	currency: z.string().optional().default("TWD"),
+	currency: z.string().min(1, "幣別是必填的"),
+	distributionType: z.string().min(1, "配息方式是必填的"),
+	status: z.enum(["active", "inactive"]).default("active"),
 });
 
 const UpdateProductSchema = z.object({
+	category: ProductCategory,
 	name: z.string().min(1, "產品名稱是必填的"),
 	code: z.string().min(1, "產品代碼是必填的"),
-	category: z.enum(["AQ", "Bond", "DCI", "EQ", "FCN", "Fund", "FX"]),
-	description: z.string().optional(),
+	currency: z.string().min(1, "幣別是必填的"),
+	distributionType: z.string().min(1, "配息方式是必填的"),
 	status: z.enum(["active", "inactive"]),
-	price: z.number().positive().optional(),
-	currency: z.string().optional(),
 });
 
 export const productsRouter = new Hono()
@@ -51,13 +60,12 @@ export const productsRouter = new Hono()
 									products: z.array(
 										z.object({
 											id: z.string(),
+											category: ProductCategory,
 											name: z.string(),
 											code: z.string(),
-											category: z.string(),
-											description: z.string().nullable(),
-											status: z.string(),
-											price: z.number().nullable(),
 											currency: z.string(),
+											distributionType: z.string(),
+											status: z.string(),
 											organizationId: z.string(),
 											createdAt: z.date(),
 											updatedAt: z.date(),
@@ -97,13 +105,12 @@ export const productsRouter = new Hono()
 								z.object({
 									product: z.object({
 										id: z.string(),
+										category: ProductCategory,
 										name: z.string(),
 										code: z.string(),
-										category: z.string(),
-										description: z.string().nullable(),
-										status: z.string(),
-										price: z.number().nullable(),
 										currency: z.string(),
+										distributionType: z.string(),
+										status: z.string(),
 										organizationId: z.string(),
 										createdAt: z.date(),
 										updatedAt: z.date(),
@@ -139,7 +146,14 @@ export const productsRouter = new Hono()
 					});
 				}
 
-				const product = await createProduct(data);
+				const product = await createProduct({
+					...data,
+					organization: {
+						connect: {
+							id: data.organizationId,
+						},
+					},
+				});
 				return c.json({ product }, 201);
 			} catch (error: any) {
 				if (error.code === "P2002") {
@@ -166,13 +180,12 @@ export const productsRouter = new Hono()
 								z.object({
 									product: z.object({
 										id: z.string(),
+										category: ProductCategory,
 										name: z.string(),
 										code: z.string(),
-										category: z.string(),
-										description: z.string().nullable(),
-										status: z.string(),
-										price: z.number().nullable(),
 										currency: z.string(),
+										distributionType: z.string(),
+										status: z.string(),
 										organizationId: z.string(),
 										createdAt: z.date(),
 										updatedAt: z.date(),
@@ -258,7 +271,6 @@ export const productsRouter = new Hono()
 				);
 
 				await deleteProduct(id);
-
 				return c.json({ success: true });
 			} catch (error: any) {
 				if (error.code === "P2025") {

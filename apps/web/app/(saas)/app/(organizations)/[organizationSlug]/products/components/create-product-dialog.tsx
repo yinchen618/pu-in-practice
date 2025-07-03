@@ -32,19 +32,32 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { CURRENCY_OPTIONS, DISTRIBUTION_TYPE_OPTIONS } from "../constants";
 
-const createProductSchema = z.object({
+const ProductCategory = z.enum([
+	"AQ",
+	"Bond",
+	"DCI",
+	"EQ",
+	"FCN",
+	"Fund",
+	"FX",
+]);
+const ProductStatus = z.enum(["active", "inactive"]);
+
+const createSchema = z.object({
+	category: ProductCategory,
 	name: z.string().min(1, "產品名稱是必填的"),
 	code: z.string().min(1, "產品代碼是必填的"),
-	category: z.enum(["AQ", "Bond", "DCI", "EQ", "FCN", "Fund", "FX"]),
+	currency: z.string().min(1, "幣別是必填的"),
+	distributionType: z.string().min(1, "配息方式是必填的"),
 	description: z.string().optional(),
-	price: z.number().positive().optional(),
-	currency: z.string().optional(),
+	status: ProductStatus,
 });
 
-type CreateProductFormData = z.infer<typeof createProductSchema>;
+type CreateFormData = z.infer<typeof createSchema>;
 
-interface CreateProductDialogProps {
+interface CreateDialogProps {
 	organizationId: string;
 	onSuccess?: () => void;
 }
@@ -52,76 +65,63 @@ interface CreateProductDialogProps {
 export function CreateProductDialog({
 	organizationId,
 	onSuccess,
-}: CreateProductDialogProps) {
+}: CreateDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const form = useForm<CreateProductFormData>({
-		resolver: zodResolver(createProductSchema),
+	const form = useForm<CreateFormData>({
+		resolver: zodResolver(createSchema),
 		defaultValues: {
+			category: "Fund",
 			name: "",
 			code: "",
-			category: "EQ",
+			currency: "USD",
+			distributionType: "MONTHLY",
 			description: "",
-			price: undefined,
-			currency: "TWD",
+			status: "active",
 		},
 	});
 
-	const onSubmit = async (data: CreateProductFormData) => {
+	const onSubmit = async (data: CreateFormData) => {
 		setIsLoading(true);
 		try {
 			const response = await fetch("/api/organizations/products", {
 				method: "POST",
 				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					...data,
-					organizationId,
-				}),
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ ...data, organizationId }),
 			});
 
 			if (!response.ok) {
 				let errorMessage = "新增失敗";
 				try {
 					const responseText = await response.text();
-					// 嘗試解析為 JSON
 					try {
 						const error = JSON.parse(responseText);
 						errorMessage = error.message || errorMessage;
 					} catch {
-						// 如果不是 JSON 格式，使用純文字作為錯誤訊息
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					// 如果連讀取文字都失敗了，使用預設錯誤訊息
 					errorMessage = "新增失敗";
 				}
 
-				// 如果是產品代碼重複的錯誤，顯示在 code 欄位下方
-				if (
-					errorMessage.includes("產品代碼已被使用") ||
-					errorMessage.includes("代碼已被使用")
-				) {
+				if (errorMessage.includes("代碼已被使用")) {
 					form.setError("code", {
 						type: "server",
 						message: errorMessage,
 					});
-					return; // 不要拋出錯誤，讓表單繼續顯示
+					return;
 				}
 
 				throw new Error(errorMessage);
 			}
 
-			// 重置表單並關閉對話框
 			form.reset();
 			setOpen(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("新增產品失敗:", error);
-			// 這裡可以添加 toast 通知
+			console.error("新增失敗:", error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -135,61 +135,16 @@ export function CreateProductDialog({
 					新增產品
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-[500px]">
+			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>新增產品</DialogTitle>
 					<DialogDescription>
-						填寫下方資訊來新增一個產品。
+						填寫下方資訊來新增產品。
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="grid gap-4 py-4">
-							<FormField
-								control={form.control}
-								name="name"
-								render={({ field }) => (
-									<FormItem className="grid grid-cols-4 items-center gap-4">
-										<FormLabel className="text-right">
-											產品名稱 *
-										</FormLabel>
-										<div className="col-span-3">
-											<FormControl>
-												<Input
-													placeholder="輸入產品名稱"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</div>
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="code"
-								render={({ field, fieldState }) => (
-									<FormItem className="grid grid-cols-4 items-center gap-4">
-										<FormLabel className="text-right">
-											產品代碼 *
-										</FormLabel>
-										<div className="col-span-3">
-											<FormControl>
-												<Input
-													placeholder="輸入產品代碼"
-													{...field}
-													className={
-														fieldState.error
-															? "border-red-500 focus:border-red-500 focus:ring-red-500"
-															: ""
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</div>
-									</FormItem>
-								)}
-							/>
 							<FormField
 								control={form.control}
 								name="category"
@@ -205,7 +160,7 @@ export function CreateProductDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇產品類別" />
+														<SelectValue placeholder="選擇類別" />
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
@@ -239,29 +194,37 @@ export function CreateProductDialog({
 							/>
 							<FormField
 								control={form.control}
-								name="price"
+								name="name"
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											價格
+											產品名稱 *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
-													type="number"
-													step="0.01"
-													placeholder="輸入價格"
+													placeholder="輸入產品名稱"
 													{...field}
-													onChange={(e) => {
-														const value =
-															e.target.value;
-														field.onChange(
-															value === ""
-																? undefined
-																: Number(value),
-														);
-													}}
-													value={field.value || ""}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="code"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											產品代碼 *
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													placeholder="輸入產品代碼"
+													{...field}
 												/>
 											</FormControl>
 											<FormMessage />
@@ -275,7 +238,7 @@ export function CreateProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											幣別
+											幣別 *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -288,21 +251,60 @@ export function CreateProductDialog({
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
-													<SelectItem value="TWD">
-														TWD
-													</SelectItem>
-													<SelectItem value="USD">
-														USD
-													</SelectItem>
-													<SelectItem value="EUR">
-														EUR
-													</SelectItem>
-													<SelectItem value="JPY">
-														JPY
-													</SelectItem>
-													<SelectItem value="CNY">
-														CNY
-													</SelectItem>
+													{CURRENCY_OPTIONS.map(
+														(option) => (
+															<SelectItem
+																key={
+																	option.value
+																}
+																value={
+																	option.value
+																}
+															>
+																{option.label}
+															</SelectItem>
+														),
+													)}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="distributionType"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											配息方式 *
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇配息方式" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{DISTRIBUTION_TYPE_OPTIONS.map(
+														(option) => (
+															<SelectItem
+																key={
+																	option.value
+																}
+																value={
+																	option.value
+																}
+															>
+																{option.label}
+															</SelectItem>
+														),
+													)}
 												</SelectContent>
 											</Select>
 											<FormMessage />
@@ -331,20 +333,42 @@ export function CreateProductDialog({
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={form.control}
+								name="status"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											狀態 *
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇狀態" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value="active">
+														銷售中
+													</SelectItem>
+													<SelectItem value="inactive">
+														已下架
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
 						</div>
 						<DialogFooter>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => {
-									form.reset();
-									setOpen(false);
-								}}
-							>
-								取消
-							</Button>
 							<Button type="submit" disabled={isLoading}>
-								{isLoading ? "新增中..." : "新增產品"}
+								{isLoading ? "新增中..." : "新增"}
 							</Button>
 						</DialogFooter>
 					</form>

@@ -67,6 +67,7 @@ type EditCustomerForm = z.infer<typeof editCustomerSchema>;
 interface RelationshipManager {
 	id: string;
 	name: string;
+	category: "RM" | "FINDER" | "BOTH";
 }
 
 interface EditCustomerDialogProps {
@@ -86,6 +87,14 @@ export function EditCustomerDialog({
 }: EditCustomerDialogProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+
+	// 根據角色類型過濾 RM 和 Finder 列表
+	const rmOptions = relationshipManagers.filter(
+		(rm) => rm.category === "RM" || rm.category === "BOTH",
+	);
+	const finderOptions = relationshipManagers.filter(
+		(rm) => rm.category === "FINDER" || rm.category === "BOTH",
+	);
 
 	const form = useForm<EditCustomerForm>({
 		resolver: zodResolver(editCustomerSchema),
@@ -257,7 +266,15 @@ export function EditCustomerDialog({
 									<FormItem>
 										<FormLabel>負責 RM1</FormLabel>
 										<Select
-											onValueChange={field.onChange}
+											onValueChange={(value) => {
+												field.onChange(value);
+												if (value === "none") {
+													form.setValue(
+														"rm1ProfitShare",
+														0,
+													);
+												}
+											}}
 											value={field.value}
 										>
 											<FormControl>
@@ -269,16 +286,14 @@ export function EditCustomerDialog({
 												<SelectItem value="none">
 													無
 												</SelectItem>
-												{relationshipManagers.map(
-													(rm) => (
-														<SelectItem
-															key={rm.id}
-															value={rm.id}
-														>
-															{rm.name}
-														</SelectItem>
-													),
-												)}
+												{rmOptions.map((rm) => (
+													<SelectItem
+														key={rm.id}
+														value={rm.id}
+													>
+														{rm.name}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -327,7 +342,15 @@ export function EditCustomerDialog({
 									<FormItem>
 										<FormLabel>負責 RM2</FormLabel>
 										<Select
-											onValueChange={field.onChange}
+											onValueChange={(value) => {
+												field.onChange(value);
+												if (value === "none") {
+													form.setValue(
+														"rm2ProfitShare",
+														0,
+													);
+												}
+											}}
 											value={field.value}
 										>
 											<FormControl>
@@ -339,16 +362,14 @@ export function EditCustomerDialog({
 												<SelectItem value="none">
 													無
 												</SelectItem>
-												{relationshipManagers.map(
-													(rm) => (
-														<SelectItem
-															key={rm.id}
-															value={rm.id}
-														>
-															{rm.name}
-														</SelectItem>
-													),
-												)}
+												{rmOptions.map((rm) => (
+													<SelectItem
+														key={rm.id}
+														value={rm.id}
+													>
+														{rm.name}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -397,7 +418,15 @@ export function EditCustomerDialog({
 									<FormItem>
 										<FormLabel>負責 Finder1</FormLabel>
 										<Select
-											onValueChange={field.onChange}
+											onValueChange={(value) => {
+												field.onChange(value);
+												if (value === "none") {
+													form.setValue(
+														"finder1ProfitShare",
+														0,
+													);
+												}
+											}}
 											value={field.value}
 										>
 											<FormControl>
@@ -409,16 +438,14 @@ export function EditCustomerDialog({
 												<SelectItem value="none">
 													無
 												</SelectItem>
-												{relationshipManagers.map(
-													(rm) => (
-														<SelectItem
-															key={rm.id}
-															value={rm.id}
-														>
-															{rm.name}
-														</SelectItem>
-													),
-												)}
+												{finderOptions.map((rm) => (
+													<SelectItem
+														key={rm.id}
+														value={rm.id}
+													>
+														{rm.name}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -467,7 +494,15 @@ export function EditCustomerDialog({
 									<FormItem>
 										<FormLabel>負責 Finder2</FormLabel>
 										<Select
-											onValueChange={field.onChange}
+											onValueChange={(value) => {
+												field.onChange(value);
+												if (value === "none") {
+													form.setValue(
+														"finder2ProfitShare",
+														0,
+													);
+												}
+											}}
 											value={field.value}
 										>
 											<FormControl>
@@ -479,16 +514,14 @@ export function EditCustomerDialog({
 												<SelectItem value="none">
 													無
 												</SelectItem>
-												{relationshipManagers.map(
-													(rm) => (
-														<SelectItem
-															key={rm.id}
-															value={rm.id}
-														>
-															{rm.name}
-														</SelectItem>
-													),
-												)}
+												{finderOptions.map((rm) => (
+													<SelectItem
+														key={rm.id}
+														value={rm.id}
+													>
+														{rm.name}
+													</SelectItem>
+												))}
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -529,7 +562,7 @@ export function EditCustomerDialog({
 							/>
 						</div>
 
-						<DialogFooter className="flex justify-between">
+						<DialogFooter className="!justify-between">
 							<Button
 								type="button"
 								variant="error"

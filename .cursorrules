@@ -494,15 +494,17 @@ export function CreateYourModelDialog({
 - 刪除按鈕必須放在 DialogFooter 的最左邊
 - 使用 `variant="error"` 為刪除按鈕
 - 取消和確認按鈕放在右邊，使用 flex gap 分組
+- 必須使用 `!justify-between` 來強制覆蓋預設的 justify-end 樣式
 
-```typescript
-<DialogFooter className="flex justify-between">
+```tsx
+<DialogFooter className="!justify-between">
   <Button
     type="button"
     variant="error"
     onClick={handleDelete}
     disabled={isDeleting}
   >
+    <Trash2 className="mr-2 size-4" />
     {isDeleting ? "刪除中..." : "刪除"}
   </Button>
   <div className="flex gap-2">

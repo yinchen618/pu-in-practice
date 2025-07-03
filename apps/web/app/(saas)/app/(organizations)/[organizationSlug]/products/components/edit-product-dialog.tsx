@@ -27,24 +27,31 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Textarea } from "@ui/components/textarea";
+import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+	CURRENCY_OPTIONS,
+	DISTRIBUTION_TYPE_OPTIONS,
+	PRODUCT_CATEGORIES,
+	PRODUCT_STATUSES,
+} from "../constants";
 import type { ProductRecord } from "./columns";
 
-const editProductSchema = z.object({
+const editSchema = z.object({
+	category: z.enum(["AQ", "Bond", "DCI", "EQ", "FCN", "Fund", "FX"]),
 	name: z.string().min(1, "產品名稱是必填的"),
 	code: z.string().min(1, "產品代碼是必填的"),
-	category: z.enum(["AQ", "Bond", "DCI", "EQ", "FCN", "Fund", "FX"]),
+	currency: z.string().min(1, "幣別是必填的"),
+	distributionType: z.string().min(1, "配息方式是必填的"),
 	description: z.string().optional(),
 	status: z.enum(["active", "inactive"]),
-	price: z.number().positive().optional(),
-	currency: z.string().optional(),
 });
 
-type EditProductFormData = z.infer<typeof editProductSchema>;
+type EditFormData = z.infer<typeof editSchema>;
 
-interface EditProductDialogProps {
+interface EditDialogProps {
 	productRecord: ProductRecord;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -56,46 +63,38 @@ export function EditProductDialog({
 	open,
 	onOpenChange,
 	onSuccess,
-}: EditProductDialogProps) {
+}: EditDialogProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 
-	const form = useForm<EditProductFormData>({
-		resolver: zodResolver(editProductSchema),
+	const form = useForm<EditFormData>({
+		resolver: zodResolver(editSchema),
 		defaultValues: {
-			name: "",
-			code: "",
-			category: "EQ",
-			description: "",
-			status: "active",
-			price: undefined,
-			currency: "TWD",
+			category: productRecord.category,
+			name: productRecord.name,
+			code: productRecord.code,
+			currency: productRecord.currency,
+			distributionType: productRecord.distributionType,
+			description: productRecord.description || "",
+			status: productRecord.status,
 		},
 	});
 
-	// 當產品記錄改變時重置表單
 	useEffect(() => {
 		if (productRecord) {
 			form.reset({
+				category: productRecord.category,
 				name: productRecord.name,
 				code: productRecord.code,
-				category: productRecord.category as
-					| "AQ"
-					| "Bond"
-					| "DCI"
-					| "EQ"
-					| "FCN"
-					| "Fund"
-					| "FX",
+				currency: productRecord.currency,
+				distributionType: productRecord.distributionType,
 				description: productRecord.description || "",
 				status: productRecord.status,
-				price: productRecord.price || undefined,
-				currency: productRecord.currency || "TWD",
 			});
 		}
-	}, [productRecord, form]);
+	}, [form, productRecord]);
 
-	const onSubmit = async (data: EditProductFormData) => {
+	const onSubmit = async (data: EditFormData) => {
 		setIsLoading(true);
 		try {
 			const response = await fetch(
@@ -103,9 +102,7 @@ export function EditProductDialog({
 				{
 					method: "PUT",
 					credentials: "include",
-					headers: {
-						"Content-Type": "application/json",
-					},
+					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(data),
 				},
 			);
@@ -114,29 +111,22 @@ export function EditProductDialog({
 				let errorMessage = "更新失敗";
 				try {
 					const responseText = await response.text();
-					// 嘗試解析為 JSON
 					try {
 						const error = JSON.parse(responseText);
 						errorMessage = error.message || errorMessage;
 					} catch {
-						// 如果不是 JSON 格式，使用純文字作為錯誤訊息
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					// 如果連讀取文字都失敗了，使用預設錯誤訊息
 					errorMessage = "更新失敗";
 				}
 
-				// 如果是產品代碼重複的錯誤，顯示在 code 欄位下方
-				if (
-					errorMessage.includes("產品代碼已被使用") ||
-					errorMessage.includes("代碼已被使用")
-				) {
+				if (errorMessage.includes("代碼已被使用")) {
 					form.setError("code", {
 						type: "server",
 						message: errorMessage,
 					});
-					return; // 不要拋出錯誤，讓表單繼續顯示
+					return;
 				}
 
 				throw new Error(errorMessage);
@@ -145,18 +135,13 @@ export function EditProductDialog({
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("更新產品失敗:", error);
-			// 這裡可以添加 toast 通知
+			console.error("更新失敗:", error);
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	const handleDelete = async () => {
-		if (!confirm("確定要刪除這個產品嗎？此操作無法撤銷。")) {
-			return;
-		}
-
 		setIsDeleting(true);
 		try {
 			const response = await fetch(
@@ -164,36 +149,17 @@ export function EditProductDialog({
 				{
 					method: "DELETE",
 					credentials: "include",
-					headers: {
-						"Content-Type": "application/json",
-					},
 				},
 			);
 
 			if (!response.ok) {
-				let errorMessage = "刪除失敗";
-				try {
-					const responseText = await response.text();
-					// 嘗試解析為 JSON
-					try {
-						const error = JSON.parse(responseText);
-						errorMessage = error.message || errorMessage;
-					} catch {
-						// 如果不是 JSON 格式，使用純文字作為錯誤訊息
-						errorMessage = responseText || errorMessage;
-					}
-				} catch {
-					// 如果連讀取文字都失敗了，使用預設錯誤訊息
-					errorMessage = "刪除失敗";
-				}
-				throw new Error(errorMessage);
+				throw new Error("刪除失敗");
 			}
 
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("刪除產品失敗:", error);
-			// 這裡可以添加 toast 通知
+			console.error("刪除失敗:", error);
 		} finally {
 			setIsDeleting(false);
 		}
@@ -201,14 +167,56 @@ export function EditProductDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-[500px]">
+			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>編輯產品</DialogTitle>
-					<DialogDescription>編輯產品資訊。</DialogDescription>
+					<DialogDescription>
+						修改下方資訊來更新產品。
+					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="grid gap-4 py-4">
+							<FormField
+								control={form.control}
+								name="category"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											類別 *
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇類別" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{PRODUCT_CATEGORIES.map(
+														(option) => (
+															<SelectItem
+																key={
+																	option.value
+																}
+																value={
+																	option.value
+																}
+															>
+																{option.label}
+															</SelectItem>
+														),
+													)}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
 							<FormField
 								control={form.control}
 								name="name"
@@ -232,7 +240,7 @@ export function EditProductDialog({
 							<FormField
 								control={form.control}
 								name="code"
-								render={({ field, fieldState }) => (
+								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
 											產品代碼 *
@@ -242,122 +250,6 @@ export function EditProductDialog({
 												<Input
 													placeholder="輸入產品代碼"
 													{...field}
-													className={
-														fieldState.error
-															? "border-red-500 focus:border-red-500 focus:ring-red-500"
-															: ""
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</div>
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="category"
-								render={({ field }) => (
-									<FormItem className="grid grid-cols-4 items-center gap-4">
-										<FormLabel className="text-right">
-											類別 *
-										</FormLabel>
-										<div className="col-span-3">
-											<Select
-												onValueChange={field.onChange}
-												value={field.value}
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="選擇產品類別" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													<SelectItem value="AQ">
-														AQ
-													</SelectItem>
-													<SelectItem value="Bond">
-														債券
-													</SelectItem>
-													<SelectItem value="DCI">
-														DCI
-													</SelectItem>
-													<SelectItem value="EQ">
-														股票
-													</SelectItem>
-													<SelectItem value="FCN">
-														FCN
-													</SelectItem>
-													<SelectItem value="Fund">
-														基金
-													</SelectItem>
-													<SelectItem value="FX">
-														外匯
-													</SelectItem>
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</div>
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="status"
-								render={({ field }) => (
-									<FormItem className="grid grid-cols-4 items-center gap-4">
-										<FormLabel className="text-right">
-											狀態 *
-										</FormLabel>
-										<div className="col-span-3">
-											<Select
-												onValueChange={field.onChange}
-												value={field.value}
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="選擇狀態" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													<SelectItem value="active">
-														銷售中
-													</SelectItem>
-													<SelectItem value="inactive">
-														已下架
-													</SelectItem>
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</div>
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="price"
-								render={({ field }) => (
-									<FormItem className="grid grid-cols-4 items-center gap-4">
-										<FormLabel className="text-right">
-											價格
-										</FormLabel>
-										<div className="col-span-3">
-											<FormControl>
-												<Input
-													type="number"
-													step="0.01"
-													placeholder="輸入價格"
-													{...field}
-													onChange={(e) => {
-														const value =
-															e.target.value;
-														field.onChange(
-															value === ""
-																? undefined
-																: Number(value),
-														);
-													}}
-													value={field.value || ""}
 												/>
 											</FormControl>
 											<FormMessage />
@@ -371,12 +263,12 @@ export function EditProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											幣別
+											幣別 *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
 												onValueChange={field.onChange}
-												value={field.value}
+												defaultValue={field.value}
 											>
 												<FormControl>
 													<SelectTrigger>
@@ -384,21 +276,60 @@ export function EditProductDialog({
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
-													<SelectItem value="TWD">
-														TWD
-													</SelectItem>
-													<SelectItem value="USD">
-														USD
-													</SelectItem>
-													<SelectItem value="EUR">
-														EUR
-													</SelectItem>
-													<SelectItem value="JPY">
-														JPY
-													</SelectItem>
-													<SelectItem value="CNY">
-														CNY
-													</SelectItem>
+													{CURRENCY_OPTIONS.map(
+														(option) => (
+															<SelectItem
+																key={
+																	option.value
+																}
+																value={
+																	option.value
+																}
+															>
+																{option.label}
+															</SelectItem>
+														),
+													)}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="distributionType"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											配息方式 *
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇配息方式" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{DISTRIBUTION_TYPE_OPTIONS.map(
+														(option) => (
+															<SelectItem
+																key={
+																	option.value
+																}
+																value={
+																	option.value
+																}
+															>
+																{option.label}
+															</SelectItem>
+														),
+													)}
 												</SelectContent>
 											</Select>
 											<FormMessage />
@@ -427,14 +358,55 @@ export function EditProductDialog({
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={form.control}
+								name="status"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											狀態 *
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇狀態" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{PRODUCT_STATUSES.map(
+														(option) => (
+															<SelectItem
+																key={
+																	option.value
+																}
+																value={
+																	option.value
+																}
+															>
+																{option.label}
+															</SelectItem>
+														),
+													)}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
 						</div>
-						<DialogFooter className="flex justify-between">
+						<DialogFooter className="!justify-between">
 							<Button
 								type="button"
 								variant="error"
 								onClick={handleDelete}
 								disabled={isDeleting}
 							>
+								<Trash2 className="mr-2 size-4" />
 								{isDeleting ? "刪除中..." : "刪除"}
 							</Button>
 							<div className="flex gap-2">
