@@ -11,13 +11,13 @@ export default function OrganizationStart() {
 			<div className="grid @2xl:grid-cols-3 gap-4">
 				<StatsTile
 					title="New clients"
-					value={344}
+					value={999}
 					valueFormat="number"
 					trend={0.12}
 				/>
 				<StatsTile
 					title="Revenue"
-					value={5243}
+					value={999999}
 					valueFormat="currency"
 					trend={0.6}
 				/>
