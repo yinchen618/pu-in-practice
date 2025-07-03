@@ -12,6 +12,7 @@ export interface ExpenseRecord {
 	amount: number;
 	currency: string;
 	exchangeRate: number;
+	sgdAmount: number;
 	receiptUrl?: string | null; // 保留舊欄位以支援向後相容
 	receiptUrls?: string[]; // 新的多檔案支援
 	description?: string | null;
@@ -87,6 +88,12 @@ export function createColumns(
 			},
 		},
 		{
+			accessorKey: "currency",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="幣別" />
+			),
+		},
+		{
 			accessorKey: "amount",
 			header: ({ column }) => (
 				<DataTableColumnHeader column={column} title="金額" />
@@ -101,12 +108,6 @@ export function createColumns(
 			},
 		},
 		{
-			accessorKey: "currency",
-			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="幣別" />
-			),
-		},
-		{
 			accessorKey: "exchangeRate",
 			header: ({ column }) => (
 				<DataTableColumnHeader column={column} title="匯率" />
@@ -115,6 +116,19 @@ export function createColumns(
 				const exchangeRate = row.getValue("exchangeRate") as number;
 				const rate = Number(exchangeRate);
 				return Number.isNaN(rate) ? "1.0000" : rate.toFixed(4);
+			},
+		},
+		{
+			accessorKey: "sgdAmount",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="新幣金額" />
+			),
+			cell: ({ row }) => {
+				const sgdAmount = row.original.sgdAmount;
+				return new Intl.NumberFormat("zh-TW", {
+					style: "currency",
+					currency: "SGD",
+				}).format(sgdAmount);
 			},
 		},
 		{

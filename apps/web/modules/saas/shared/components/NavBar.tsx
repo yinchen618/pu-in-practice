@@ -9,7 +9,6 @@ import { cn } from "@ui/lib";
 import { useAtom } from "jotai";
 import {
 	BuildingIcon,
-	ChevronDownIcon,
 	ChevronRightIcon,
 	HomeIcon,
 	MenuIcon,
@@ -119,104 +118,6 @@ export function NavBar() {
 							`${basePath}/bank-accounts/`,
 						),
 					},
-
-					// 收合選單
-					// {
-					// 	label: "財務管理",
-					// 	key: "finance",
-					// 	icon: WalletIcon,
-					// 	isExpandable: true,
-					// 	isExpanded: expandedMenus.includes("finance"),
-					// 	isActive:
-					// 		pathname.startsWith(
-					// 			`${basePath}/profit-sharing/`,
-					// 		) || pathname.startsWith(`${basePath}/expenses/`),
-					// 	subItems: [
-					// 		{
-					// 			label: "分潤",
-					// 			href: `${basePath}/profit-sharing`,
-					// 			isActive: pathname.startsWith(
-					// 				`${basePath}/profit-sharing/`,
-					// 			),
-					// 		},
-					// 		{
-					// 			label: "支出",
-					// 			href: `${basePath}/expenses`,
-					// 			isActive: pathname.startsWith(
-					// 				`${basePath}/expenses/`,
-					// 			),
-					// 		},
-					// 		{
-					// 			label: "財務報表",
-					// 			href: "#",
-					// 			isActive: false,
-					// 		},
-					// 	],
-					// },
-					// {
-					// 	label: "客戶管理",
-					// 	key: "customers",
-					// 	icon: UsersIcon,
-					// 	isExpandable: true,
-					// 	isExpanded: expandedMenus.includes("customers"),
-					// 	isActive:
-					// 		pathname.startsWith(`${basePath}/customers/`) ||
-					// 		pathname.startsWith(
-					// 			`${basePath}/relationship-managers/`,
-					// 		),
-					// 	subItems: [
-					// 		{
-					// 			label: "客戶",
-					// 			href: `${basePath}/customers`,
-					// 			isActive: pathname.startsWith(
-					// 				`${basePath}/customers/`,
-					// 			),
-					// 		},
-					// 		{
-					// 			label: "RM",
-					// 			href: `${basePath}/relationship-managers`,
-					// 			isActive: pathname.startsWith(
-					// 				`${basePath}/relationship-managers/`,
-					// 			),
-					// 		},
-					// 		{
-					// 			label: "客戶群組",
-					// 			href: "#",
-					// 			isActive: false,
-					// 		},
-					// 	],
-					// },
-					// {
-					// 	label: "產品設定",
-					// 	key: "products",
-					// 	icon: PackageIcon,
-					// 	isExpandable: true,
-					// 	isExpanded: expandedMenus.includes("products"),
-					// 	isActive:
-					// 		pathname.startsWith(`${basePath}/products/`) ||
-					// 		pathname.startsWith(`${basePath}/bank-accounts/`),
-					// 	subItems: [
-					// 		{
-					// 			label: "產品",
-					// 			href: `${basePath}/products`,
-					// 			isActive: pathname.startsWith(
-					// 				`${basePath}/products/`,
-					// 			),
-					// 		},
-					// 		{
-					// 			label: "銀行帳戶",
-					// 			href: `${basePath}/bank-accounts`,
-					// 			isActive: pathname.startsWith(
-					// 				`${basePath}/bank-accounts/`,
-					// 			),
-					// 		},
-					// 		{
-					// 			label: "產品類別",
-					// 			href: "#",
-					// 			isActive: false,
-					// 		},
-					// 	],
-					// },
 					{
 						label: t("app.menu.organizationSettings"),
 						href: `${basePath}/settings`,
@@ -350,109 +251,32 @@ export function NavBar() {
 							},
 						)}
 					>
-						{menuItems.map((menuItem) => (
-							<li key={menuItem.href || menuItem.key}>
-								{menuItem.isExpandable ? (
-									<div>
-										<button
-											type="button"
-											onClick={() =>
-												toggleMenu(menuItem.key)
-											}
-											className={cn(
-												"flex w-full items-center gap-2 whitespace-nowrap border-b-2 px-1 pb-3",
-												[
-													menuItem.isActive
-														? "border-primary font-bold"
-														: "border-transparent",
-												],
-												{
-													"md:-mx-6 md:border-b-0 md:border-l-2 md:px-6 md:py-2":
-														useSidebarLayout,
-												},
-											)}
-										>
-											<menuItem.icon
-												className={`size-4 shrink-0 ${
-													menuItem.isActive
-														? "text-primary"
-														: "opacity-50"
-												}`}
-											/>
-											<span className="flex-1 text-left">
-												{menuItem.label}
-											</span>
-											{useSidebarLayout && (
-												<div className="ml-auto">
-													{menuItem.isExpanded ? (
-														<ChevronDownIcon className="size-4 opacity-50" />
-													) : (
-														<ChevronRightIcon className="size-4 opacity-50" />
-													)}
-												</div>
-											)}
-										</button>
-										{menuItem.isExpanded &&
-											useSidebarLayout && (
-												<ul className="ml-4 mt-1 space-y-1">
-													{menuItem.subItems?.map(
-														(subItem) => (
-															<li
-																key={
-																	subItem.href
-																}
-															>
-																<Link
-																	href={
-																		subItem.href
-																	}
-																	className={cn(
-																		"flex items-center gap-2 px-2 py-1 text-sm transition-colors hover:bg-muted rounded-md",
-																		[
-																			subItem.isActive
-																				? "bg-muted font-medium text-primary"
-																				: "text-muted-foreground",
-																		],
-																	)}
-																>
-																	<span>
-																		{
-																			subItem.label
-																		}
-																	</span>
-																</Link>
-															</li>
-														),
-													)}
-												</ul>
-											)}
-									</div>
-								) : (
-									<Link
-										href={menuItem.href!}
-										className={cn(
-											"flex items-center gap-2 whitespace-nowrap border-b-2 px-1 pb-3",
-											[
-												menuItem.isActive
-													? "border-primary font-bold"
-													: "border-transparent",
-											],
-											{
-												"md:-mx-6 md:border-b-0 md:border-l-2 md:px-6 md:py-2":
-													useSidebarLayout,
-											},
-										)}
-									>
-										<menuItem.icon
-											className={`size-4 shrink-0 ${
-												menuItem.isActive
-													? "text-primary"
-													: "opacity-50"
-											}`}
-										/>
-										<span>{menuItem.label}</span>
-									</Link>
-								)}
+						{menuItems.map((menuItem, index) => (
+							<li key={menuItem.href || `menu-${index}`}>
+								<Link
+									href={menuItem.href!}
+									className={cn(
+										"flex items-center gap-2 whitespace-nowrap border-b-2 px-1 pb-3",
+										[
+											menuItem.isActive
+												? "border-primary font-bold"
+												: "border-transparent",
+										],
+										{
+											"md:-mx-6 md:border-b-0 md:border-l-2 md:px-6 md:py-2":
+												useSidebarLayout,
+										},
+									)}
+								>
+									<menuItem.icon
+										className={`size-4 shrink-0 ${
+											menuItem.isActive
+												? "text-primary"
+												: "opacity-50"
+										}`}
+									/>
+									<span>{menuItem.label}</span>
+								</Link>
 							</li>
 						))}
 					</ul>
@@ -461,36 +285,21 @@ export function NavBar() {
 				{/* 收合狀態下的圖示選單 */}
 				{isSidebarCollapsed && useSidebarLayout && (
 					<ul className="md:mx-0 md:my-4 md:flex md:flex-col md:items-center md:gap-2 md:px-0">
-						{menuItems.map((menuItem) => (
-							<li key={menuItem.href || menuItem.key}>
-								{menuItem.isExpandable ? (
-									<div
-										className="flex items-center justify-center p-2 rounded-md hover:bg-muted transition-colors cursor-pointer"
-										title={menuItem.label}
-									>
-										<menuItem.icon
-											className={`size-5 ${
-												menuItem.isActive
-													? "text-primary"
-													: "opacity-50"
-											}`}
-										/>
-									</div>
-								) : (
-									<Link
-										href={menuItem.href!}
-										className="flex items-center justify-center p-2 rounded-md hover:bg-muted transition-colors"
-										title={menuItem.label}
-									>
-										<menuItem.icon
-											className={`size-5 ${
-												menuItem.isActive
-													? "text-primary"
-													: "opacity-50"
-											}`}
-										/>
-									</Link>
-								)}
+						{menuItems.map((menuItem, index) => (
+							<li key={menuItem.href || `menu-${index}`}>
+								<Link
+									href={menuItem.href!}
+									className="flex items-center justify-center p-2 rounded-md hover:bg-muted transition-colors"
+									title={menuItem.label}
+								>
+									<menuItem.icon
+										className={`size-5 ${
+											menuItem.isActive
+												? "text-primary"
+												: "opacity-50"
+										}`}
+									/>
+								</Link>
 							</li>
 						))}
 					</ul>

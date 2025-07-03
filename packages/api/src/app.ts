@@ -13,6 +13,7 @@ import { adminRouter } from "./routes/admin/router";
 import { aiRouter } from "./routes/ai";
 import { authRouter } from "./routes/auth";
 import { contactRouter } from "./routes/contact/router";
+import { exchangeRateRouter } from "./routes/exchange-rate/route";
 import { healthRouter } from "./routes/health";
 import { newsletterRouter } from "./routes/newsletter";
 import { organizationsRouter } from "./routes/organizations/router";
@@ -35,6 +36,7 @@ const appRouter = app
 	.route("/", newsletterRouter)
 	.route("/", organizationsRouter)
 	.route("/", adminRouter)
+	.route("/", exchangeRateRouter)
 	.route("/", healthRouter);
 
 app.get(

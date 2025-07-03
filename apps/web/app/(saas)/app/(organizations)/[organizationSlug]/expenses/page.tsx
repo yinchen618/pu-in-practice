@@ -8,15 +8,23 @@ import type { ExpenseRecord } from "./components/columns";
 import { createColumns } from "./components/columns";
 import { CreateExpenseDialog } from "./components/create-expense-dialog";
 import { EditExpenseDialog } from "./components/edit-expense-dialog";
+import {
+	ExpenseFilters,
+	type ExpenseFilters as ExpenseFiltersType,
+} from "./components/expense-filters";
 
 export default function ExpensesPage() {
 	const { activeOrganization, loaded } = useActiveOrganization();
-	const [data, setData] = useState<ExpenseRecord[]>([]);
+	const [allData, setAllData] = useState<ExpenseRecord[]>([]);
+	const [filteredData, setFilteredData] = useState<ExpenseRecord[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [editingExpense, setEditingExpense] = useState<ExpenseRecord | null>(
 		null,
 	);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
+	const [currentFilters, setCurrentFilters] = useState<ExpenseFiltersType>(
+		{},
+	);
 
 	const fetchData = async () => {
 		if (!activeOrganization?.id) return;
@@ -36,14 +44,18 @@ export default function ExpensesPage() {
 
 			if (response.ok) {
 				const result = await response.json();
-				setData(result.expenses || []);
+				const expenses = result.expenses || [];
+				setAllData(expenses);
+				setFilteredData(expenses);
 			} else {
 				console.error("獲取支出數據失敗", await response.text());
-				setData([]);
+				setAllData([]);
+				setFilteredData([]);
 			}
 		} catch (error) {
 			console.error("獲取數據失敗:", error);
-			setData([]);
+			setAllData([]);
+			setFilteredData([]);
 		} finally {
 			setIsLoading(false);
 		}
@@ -57,6 +69,14 @@ export default function ExpensesPage() {
 	const handleEditSuccess = () => {
 		fetchData();
 		setEditingExpense(null);
+	};
+
+	const handleFilterChange = (newFilteredData: ExpenseRecord[]) => {
+		setFilteredData(newFilteredData);
+	};
+
+	const handleFiltersChange = (filters: ExpenseFiltersType) => {
+		setCurrentFilters(filters);
 	};
 
 	// 新增 columns，傳入編輯函數
@@ -94,12 +114,17 @@ export default function ExpensesPage() {
 				}
 			/>
 
+			{/* 篩選器組件 */}
+			<ExpenseFilters
+				data={allData}
+				onFilterChange={handleFilterChange}
+				onFiltersChange={handleFiltersChange}
+			/>
+
 			<DataTable
 				columns={columns}
-				data={data}
+				data={filteredData}
 				isLoading={isLoading}
-				searchKey="description"
-				searchPlaceholder="搜尋支出描述"
 			/>
 
 			{editingExpense && (

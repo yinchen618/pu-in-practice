@@ -33,7 +33,7 @@ const appUrl = getBaseUrl();
 
 export const auth = betterAuth({
 	baseURL: appUrl,
-	trustedOrigins: [appUrl],
+	trustedOrigins: [appUrl, "http://localhost:3001"],
 	appName: config.appName,
 	database: prismaAdapter(db, {
 		provider: "postgresql",

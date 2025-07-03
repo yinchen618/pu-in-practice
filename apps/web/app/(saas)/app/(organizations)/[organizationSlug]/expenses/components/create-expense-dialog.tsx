@@ -28,10 +28,11 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Textarea } from "@ui/components/textarea";
-import { Plus } from "lucide-react";
-import { useState } from "react";
+import { Plus, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useExchangeRate } from "../../../../../../../hooks/use-exchange-rate";
 import { ReceiptUpload } from "./receipt-upload";
 
 const createExpenseSchema = z.object({
@@ -66,12 +67,40 @@ export function CreateExpenseDialog({
 	const form = useForm<CreateExpenseFormData>({
 		resolver: zodResolver(createExpenseSchema),
 		defaultValues: {
-			currency: "TWD",
+			currency: "SGD",
 			exchangeRate: 1,
 			date: today,
 			receiptUrls: [],
 		},
 	});
+
+	// 監聽表單中的日期和幣別變化
+	const watchedDate = form.watch("date");
+	const watchedCurrency = form.watch("currency");
+
+	// 使用匯率hook
+	const {
+		data: exchangeRateData,
+		loading: exchangeRateLoading,
+		error: exchangeRateError,
+	} = useExchangeRate({
+		date: watchedDate || today,
+		enabled: open, // 只有當對話框打開時才啟用
+	});
+
+	// 當匯率數據變化時，自動更新表單中的匯率欄位
+	useEffect(() => {
+		if (watchedCurrency === "SGD") {
+			// 如果是SGD，直接設定匯率為1
+			form.setValue("exchangeRate", 1);
+		} else if (exchangeRateData?.rates && open) {
+			// 其他幣別則使用API獲取的匯率
+			const rate = exchangeRateData.rates[watchedCurrency];
+			if (rate) {
+				form.setValue("exchangeRate", Number(rate.toFixed(4)));
+			}
+		}
+	}, [exchangeRateData, form, open, watchedCurrency]);
 
 	const onSubmit = async (data: CreateExpenseFormData) => {
 		setIsLoading(true);
@@ -131,6 +160,24 @@ export function CreateExpenseDialog({
 						<div className="grid gap-4 py-4">
 							<FormField
 								control={form.control}
+								name="date"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											日期
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input type="date" {...field} />
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
 								name="category"
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
@@ -166,37 +213,6 @@ export function CreateExpenseDialog({
 														</SelectItem>
 													</SelectContent>
 												</Select>
-											</FormControl>
-											<FormMessage />
-										</div>
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="amount"
-								render={({ field }) => (
-									<FormItem className="grid grid-cols-4 items-center gap-4">
-										<FormLabel className="text-right">
-											金額 *
-										</FormLabel>
-										<div className="col-span-3">
-											<FormControl>
-												<Input
-													type="number"
-													step="0.01"
-													min="0"
-													placeholder="0.00"
-													{...field}
-													onChange={(e) =>
-														field.onChange(
-															Number.parseFloat(
-																e.target.value,
-															) || 0,
-														)
-													}
-												/>
 											</FormControl>
 											<FormMessage />
 										</div>
@@ -256,25 +272,25 @@ export function CreateExpenseDialog({
 
 							<FormField
 								control={form.control}
-								name="exchangeRate"
+								name="amount"
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											匯率
+											金額 *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
 													type="number"
-													step="0.0001"
+													step="0.01"
 													min="0"
-													placeholder="1.0000"
+													placeholder="0.00"
 													{...field}
 													onChange={(e) =>
 														field.onChange(
 															Number.parseFloat(
 																e.target.value,
-															) || undefined,
+															) || 0,
 														)
 													}
 												/>
@@ -287,21 +303,133 @@ export function CreateExpenseDialog({
 
 							<FormField
 								control={form.control}
-								name="date"
+								name="exchangeRate"
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											日期
+											匯率
 										</FormLabel>
 										<div className="col-span-3">
-											<FormControl>
-												<Input type="date" {...field} />
-											</FormControl>
+											<div className="flex gap-2">
+												<FormControl>
+													<Input
+														type="number"
+														step="0.0001"
+														min="0"
+														placeholder="1.0000"
+														{...field}
+														onChange={(e) =>
+															field.onChange(
+																Number.parseFloat(
+																	e.target
+																		.value,
+																) || undefined,
+															)
+														}
+														disabled={
+															watchedCurrency ===
+															"SGD"
+														}
+														className={
+															exchangeRateLoading
+																? "bg-muted"
+																: ""
+														}
+													/>
+												</FormControl>
+												{watchedCurrency !== "SGD" && (
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														onClick={() => {
+															if (
+																exchangeRateData?.rates
+															) {
+																const rate =
+																	exchangeRateData
+																		.rates[
+																		watchedCurrency
+																	];
+																if (rate) {
+																	form.setValue(
+																		"exchangeRate",
+																		Number(
+																			rate.toFixed(
+																				4,
+																			),
+																		),
+																	);
+																}
+															}
+														}}
+														disabled={
+															exchangeRateLoading
+														}
+														className="px-3"
+													>
+														{exchangeRateLoading ? (
+															<RefreshCw className="size-4 animate-spin" />
+														) : (
+															<RefreshCw className="size-4" />
+														)}
+													</Button>
+												)}
+											</div>
+											{watchedCurrency === "SGD" && (
+												<p className="text-sm text-gray-600 mt-1">
+													新幣匯率固定為 1.0000
+												</p>
+											)}
+											{exchangeRateError &&
+												watchedCurrency !== "SGD" && (
+													<p className="text-sm text-red-600 mt-1">
+														無法獲取匯率:{" "}
+														{exchangeRateError}
+													</p>
+												)}
+											{exchangeRateData &&
+												!exchangeRateError &&
+												watchedCurrency !== "SGD" && (
+													<p className="text-sm text-green-600 mt-1">
+														{exchangeRateData.date}{" "}
+														的匯率已自動更新
+													</p>
+												)}
 											<FormMessage />
 										</div>
 									</FormItem>
 								)}
 							/>
+
+							{/* 新幣金額預覽 */}
+							<div className="grid grid-cols-4 items-center gap-4">
+								<FormLabel className="text-right">
+									新幣金額
+								</FormLabel>
+								<div className="col-span-3">
+									<Input
+										type="text"
+										disabled
+										value={(() => {
+											const amount =
+												form.watch("amount") || 0;
+											const exchangeRate =
+												form.watch("exchangeRate") || 1;
+											const sgdAmount =
+												amount * exchangeRate;
+											return new Intl.NumberFormat(
+												"zh-TW",
+												{
+													style: "currency",
+													currency: "SGD",
+												},
+											).format(sgdAmount);
+										})()}
+										className="bg-muted"
+									/>
+								</div>
+							</div>
 
 							<FormField
 								control={form.control}

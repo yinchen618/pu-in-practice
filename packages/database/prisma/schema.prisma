@@ -302,6 +302,7 @@ model Expense {
   amount         Decimal      @db.Decimal(15, 2)
   currency       String       @default("TWD")
   exchangeRate   Decimal      @default(1) @db.Decimal(10, 4) // X.XXXX format for exchange rate
+  sgdAmount      Decimal      @default(0) @db.Decimal(15, 2) // 新幣金額 (amount * exchangeRate)
   receiptUrl     String? // 上傳收據 URL，保留向後相容
   receiptUrls    String[]     @default([]) // 多檔案收據 URL 陣列
   description    String? // 支出描述
