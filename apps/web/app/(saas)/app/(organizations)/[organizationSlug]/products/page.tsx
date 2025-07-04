@@ -8,15 +8,23 @@ import { createColumns } from "./components/columns";
 import type { ProductRecord } from "./components/columns";
 import { CreateProductDialog } from "./components/create-product-dialog";
 import { EditProductDialog } from "./components/edit-product-dialog";
+import {
+	ProductFilters,
+	type ProductFilters as ProductFiltersType,
+} from "./components/product-filters";
 
 export default function ProductsPage() {
 	const { activeOrganization, loaded } = useActiveOrganization();
-	const [data, setData] = useState<ProductRecord[]>([]);
+	const [allData, setAllData] = useState<ProductRecord[]>([]);
+	const [filteredData, setFilteredData] = useState<ProductRecord[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [editingProduct, setEditingProduct] = useState<ProductRecord | null>(
 		null,
 	);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
+	const [currentFilters, setCurrentFilters] = useState<ProductFiltersType>(
+		{},
+	);
 
 	const fetchData = async () => {
 		if (!activeOrganization?.id) {
@@ -38,14 +46,18 @@ export default function ProductsPage() {
 
 			if (response.ok) {
 				const result = await response.json();
-				setData(result.products || []);
+				const products = result.products || [];
+				setAllData(products);
+				setFilteredData(products);
 			} else {
 				console.error("獲取產品數據失敗", await response.text());
-				setData([]);
+				setAllData([]);
+				setFilteredData([]);
 			}
 		} catch (error) {
 			console.error("獲取數據失敗:", error);
-			setData([]);
+			setAllData([]);
+			setFilteredData([]);
 		} finally {
 			setIsLoading(false);
 		}
@@ -61,7 +73,14 @@ export default function ProductsPage() {
 		setEditingProduct(null);
 	};
 
-	// 新增 columns，傳入編輯函數
+	const handleFilterChange = (newFilteredData: ProductRecord[]) => {
+		setFilteredData(newFilteredData);
+	};
+
+	const handleFiltersChange = (filters: ProductFiltersType) => {
+		setCurrentFilters(filters);
+	};
+
 	const columns = createColumns(handleEdit);
 
 	useEffect(() => {
@@ -96,12 +115,16 @@ export default function ProductsPage() {
 				}
 			/>
 
+			<ProductFilters
+				data={allData}
+				onFilterChange={handleFilterChange}
+				onFiltersChange={handleFiltersChange}
+			/>
+
 			<DataTable
 				columns={columns}
-				data={data}
+				data={filteredData}
 				isLoading={isLoading}
-				searchKey="name"
-				searchPlaceholder="搜尋產品名稱"
 			/>
 
 			{editingProduct && (

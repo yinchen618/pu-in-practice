@@ -4,6 +4,10 @@ import { useActiveOrganization } from "@saas/organizations/hooks/use-active-orga
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
 import { useEffect, useState } from "react";
+import {
+	BankAccountFilters,
+	type BankAccountFilters as BankAccountFiltersType,
+} from "./components/bank-account-filters";
 import type { BankAccountRecord } from "./components/columns";
 import { createColumns } from "./components/columns";
 import { CreateBankAccountDialog } from "./components/create-bank-account-dialog";
@@ -11,11 +15,14 @@ import { EditBankAccountDialog } from "./components/edit-bank-account-dialog";
 
 export default function BankAccountsPage() {
 	const { activeOrganization, loaded } = useActiveOrganization();
-	const [data, setData] = useState<BankAccountRecord[]>([]);
+	const [allData, setAllData] = useState<BankAccountRecord[]>([]);
+	const [filteredData, setFilteredData] = useState<BankAccountRecord[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [editingBankAccount, setEditingBankAccount] =
 		useState<BankAccountRecord | null>(null);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
+	const [currentFilters, setCurrentFilters] =
+		useState<BankAccountFiltersType>({});
 
 	const fetchData = async () => {
 		if (!activeOrganization?.id) return;
@@ -35,14 +42,18 @@ export default function BankAccountsPage() {
 
 			if (response.ok) {
 				const result = await response.json();
-				setData(result.bankAccounts || []);
+				const bankAccounts = result.bankAccounts || [];
+				setAllData(bankAccounts);
+				setFilteredData(bankAccounts);
 			} else {
 				console.error("獲取銀行帳戶數據失敗", await response.text());
-				setData([]);
+				setAllData([]);
+				setFilteredData([]);
 			}
 		} catch (error) {
 			console.error("獲取數據失敗:", error);
-			setData([]);
+			setAllData([]);
+			setFilteredData([]);
 		} finally {
 			setIsLoading(false);
 		}
@@ -56,6 +67,14 @@ export default function BankAccountsPage() {
 	const handleEditSuccess = () => {
 		fetchData();
 		setEditingBankAccount(null);
+	};
+
+	const handleFilterChange = (newFilteredData: BankAccountRecord[]) => {
+		setFilteredData(newFilteredData);
+	};
+
+	const handleFiltersChange = (filters: BankAccountFiltersType) => {
+		setCurrentFilters(filters);
 	};
 
 	// 新增 columns，傳入編輯函數
@@ -93,12 +112,17 @@ export default function BankAccountsPage() {
 				}
 			/>
 
+			{/* 篩選器組件 */}
+			<BankAccountFilters
+				data={allData}
+				onFilterChange={handleFilterChange}
+				onFiltersChange={handleFiltersChange}
+			/>
+
 			<DataTable
 				columns={columns}
-				data={data}
+				data={filteredData}
 				isLoading={isLoading}
-				searchKey="bankName"
-				searchPlaceholder="搜尋銀行名稱或帳戶名稱"
 			/>
 
 			{editingBankAccount && (

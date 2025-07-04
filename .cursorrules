@@ -993,3 +993,418 @@ const onSubmit = async (data: FormData) => {
 ```
 
 這套錯誤處理模式確保了一致的用戶體驗和穩定的 API 錯誤處理。
+
+## 資料篩選器組件標準實現
+
+### 概述
+以 `/expenses` 模組的 `ExpenseFilters` 組件為標準，所有 CRUD 列表頁面都應該實現一致的篩選器功能和 UI 樣式。
+
+### 1. 篩選器組件結構
+
+#### 1.1 基本組件導入
+```typescript
+"use client";
+
+import { Badge } from "@ui/components/badge";
+import { Button } from "@ui/components/button";
+import { Input } from "@ui/components/input";
+import { Label } from "@ui/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@ui/components/select";
+import { Calendar, DollarSign, Filter, Paperclip, X } from "lucide-react";
+import { useState } from "react";
+```
+
+#### 1.2 篩選器介面定義
+```typescript
+export interface YourFilters {
+  // 根據需求定義篩選條件
+  dateFrom?: string;
+  dateTo?: string;
+  category?: string;
+  status?: string;
+  search?: string;
+  // 其他篩選條件...
+}
+
+interface YourFiltersProps {
+  data: YourRecord[];
+  onFilterChange: (filteredData: YourRecord[]) => void;
+  onFiltersChange?: (filters: YourFilters) => void;
+}
+```
+
+### 2. 篩選器 UI 佈局標準
+
+#### 2.1 頂部控制列
+```typescript
+{/* 篩選器控制列 */}
+<div className="flex items-center justify-between">
+  <div className="flex items-center gap-2">
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => setIsExpanded(!isExpanded)}
+      className="gap-2"
+    >
+      <Filter className="size-4" />
+      篩選器{" "}
+      {hasActiveFilters &&
+        `(${
+          Object.values(filters).filter(
+            (v) => v !== undefined && v !== null && v !== "" && v !== "all"
+          ).length
+        })`}
+    </Button>
+    {hasActiveFilters && (
+      <Button variant="ghost" size="sm" onClick={clearFilters}>
+        <X className="size-4 mr-1" />
+        清除篩選
+      </Button>
+    )}
+  </div>
+
+  {/* 主要搜尋框 */}
+  <div className="flex items-center gap-2">
+    <Input
+      placeholder="搜尋..."
+      value={filters.search || ""}
+      onChange={(e) => updateFilter("search", e.target.value)}
+      className="w-64"
+    />
+  </div>
+</div>
+```
+
+#### 2.2 展開式篩選面板
+```typescript
+{/* 展開的篩選器 */}
+{isExpanded && (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/20">
+    {/* 每個篩選條件都包在 div 中，使用 space-y-2 */}
+    <div className="space-y-2">
+      <Label className="text-sm font-medium">標籤名稱</Label>
+      <Select
+        value={filters.fieldName || ""}
+        onValueChange={(value) =>
+          updateFilter("fieldName", value === "all" ? undefined : value)
+        }
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="選擇..." />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">全部</SelectItem>
+          {/* 動態選項 */}
+        </SelectContent>
+      </Select>
+    </div>
+    
+    {/* 日期範圍的特殊處理 */}
+    <div className="space-y-2">
+      <Label className="text-sm font-medium flex items-center gap-1">
+        <Calendar className="size-4" />
+        日期區間
+      </Label>
+      <div className="space-y-2">
+        <Input
+          type="date"
+          placeholder="開始日期"
+          value={filters.dateFrom || ""}
+          onChange={(e) => updateFilter("dateFrom", e.target.value)}
+        />
+        <Input
+          type="date"
+          placeholder="結束日期"
+          value={filters.dateTo || ""}
+          onChange={(e) => updateFilter("dateTo", e.target.value)}
+        />
+      </div>
+    </div>
+    
+    {/* 數字範圍的特殊處理 */}
+    <div className="space-y-2">
+      <Label className="text-sm font-medium flex items-center gap-1">
+        <DollarSign className="size-4" />
+        金額範圍
+      </Label>
+      <div className="space-y-2">
+        <Input
+          type="number"
+          placeholder="最小金額"
+          value={filters.amountMin || ""}
+          onChange={(e) => {
+            const value = e.target.value;
+            updateFilter("amountMin", value === "" ? undefined : Number(value));
+          }}
+        />
+        <Input
+          type="number"
+          placeholder="最大金額"
+          value={filters.amountMax || ""}
+          onChange={(e) => {
+            const value = e.target.value;
+            updateFilter("amountMax", value === "" ? undefined : Number(value));
+          }}
+        />
+      </div>
+    </div>
+  </div>
+)}
+```
+
+### 3. 篩選器標籤顯示
+
+#### 3.1 標籤樣式標準
+```typescript
+{/* 已選擇的篩選條件標籤 */}
+{hasActiveFilters && (
+  <div className="flex flex-wrap gap-2">
+    {filters.category && (
+      <Badge status="info" className="gap-1">
+        類別: {filters.category}
+        <button
+          type="button"
+          onClick={() => updateFilter("category", undefined)}
+          className="ml-1 hover:bg-destructive/20 rounded-full"
+        >
+          <X className="size-3" />
+        </button>
+      </Badge>
+    )}
+    
+    {/* 日期標籤 */}
+    {filters.dateFrom && (
+      <Badge status="info" className="gap-1">
+        開始: {filters.dateFrom}
+        <button
+          type="button"
+          onClick={() => updateFilter("dateFrom", undefined)}
+          className="ml-1 hover:bg-destructive/20 rounded-full"
+        >
+          <X className="size-3" />
+        </button>
+      </Badge>
+    )}
+    
+    {/* 數字範圍標籤 */}
+    {filters.amountMin !== undefined && (
+      <Badge status="info" className="gap-1">
+        最小: {filters.amountMin}
+        <button
+          type="button"
+          onClick={() => updateFilter("amountMin", undefined)}
+          className="ml-1 hover:bg-destructive/20 rounded-full"
+        >
+          <X className="size-3" />
+        </button>
+      </Badge>
+    )}
+  </div>
+)}
+```
+
+### 4. 篩選邏輯實現
+
+#### 4.1 篩選函數標準
+```typescript
+const applyFilters = (newFilters: YourFilters) => {
+  setFilters(newFilters);
+  onFiltersChange?.(newFilters);
+
+  let filteredData = [...data];
+
+  // 搜尋篩選
+  if (newFilters.search) {
+    const searchTerm = newFilters.search.toLowerCase();
+    filteredData = filteredData.filter((item) =>
+      item.name.toLowerCase().includes(searchTerm) ||
+      item.description?.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  // 類別篩選
+  if (newFilters.category) {
+    filteredData = filteredData.filter(
+      (item) => item.category === newFilters.category
+    );
+  }
+
+  // 日期範圍篩選
+  if (newFilters.dateFrom) {
+    const fromDate = new Date(newFilters.dateFrom);
+    filteredData = filteredData.filter(
+      (item) => new Date(item.date) >= fromDate
+    );
+  }
+  if (newFilters.dateTo) {
+    const toDate = new Date(newFilters.dateTo);
+    toDate.setHours(23, 59, 59, 999); // 包含整天
+    filteredData = filteredData.filter(
+      (item) => new Date(item.date) <= toDate
+    );
+  }
+
+  // 數字範圍篩選
+  if (newFilters.amountMin !== undefined) {
+    filteredData = filteredData.filter(
+      (item) => item.amount >= newFilters.amountMin!
+    );
+  }
+  if (newFilters.amountMax !== undefined) {
+    filteredData = filteredData.filter(
+      (item) => item.amount <= newFilters.amountMax!
+    );
+  }
+
+  onFilterChange(filteredData);
+};
+```
+
+#### 4.2 輔助函數
+```typescript
+const updateFilter = (key: keyof YourFilters, value: any) => {
+  const newFilters = { ...filters, [key]: value };
+  applyFilters(newFilters);
+};
+
+const clearFilters = () => {
+  setFilters({});
+  onFiltersChange?.({});
+  onFilterChange(data);
+};
+
+const hasActiveFilters = Object.values(filters).some(
+  (value) => value !== undefined && value !== null && value !== "" && value !== "all"
+);
+```
+
+### 5. 主頁面整合
+
+#### 5.1 頁面狀態管理
+```typescript
+const [allData, setAllData] = useState<YourRecord[]>([]);
+const [filteredData, setFilteredData] = useState<YourRecord[]>([]);
+const [currentFilters, setCurrentFilters] = useState<YourFiltersType>({});
+
+const handleFilterChange = (newFilteredData: YourRecord[]) => {
+  setFilteredData(newFilteredData);
+};
+
+const handleFiltersChange = (filters: YourFiltersType) => {
+  setCurrentFilters(filters);
+};
+```
+
+#### 5.2 篩選器組件使用
+```typescript
+{/* 篩選器組件 */}
+<YourFilters
+  data={allData}
+  onFilterChange={handleFilterChange}
+  onFiltersChange={handleFiltersChange}
+/>
+
+<DataTable
+  columns={columns}
+  data={filteredData}  // 使用篩選後的資料
+  isLoading={isLoading}
+  // 移除 DataTable 的內建搜尋功能
+/>
+```
+
+### 6. 樣式規範
+
+#### 6.1 必須使用的 CSS 類別
+- **篩選器容器**: `space-y-4`
+- **控制列**: `flex items-center justify-between`
+- **篩選面板**: `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/20`
+- **欄位容器**: `space-y-2`
+- **標籤**: `text-sm font-medium`
+- **圖標標籤**: `text-sm font-medium flex items-center gap-1`
+- **標籤區域**: `flex flex-wrap gap-2`
+- **Badge**: `status="info" className="gap-1"`
+- **關閉按鈕**: `ml-1 hover:bg-destructive/20 rounded-full`
+
+#### 6.2 響應式設計
+- 使用 `grid-cols-1 md:grid-cols-2 lg:grid-cols-4` 確保在不同螢幕尺寸下的良好顯示
+- 搜尋框使用 `w-64` 固定寬度
+- 標籤使用 `flex-wrap` 自動換行
+
+### 7. 圖標使用規範
+
+#### 7.1 常用圖標對應
+- **篩選器按鈕**: `<Filter className="size-4" />`
+- **清除按鈕**: `<X className="size-4 mr-1" />`
+- **日期欄位**: `<Calendar className="size-4" />`
+- **金額欄位**: `<DollarSign className="size-4" />`
+- **附件欄位**: `<Paperclip className="size-4" />`
+- **標籤關閉**: `<X className="size-3" />`
+
+### 8. 特殊欄位處理
+
+#### 8.1 布林值篩選
+```typescript
+<Select
+  value={
+    filters.hasReceipt === null || filters.hasReceipt === undefined
+      ? "all"
+      : filters.hasReceipt.toString()
+  }
+  onValueChange={(value) => {
+    if (value === "all") {
+      updateFilter("hasReceipt", null);
+    } else {
+      updateFilter("hasReceipt", value === "true");
+    }
+  }}
+>
+  <SelectTrigger>
+    <SelectValue placeholder="選擇狀態" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="all">全部</SelectItem>
+    <SelectItem value="true">是</SelectItem>
+    <SelectItem value="false">否</SelectItem>
+  </SelectContent>
+</Select>
+```
+
+#### 8.2 動態選項生成
+```typescript
+// 從資料中提取唯一值
+const uniqueCategories = Array.from(
+  new Set(data.map((item) => item.category).filter(Boolean))
+);
+
+// 在 SelectContent 中使用
+{uniqueCategories.map((category) => (
+  <SelectItem key={category} value={category}>
+    {category}
+  </SelectItem>
+))}
+```
+
+### 9. 檢查清單
+
+實現篩選器組件時，確保：
+
+1. ✅ 使用一致的 UI 佈局和樣式
+2. ✅ 實現展開/收合功能
+3. ✅ 顯示活躍篩選器數量
+4. ✅ 提供清除篩選功能
+5. ✅ 整合主要搜尋框
+6. ✅ 使用正確的 Badge 組件和 status
+7. ✅ 實現篩選器標籤顯示
+8. ✅ 處理特殊欄位類型（日期、數字、布林值）
+9. ✅ 從資料動態生成選項
+10. ✅ 確保響應式設計
+11. ✅ 使用適當的圖標
+12. ✅ 在主頁面正確整合篩選器
+
+這套篩選器標準確保了所有 CRUD 列表頁面都有一致的篩選體驗和視覺效果。

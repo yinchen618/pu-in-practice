@@ -8,13 +8,19 @@ import { createColumns } from "./components/columns";
 import type { RMRecord } from "./components/columns";
 import { CreateRMDialog } from "./components/create-rm-dialog";
 import { EditRMDialog } from "./components/edit-rm-dialog";
+import {
+	RMFilters,
+	type RMFilters as RMFiltersType,
+} from "./components/rm-filters";
 
 export default function RelationshipManagersPage() {
 	const { activeOrganization, loaded } = useActiveOrganization();
-	const [data, setData] = useState<RMRecord[]>([]);
+	const [allData, setAllData] = useState<RMRecord[]>([]);
+	const [filteredData, setFilteredData] = useState<RMRecord[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [editingRM, setEditingRM] = useState<RMRecord | null>(null);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
+	const [currentFilters, setCurrentFilters] = useState<RMFiltersType>({});
 
 	const fetchData = async () => {
 		if (!activeOrganization?.id) return;
@@ -34,17 +40,29 @@ export default function RelationshipManagersPage() {
 
 			if (response.ok) {
 				const result = await response.json();
-				setData(result.relationshipManagers || []);
+				const data = result.relationshipManagers || [];
+				setAllData(data);
+				setFilteredData(data);
 			} else {
 				console.error("獲取 RM 數據失敗", await response.text());
-				setData([]);
+				setAllData([]);
+				setFilteredData([]);
 			}
 		} catch (error) {
 			console.error("獲取數據失敗:", error);
-			setData([]);
+			setAllData([]);
+			setFilteredData([]);
 		} finally {
 			setIsLoading(false);
 		}
+	};
+
+	const handleFilterChange = (newFilteredData: RMRecord[]) => {
+		setFilteredData(newFilteredData);
+	};
+
+	const handleFiltersChange = (filters: RMFiltersType) => {
+		setCurrentFilters(filters);
 	};
 
 	const handleEdit = (rmRecord: RMRecord) => {
@@ -92,12 +110,18 @@ export default function RelationshipManagersPage() {
 				}
 			/>
 
+			{/* 篩選器組件 */}
+			<RMFilters
+				data={allData}
+				onFilterChange={handleFilterChange}
+				onFiltersChange={handleFiltersChange}
+			/>
+
 			<DataTable
 				columns={columns}
-				data={data}
+				data={filteredData}
 				isLoading={isLoading}
-				searchKey="name"
-				searchPlaceholder="搜尋 RM 名稱"
+				// 移除內建搜尋功能，改用篩選器
 			/>
 
 			{editingRM && (

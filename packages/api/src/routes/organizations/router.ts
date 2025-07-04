@@ -8,16 +8,20 @@ import { z } from "zod";
 import { bankAccountsRouter } from "./bank-accounts";
 import { customersRouter } from "./customers";
 import { expensesRouter } from "./expenses";
+// import { invitationsRouter } from "./invitations";
 import { productsRouter } from "./products";
+import { profitSharingRouter } from "./profit-sharing";
 import { relationshipManagersRouter } from "./relationship-managers";
 
 export const organizationsRouter = new Hono()
 	.basePath("/organizations")
-	.route("/", relationshipManagersRouter)
-	.route("/", customersRouter)
 	.route("/", bankAccountsRouter)
+	.route("/", customersRouter)
 	.route("/", expensesRouter)
+	// .route("/", invitationsRouter)
 	.route("/", productsRouter)
+	.route("/", profitSharingRouter)
+	.route("/", relationshipManagersRouter)
 	.get(
 		"/generate-slug",
 		validator(

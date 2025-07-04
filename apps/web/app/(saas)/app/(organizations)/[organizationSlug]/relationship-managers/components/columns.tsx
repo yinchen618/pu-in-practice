@@ -88,12 +88,12 @@ export const createColumns = (
 			);
 		},
 	},
-	{
-		accessorKey: "customerCount",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="客戶數量" />
-		),
-	},
+	// {
+	// 	accessorKey: "customerCount",
+	// 	header: ({ column }) => (
+	// 		<DataTableColumnHeader column={column} title="客戶數量" />
+	// 	),
+	// },
 	{
 		accessorKey: "status",
 		header: ({ column }) => (
