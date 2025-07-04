@@ -3,6 +3,7 @@ import { db } from "../client";
 
 export interface CreateCustomerData {
 	name: string;
+	code: string;
 	email: string;
 	phone?: string;
 	organizationId: string;

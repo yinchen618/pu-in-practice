@@ -322,7 +322,7 @@ model Product {
     id               String          @id @default(cuid())
     category         String // AQ, Bond, DCI, EQ, FCN, Fund, FX
     name             String
-    code             String          @unique // 產品代碼必須是唯一的
+    code             String // 產品代碼在組織內唯一
     currency         String          @default("USD") // 產品幣別
     distributionType String          @default("MONTHLY") // 配息方式: MONTHLY(每月配息), NONE(無固定配息), ACCUMULATE(每月累積), REBATE(基金管理費退佣), IRREGULAR(不固定)
     status           String          @default("active") // 狀態: active(銷售中), inactive(已下架)
@@ -332,17 +332,40 @@ model Product {
     createdAt        DateTime        @default(now())
     updatedAt        DateTime        @updatedAt
 
+    @@unique([organizationId, code])
     @@map("product")
 }
 
 model ProfitSharing {
-    id             String       @id @default(cuid())
-    customerId     String
-    customer       Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
-    productId      String
-    product        Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
-    amount         Decimal      @db.Decimal(15, 2)
-    profitDate     DateTime     @default(now())
+    id         String   @id @default(cuid())
+    customerId String
+    customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+    productId  String
+    product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+    amount     Decimal  @db.Decimal(15, 2)
+    profitDate DateTime @default(now())
+
+    // 新增欄位
+    currency              String  @default("USD") // 幣別
+    companyRevenue        Decimal @db.Decimal(15, 2) // Company revenue
+    directTradeBookingFee Decimal @db.Decimal(15, 2) // Direct trade booking fee
+    shareable             Decimal @db.Decimal(15, 2) // 自動計算: companyRevenue + directTradeBookingFee
+
+    // 分潤比例 (%)
+    rmProfitSharePercent      Decimal @default(50.00) @db.Decimal(5, 2) // RM分潤 %，預設50%
+    finderProfitSharePercent  Decimal @default(0.00) @db.Decimal(5, 2) // Finder分潤 %，預設0%
+    companyProfitSharePercent Decimal @default(50.00) @db.Decimal(5, 2) // Company分潤 %，預設50%
+
+    // 分潤金額 (原幣別)
+    rmRevenueOriginal      Decimal @db.Decimal(15, 2) // 自動計算: shareable * rmProfitSharePercent / 100
+    findersRevenueOriginal Decimal @db.Decimal(15, 2) // 自動計算: shareable * finderProfitSharePercent / 100
+    companyRevenueOriginal Decimal @db.Decimal(15, 2) // 自動計算: shareable * companyProfitSharePercent / 100
+
+    // 匯率和USD金額
+    fxRate            Decimal @db.Decimal(10, 5) // FX Rate，小數點第5位
+    rmRevenueUSD      Decimal @db.Decimal(15, 2) // RM Revenue (USD)
+    findersRevenueUSD Decimal @db.Decimal(15, 2) // Finders Revenue (USD)
+
     organizationId String
     organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
     createdAt      DateTime     @default(now())

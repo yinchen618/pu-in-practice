@@ -7,7 +7,10 @@ import { useEffect, useState } from "react";
 import { createColumns } from "./components/columns";
 import type { CustomerRecord } from "./components/columns";
 import { CreateCustomerDialog } from "./components/create-customer-dialog";
-import { CustomerFilters } from "./components/customer-filters";
+import {
+	CustomerFilters,
+	type CustomerFilters as CustomerFiltersType,
+} from "./components/customer-filters";
 import { EditCustomerDialog } from "./components/edit-customer-dialog";
 
 interface RelationshipManager {
@@ -27,6 +30,9 @@ export default function CustomersPage() {
 	const [editingCustomer, setEditingCustomer] =
 		useState<CustomerRecord | null>(null);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
+	const [currentFilters, setCurrentFilters] = useState<CustomerFiltersType>(
+		{},
+	);
 
 	const fetchData = async () => {
 		if (!activeOrganization?.id) return;
@@ -80,6 +86,10 @@ export default function CustomersPage() {
 		setFilteredData(newFilteredData);
 	};
 
+	const handleFiltersChange = (filters: CustomerFiltersType) => {
+		setCurrentFilters(filters);
+	};
+
 	// 新增 columns，傳入編輯函數
 	const columns = createColumns(handleEdit);
 
@@ -120,14 +130,13 @@ export default function CustomersPage() {
 				data={data}
 				relationshipManagers={relationshipManagers}
 				onFilterChange={handleFilterChange}
+				onFiltersChange={handleFiltersChange}
 			/>
 
 			<DataTable
 				columns={columns}
 				data={filteredData}
 				isLoading={isLoading}
-				searchKey="name"
-				searchPlaceholder="搜尋客戶名稱"
 			/>
 
 			{editingCustomer && (

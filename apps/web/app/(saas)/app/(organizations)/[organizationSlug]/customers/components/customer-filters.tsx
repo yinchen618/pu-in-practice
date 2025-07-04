@@ -2,6 +2,8 @@
 
 import { Badge } from "@ui/components/badge";
 import { Button } from "@ui/components/button";
+import { Input } from "@ui/components/input";
+import { Label } from "@ui/components/label";
 import {
 	Select,
 	SelectContent,
@@ -10,10 +12,11 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Filter, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CustomerRecord } from "./columns";
 
 export interface CustomerFilters {
+	search?: string;
 	rm1Id?: string;
 	rm2Id?: string;
 	finder1Id?: string;
@@ -30,7 +33,7 @@ interface CustomerFiltersProps {
 	data: CustomerRecord[];
 	relationshipManagers: RelationshipManager[];
 	onFilterChange: (filteredData: CustomerRecord[]) => void;
-	onFiltersChange?: (filters: CustomerFilters) => void;
+	onFiltersChange: (filters: CustomerFilters) => void;
 }
 
 export function CustomerFilters({
@@ -50,59 +53,76 @@ export function CustomerFilters({
 		(rm) => rm.category === "FINDER" || rm.category === "BOTH",
 	);
 
-	const applyFilters = (newFilters: CustomerFilters) => {
-		setFilters(newFilters);
-		onFiltersChange?.(newFilters);
+	// 應用篩選器
+	const applyFilters = useMemo(() => {
+		return data.filter((item) => {
+			// 搜尋
+			if (filters.search) {
+				const searchTerm = filters.search.toLowerCase();
+				if (
+					!item.name.toLowerCase().includes(searchTerm) &&
+					!item.email.toLowerCase().includes(searchTerm) &&
+					!item.phone?.toLowerCase().includes(searchTerm)
+				) {
+					return false;
+				}
+			}
+			// RM1 篩選
+			if (
+				filters.rm1Id &&
+				filters.rm1Id !== "all" &&
+				item.rm1Id !== filters.rm1Id
+			) {
+				return false;
+			}
+			// RM2 篩選
+			if (
+				filters.rm2Id &&
+				filters.rm2Id !== "all" &&
+				item.rm2Id !== filters.rm2Id
+			) {
+				return false;
+			}
+			// Finder1 篩選
+			if (
+				filters.finder1Id &&
+				filters.finder1Id !== "all" &&
+				item.finder1Id !== filters.finder1Id
+			) {
+				return false;
+			}
+			// Finder2 篩選
+			if (
+				filters.finder2Id &&
+				filters.finder2Id !== "all" &&
+				item.finder2Id !== filters.finder2Id
+			) {
+				return false;
+			}
+			return true;
+		});
+	}, [data, filters]);
 
-		let filteredData = [...data];
+	// 當篩選器改變時更新結果
+	useEffect(() => {
+		onFilterChange(applyFilters);
+		onFiltersChange(filters);
+	}, [applyFilters, filters, onFilterChange, onFiltersChange]);
 
-		// RM1 篩選
-		if (newFilters.rm1Id) {
-			filteredData = filteredData.filter(
-				(item) => item.rm1Id === newFilters.rm1Id,
-			);
-		}
-
-		// RM2 篩選
-		if (newFilters.rm2Id) {
-			filteredData = filteredData.filter(
-				(item) => item.rm2Id === newFilters.rm2Id,
-			);
-		}
-
-		// Finder1 篩選
-		if (newFilters.finder1Id) {
-			filteredData = filteredData.filter(
-				(item) => item.finder1Id === newFilters.finder1Id,
-			);
-		}
-
-		// Finder2 篩選
-		if (newFilters.finder2Id) {
-			filteredData = filteredData.filter(
-				(item) => item.finder2Id === newFilters.finder2Id,
-			);
-		}
-
-		onFilterChange(filteredData);
-	};
-
-	const updateFilter = (
-		key: keyof CustomerFilters,
-		value: string | undefined,
-	) => {
-		const newFilters = { ...filters, [key]: value };
-		applyFilters(newFilters);
+	const updateFilter = (key: keyof CustomerFilters, value: any) => {
+		setFilters((prev) => ({ ...prev, [key]: value }));
 	};
 
 	const clearFilters = () => {
 		setFilters({});
-		onFiltersChange?.({});
-		onFilterChange(data);
 	};
 
 	const hasActiveFilters = Object.values(filters).some(
-		(value) => value !== undefined && value !== null && value !== "",
+		(value) =>
+			value !== undefined &&
+			value !== null &&
+			value !== "" &&
+			value !== "all",
 	);
 
 	// 獲取篩選器標籤顯示名稱
@@ -126,7 +146,15 @@ export function CustomerFilters({
 						<Filter className="size-4" />
 						篩選器{" "}
 						{hasActiveFilters &&
-							`(${Object.values(filters).filter((v) => v !== undefined && v !== null && v !== "").length})`}
+							`(${
+								Object.values(filters).filter(
+									(v) =>
+										v !== undefined &&
+										v !== null &&
+										v !== "" &&
+										v !== "all",
+								).length
+							})`}
 					</Button>
 					{hasActiveFilters && (
 						<Button
@@ -139,13 +167,23 @@ export function CustomerFilters({
 						</Button>
 					)}
 				</div>
+
+				{/* 主要搜尋框 */}
+				<div className="flex items-center gap-2">
+					<Input
+						placeholder="搜尋客戶名稱、電話或電子郵件..."
+						value={filters.search || ""}
+						onChange={(e) => updateFilter("search", e.target.value)}
+						className="w-64"
+					/>
+				</div>
 			</div>
 
 			{/* 展開的篩選器 */}
 			{isExpanded && (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/20">
-					{/* RM1 選擇器 */}
 					<div className="space-y-2">
+						<Label className="text-sm font-medium">RM1</Label>
 						<Select
 							value={filters.rm1Id || ""}
 							onValueChange={(value) =>
@@ -169,8 +207,8 @@ export function CustomerFilters({
 						</Select>
 					</div>
 
-					{/* RM2 選擇器 */}
 					<div className="space-y-2">
+						<Label className="text-sm font-medium">RM2</Label>
 						<Select
 							value={filters.rm2Id || ""}
 							onValueChange={(value) =>
@@ -194,8 +232,8 @@ export function CustomerFilters({
 						</Select>
 					</div>
 
-					{/* Finder1 選擇器 */}
 					<div className="space-y-2">
+						<Label className="text-sm font-medium">Finder1</Label>
 						<Select
 							value={filters.finder1Id || ""}
 							onValueChange={(value) =>
@@ -221,8 +259,8 @@ export function CustomerFilters({
 						</Select>
 					</div>
 
-					{/* Finder2 選擇器 */}
 					<div className="space-y-2">
+						<Label className="text-sm font-medium">Finder2</Label>
 						<Select
 							value={filters.finder2Id || ""}
 							onValueChange={(value) =>
@@ -250,47 +288,73 @@ export function CustomerFilters({
 				</div>
 			)}
 
-			{/* 活躍篩選器標籤 */}
+			{/* 已選擇的篩選條件標籤 */}
 			{hasActiveFilters && (
 				<div className="flex flex-wrap gap-2">
-					{filters.rm1Id && (
+					{filters.search && (
+						<Badge status="info" className="gap-1">
+							搜尋: {filters.search}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("search", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.rm1Id && filters.rm1Id !== "all" && (
 						<Badge status="info" className="gap-1">
 							{getFilterLabel(filters.rm1Id, "RM1")}
-							<X
-								className="size-3 cursor-pointer"
+							<button
+								type="button"
 								onClick={() => updateFilter("rm1Id", undefined)}
-							/>
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
 						</Badge>
 					)}
-					{filters.rm2Id && (
+					{filters.rm2Id && filters.rm2Id !== "all" && (
 						<Badge status="info" className="gap-1">
 							{getFilterLabel(filters.rm2Id, "RM2")}
-							<X
-								className="size-3 cursor-pointer"
+							<button
+								type="button"
 								onClick={() => updateFilter("rm2Id", undefined)}
-							/>
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
 						</Badge>
 					)}
-					{filters.finder1Id && (
+					{filters.finder1Id && filters.finder1Id !== "all" && (
 						<Badge status="info" className="gap-1">
 							{getFilterLabel(filters.finder1Id, "Finder1")}
-							<X
-								className="size-3 cursor-pointer"
+							<button
+								type="button"
 								onClick={() =>
 									updateFilter("finder1Id", undefined)
 								}
-							/>
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
 						</Badge>
 					)}
-					{filters.finder2Id && (
+					{filters.finder2Id && filters.finder2Id !== "all" && (
 						<Badge status="info" className="gap-1">
 							{getFilterLabel(filters.finder2Id, "Finder2")}
-							<X
-								className="size-3 cursor-pointer"
+							<button
+								type="button"
 								onClick={() =>
 									updateFilter("finder2Id", undefined)
 								}
-							/>
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
 						</Badge>
 					)}
 				</div>

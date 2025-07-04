@@ -17,6 +17,7 @@ import { verifyOrganizationMembership } from "./lib/membership";
 
 const CreateCustomerSchema = z.object({
 	name: z.string().min(1, "客戶名稱是必填的"),
+	code: z.string().min(1, "客戶編號是必填的"),
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
 	rm1Id: z.string().optional(),
@@ -31,6 +32,7 @@ const CreateCustomerSchema = z.object({
 
 const UpdateCustomerSchema = z.object({
 	name: z.string().min(1, "客戶名稱是必填的"),
+	code: z.string().min(1, "客戶編號是必填的"),
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
 	rm1Id: z.string().optional().nullable(),
@@ -242,26 +244,28 @@ export const customersRouter = new Hono()
 				const customer = {
 					...customerData,
 					bankAccounts:
-						customerData.bankAccounts?.map((account: any) => ({
-							...account,
-							balance: Number(account.balance),
-						})) || [],
-					rm1Name: customerData.rm1?.name || null,
-					rm2Name: customerData.rm2?.name || null,
-					finder1Name: customerData.finder1?.name || null,
-					finder2Name: customerData.finder2?.name || null,
+						(customerData as any).bankAccounts?.map(
+							(account: any) => ({
+								...account,
+								balance: Number(account.balance),
+							}),
+						) || [],
+					rm1Name: (customerData as any).rm1?.name || null,
+					rm2Name: (customerData as any).rm2?.name || null,
+					finder1Name: (customerData as any).finder1?.name || null,
+					finder2Name: (customerData as any).finder2?.name || null,
 					// 將Decimal轉換為number
-					rm1ProfitShare: customerData.rm1ProfitShare
-						? Number(customerData.rm1ProfitShare)
+					rm1ProfitShare: (customerData as any).rm1ProfitShare
+						? Number((customerData as any).rm1ProfitShare)
 						: null,
-					rm2ProfitShare: customerData.rm2ProfitShare
-						? Number(customerData.rm2ProfitShare)
+					rm2ProfitShare: (customerData as any).rm2ProfitShare
+						? Number((customerData as any).rm2ProfitShare)
 						: null,
-					finder1ProfitShare: customerData.finder1ProfitShare
-						? Number(customerData.finder1ProfitShare)
+					finder1ProfitShare: (customerData as any).finder1ProfitShare
+						? Number((customerData as any).finder1ProfitShare)
 						: null,
-					finder2ProfitShare: customerData.finder2ProfitShare
-						? Number(customerData.finder2ProfitShare)
+					finder2ProfitShare: (customerData as any).finder2ProfitShare
+						? Number((customerData as any).finder2ProfitShare)
 						: null,
 				};
 
@@ -352,26 +356,28 @@ export const customersRouter = new Hono()
 				const customer = {
 					...customerData,
 					bankAccounts:
-						customerData.bankAccounts?.map((account: any) => ({
-							...account,
-							balance: Number(account.balance),
-						})) || [],
-					rm1Name: customerData.rm1?.name || null,
-					rm2Name: customerData.rm2?.name || null,
-					finder1Name: customerData.finder1?.name || null,
-					finder2Name: customerData.finder2?.name || null,
+						(customerData as any).bankAccounts?.map(
+							(account: any) => ({
+								...account,
+								balance: Number(account.balance),
+							}),
+						) || [],
+					rm1Name: (customerData as any).rm1?.name || null,
+					rm2Name: (customerData as any).rm2?.name || null,
+					finder1Name: (customerData as any).finder1?.name || null,
+					finder2Name: (customerData as any).finder2?.name || null,
 					// 將Decimal轉換為number
-					rm1ProfitShare: customerData.rm1ProfitShare
-						? Number(customerData.rm1ProfitShare)
+					rm1ProfitShare: (customerData as any).rm1ProfitShare
+						? Number((customerData as any).rm1ProfitShare)
 						: null,
-					rm2ProfitShare: customerData.rm2ProfitShare
-						? Number(customerData.rm2ProfitShare)
+					rm2ProfitShare: (customerData as any).rm2ProfitShare
+						? Number((customerData as any).rm2ProfitShare)
 						: null,
-					finder1ProfitShare: customerData.finder1ProfitShare
-						? Number(customerData.finder1ProfitShare)
+					finder1ProfitShare: (customerData as any).finder1ProfitShare
+						? Number((customerData as any).finder1ProfitShare)
 						: null,
-					finder2ProfitShare: customerData.finder2ProfitShare
-						? Number(customerData.finder2ProfitShare)
+					finder2ProfitShare: (customerData as any).finder2ProfitShare
+						? Number((customerData as any).finder2ProfitShare)
 						: null,
 				};
 
@@ -538,26 +544,26 @@ export const customersRouter = new Hono()
 			const customer = {
 				...customerData,
 				bankAccounts:
-					customerData.bankAccounts?.map((account: any) => ({
+					(customerData as any).bankAccounts?.map((account: any) => ({
 						...account,
 						balance: Number(account.balance),
 					})) || [],
-				rm1Name: customerData.rm1?.name || null,
-				rm2Name: customerData.rm2?.name || null,
-				finder1Name: customerData.finder1?.name || null,
-				finder2Name: customerData.finder2?.name || null,
+				rm1Name: (customerData as any).rm1?.name || null,
+				rm2Name: (customerData as any).rm2?.name || null,
+				finder1Name: (customerData as any).finder1?.name || null,
+				finder2Name: (customerData as any).finder2?.name || null,
 				// 將Decimal轉換為number
-				rm1ProfitShare: customerData.rm1ProfitShare
-					? Number(customerData.rm1ProfitShare)
+				rm1ProfitShare: (customerData as any).rm1ProfitShare
+					? Number((customerData as any).rm1ProfitShare)
 					: null,
-				rm2ProfitShare: customerData.rm2ProfitShare
-					? Number(customerData.rm2ProfitShare)
+				rm2ProfitShare: (customerData as any).rm2ProfitShare
+					? Number((customerData as any).rm2ProfitShare)
 					: null,
-				finder1ProfitShare: customerData.finder1ProfitShare
-					? Number(customerData.finder1ProfitShare)
+				finder1ProfitShare: (customerData as any).finder1ProfitShare
+					? Number((customerData as any).finder1ProfitShare)
 					: null,
-				finder2ProfitShare: customerData.finder2ProfitShare
-					? Number(customerData.finder2ProfitShare)
+				finder2ProfitShare: (customerData as any).finder2ProfitShare
+					? Number((customerData as any).finder2ProfitShare)
 					: null,
 			};
 

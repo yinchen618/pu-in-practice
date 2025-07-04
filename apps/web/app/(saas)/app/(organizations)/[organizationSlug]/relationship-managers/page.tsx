@@ -21,12 +21,15 @@ export default function RelationshipManagersPage() {
 	const [editingRM, setEditingRM] = useState<RMRecord | null>(null);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [currentFilters, setCurrentFilters] = useState<RMFiltersType>({});
+	const [error, setError] = useState<string | null>(null);
 
 	const fetchData = async () => {
 		if (!activeOrganization?.id) return;
 
 		setIsLoading(true);
+		setError(null);
 		try {
+			console.log("正在獲取 RM 資料...", activeOrganization.id);
 			const response = await fetch(
 				`/api/organizations/relationship-managers?organizationId=${activeOrganization.id}`,
 				{
@@ -38,18 +41,26 @@ export default function RelationshipManagersPage() {
 				},
 			);
 
+			console.log("API 回應狀態:", response.status);
+
 			if (response.ok) {
 				const result = await response.json();
+				console.log("API 回應資料:", result);
 				const data = result.relationshipManagers || [];
 				setAllData(data);
 				setFilteredData(data);
 			} else {
-				console.error("獲取 RM 數據失敗", await response.text());
+				const errorText = await response.text();
+				console.error("獲取 RM 數據失敗", errorText);
+				setError(`API 錯誤: ${response.status} - ${errorText}`);
 				setAllData([]);
 				setFilteredData([]);
 			}
 		} catch (error) {
 			console.error("獲取數據失敗:", error);
+			setError(
+				`網路錯誤: ${error instanceof Error ? error.message : "未知錯誤"}`,
+			);
 			setAllData([]);
 			setFilteredData([]);
 		} finally {
@@ -109,6 +120,30 @@ export default function RelationshipManagersPage() {
 					)
 				}
 			/>
+
+			{/* 錯誤狀態顯示 */}
+			{error && (
+				<div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+					<p className="text-red-700">錯誤: {error}</p>
+					<button
+						type="button"
+						onClick={fetchData}
+						className="mt-2 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200"
+					>
+						重試
+					</button>
+				</div>
+			)}
+
+			{/* 除錯資訊 */}
+			{process.env.NODE_ENV === "development" && (
+				<div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+					<p className="text-sm text-gray-600">
+						除錯資訊: 載入中={isLoading.toString()}, 資料數量=
+						{allData.length}, 組織ID={activeOrganization?.id}
+					</p>
+				</div>
+			)}
 
 			{/* 篩選器組件 */}
 			<RMFilters

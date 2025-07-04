@@ -29,30 +29,32 @@ import {
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDebounce } from "use-debounce";
 import { z } from "zod";
 import type { ProfitSharingRecord } from "./columns";
 
 const editSchema = z.object({
-	revenueType: z.string(),
-	category: z.string(),
-	productCode: z.string().min(1, "產品代碼是必填的"),
-	productName: z.string().min(1, "產品名稱是必填的"),
-	customerId: z.string().min(1, "客戶編號是必填的"),
-	customerName: z.string().min(1, "客戶名稱是必填的"),
-	bankAccountId: z.string().min(1, "銀行帳號是必填的"),
-	bankRetro: z.number().min(0).max(100),
-	companyRevenue: z.number().min(0).max(100),
-	rmRevenue: z.number().min(0).max(100),
-	findersRevenue: z.number().min(0).max(100),
+	customerId: z.string().min(1, "客戶是必填的"),
+	productId: z.string().min(1, "產品是必填的"),
+	amount: z.number().min(0, "金額不能為負數"),
+	profitDate: z.string().min(1, "分潤日期是必填的"),
+	currency: z.string().min(1, "幣別是必填的"),
+	companyRevenue: z.number().min(0, "Company revenue 不能為負數"),
+	directTradeBookingFee: z
+		.number()
+		.min(0, "Direct trade booking fee 不能為負數"),
+	rmProfitSharePercent: z.number().min(0).max(100),
+	finderProfitSharePercent: z.number().min(0).max(100),
+	companyProfitSharePercent: z.number().min(0).max(100),
+	fxRate: z.number().min(0, "FX Rate 不能為負數"),
 });
 
 type EditFormData = z.infer<typeof editSchema>;
 
-interface Product {
-	code: string;
-	name: string;
-	category: string;
+interface EditDialogProps {
+	record: ProfitSharingRecord;
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	onSuccess?: () => void;
 }
 
 interface Customer {
@@ -61,92 +63,111 @@ interface Customer {
 	code: string;
 }
 
-interface BankAccount {
+interface Product {
 	id: string;
-	accountNumber: string;
-	bankName: string;
-}
-
-interface EditDialogProps {
-	profitSharingRecord: ProfitSharingRecord;
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
-	onSuccess?: () => void;
+	name: string;
+	code: string;
+	category: string;
 }
 
 export function EditProfitSharingDialog({
-	profitSharingRecord,
+	record,
 	open,
 	onOpenChange,
 	onSuccess,
 }: EditDialogProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
-	const [products, setProducts] = useState<Product[]>([]);
 	const [customers, setCustomers] = useState<Customer[]>([]);
-	const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
-	const [productSearch, setProductSearch] = useState("");
-	const [customerSearch, setCustomerSearch] = useState("");
-	const [debouncedProductSearch] = useDebounce(productSearch, 300);
-	const [debouncedCustomerSearch] = useDebounce(customerSearch, 300);
-	const [selectedCategory, setSelectedCategory] = useState<string>(
-		profitSharingRecord.category,
-	);
+	const [products, setProducts] = useState<Product[]>([]);
 
 	const form = useForm<EditFormData>({
 		resolver: zodResolver(editSchema),
 		defaultValues: {
-			revenueType: profitSharingRecord.revenueType,
-			category: profitSharingRecord.category,
-			productCode: profitSharingRecord.productCode,
-			productName: profitSharingRecord.productName,
-			customerId: profitSharingRecord.customerId,
-			customerName: profitSharingRecord.customerName,
-			bankAccountId: profitSharingRecord.bankAccountId,
-			bankRetro: profitSharingRecord.bankRetro,
-			companyRevenue: profitSharingRecord.companyRevenue,
-			rmRevenue: profitSharingRecord.rmRevenue,
-			findersRevenue: profitSharingRecord.findersRevenue,
+			customerId: record.customerId,
+			productId: record.productId,
+			amount: record.amount,
+			profitDate: new Date(record.profitDate).toISOString().split("T")[0],
+			currency: record.currency,
+			companyRevenue: record.companyRevenue,
+			directTradeBookingFee: record.directTradeBookingFee,
+			rmProfitSharePercent: record.rmProfitSharePercent,
+			finderProfitSharePercent: record.finderProfitSharePercent,
+			companyProfitSharePercent: record.companyProfitSharePercent,
+			fxRate: record.fxRate,
 		},
 	});
 
-	// 獲取產品建議
+	// 當記錄改變時重置表單
 	useEffect(() => {
-		if (debouncedProductSearch && selectedCategory) {
-			fetch(
-				`/api/organizations/products/search?q=${debouncedProductSearch}&category=${selectedCategory}`,
-			)
-				.then((res) => res.json())
-				.then((data) => setProducts(data.products));
+		if (record) {
+			form.reset({
+				customerId: record.customerId,
+				productId: record.productId,
+				amount: record.amount,
+				profitDate: new Date(record.profitDate)
+					.toISOString()
+					.split("T")[0],
+				currency: record.currency,
+				companyRevenue: record.companyRevenue,
+				directTradeBookingFee: record.directTradeBookingFee,
+				rmProfitSharePercent: record.rmProfitSharePercent,
+				finderProfitSharePercent: record.finderProfitSharePercent,
+				companyProfitSharePercent: record.companyProfitSharePercent,
+				fxRate: record.fxRate,
+			});
 		}
-	}, [debouncedProductSearch, selectedCategory]);
+	}, [record, form]);
 
-	// 獲取客戶建議
+	// 獲取客戶和產品列表
 	useEffect(() => {
-		if (debouncedCustomerSearch) {
-			fetch(
-				`/api/organizations/customers/search?q=${debouncedCustomerSearch}`,
-			)
-				.then((res) => res.json())
-				.then((data) => setCustomers(data.customers));
+		if (open) {
+			fetchCustomers();
+			fetchProducts();
 		}
-	}, [debouncedCustomerSearch]);
+	}, [open]);
 
-	// 獲取銀行帳號
-	useEffect(() => {
-		const customerId = form.watch("customerId");
-		if (customerId) {
-			fetch(`/api/organizations/bank-accounts?customerId=${customerId}`)
-				.then((res) => res.json())
-				.then((data) => setBankAccounts(data.bankAccounts));
+	const fetchCustomers = async () => {
+		try {
+			const response = await fetch(
+				`/api/organizations/customers?organizationId=${record.organizationId}`,
+				{
+					method: "GET",
+					credentials: "include",
+				},
+			);
+			if (response.ok) {
+				const result = await response.json();
+				setCustomers(result.data || []);
+			}
+		} catch (error) {
+			console.error("獲取客戶列表失敗:", error);
 		}
-	}, [form.watch("customerId")]);
+	};
+
+	const fetchProducts = async () => {
+		try {
+			const response = await fetch(
+				`/api/organizations/products?organizationId=${record.organizationId}`,
+				{
+					method: "GET",
+					credentials: "include",
+				},
+			);
+			if (response.ok) {
+				const result = await response.json();
+				setProducts(result.data || []);
+			}
+		} catch (error) {
+			console.error("獲取產品列表失敗:", error);
+		}
+	};
 
 	const onSubmit = async (data: EditFormData) => {
 		setIsLoading(true);
 		try {
 			const response = await fetch(
-				`/api/organizations/profit-sharing/${profitSharingRecord.id}`,
+				`/api/organizations/profit-sharing/${record.id}`,
 				{
 					method: "PUT",
 					credentials: "include",
@@ -156,7 +177,19 @@ export function EditProfitSharingDialog({
 			);
 
 			if (!response.ok) {
-				throw new Error("更新失敗");
+				let errorMessage = "更新失敗";
+				try {
+					const responseText = await response.text();
+					try {
+						const error = JSON.parse(responseText);
+						errorMessage = error.message || errorMessage;
+					} catch {
+						errorMessage = responseText || errorMessage;
+					}
+				} catch {
+					errorMessage = "更新失敗";
+				}
+				throw new Error(errorMessage);
 			}
 
 			onOpenChange(false);
@@ -169,14 +202,14 @@ export function EditProfitSharingDialog({
 	};
 
 	const handleDelete = async () => {
-		if (!window.confirm("確定要刪除這筆分潤記錄嗎？")) {
+		if (!confirm("確定要刪除這筆分潤記錄嗎？此操作無法撤銷。")) {
 			return;
 		}
 
 		setIsDeleting(true);
 		try {
 			const response = await fetch(
-				`/api/organizations/profit-sharing/${profitSharingRecord.id}`,
+				`/api/organizations/profit-sharing/${record.id}`,
 				{
 					method: "DELETE",
 					credentials: "include",
@@ -184,7 +217,19 @@ export function EditProfitSharingDialog({
 			);
 
 			if (!response.ok) {
-				throw new Error("刪除失敗");
+				let errorMessage = "刪除失敗";
+				try {
+					const responseText = await response.text();
+					try {
+						const error = JSON.parse(responseText);
+						errorMessage = error.message || errorMessage;
+					} catch {
+						errorMessage = responseText || errorMessage;
+					}
+				} catch {
+					errorMessage = "刪除失敗";
+				}
+				throw new Error(errorMessage);
 			}
 
 			onOpenChange(false);
@@ -196,455 +241,382 @@ export function EditProfitSharingDialog({
 		}
 	};
 
+	// 幣別選項
+	const currencyOptions = [
+		{ value: "USD", label: "USD" },
+		{ value: "TWD", label: "TWD" },
+		{ value: "SGD", label: "SGD" },
+		{ value: "HKD", label: "HKD" },
+		{ value: "EUR", label: "EUR" },
+		{ value: "GBP", label: "GBP" },
+		{ value: "JPY", label: "JPY" },
+	];
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-2xl">
+			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>編輯分潤</DialogTitle>
-					<DialogDescription>修改分潤記錄的資訊。</DialogDescription>
+					<DialogTitle>編輯分潤記錄</DialogTitle>
+					<DialogDescription>
+						修改分潤記錄資訊。自動計算欄位會根據輸入的資料自動計算。
+					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
-					<form
-						onSubmit={form.handleSubmit(onSubmit)}
-						className="space-y-4"
-					>
-						<div className="grid grid-cols-2 gap-4">
-							{/* Revenue Type */}
-							<FormField
-								control={form.control}
-								name="revenueType"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>收入類型 *</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											defaultValue={field.value}
-										>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇收入類型" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="Bank Retro">
-													Bank Retro
-												</SelectItem>
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							{/* Category */}
-							<FormField
-								control={form.control}
-								name="category"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>類別 *</FormLabel>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-												setSelectedCategory(value);
-												form.setValue(
-													"productCode",
-													"",
-												);
-												form.setValue(
-													"productName",
-													"",
-												);
-											}}
-											value={field.value}
-										>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇類別" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="AQ">
-													AQ
-												</SelectItem>
-												<SelectItem value="Bond">
-													Bond
-												</SelectItem>
-												<SelectItem value="DCI">
-													DCI
-												</SelectItem>
-												<SelectItem value="EQ">
-													EQ
-												</SelectItem>
-												<SelectItem value="FCN">
-													FCN
-												</SelectItem>
-												<SelectItem value="Fund">
-													Fund
-												</SelectItem>
-												<SelectItem value="FX">
-													FX
-												</SelectItem>
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							{/* Product Code */}
-							<FormField
-								control={form.control}
-								name="productCode"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>產品代碼 *</FormLabel>
-										<FormControl>
-											<Input
-												{...field}
-												placeholder="輸入產品代碼"
-												onChange={(e) => {
-													field.onChange(
-														e.target.value,
-													);
-													setProductSearch(
-														e.target.value,
-													);
-												}}
-											/>
-										</FormControl>
-										{products.length > 0 &&
-											productSearch && (
-												<div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover p-1 shadow-md">
-													{products.map((product) => (
-														<div
-															key={product.code}
-															className="cursor-pointer rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
-															onClick={() => {
-																form.setValue(
-																	"productCode",
-																	product.code,
-																);
-																form.setValue(
-																	"productName",
-																	product.name,
-																);
-																setProductSearch(
-																	"",
-																);
-															}}
-														>
-															{product.code} -{" "}
-															{product.name}
-														</div>
-													))}
-												</div>
-											)}
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							{/* Product Name */}
-							<FormField
-								control={form.control}
-								name="productName"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>產品名稱 *</FormLabel>
-										<Select
-											onValueChange={(value) => {
-												const product = products.find(
-													(p) => p.name === value,
-												);
-												if (product) {
-													field.onChange(value);
-													form.setValue(
-														"productCode",
-														product.code,
-													);
-												}
-											}}
-											value={field.value}
-										>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇產品" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												{products.map((product) => (
-													<SelectItem
-														key={product.code}
-														value={product.name}
-													>
-														{product.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							{/* Customer Code */}
-							<FormField
-								control={form.control}
-								name="customerId"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>客戶編號 *</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="輸入客戶編號"
-												onChange={(e) => {
-													field.onChange(
-														e.target.value,
-													);
-													setCustomerSearch(
-														e.target.value,
-													);
-												}}
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<div className="grid gap-6 py-4">
+							{/* 第一行：客戶和產品 */}
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<FormField
+									control={form.control}
+									name="customerId"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>客戶 *</FormLabel>
+											<Select
+												onValueChange={field.onChange}
 												value={field.value}
-											/>
-										</FormControl>
-										{customers.length > 0 &&
-											customerSearch && (
-												<div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover p-1 shadow-md">
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇客戶" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
 													{customers.map(
 														(customer) => (
-															<div
+															<SelectItem
 																key={
 																	customer.id
 																}
-																className="cursor-pointer rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
-																onClick={() => {
-																	form.setValue(
-																		"customerId",
-																		customer.id,
-																	);
-																	form.setValue(
-																		"customerName",
-																		customer.name,
-																	);
-																	setCustomerSearch(
-																		"",
-																	);
-																}}
+																value={
+																	customer.id
+																}
 															>
-																{customer.code}{" "}
-																-{" "}
-																{customer.name}
-															</div>
+																{customer.name}{" "}
+																({customer.code}
+																)
+															</SelectItem>
 														),
 													)}
-												</div>
-											)}
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 
-							{/* Customer Name */}
-							<FormField
-								control={form.control}
-								name="customerName"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>客戶名稱 *</FormLabel>
-										<Select
-											onValueChange={(value) => {
-												const customer = customers.find(
-													(c) => c.name === value,
-												);
-												if (customer) {
-													field.onChange(value);
-													form.setValue(
-														"customerId",
-														customer.id,
-													);
-												}
-											}}
-											value={field.value}
-										>
+								<FormField
+									control={form.control}
+									name="productId"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>產品 *</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇產品" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{products.map((product) => (
+														<SelectItem
+															key={product.id}
+															value={product.id}
+														>
+															{product.name} (
+															{product.code})
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
+
+							{/* 第二行：日期和幣別 */}
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<FormField
+									control={form.control}
+									name="profitDate"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>分潤日期 *</FormLabel>
 											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇客戶" />
-												</SelectTrigger>
+												<Input type="date" {...field} />
 											</FormControl>
-											<SelectContent>
-												{customers.map((customer) => (
-													<SelectItem
-														key={customer.id}
-														value={customer.name}
-													>
-														{customer.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 
-							{/* Bank Account */}
-							<FormField
-								control={form.control}
-								name="bankAccountId"
-								render={({ field }) => (
-									<FormItem className="col-span-2">
-										<FormLabel>銀行帳號 *</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											value={field.value}
-										>
+								<FormField
+									control={form.control}
+									name="currency"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>幣別 *</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇幣別" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{currencyOptions.map(
+														(option) => (
+															<SelectItem
+																key={
+																	option.value
+																}
+																value={
+																	option.value
+																}
+															>
+																{option.label}
+															</SelectItem>
+														),
+													)}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
+
+							{/* 第三行：收入欄位 */}
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+								<FormField
+									control={form.control}
+									name="companyRevenue"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>
+												Company Revenue *
+											</FormLabel>
 											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇銀行帳號" />
-												</SelectTrigger>
+												<Input
+													type="number"
+													step="0.01"
+													placeholder="0.00"
+													{...field}
+													onChange={(e) => {
+														const value =
+															e.target.value;
+														field.onChange(
+															value === ""
+																? 0
+																: Number(value),
+														);
+													}}
+													value={field.value || ""}
+												/>
 											</FormControl>
-											<SelectContent>
-												{bankAccounts.map((account) => (
-													<SelectItem
-														key={account.id}
-														value={account.id}
-													>
-														{account.bankName} -{" "}
-														{account.accountNumber}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 
-							{/* Bank Retro */}
-							<FormField
-								control={form.control}
-								name="bankRetro"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Bank Retro (%) *</FormLabel>
-										<FormControl>
-											<Input
-												type="number"
-												step="0.01"
-												placeholder="輸入 Bank Retro 百分比"
-												{...field}
-												onChange={(e) => {
-													const value =
-														e.target.value;
-													field.onChange(
-														value === ""
-															? undefined
-															: Number(value),
-													);
-												}}
-												value={field.value || ""}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+								<FormField
+									control={form.control}
+									name="directTradeBookingFee"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>
+												Direct Trade Booking Fee *
+											</FormLabel>
+											<FormControl>
+												<Input
+													type="number"
+													step="0.01"
+													placeholder="0.00"
+													{...field}
+													onChange={(e) => {
+														const value =
+															e.target.value;
+														field.onChange(
+															value === ""
+																? 0
+																: Number(value),
+														);
+													}}
+													value={field.value || ""}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 
-							{/* Company Revenue */}
-							<FormField
-								control={form.control}
-								name="companyRevenue"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>
-											Company Revenue (%) *
-										</FormLabel>
-										<FormControl>
-											<Input
-												type="number"
-												step="0.01"
-												placeholder="輸入 Company Revenue 百分比"
-												{...field}
-												onChange={(e) => {
-													const value =
-														e.target.value;
-													field.onChange(
-														value === ""
-															? undefined
-															: Number(value),
-													);
-												}}
-												value={field.value || ""}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+								<FormField
+									control={form.control}
+									name="amount"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>金額 *</FormLabel>
+											<FormControl>
+												<Input
+													type="number"
+													step="0.01"
+													placeholder="0.00"
+													{...field}
+													onChange={(e) => {
+														const value =
+															e.target.value;
+														field.onChange(
+															value === ""
+																? 0
+																: Number(value),
+														);
+													}}
+													value={field.value || ""}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
 
-							{/* RM Revenue */}
-							<FormField
-								control={form.control}
-								name="rmRevenue"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>RM Revenue (%) *</FormLabel>
-										<FormControl>
-											<Input
-												type="number"
-												step="0.01"
-												placeholder="輸入 RM Revenue 百分比"
-												{...field}
-												onChange={(e) => {
-													const value =
-														e.target.value;
-													field.onChange(
-														value === ""
-															? undefined
-															: Number(value),
-													);
-												}}
-												value={field.value || ""}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+							{/* 第四行：分潤比例 */}
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+								<FormField
+									control={form.control}
+									name="rmProfitSharePercent"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>RM分潤 (%)</FormLabel>
+											<FormControl>
+												<Input
+													type="number"
+													step="0.01"
+													min="0"
+													max="100"
+													placeholder="50.00"
+													{...field}
+													onChange={(e) => {
+														const value =
+															e.target.value;
+														field.onChange(
+															value === ""
+																? 50
+																: Number(value),
+														);
+													}}
+													value={field.value || ""}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 
-							{/* Finders Revenue */}
-							<FormField
-								control={form.control}
-								name="findersRevenue"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>
-											Finders Revenue (%) *
-										</FormLabel>
-										<FormControl>
-											<Input
-												type="number"
-												step="0.01"
-												placeholder="輸入 Finders Revenue 百分比"
-												{...field}
-												onChange={(e) => {
-													const value =
-														e.target.value;
-													field.onChange(
-														value === ""
-															? undefined
-															: Number(value),
-													);
-												}}
-												value={field.value || ""}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+								<FormField
+									control={form.control}
+									name="finderProfitSharePercent"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>
+												Finder分潤 (%)
+											</FormLabel>
+											<FormControl>
+												<Input
+													type="number"
+													step="0.01"
+													min="0"
+													max="100"
+													placeholder="0.00"
+													{...field}
+													onChange={(e) => {
+														const value =
+															e.target.value;
+														field.onChange(
+															value === ""
+																? 0
+																: Number(value),
+														);
+													}}
+													value={field.value || ""}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="companyProfitSharePercent"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>
+												Company分潤 (%)
+											</FormLabel>
+											<FormControl>
+												<Input
+													type="number"
+													step="0.01"
+													min="0"
+													max="100"
+													placeholder="50.00"
+													{...field}
+													onChange={(e) => {
+														const value =
+															e.target.value;
+														field.onChange(
+															value === ""
+																? 50
+																: Number(value),
+														);
+													}}
+													value={field.value || ""}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
+
+							{/* 第五行：FX Rate */}
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<FormField
+									control={form.control}
+									name="fxRate"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>FX Rate *</FormLabel>
+											<FormControl>
+												<Input
+													type="number"
+													step="0.00001"
+													placeholder="1.00000"
+													{...field}
+													onChange={(e) => {
+														const value =
+															e.target.value;
+														field.onChange(
+															value === ""
+																? 1
+																: Number(value),
+														);
+													}}
+													value={field.value || ""}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
 						</div>
 
 						<DialogFooter className="!justify-between">
