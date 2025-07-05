@@ -64,6 +64,7 @@ export const customersRouter = new Hono()
 										z.object({
 											id: z.string(),
 											name: z.string(),
+											code: z.string(),
 											email: z.string(),
 											phone: z.string().nullable(),
 											organizationId: z.string(),
@@ -185,6 +186,7 @@ export const customersRouter = new Hono()
 									customer: z.object({
 										id: z.string(),
 										name: z.string(),
+										code: z.string(),
 										email: z.string(),
 										phone: z.string().nullable(),
 										organizationId: z.string(),
@@ -272,8 +274,20 @@ export const customersRouter = new Hono()
 				return c.json({ customer }, 201);
 			} catch (error: any) {
 				if (error.code === "P2002") {
+					// 檢查是哪個欄位重複
+					const target = error.meta?.target;
+					if (target?.includes("email")) {
+						throw new HTTPException(400, {
+							message: "該電子郵件已被使用",
+						});
+					}
+					if (target?.includes("code")) {
+						throw new HTTPException(400, {
+							message: "該客戶編號已被使用",
+						});
+					}
 					throw new HTTPException(400, {
-						message: "該電子郵件已被使用",
+						message: "資料重複，請檢查電子郵件或客戶編號",
 					});
 				}
 				throw error;
@@ -296,6 +310,7 @@ export const customersRouter = new Hono()
 									customer: z.object({
 										id: z.string(),
 										name: z.string(),
+										code: z.string(),
 										email: z.string(),
 										phone: z.string().nullable(),
 										organizationId: z.string(),
@@ -384,8 +399,20 @@ export const customersRouter = new Hono()
 				return c.json({ customer });
 			} catch (error: any) {
 				if (error.code === "P2002") {
+					// 檢查是哪個欄位重複
+					const target = error.meta?.target;
+					if (target?.includes("email")) {
+						throw new HTTPException(400, {
+							message: "該電子郵件已被使用",
+						});
+					}
+					if (target?.includes("code")) {
+						throw new HTTPException(400, {
+							message: "該客戶編號已被使用",
+						});
+					}
 					throw new HTTPException(400, {
-						message: "該電子郵件已被使用",
+						message: "資料重複，請檢查電子郵件或客戶編號",
 					});
 				}
 				if (error.code === "P2025") {
@@ -478,6 +505,7 @@ export const customersRouter = new Hono()
 									customer: z.object({
 										id: z.string(),
 										name: z.string(),
+										code: z.string(),
 										email: z.string(),
 										phone: z.string().nullable(),
 										organizationId: z.string(),

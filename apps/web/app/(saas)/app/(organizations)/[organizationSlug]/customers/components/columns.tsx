@@ -10,6 +10,7 @@ import { useParams } from "next/navigation";
 export interface CustomerRecord {
 	id: string;
 	name: string;
+	code: string;
 	email: string;
 	phone: string | null;
 	organizationId: string;
@@ -45,6 +46,13 @@ export const createColumns = (
 	const organizationSlug = params.organizationSlug as string;
 
 	return [
+		{
+			accessorKey: "code",
+			size: 120,
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="客戶編號" />
+			),
+		},
 		{
 			accessorKey: "name",
 			size: 150,

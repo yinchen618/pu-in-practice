@@ -61,6 +61,7 @@ export function CustomerFilters({
 				const searchTerm = filters.search.toLowerCase();
 				if (
 					!item.name.toLowerCase().includes(searchTerm) &&
+					!item.code.toLowerCase().includes(searchTerm) &&
 					!item.email.toLowerCase().includes(searchTerm) &&
 					!item.phone?.toLowerCase().includes(searchTerm)
 				) {
@@ -171,7 +172,7 @@ export function CustomerFilters({
 				{/* 主要搜尋框 */}
 				<div className="flex items-center gap-2">
 					<Input
-						placeholder="搜尋客戶名稱、電話或電子郵件..."
+						placeholder="搜尋客戶名稱、編號、電話或電子郵件..."
 						value={filters.search || ""}
 						onChange={(e) => updateFilter("search", e.target.value)}
 						className="w-64"

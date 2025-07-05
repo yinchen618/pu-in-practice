@@ -3,6 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@ui/components/button";
 import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@ui/components/command";
+import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
@@ -20,13 +28,19 @@ import {
 } from "@ui/components/form";
 import { Input } from "@ui/components/input";
 import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@ui/components/popover";
+import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from "@ui/components/select";
-import { Trash2 } from "lucide-react";
+import { cn } from "@ui/lib";
+import { Check, ChevronsUpDown, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -80,21 +94,20 @@ export function EditProfitSharingDialog({
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [customers, setCustomers] = useState<Customer[]>([]);
 	const [products, setProducts] = useState<Product[]>([]);
+	const [customerOpen, setCustomerOpen] = useState(false);
+	const [productOpen, setProductOpen] = useState(false);
 
 	const form = useForm<EditFormData>({
 		resolver: zodResolver(editSchema),
 		defaultValues: {
-			customerId: record.customerId,
-			productId: record.productId,
-			amount: record.amount,
-			profitDate: new Date(record.profitDate).toISOString().split("T")[0],
-			currency: record.currency,
-			companyRevenue: record.companyRevenue,
-			directTradeBookingFee: record.directTradeBookingFee,
-			rmProfitSharePercent: record.rmProfitSharePercent,
-			finderProfitSharePercent: record.finderProfitSharePercent,
-			companyProfitSharePercent: record.companyProfitSharePercent,
-			fxRate: record.fxRate,
+			currency: "USD",
+			companyRevenue: 0,
+			directTradeBookingFee: 0,
+			rmProfitSharePercent: 50,
+			finderProfitSharePercent: 0,
+			companyProfitSharePercent: 50,
+			fxRate: 1,
+			amount: 0,
 		},
 	});
 
@@ -138,7 +151,7 @@ export function EditProfitSharingDialog({
 			);
 			if (response.ok) {
 				const result = await response.json();
-				setCustomers(result.data || []);
+				setCustomers(result.customers || []);
 			}
 		} catch (error) {
 			console.error("獲取客戶列表失敗:", error);
@@ -156,7 +169,7 @@ export function EditProfitSharingDialog({
 			);
 			if (response.ok) {
 				const result = await response.json();
-				setProducts(result.data || []);
+				setProducts(result.products || []);
 			}
 		} catch (error) {
 			console.error("獲取產品列表失敗:", error);
@@ -272,34 +285,77 @@ export function EditProfitSharingDialog({
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>客戶 *</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												value={field.value}
+											<Popover
+												open={customerOpen}
+												onOpenChange={setCustomerOpen}
 											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="選擇客戶" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{customers.map(
-														(customer) => (
-															<SelectItem
-																key={
-																	customer.id
-																}
-																value={
-																	customer.id
-																}
-															>
-																{customer.name}{" "}
-																({customer.code}
-																)
-															</SelectItem>
-														),
-													)}
-												</SelectContent>
-											</Select>
+												<PopoverTrigger asChild>
+													<FormControl>
+														<Button
+															variant="outline"
+															aria-expanded={
+																customerOpen
+															}
+															className="w-full justify-between"
+														>
+															{field.value
+																? `${customers.find((customer) => customer.id === field.value)?.name} (${customers.find((customer) => customer.id === field.value)?.code})`
+																: "選擇客戶"}
+															<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+														</Button>
+													</FormControl>
+												</PopoverTrigger>
+												<PopoverContent className="w-[400px] p-0">
+													<Command>
+														<CommandInput placeholder="搜尋客戶..." />
+														<CommandList>
+															<CommandEmpty>
+																找不到客戶。
+															</CommandEmpty>
+															<CommandGroup>
+																{customers.map(
+																	(
+																		customer,
+																	) => (
+																		<CommandItem
+																			key={
+																				customer.id
+																			}
+																			value={`${customer.name} ${customer.code}`}
+																			onSelect={() => {
+																				field.onChange(
+																					customer.id,
+																				);
+																				setCustomerOpen(
+																					false,
+																				);
+																			}}
+																		>
+																			<Check
+																				className={cn(
+																					"mr-2 h-4 w-4",
+																					field.value ===
+																						customer.id
+																						? "opacity-100"
+																						: "opacity-0",
+																				)}
+																			/>
+																			{
+																				customer.name
+																			}{" "}
+																			(
+																			{
+																				customer.code
+																			}
+																			)
+																		</CommandItem>
+																	),
+																)}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
 											<FormMessage />
 										</FormItem>
 									)}
@@ -311,27 +367,77 @@ export function EditProfitSharingDialog({
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>產品 *</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												value={field.value}
+											<Popover
+												open={productOpen}
+												onOpenChange={setProductOpen}
 											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="選擇產品" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{products.map((product) => (
-														<SelectItem
-															key={product.id}
-															value={product.id}
+												<PopoverTrigger asChild>
+													<FormControl>
+														<Button
+															variant="outline"
+															aria-expanded={
+																productOpen
+															}
+															className="w-full justify-between"
 														>
-															{product.name} (
-															{product.code})
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
+															{field.value
+																? `${products.find((product) => product.id === field.value)?.name} (${products.find((product) => product.id === field.value)?.code})`
+																: "選擇產品"}
+															<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+														</Button>
+													</FormControl>
+												</PopoverTrigger>
+												<PopoverContent className="w-[400px] p-0">
+													<Command>
+														<CommandInput placeholder="搜尋產品..." />
+														<CommandList>
+															<CommandEmpty>
+																找不到產品。
+															</CommandEmpty>
+															<CommandGroup>
+																{products.map(
+																	(
+																		product,
+																	) => (
+																		<CommandItem
+																			key={
+																				product.id
+																			}
+																			value={`${product.name} ${product.code}`}
+																			onSelect={() => {
+																				field.onChange(
+																					product.id,
+																				);
+																				setProductOpen(
+																					false,
+																				);
+																			}}
+																		>
+																			<Check
+																				className={cn(
+																					"mr-2 h-4 w-4",
+																					field.value ===
+																						product.id
+																						? "opacity-100"
+																						: "opacity-0",
+																				)}
+																			/>
+																			{
+																				product.name
+																			}{" "}
+																			(
+																			{
+																				product.code
+																			}
+																			)
+																		</CommandItem>
+																	),
+																)}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
 											<FormMessage />
 										</FormItem>
 									)}

@@ -34,6 +34,7 @@ import type { CustomerRecord } from "./columns";
 
 const editCustomerSchema = z.object({
 	name: z.string().min(1, "客戶名稱是必填的"),
+	code: z.string().min(1, "客戶編號是必填的"),
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
 	rm1Id: z.string().optional(),
@@ -104,6 +105,7 @@ export function EditCustomerDialog({
 	useEffect(() => {
 		form.reset({
 			name: customerRecord.name,
+			code: customerRecord.code,
 			email: customerRecord.email,
 			phone: customerRecord.phone || "",
 			rm1Id: customerRecord.rm1Id || "none",
@@ -150,8 +152,37 @@ export function EditCustomerDialog({
 				onOpenChange(false);
 				onSuccess();
 			} else {
-				const errorData = await response.json();
-				console.error("更新客戶失敗:", errorData);
+				let errorMessage = "更新客戶失敗";
+				try {
+					const responseText = await response.text();
+					try {
+						const error = JSON.parse(responseText);
+						errorMessage = error.message || errorMessage;
+					} catch {
+						errorMessage = responseText || errorMessage;
+					}
+				} catch {
+					errorMessage = "更新客戶失敗";
+				}
+
+				// 根據錯誤類型設定對應欄位錯誤
+				if (errorMessage.includes("電子郵件已被使用")) {
+					form.setError("email", {
+						type: "server",
+						message: errorMessage,
+					});
+					return;
+				}
+
+				if (errorMessage.includes("客戶編號已被使用")) {
+					form.setError("code", {
+						type: "server",
+						message: errorMessage,
+					});
+					return;
+				}
+
+				console.error("更新客戶失敗:", errorMessage);
 			}
 		} catch (error) {
 			console.error("更新客戶失敗:", error);
@@ -220,6 +251,30 @@ export function EditCustomerDialog({
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={form.control}
+								name="code"
+								render={({ field, fieldState }) => (
+									<FormItem>
+										<FormLabel>客戶編號</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="輸入客戶編號"
+												{...field}
+												className={
+													fieldState.error
+														? "border-red-500 focus:border-red-500 focus:ring-red-500"
+														: ""
+												}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+
+						<div className="grid grid-cols-2 gap-4">
 							<FormField
 								control={form.control}
 								name="email"
