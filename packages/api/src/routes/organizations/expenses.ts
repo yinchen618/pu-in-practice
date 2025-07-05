@@ -19,6 +19,7 @@ const CreateExpenseSchema = z.object({
 	amount: z.number().min(0, "金額不能為負數"),
 	currency: z.string().optional(),
 	exchangeRate: z.number().min(0, "匯率不能為負數").optional(),
+	usdRate: z.number().min(0, "美元匯率不能為負數").optional(),
 	receiptUrl: z.string().optional(),
 	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
@@ -30,6 +31,7 @@ const UpdateExpenseSchema = z.object({
 	amount: z.number().min(0, "金額不能為負數").optional(),
 	currency: z.string().optional(),
 	exchangeRate: z.number().min(0, "匯率不能為負數").optional(),
+	usdRate: z.number().min(0, "美元匯率不能為負數").optional(),
 	receiptUrl: z.string().optional(),
 	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
@@ -58,6 +60,9 @@ export const expensesRouter = new Hono()
 											amount: z.number(),
 											currency: z.string(),
 											exchangeRate: z.number(),
+											sgdAmount: z.number(),
+											usdRate: z.number(),
+											usdAmount: z.number(),
 											receiptUrl: z.string().nullable(),
 											receiptUrls: z
 												.array(z.string())
@@ -106,6 +111,9 @@ export const expensesRouter = new Hono()
 										amount: z.number(),
 										currency: z.string(),
 										exchangeRate: z.number(),
+										sgdAmount: z.number(),
+										usdRate: z.number(),
+										usdAmount: z.number(),
 										receiptUrl: z.string().nullable(),
 										receiptUrls: z
 											.array(z.string())
@@ -165,6 +173,9 @@ export const expensesRouter = new Hono()
 										amount: z.number(),
 										currency: z.string(),
 										exchangeRate: z.number(),
+										sgdAmount: z.number(),
+										usdRate: z.number(),
+										usdAmount: z.number(),
 										receiptUrl: z.string().nullable(),
 										receiptUrls: z
 											.array(z.string())

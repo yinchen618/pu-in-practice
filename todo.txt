@@ -1,0 +1,23 @@
+在新增/修改的對話框 與 顯示列表中，要增加的欄位
+
+幣別(Currency): 下拉式選單，預設為 USD
+
+Company revenue: 為數字欄位，四捨五入到小數點第2位
+
+Direct trade booking fee: 為數字欄位，四捨五入到小數點第2位
+
+Shareable: 為數字欄位，四捨五入到小數點第2位。不用在新增/修改的對話框中顯示，自動計算Company revenue+Direct trade booking fee，存入資料庫前會算好，且在列表中顯示
+
+RM分潤 (%):預設50%，可修改
+Finder分潤 (%):預設0%，可修改
+Company分潤 (%):預設50%，可修改
+
+RM Revenue (Original Currency): 為數字欄位，四捨五入到小數點第2位。不用在新增/修改的對話框中顯示，自動計算Shareable*RM分潤 (%)/100，存入資料庫前會算好，且在列表中顯示
+Finders Revenue (Original Currency): 為數字欄位，四捨五入到小數點第2位。不用在新增/修改的對話框中顯示，自動計算Shareable*Finder分潤 (%)/100，存入資料庫前會算好，且在列表中顯示
+Company Revenue (Original Currency): 為數字欄位，四捨五入到小數點第2位。不用在新增/修改的對話框中顯示，自動計算Shareable*Company分潤 (%)/100，存入資料庫前會算好，且在列表中顯示
+
+FX Rate: 為數字欄位，小數點第5位。
+"RM Revenue(USD)"
+"Finders Revenue(USD)"
+
+

@@ -12,6 +12,7 @@ import {
 	ExpenseFilters,
 	type ExpenseFilters as ExpenseFiltersType,
 } from "./components/expense-filters";
+import { ExpenseSummaryTable } from "./components/expense-summary-table";
 
 export default function ExpensesPage() {
 	const { activeOrganization, loaded } = useActiveOrganization();
@@ -126,6 +127,9 @@ export default function ExpensesPage() {
 				data={filteredData}
 				isLoading={isLoading}
 			/>
+
+			{/* 支出統計表格 */}
+			<ExpenseSummaryTable data={filteredData} />
 
 			{editingExpense && (
 				<EditExpenseDialog

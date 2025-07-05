@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "expense" ADD COLUMN     "usdAmount" DECIMAL(15,2) NOT NULL DEFAULT 0,
+ADD COLUMN     "usdRate" DECIMAL(10,4) NOT NULL DEFAULT 1;

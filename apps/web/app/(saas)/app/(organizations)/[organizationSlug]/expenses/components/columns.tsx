@@ -13,6 +13,8 @@ export interface ExpenseRecord {
 	currency: string;
 	exchangeRate: number;
 	sgdAmount: number;
+	usdRate: number;
+	usdAmount: number;
 	receiptUrl?: string | null; // 保留舊欄位以支援向後相容
 	receiptUrls?: string[]; // 新的多檔案支援
 	description?: string | null;
@@ -129,6 +131,30 @@ export function createColumns(
 					style: "currency",
 					currency: "SGD",
 				}).format(sgdAmount);
+			},
+		},
+		{
+			accessorKey: "usdRate",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="美元匯率" />
+			),
+			cell: ({ row }) => {
+				const usdRate = row.getValue("usdRate") as number;
+				const rate = Number(usdRate);
+				return Number.isNaN(rate) ? "1.0000" : rate.toFixed(4);
+			},
+		},
+		{
+			accessorKey: "usdAmount",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="美元金額" />
+			),
+			cell: ({ row }) => {
+				const usdAmount = row.original.usdAmount;
+				return new Intl.NumberFormat("zh-TW", {
+					style: "currency",
+					currency: "USD",
+				}).format(usdAmount);
 			},
 		},
 		{

@@ -42,6 +42,7 @@ const createExpenseSchema = z.object({
 	amount: z.number().min(0, "金額不能為負數"),
 	currency: z.string().min(1, "幣別是必填的"),
 	exchangeRate: z.number().min(0, "匯率不能為負數").optional(),
+	usdRate: z.number().min(0, "美元匯率不能為負數").optional(),
 	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
 	date: z.string().optional(),
@@ -69,6 +70,7 @@ export function CreateExpenseDialog({
 		defaultValues: {
 			currency: "SGD",
 			exchangeRate: 1,
+			usdRate: 1,
 			date: today,
 			receiptUrls: [],
 		},
@@ -98,6 +100,16 @@ export function CreateExpenseDialog({
 			const rate = exchangeRateData.rates[watchedCurrency];
 			if (rate) {
 				form.setValue("exchangeRate", Number(rate.toFixed(4)));
+			}
+		}
+
+		// 設定 USD 匯率
+		if (watchedCurrency === "USD") {
+			form.setValue("usdRate", 1);
+		} else if (exchangeRateData?.rates && open) {
+			const usdRate = exchangeRateData.rates.USD;
+			if (usdRate) {
+				form.setValue("usdRate", Number(usdRate.toFixed(4)));
 			}
 		}
 	}, [exchangeRateData, form, open, watchedCurrency]);
@@ -307,7 +319,7 @@ export function CreateExpenseDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											匯率
+											新幣匯率
 										</FormLabel>
 										<div className="col-span-3">
 											<div className="flex gap-2">
@@ -402,6 +414,106 @@ export function CreateExpenseDialog({
 								)}
 							/>
 
+							<FormField
+								control={form.control}
+								name="usdRate"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											美元匯率
+										</FormLabel>
+										<div className="col-span-3">
+											<div className="flex gap-2">
+												<FormControl>
+													<Input
+														type="number"
+														step="0.0001"
+														min="0"
+														placeholder="1.0000"
+														{...field}
+														onChange={(e) =>
+															field.onChange(
+																Number.parseFloat(
+																	e.target
+																		.value,
+																) || undefined,
+															)
+														}
+														disabled={
+															watchedCurrency ===
+															"USD"
+														}
+														className={
+															exchangeRateLoading
+																? "bg-muted"
+																: ""
+														}
+													/>
+												</FormControl>
+												{watchedCurrency !== "USD" && (
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														onClick={() => {
+															if (
+																exchangeRateData?.rates
+															) {
+																const rate =
+																	exchangeRateData
+																		.rates
+																		.USD;
+																if (rate) {
+																	form.setValue(
+																		"usdRate",
+																		Number(
+																			rate.toFixed(
+																				4,
+																			),
+																		),
+																	);
+																}
+															}
+														}}
+														disabled={
+															exchangeRateLoading
+														}
+														className="px-3"
+													>
+														{exchangeRateLoading ? (
+															<RefreshCw className="size-4 animate-spin" />
+														) : (
+															<RefreshCw className="size-4" />
+														)}
+													</Button>
+												)}
+											</div>
+											{watchedCurrency === "USD" && (
+												<p className="text-sm text-gray-600 mt-1">
+													新幣匯率固定為 1.0000
+												</p>
+											)}
+											{exchangeRateError &&
+												watchedCurrency !== "USD" && (
+													<p className="text-sm text-red-600 mt-1">
+														無法獲取新幣匯率:{" "}
+														{exchangeRateError}
+													</p>
+												)}
+											{exchangeRateData &&
+												!exchangeRateError &&
+												watchedCurrency !== "USD" && (
+													<p className="text-sm text-green-600 mt-1">
+														{exchangeRateData.date}{" "}
+														的新幣匯率已自動更新
+													</p>
+												)}
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+
 							{/* 新幣金額預覽 */}
 							<div className="grid grid-cols-4 items-center gap-4">
 								<FormLabel className="text-right">
@@ -425,6 +537,34 @@ export function CreateExpenseDialog({
 													currency: "SGD",
 												},
 											).format(sgdAmount);
+										})()}
+										className="bg-muted"
+									/>
+								</div>
+							</div>
+
+							{/* 美元金額預覽 */}
+							<div className="grid grid-cols-4 items-center gap-4">
+								<FormLabel className="text-right">
+									美元金額
+								</FormLabel>
+								<div className="col-span-3">
+									<Input
+										type="text"
+										disabled
+										value={(() => {
+											const amount =
+												form.watch("amount") || 0;
+											const usdRate =
+												form.watch("usdRate") || 1;
+											const usdAmount = amount * usdRate;
+											return new Intl.NumberFormat(
+												"zh-TW",
+												{
+													style: "currency",
+													currency: "USD",
+												},
+											).format(usdAmount);
 										})()}
 										className="bg-muted"
 									/>
