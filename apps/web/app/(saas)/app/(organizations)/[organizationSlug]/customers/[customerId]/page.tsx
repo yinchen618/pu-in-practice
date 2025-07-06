@@ -12,6 +12,7 @@ import { BankAccountsTable } from "../../bank-accounts/components/bank-accounts-
 import { ProductsTable } from "../../products/components/products-table";
 import type { CustomerRecord } from "../components/columns";
 import { EditCustomerDialog } from "../components/edit-customer-dialog";
+import { AssetTransactionsTable } from "./components/asset-transactions/asset-transactions-table";
 
 interface Product {
 	id: string;
@@ -145,7 +146,7 @@ export default function CustomerProfilePage() {
 		<div className="container space-y-8 py-6">
 			<PageHeader
 				title={customer.name}
-				subtitle={`客戶資料 #${customer.id}`}
+				subtitle={`客戶編號: ${customer.code}`}
 				actions={
 					<Button onClick={() => setEditDialogOpen(true)}>
 						<Edit2 className="mr-2 size-4" />
@@ -162,6 +163,14 @@ export default function CustomerProfilePage() {
 					</CardHeader>
 					<CardContent>
 						<dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<div>
+								<dt className="text-sm font-medium text-gray-500">
+									客戶編號
+								</dt>
+								<dd className="mt-1 text-sm text-gray-900 font-mono">
+									{customer.code}
+								</dd>
+							</div>
 							<div>
 								<dt className="text-sm font-medium text-gray-500">
 									電子郵件
@@ -245,11 +254,12 @@ export default function CustomerProfilePage() {
 					</CardContent>
 				</Card>
 
-				{/* 銀行帳戶和產品標籤頁 */}
+				{/* 銀行帳戶、產品和資產總表標籤頁 */}
 				<Tabs defaultValue="accounts" className="w-full">
 					<TabsList>
 						<TabsTrigger value="products">產品</TabsTrigger>
 						<TabsTrigger value="accounts">銀行帳戶</TabsTrigger>
+						<TabsTrigger value="assets">資產總表</TabsTrigger>
 					</TabsList>
 					<TabsContent value="accounts">
 						<Card>
@@ -266,6 +276,9 @@ export default function CustomerProfilePage() {
 								<ProductsTable products={products} />
 							</CardContent>
 						</Card>
+					</TabsContent>
+					<TabsContent value="assets">
+						<AssetTransactionsTable customerId={customerId} />
 					</TabsContent>
 				</Tabs>
 			</div>

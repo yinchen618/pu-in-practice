@@ -23,6 +23,8 @@ export interface ExpenseFilters {
 	amountMax?: number;
 	sgdAmountMin?: number;
 	sgdAmountMax?: number;
+	usdAmountMin?: number;
+	usdAmountMax?: number;
 	currency?: string;
 	hasReceipt?: boolean | null;
 	description?: string;
@@ -99,6 +101,18 @@ export function ExpenseFilters({
 		if (newFilters.sgdAmountMax !== undefined) {
 			filteredData = filteredData.filter(
 				(item) => item.sgdAmount <= newFilters.sgdAmountMax!,
+			);
+		}
+
+		// 美元金額範圍篩選
+		if (newFilters.usdAmountMin !== undefined) {
+			filteredData = filteredData.filter(
+				(item) => item.usdAmount >= newFilters.usdAmountMin!,
+			);
+		}
+		if (newFilters.usdAmountMax !== undefined) {
+			filteredData = filteredData.filter(
+				(item) => item.usdAmount <= newFilters.usdAmountMax!,
 			);
 		}
 
@@ -221,30 +235,106 @@ export function ExpenseFilters({
 						</div>
 					</div>
 
-					{/* 類別 */}
-					<div className="space-y-2">
-						<Label className="text-sm font-medium">類別</Label>
-						<Select
-							value={filters.category || ""}
-							onValueChange={(value) =>
-								updateFilter(
-									"category",
-									value === "all" ? undefined : value,
-								)
-							}
-						>
-							<SelectTrigger>
-								<SelectValue placeholder="選擇類別" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">全部類別</SelectItem>
-								{uniqueCategories.map((category) => (
-									<SelectItem key={category} value={category}>
-										{category}
+					{/* 類別、幣別、附件狀態 */}
+					<div className="space-y-4">
+						{/* 類別 */}
+						<div className="space-y-2">
+							<Label className="text-sm font-medium">類別</Label>
+							<Select
+								value={filters.category || ""}
+								onValueChange={(value) =>
+									updateFilter(
+										"category",
+										value === "all" ? undefined : value,
+									)
+								}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="選擇類別" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">
+										全部類別
 									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+									{uniqueCategories.map((category) => (
+										<SelectItem
+											key={category}
+											value={category}
+										>
+											{category}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						{/* 幣別 */}
+						<div className="space-y-2">
+							<Label className="text-sm font-medium">幣別</Label>
+							<Select
+								value={filters.currency || ""}
+								onValueChange={(value) =>
+									updateFilter(
+										"currency",
+										value === "all" ? undefined : value,
+									)
+								}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="選擇幣別" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">
+										全部幣別
+									</SelectItem>
+									{uniqueCurrencies.map((currency) => (
+										<SelectItem
+											key={currency}
+											value={currency}
+										>
+											{currency}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						{/* 附件狀態 */}
+						<div className="space-y-2">
+							<Label className="text-sm font-medium flex items-center gap-1">
+								<Paperclip className="size-4" />
+								附件狀態
+							</Label>
+							<Select
+								value={
+									filters.hasReceipt === null ||
+									filters.hasReceipt === undefined
+										? "all"
+										: filters.hasReceipt.toString()
+								}
+								onValueChange={(value) => {
+									if (value === "all") {
+										updateFilter("hasReceipt", null);
+									} else {
+										updateFilter(
+											"hasReceipt",
+											value === "true",
+										);
+									}
+								}}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="選擇附件狀態" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">全部</SelectItem>
+									<SelectItem value="true">已上傳</SelectItem>
+									<SelectItem value="false">
+										未上傳
+									</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
 					</div>
 
 					{/* 金額範圍 */}
@@ -323,74 +413,41 @@ export function ExpenseFilters({
 						</div>
 					</div>
 
-					{/* 幣別和附件 */}
-					<div className="space-y-4">
-						{/* 幣別 */}
+					{/* 美元金額範圍 */}
+					<div className="space-y-2">
+						<Label className="text-sm font-medium flex items-center gap-1">
+							<DollarSign className="size-4" />
+							美元金額範圍
+						</Label>
 						<div className="space-y-2">
-							<Label className="text-sm font-medium">幣別</Label>
-							<Select
-								value={filters.currency || ""}
-								onValueChange={(value) =>
+							<Input
+								type="number"
+								placeholder="最小美元金額"
+								value={filters.usdAmountMin || ""}
+								onChange={(e) => {
+									const value = e.target.value;
 									updateFilter(
-										"currency",
-										value === "all" ? undefined : value,
-									)
-								}
-							>
-								<SelectTrigger>
-									<SelectValue placeholder="選擇幣別" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">
-										全部幣別
-									</SelectItem>
-									{uniqueCurrencies.map((currency) => (
-										<SelectItem
-											key={currency}
-											value={currency}
-										>
-											{currency}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-
-						{/* 附件狀態 */}
-						<div className="space-y-2">
-							<Label className="text-sm font-medium flex items-center gap-1">
-								<Paperclip className="size-4" />
-								附件狀態
-							</Label>
-							<Select
-								value={
-									filters.hasReceipt === null ||
-									filters.hasReceipt === undefined
-										? "all"
-										: filters.hasReceipt.toString()
-								}
-								onValueChange={(value) => {
-									if (value === "all") {
-										updateFilter("hasReceipt", null);
-									} else {
-										updateFilter(
-											"hasReceipt",
-											value === "true",
-										);
-									}
+										"usdAmountMin",
+										value === ""
+											? undefined
+											: Number(value),
+									);
 								}}
-							>
-								<SelectTrigger>
-									<SelectValue placeholder="選擇附件狀態" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">全部</SelectItem>
-									<SelectItem value="true">已上傳</SelectItem>
-									<SelectItem value="false">
-										未上傳
-									</SelectItem>
-								</SelectContent>
-							</Select>
+							/>
+							<Input
+								type="number"
+								placeholder="最大美元金額"
+								value={filters.usdAmountMax || ""}
+								onChange={(e) => {
+									const value = e.target.value;
+									updateFilter(
+										"usdAmountMax",
+										value === ""
+											? undefined
+											: Number(value),
+									);
+								}}
+							/>
 						</div>
 					</div>
 				</div>
@@ -490,6 +547,34 @@ export function ExpenseFilters({
 								type="button"
 								onClick={() =>
 									updateFilter("sgdAmountMax", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.usdAmountMin !== undefined && (
+						<Badge status="info" className="gap-1">
+							美元最小: {filters.usdAmountMin}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("usdAmountMin", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.usdAmountMax !== undefined && (
+						<Badge status="info" className="gap-1">
+							美元最大: {filters.usdAmountMax}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("usdAmountMax", undefined)
 								}
 								className="ml-1 hover:bg-destructive/20 rounded-full"
 							>

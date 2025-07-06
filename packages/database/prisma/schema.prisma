@@ -202,9 +202,10 @@ model Customer {
   finder2            RelationshipManager? @relation("Finder2Customers", fields: [finder2Id], references: [id])
   finder2ProfitShare Decimal?             @db.Decimal(5, 2)
 
-  profitSharing ProfitSharing[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  profitSharing     ProfitSharing[]
+  assetTransactions AssetTransaction[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
   @@unique([organizationId, email])
   @@unique([organizationId, code])
@@ -376,4 +377,19 @@ model ProfitSharing {
   bankAccountId  String?
 
   @@map("profit_sharing")
+}
+
+model AssetTransaction {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  date        DateTime @default(now()) // 交易日期
+  currency    String   @default("USD") // 幣別
+  type        String // "IN" 入金, "OUT" 出金
+  amount      Decimal  @db.Decimal(15, 2) // 金額
+  description String? // 說明
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("asset_transaction")
 }
