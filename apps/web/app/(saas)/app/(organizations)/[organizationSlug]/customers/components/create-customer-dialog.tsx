@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SearchableSelect } from "@shared/components/SearchableSelect";
 import { Button } from "@ui/components/button";
 import {
 	Dialog,
@@ -20,15 +21,8 @@ import {
 	FormMessage,
 } from "@ui/components/form";
 import { Input } from "@ui/components/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@ui/components/select";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -110,6 +104,38 @@ export function CreateCustomerDialog({
 			finder2ProfitShare: undefined,
 		},
 	});
+
+	// 監聽 RM1 選擇變更
+	useEffect(() => {
+		const rm1Id = form.watch("rm1Id");
+		if (rm1Id === "none") {
+			form.setValue("rm1ProfitShare", 0);
+		}
+	}, [form.watch("rm1Id")]);
+
+	// 監聽 RM2 選擇變更
+	useEffect(() => {
+		const rm2Id = form.watch("rm2Id");
+		if (rm2Id === "none") {
+			form.setValue("rm2ProfitShare", 0);
+		}
+	}, [form.watch("rm2Id")]);
+
+	// 監聽 Finder1 選擇變更
+	useEffect(() => {
+		const finder1Id = form.watch("finder1Id");
+		if (finder1Id === "none") {
+			form.setValue("finder1ProfitShare", 0);
+		}
+	}, [form.watch("finder1Id")]);
+
+	// 監聽 Finder2 選擇變更
+	useEffect(() => {
+		const finder2Id = form.watch("finder2Id");
+		if (finder2Id === "none") {
+			form.setValue("finder2ProfitShare", 0);
+		}
+	}, [form.watch("finder2Id")]);
 
 	const onSubmit = async (data: CreateCustomerForm) => {
 		setIsLoading(true);
@@ -284,41 +310,35 @@ export function CreateCustomerDialog({
 								control={form.control}
 								name="rm1Id"
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>負責 RM1</FormLabel>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-												if (value === "none") {
-													form.setValue(
-														"rm1ProfitShare",
-														0,
-													);
-												}
-											}}
-											value={field.value}
-										>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇 RM1" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="none">
-													無
-												</SelectItem>
-												{rmOptions.map((rm) => (
-													<SelectItem
-														key={rm.id}
-														value={rm.id}
-													>
-														{rm.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
+									<SearchableSelect<RelationshipManager>
+										field={field}
+										label="RM 1"
+										placeholder="選擇 RM 1"
+										searchPlaceholder="搜尋 RM..."
+										emptyText="找不到 RM"
+										options={[
+											{
+												id: "none",
+												name: "未指定",
+											} as RelationshipManager,
+											...rmOptions,
+										]}
+										getDisplayValue={(option) =>
+											option?.id === "none"
+												? "未指定"
+												: option?.name || ""
+										}
+										getSearchValue={(option) =>
+											option.id === "none"
+												? "未指定"
+												: option.name
+										}
+										getOptionDisplayValue={(option) =>
+											option.id === "none"
+												? "未指定"
+												: option.name
+										}
+									/>
 								)}
 							/>
 							<FormField
@@ -360,41 +380,35 @@ export function CreateCustomerDialog({
 								control={form.control}
 								name="rm2Id"
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>負責 RM2</FormLabel>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-												if (value === "none") {
-													form.setValue(
-														"rm2ProfitShare",
-														0,
-													);
-												}
-											}}
-											value={field.value}
-										>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇 RM2" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="none">
-													無
-												</SelectItem>
-												{rmOptions.map((rm) => (
-													<SelectItem
-														key={rm.id}
-														value={rm.id}
-													>
-														{rm.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
+									<SearchableSelect<RelationshipManager>
+										field={field}
+										label="RM 2"
+										placeholder="選擇 RM 2"
+										searchPlaceholder="搜尋 RM..."
+										emptyText="找不到 RM"
+										options={[
+											{
+												id: "none",
+												name: "未指定",
+											} as RelationshipManager,
+											...rmOptions,
+										]}
+										getDisplayValue={(option) =>
+											option?.id === "none"
+												? "未指定"
+												: option?.name || ""
+										}
+										getSearchValue={(option) =>
+											option.id === "none"
+												? "未指定"
+												: option.name
+										}
+										getOptionDisplayValue={(option) =>
+											option.id === "none"
+												? "未指定"
+												: option.name
+										}
+									/>
 								)}
 							/>
 							<FormField
@@ -436,41 +450,35 @@ export function CreateCustomerDialog({
 								control={form.control}
 								name="finder1Id"
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>負責 Finder1</FormLabel>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-												if (value === "none") {
-													form.setValue(
-														"finder1ProfitShare",
-														0,
-													);
-												}
-											}}
-											value={field.value}
-										>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇 Finder1" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="none">
-													無
-												</SelectItem>
-												{finderOptions.map((rm) => (
-													<SelectItem
-														key={rm.id}
-														value={rm.id}
-													>
-														{rm.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
+									<SearchableSelect<RelationshipManager>
+										field={field}
+										label="Finder 1"
+										placeholder="選擇 Finder 1"
+										searchPlaceholder="搜尋 Finder..."
+										emptyText="找不到 Finder"
+										options={[
+											{
+												id: "none",
+												name: "未指定",
+											} as RelationshipManager,
+											...finderOptions,
+										]}
+										getDisplayValue={(option) =>
+											option?.id === "none"
+												? "未指定"
+												: option?.name || ""
+										}
+										getSearchValue={(option) =>
+											option.id === "none"
+												? "未指定"
+												: option.name
+										}
+										getOptionDisplayValue={(option) =>
+											option.id === "none"
+												? "未指定"
+												: option.name
+										}
+									/>
 								)}
 							/>
 							<FormField
@@ -512,41 +520,35 @@ export function CreateCustomerDialog({
 								control={form.control}
 								name="finder2Id"
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>負責 Finder2</FormLabel>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-												if (value === "none") {
-													form.setValue(
-														"finder2ProfitShare",
-														0,
-													);
-												}
-											}}
-											value={field.value}
-										>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇 Finder2" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="none">
-													無
-												</SelectItem>
-												{finderOptions.map((rm) => (
-													<SelectItem
-														key={rm.id}
-														value={rm.id}
-													>
-														{rm.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
+									<SearchableSelect<RelationshipManager>
+										field={field}
+										label="Finder 2"
+										placeholder="選擇 Finder 2"
+										searchPlaceholder="搜尋 Finder..."
+										emptyText="找不到 Finder"
+										options={[
+											{
+												id: "none",
+												name: "未指定",
+											} as RelationshipManager,
+											...finderOptions,
+										]}
+										getDisplayValue={(option) =>
+											option?.id === "none"
+												? "未指定"
+												: option?.name || ""
+										}
+										getSearchValue={(option) =>
+											option.id === "none"
+												? "未指定"
+												: option.name
+										}
+										getOptionDisplayValue={(option) =>
+											option.id === "none"
+												? "未指定"
+												: option.name
+										}
+									/>
 								)}
 							/>
 							<FormField

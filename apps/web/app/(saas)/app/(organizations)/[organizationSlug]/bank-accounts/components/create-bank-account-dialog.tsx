@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SearchableSelect } from "@shared/components/SearchableSelect";
 import { Button } from "@ui/components/button";
 import {
 	Dialog,
@@ -198,77 +199,34 @@ export function CreateBankAccountDialog({
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="grid gap-4 py-4">
-							{/* 客戶欄位：只有沒有 customerId 時才顯示 */}
 							{!customerId && (
 								<FormField
 									control={form.control}
 									name="customerId"
 									render={({ field }) => (
-										<FormItem>
-											<FormLabel>客戶</FormLabel>
-											<FormControl>
-												<Select
-													onValueChange={
-														field.onChange
-													}
-													value={
-														field.value || "none"
-													}
-													disabled={!!customerId}
-												>
-													<SelectTrigger>
-														<SelectValue placeholder="選擇客戶（可選）" />
-													</SelectTrigger>
-													<SelectContent>
-														{isCustomersLoading ? (
-															<SelectItem
-																value="loading"
-																disabled
-															>
-																載入中...
-															</SelectItem>
-														) : (
-															<>
-																<SelectItem value="none">
-																	未指定客戶
-																</SelectItem>
-																{customers.map(
-																	(
-																		customer,
-																	) => (
-																		<SelectItem
-																			key={
-																				customer.id
-																			}
-																			value={
-																				customer.id
-																			}
-																		>
-																			<span className="inline-flex items-center gap-2">
-																				<span className="bg-gray-100 text-gray-600 text-xs font-mono px-2 py-0.5 rounded">
-																					{
-																						customer.code
-																					}
-																				</span>
-																				<span>
-																					{
-																						customer.name
-																					}
-																				</span>
-																			</span>
-																		</SelectItem>
-																	),
-																)}
-															</>
-														)}
-													</SelectContent>
-												</Select>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
+										<SearchableSelect<Customer>
+											field={field}
+											label="客戶"
+											placeholder="選擇客戶"
+											searchPlaceholder="搜尋客戶..."
+											emptyText="找不到客戶"
+											options={customers}
+											getDisplayValue={(option) =>
+												option
+													? `${option.code} - ${option.name}`
+													: ""
+											}
+											getSearchValue={(option) =>
+												`${option.code} ${option.name}`
+											}
+											getOptionDisplayValue={(option) =>
+												`${option.code} - ${option.name}`
+											}
+										/>
 									)}
 								/>
 							)}
+
 							<FormField
 								control={form.control}
 								name="bankName"
@@ -285,6 +243,7 @@ export function CreateBankAccountDialog({
 									</FormItem>
 								)}
 							/>
+
 							<FormField
 								control={form.control}
 								name="accountNumber"
@@ -301,44 +260,62 @@ export function CreateBankAccountDialog({
 									</FormItem>
 								)}
 							/>
+
 							<FormField
 								control={form.control}
 								name="currency"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>幣別 *</FormLabel>
-										<FormControl>
-											<Select
-												onValueChange={field.onChange}
-												value={field.value}
-											>
+										<Select
+											onValueChange={field.onChange}
+											defaultValue={field.value}
+										>
+											<FormControl>
 												<SelectTrigger>
 													<SelectValue placeholder="選擇幣別" />
 												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="SGD">
-														新加坡幣 (SGD)
-													</SelectItem>
-													<SelectItem value="HKD">
-														港幣 (HKD)
-													</SelectItem>
-													<SelectItem value="TWD">
-														新台幣 (TWD)
-													</SelectItem>
-													<SelectItem value="USD">
-														美元 (USD)
-													</SelectItem>
-													<SelectItem value="EUR">
-														歐元 (EUR)
-													</SelectItem>
-													<SelectItem value="JPY">
-														日圓 (JPY)
-													</SelectItem>
-													<SelectItem value="CNY">
-														人民幣 (CNY)
-													</SelectItem>
-												</SelectContent>
-											</Select>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value="TWD">
+													TWD
+												</SelectItem>
+												<SelectItem value="USD">
+													USD
+												</SelectItem>
+												<SelectItem value="SGD">
+													SGD
+												</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="balance"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>餘額</FormLabel>
+										<FormControl>
+											<Input
+												type="number"
+												step="0.01"
+												placeholder="輸入餘額"
+												{...field}
+												onChange={(e) => {
+													const value =
+														e.target.value;
+													field.onChange(
+														value === ""
+															? undefined
+															: Number(value),
+													);
+												}}
+												value={field.value || ""}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>

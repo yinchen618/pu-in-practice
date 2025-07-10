@@ -1,15 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SearchableSelect } from "@shared/components/SearchableSelect";
 import { Button } from "@ui/components/button";
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from "@ui/components/command";
 import {
 	Dialog,
 	DialogContent,
@@ -29,19 +22,13 @@ import {
 } from "@ui/components/form";
 import { Input } from "@ui/components/input";
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@ui/components/popover";
-import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from "@ui/components/select";
-import { cn } from "@ui/lib";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -101,9 +88,6 @@ export function CreateProfitSharingDialog({
 	const [customers, setCustomers] = useState<Customer[]>([]);
 	const [products, setProducts] = useState<Product[]>([]);
 	const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
-	const [customerOpen, setCustomerOpen] = useState(false);
-	const [productOpen, setProductOpen] = useState(false);
-	const [bankAccountOpen, setBankAccountOpen] = useState(false);
 
 	const form = useForm<CreateFormData>({
 		resolver: zodResolver(createSchema),
@@ -116,6 +100,7 @@ export function CreateProfitSharingDialog({
 			companyProfitSharePercent: 50,
 			fxRate: 1,
 			amount: 0,
+			profitDate: new Date().toISOString().split("T")[0], // 預設為今天
 		},
 	});
 
@@ -124,7 +109,6 @@ export function CreateProfitSharingDialog({
 		if (open) {
 			fetchCustomers();
 			fetchProducts();
-			fetchBankAccounts();
 		}
 	}, [open]);
 
@@ -164,10 +148,16 @@ export function CreateProfitSharingDialog({
 		}
 	};
 
-	const fetchBankAccounts = async () => {
+	const fetchBankAccounts = async (customerId?: string) => {
+		if (!customerId) {
+			setBankAccounts([]);
+			form.setValue("bankAccountId", "");
+			return;
+		}
+
 		try {
 			const response = await fetch(
-				`/api/organizations/bank-accounts?organizationId=${organizationId}`,
+				`/api/organizations/bank-accounts?organizationId=${organizationId}&customerId=${customerId}`,
 				{
 					method: "GET",
 					credentials: "include",
@@ -176,15 +166,35 @@ export function CreateProfitSharingDialog({
 			if (response.ok) {
 				const result = await response.json();
 				// 只顯示狀態為 active 的銀行帳戶
-				const activeBankAccounts = (result.bankAccounts || []).filter(
+				const activeBankAccounts = (result.data || []).filter(
 					(account: BankAccount) => account.status === "active",
 				);
 				setBankAccounts(activeBankAccounts);
+
+				// 如果有可用的銀行帳戶，自動選擇第一個
+				if (activeBankAccounts.length > 0) {
+					form.setValue("bankAccountId", activeBankAccounts[0].id);
+				} else {
+					form.setValue("bankAccountId", "");
+				}
 			}
 		} catch (error) {
 			console.error("獲取銀行帳戶列表失敗:", error);
+			setBankAccounts([]);
+			form.setValue("bankAccountId", "");
 		}
 	};
+
+	// 監聽客戶選擇變更
+	useEffect(() => {
+		const customerId = form.watch("customerId");
+		if (customerId) {
+			fetchBankAccounts(customerId);
+		} else {
+			setBankAccounts([]);
+			form.setValue("bankAccountId", "");
+		}
+	}, [form.watch("customerId")]);
 
 	const onSubmit = async (data: CreateFormData) => {
 		setIsLoading(true);
@@ -257,81 +267,26 @@ export function CreateProfitSharingDialog({
 									control={form.control}
 									name="customerId"
 									render={({ field }) => (
-										<FormItem>
-											<FormLabel>客戶 *</FormLabel>
-											<Popover
-												open={customerOpen}
-												onOpenChange={setCustomerOpen}
-											>
-												<PopoverTrigger asChild>
-													<FormControl>
-														<Button
-															variant="outline"
-															aria-expanded={
-																customerOpen
-															}
-															className="w-full justify-between"
-														>
-															{field.value
-																? `${customers.find((customer) => customer.id === field.value)?.name} (${customers.find((customer) => customer.id === field.value)?.code})`
-																: "選擇客戶"}
-															<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-														</Button>
-													</FormControl>
-												</PopoverTrigger>
-												<PopoverContent className="w-[400px] p-0">
-													<Command>
-														<CommandInput placeholder="搜尋客戶..." />
-														<CommandList>
-															<CommandEmpty>
-																找不到客戶。
-															</CommandEmpty>
-															<CommandGroup>
-																{customers.map(
-																	(
-																		customer,
-																	) => (
-																		<CommandItem
-																			key={
-																				customer.id
-																			}
-																			value={`${customer.name} ${customer.code}`}
-																			onSelect={() => {
-																				field.onChange(
-																					customer.id,
-																				);
-																				setCustomerOpen(
-																					false,
-																				);
-																			}}
-																		>
-																			<Check
-																				className={cn(
-																					"mr-2 h-4 w-4",
-																					field.value ===
-																						customer.id
-																						? "opacity-100"
-																						: "opacity-0",
-																				)}
-																			/>
-																			{
-																				customer.name
-																			}{" "}
-																			(
-																			{
-																				customer.code
-																			}
-																			)
-																		</CommandItem>
-																	),
-																)}
-															</CommandGroup>
-														</CommandList>
-													</Command>
-												</PopoverContent>
-											</Popover>
-											<FormMessage />
-										</FormItem>
+										<SearchableSelect
+											field={field}
+											label="客戶"
+											placeholder="選擇客戶"
+											searchPlaceholder="搜尋客戶..."
+											emptyText="找不到客戶。"
+											options={customers}
+											getDisplayValue={(customer) =>
+												customer
+													? `${customer.name} (${customer.code})`
+													: ""
+											}
+											getSearchValue={(customer) =>
+												`${customer.name} ${customer.code}`
+											}
+											getOptionDisplayValue={(customer) =>
+												`${customer.name} (${customer.code})`
+											}
+											required
+										/>
 									)}
 								/>
 
@@ -339,168 +294,62 @@ export function CreateProfitSharingDialog({
 									control={form.control}
 									name="bankAccountId"
 									render={({ field }) => (
-										<FormItem>
-											<FormLabel>銀行帳戶 *</FormLabel>
-											<Popover
-												open={bankAccountOpen}
-												onOpenChange={
-													setBankAccountOpen
-												}
-											>
-												<PopoverTrigger asChild>
-													<FormControl>
-														<Button
-															variant="outline"
-															aria-expanded={
-																bankAccountOpen
-															}
-															className="w-full justify-between"
-														>
-															{field.value
-																? `${bankAccounts.find((account) => account.id === field.value)?.bankName} - ${bankAccounts.find((account) => account.id === field.value)?.accountName} (${bankAccounts.find((account) => account.id === field.value)?.accountNumber})`
-																: "選擇銀行帳戶"}
-															<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-														</Button>
-													</FormControl>
-												</PopoverTrigger>
-												<PopoverContent className="w-[400px] p-0">
-													<Command>
-														<CommandInput placeholder="搜尋銀行帳戶..." />
-														<CommandList>
-															<CommandEmpty>
-																找不到銀行帳戶。
-															</CommandEmpty>
-															<CommandGroup>
-																{bankAccounts.map(
-																	(
-																		account,
-																	) => (
-																		<CommandItem
-																			key={
-																				account.id
-																			}
-																			value={`${account.bankName} ${account.accountName} ${account.accountNumber}`}
-																			onSelect={() => {
-																				field.onChange(
-																					account.id,
-																				);
-																				setBankAccountOpen(
-																					false,
-																				);
-																			}}
-																		>
-																			<Check
-																				className={cn(
-																					"mr-2 h-4 w-4",
-																					field.value ===
-																						account.id
-																						? "opacity-100"
-																						: "opacity-0",
-																				)}
-																			/>
-																			{
-																				account.bankName
-																			}{" "}
-																			-{" "}
-																			{
-																				account.accountName
-																			}{" "}
-																			(
-																			{
-																				account.accountNumber
-																			}
-																			)
-																		</CommandItem>
-																	),
-																)}
-															</CommandGroup>
-														</CommandList>
-													</Command>
-												</PopoverContent>
-											</Popover>
-											<FormMessage />
-										</FormItem>
+										<SearchableSelect<BankAccount>
+											field={field}
+											label="銀行帳戶"
+											placeholder={
+												form.watch("customerId")
+													? "選擇銀行帳戶"
+													: "請先選擇客戶"
+											}
+											searchPlaceholder="搜尋銀行帳戶..."
+											emptyText={
+												form.watch("customerId")
+													? "找不到銀行帳戶。"
+													: "請先選擇客戶"
+											}
+											options={bankAccounts}
+											getDisplayValue={(account) =>
+												account
+													? `${account.bankName} - ${account.accountNumber}`
+													: ""
+											}
+											getSearchValue={(account) =>
+												`${account.bankName} ${account.accountNumber}`
+											}
+											getOptionDisplayValue={(account) =>
+												`${account.bankName} - ${account.accountNumber}`
+											}
+											required
+											disabled={!form.watch("customerId")}
+										/>
 									)}
 								/>
+
 								<FormField
 									control={form.control}
 									name="productId"
 									render={({ field }) => (
-										<FormItem>
-											<FormLabel>產品 *</FormLabel>
-											<Popover
-												open={productOpen}
-												onOpenChange={setProductOpen}
-											>
-												<PopoverTrigger asChild>
-													<FormControl>
-														<Button
-															variant="outline"
-															aria-expanded={
-																productOpen
-															}
-															className="w-full justify-between"
-														>
-															{field.value
-																? `${products.find((product) => product.id === field.value)?.name} (${products.find((product) => product.id === field.value)?.code})`
-																: "選擇產品"}
-															<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-														</Button>
-													</FormControl>
-												</PopoverTrigger>
-												<PopoverContent className="w-[400px] p-0">
-													<Command>
-														<CommandInput placeholder="搜尋產品..." />
-														<CommandList>
-															<CommandEmpty>
-																找不到產品。
-															</CommandEmpty>
-															<CommandGroup>
-																{products.map(
-																	(
-																		product,
-																	) => (
-																		<CommandItem
-																			key={
-																				product.id
-																			}
-																			value={`${product.name} ${product.code}`}
-																			onSelect={() => {
-																				field.onChange(
-																					product.id,
-																				);
-																				setProductOpen(
-																					false,
-																				);
-																			}}
-																		>
-																			<Check
-																				className={cn(
-																					"mr-2 h-4 w-4",
-																					field.value ===
-																						product.id
-																						? "opacity-100"
-																						: "opacity-0",
-																				)}
-																			/>
-																			{
-																				product.name
-																			}{" "}
-																			(
-																			{
-																				product.code
-																			}
-																			)
-																		</CommandItem>
-																	),
-																)}
-															</CommandGroup>
-														</CommandList>
-													</Command>
-												</PopoverContent>
-											</Popover>
-											<FormMessage />
-										</FormItem>
+										<SearchableSelect
+											field={field}
+											label="產品"
+											placeholder="選擇產品"
+											searchPlaceholder="搜尋產品..."
+											emptyText="找不到產品。"
+											options={products}
+											getDisplayValue={(product) =>
+												product
+													? `${product.name} (${product.code})`
+													: ""
+											}
+											getSearchValue={(product) =>
+												`${product.name} ${product.code}`
+											}
+											getOptionDisplayValue={(product) =>
+												`${product.name} (${product.code})`
+											}
+											required
+										/>
 									)}
 								/>
 							</div>
