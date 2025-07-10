@@ -76,7 +76,7 @@ export const createColumns = (
 		},
 		{
 			accessorKey: "bankAccounts",
-			size: 180,
+			size: 250,
 			header: ({ column }) => (
 				<DataTableColumnHeader column={column} title="銀行帳戶" />
 			),
@@ -92,23 +92,12 @@ export const createColumns = (
 
 				return (
 					<div className="space-y-1">
-						<div>{`${count} 個帳戶`}</div>
-						<div className="flex gap-1">
+						<div className="text-sm font-medium">{`${count} 個帳戶`}</div>
+						<div className="flex flex-col gap-1">
 							{bankAccounts?.map((account) => (
-								<Button
-									key={account.id}
-									variant="ghost"
-									size="sm"
-									onClick={() =>
-										onEditBankAccount(
-											account as BankAccountRecord,
-										)
-									}
-									className="h-6 px-2 text-xs"
-								>
-									<Edit2 className="mr-1 size-3" />
+								<span key={account.id} className="truncate">
 									{account.bankName} - {account.accountNumber}
-								</Button>
+								</span>
 							))}
 						</div>
 					</div>
@@ -154,18 +143,6 @@ export const createColumns = (
 				);
 			},
 		},
-		// {
-		// 	accessorKey: "rm1ProfitShare",
-		// 	size: 160,
-		// 	header: ({ column }) => (
-		// 		<DataTableColumnHeader column={column} title="RM1 利潤分享 (%)" />
-		// 	),
-		// 	cell: ({ row }) => {
-		// 		const rm1ProfitShare = row.original.rm1ProfitShare;
-		// 		const profitShare = rm1ProfitShare ? `(${rm1ProfitShare}%)` : "";
-		// 		return <div>{profitShare}</div>;
-		// 	},
-		// },
 		{
 			accessorKey: "rm2Name",
 			size: 140,
@@ -191,18 +168,6 @@ export const createColumns = (
 				);
 			},
 		},
-		// {
-		// 	accessorKey: "rm2ProfitShare",
-		// 	size: 160,
-		// 	header: ({ column }) => (
-		// 		<DataTableColumnHeader column={column} title="RM2 利潤分享 (%)" />
-		// 	),
-		// 	cell: ({ row }) => {
-		// 		const rm2ProfitShare = row.original.rm2ProfitShare;
-		// 		const profitShare = rm2ProfitShare ? `(${rm2ProfitShare}%)` : "";
-		// 		return <div>{profitShare}</div>;
-		// 	},
-		// },
 		{
 			accessorKey: "finder1Name",
 			size: 150,
@@ -230,23 +195,6 @@ export const createColumns = (
 				);
 			},
 		},
-		// {
-		// 	accessorKey: "finder1ProfitShare",
-		// 	size: 170,
-		// 	header: ({ column }) => (
-		// 		<DataTableColumnHeader
-		// 			column={column}
-		// 			title="Finder1 利潤分享 (%)"
-		// 		/>
-		// 	),
-		// 	cell: ({ row }) => {
-		// 		const finder1ProfitShare = row.original.finder1ProfitShare;
-		// 		const profitShare = finder1ProfitShare
-		// 			? `(${finder1ProfitShare}%)`
-		// 			: "";
-		// 		return <div>{profitShare}</div>;
-		// 	},
-		// },
 		{
 			accessorKey: "finder2Name",
 			size: 150,
@@ -274,23 +222,6 @@ export const createColumns = (
 				);
 			},
 		},
-		// {
-		// 	accessorKey: "finder2ProfitShare",
-		// 	size: 170,
-		// 	header: ({ column }) => (
-		// 		<DataTableColumnHeader
-		// 			column={column}
-		// 			title="Finder2 利潤分享 (%)"
-		// 		/>
-		// 	),
-		// 	cell: ({ row }) => {
-		// 		const finder2ProfitShare = row.original.finder2ProfitShare;
-		// 		const profitShare = finder2ProfitShare
-		// 			? `(${finder2ProfitShare}%)`
-		// 			: "";
-		// 		return <div>{profitShare}</div>;
-		// 	},
-		// },
 		{
 			id: "actions",
 			size: 80,

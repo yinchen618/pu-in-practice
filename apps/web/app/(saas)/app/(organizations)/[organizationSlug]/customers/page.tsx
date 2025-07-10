@@ -9,10 +9,7 @@ import { EditBankAccountDialog } from "../bank-accounts/components/edit-bank-acc
 import { createColumns } from "./components/columns";
 import type { CustomerRecord } from "./components/columns";
 import { CreateCustomerDialog } from "./components/create-customer-dialog";
-import {
-	CustomerFilters,
-	type CustomerFilters as CustomerFiltersType,
-} from "./components/customer-filters";
+import type { CustomerFilters as CustomerFiltersType } from "./components/customer-filters";
 import { EditCustomerDialog } from "./components/edit-customer-dialog";
 
 interface RelationshipManager {
@@ -133,7 +130,7 @@ export default function CustomersPage() {
 		<div className="container space-y-8 py-6">
 			<PageHeader
 				title="客戶列表"
-				subtitle="管理所有客戶資料"
+				subtitle="管理所有客戶"
 				actions={
 					activeOrganization && (
 						<CreateCustomerDialog
@@ -145,17 +142,12 @@ export default function CustomersPage() {
 				}
 			/>
 
-			<CustomerFilters
-				data={data}
-				relationshipManagers={relationshipManagers}
-				onFilterChange={handleFilterChange}
-				onFiltersChange={handleFiltersChange}
-			/>
-
 			<DataTable
 				columns={columns}
-				data={filteredData}
+				data={data}
 				isLoading={isLoading}
+				searchKey="name"
+				searchPlaceholder="搜尋客戶名稱"
 			/>
 
 			{editingCustomer && (
@@ -174,6 +166,14 @@ export default function CustomersPage() {
 					open={editBankAccountDialogOpen}
 					onOpenChange={setEditBankAccountDialogOpen}
 					onSuccess={handleEditBankAccountSuccess}
+					customerCode={
+						data.find((c) => c.id === editingBankAccount.customerId)
+							?.code
+					}
+					customerName={
+						data.find((c) => c.id === editingBankAccount.customerId)
+							?.name
+					}
 				/>
 			)}
 		</div>

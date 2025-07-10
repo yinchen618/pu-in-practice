@@ -79,15 +79,19 @@ export function EditBankAccountDialog({
 		defaultValues: {
 			customerId: bankAccountRecord.customerId || "none",
 			bankName: bankAccountRecord.bankName,
-			// accountName: bankAccountRecord.accountName, // 已隱藏
 			accountNumber: bankAccountRecord.accountNumber,
 			currency: bankAccountRecord.currency,
 			status: bankAccountRecord.status,
 		},
 	});
 
-	// 獲取客戶列表
+	// 獲取客戶列表 - 只在真正需要時才調用
 	const fetchCustomers = async () => {
+		// 如果有 customerCode 和 customerName，不需要獲取客戶列表
+		if (customerCode && customerName) {
+			return;
+		}
+
 		setIsCustomersLoading(true);
 		try {
 			const response = await fetch(
@@ -117,17 +121,18 @@ export function EditBankAccountDialog({
 			form.reset({
 				customerId: bankAccountRecord.customerId || "none",
 				bankName: bankAccountRecord.bankName,
-				// accountName: bankAccountRecord.accountName, // 已隱藏
 				accountNumber: bankAccountRecord.accountNumber,
 				currency: bankAccountRecord.currency,
 				status: bankAccountRecord.status,
 			});
-			// 只有在沒有指定客戶時才需要載入客戶列表
-			if (!bankAccountRecord.customerId) {
+
+			console.log("customerCode", customerCode);
+			// 只有在沒有指定客戶資訊時才需要載入客戶列表
+			if (!customerCode && !customerName) {
 				fetchCustomers();
 			}
 		}
-	}, [open, bankAccountRecord, form]);
+	}, [open, bankAccountRecord, form, customerCode, customerName]);
 
 	useEffect(() => {
 		if (bankAccountRecord.customerId && customers.length > 0) {
@@ -215,77 +220,68 @@ export function EditBankAccountDialog({
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="grid gap-4 py-4">
-							{/* 客戶欄位：只有沒有 bankAccountRecord.customerId 或沒有 customerCode/customerName 時才顯示 */}
-							{!(
-								bankAccountRecord.customerId &&
-								customerCode &&
-								customerName
-							) && (
-								<FormField
-									control={form.control}
-									name="customerId"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>客戶</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												value={field.value || "none"}
-												disabled={
-													!!bankAccountRecord.customerId
-												}
-											>
-												<FormControl>
+							{/* 客戶欄位：根據是否有客戶資訊來決定顯示方式 */}
+							<FormItem>
+								<FormLabel>客戶</FormLabel>
+								{customerCode && customerName ? (
+									<Input
+										value={`[${customerCode}] ${customerName}`}
+										disabled
+										className="bg-muted/50 cursor-not-allowed"
+									/>
+								) : (
+									<FormField
+										control={form.control}
+										name="customerId"
+										render={({ field }) => (
+											<FormControl>
+												<Select
+													onValueChange={
+														field.onChange
+													}
+													value={
+														field.value || "none"
+													}
+													disabled={
+														isCustomersLoading
+													}
+												>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇客戶（可選）" />
+														<SelectValue placeholder="選擇客戶" />
 													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{isCustomersLoading ? (
-														<SelectItem
-															value="loading"
-															disabled
-														>
-															載入中...
+													<SelectContent>
+														<SelectItem value="none">
+															無
 														</SelectItem>
-													) : (
-														<>
-															<SelectItem value="none">
-																未指定客戶
-															</SelectItem>
-															{customers.map(
-																(customer) => (
-																	<SelectItem
-																		key={
-																			customer.id
-																		}
-																		value={
-																			customer.id
-																		}
-																	>
-																		<span className="inline-flex items-center gap-2">
-																			<span className="bg-gray-100 text-gray-600 text-xs font-mono px-2 py-0.5 rounded">
-																				{
-																					customer.code
-																				}
-																			</span>
-																			<span>
-																				{
-																					customer.name
-																				}
-																			</span>
-																		</span>
-																	</SelectItem>
-																),
-															)}
-														</>
-													)}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							)}
+														{customers.map(
+															(customer) => (
+																<SelectItem
+																	key={
+																		customer.id
+																	}
+																	value={
+																		customer.id
+																	}
+																>
+																	[
+																	{
+																		customer.code
+																	}
+																	]{" "}
+																	{
+																		customer.name
+																	}
+																</SelectItem>
+															),
+														)}
+													</SelectContent>
+												</Select>
+											</FormControl>
+										)}
+									/>
+								)}
+								<FormMessage />
+							</FormItem>
 							<FormField
 								control={form.control}
 								name="bankName"
