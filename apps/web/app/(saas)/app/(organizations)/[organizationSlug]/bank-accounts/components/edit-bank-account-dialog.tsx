@@ -30,6 +30,7 @@ import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { CURRENCY_OPTIONS } from "../../constants";
 import type { BankAccountRecord } from "./columns";
 
 const editBankAccountSchema = z.object({
@@ -39,6 +40,7 @@ const editBankAccountSchema = z.object({
 	accountNumber: z.string().min(1, "帳號是必填的"),
 	currency: z.string().min(1, "幣別是必填的"),
 	status: z.enum(["active", "inactive"]),
+	// balance: z.number().min(0, "餘額不能為負數").optional(),
 });
 
 type EditBankAccountFormData = z.infer<typeof editBankAccountSchema>;
@@ -334,42 +336,43 @@ export function EditBankAccountDialog({
 								control={form.control}
 								name="currency"
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>幣別 *</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											value={field.value}
-										>
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											幣別 *
+										</FormLabel>
+										<div className="col-span-3">
 											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇幣別" />
-												</SelectTrigger>
+												<Select
+													value={field.value}
+													onValueChange={
+														field.onChange
+													}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇幣別" />
+													</SelectTrigger>
+													<SelectContent>
+														{CURRENCY_OPTIONS.map(
+															(option) => (
+																<SelectItem
+																	key={
+																		option.value
+																	}
+																	value={
+																		option.value
+																	}
+																>
+																	{
+																		option.label
+																	}
+																</SelectItem>
+															),
+														)}
+													</SelectContent>
+												</Select>
 											</FormControl>
-											<SelectContent>
-												<SelectItem value="SGD">
-													新加坡幣 (SGD)
-												</SelectItem>
-												<SelectItem value="HKD">
-													港幣 (HKD)
-												</SelectItem>
-												<SelectItem value="TWD">
-													新台幣 (TWD)
-												</SelectItem>
-												<SelectItem value="USD">
-													美元 (USD)
-												</SelectItem>
-												<SelectItem value="EUR">
-													歐元 (EUR)
-												</SelectItem>
-												<SelectItem value="JPY">
-													日圓 (JPY)
-												</SelectItem>
-												<SelectItem value="CNY">
-													人民幣 (CNY)
-												</SelectItem>
-											</SelectContent>
-										</Select>
-										<FormMessage />
+											<FormMessage />
+										</div>
 									</FormItem>
 								)}
 							/>

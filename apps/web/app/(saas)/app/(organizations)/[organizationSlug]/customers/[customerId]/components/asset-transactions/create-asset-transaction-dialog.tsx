@@ -32,6 +32,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { CURRENCY_OPTIONS } from "../../../../constants";
 
 const createAssetTransactionSchema = z.object({
 	date: z.string().min(1, "日期是必填的"),
@@ -168,24 +169,20 @@ export function CreateAssetTransactionDialog({
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
-													<SelectItem value="USD">
-														USD
-													</SelectItem>
-													<SelectItem value="TWD">
-														TWD
-													</SelectItem>
-													<SelectItem value="SGD">
-														SGD
-													</SelectItem>
-													<SelectItem value="HKD">
-														HKD
-													</SelectItem>
-													<SelectItem value="EUR">
-														EUR
-													</SelectItem>
-													<SelectItem value="JPY">
-														JPY
-													</SelectItem>
+													{CURRENCY_OPTIONS.map(
+														(option) => (
+															<SelectItem
+																key={
+																	option.value
+																}
+																value={
+																	option.value
+																}
+															>
+																{option.label}
+															</SelectItem>
+														),
+													)}
 												</SelectContent>
 											</Select>
 											<FormMessage />

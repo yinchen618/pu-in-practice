@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PercentageInput } from "@shared/components/PercentageInput";
 import { Button } from "@ui/components/button";
 import {
 	Dialog,
@@ -35,7 +36,13 @@ import type { CustomerRecord } from "./columns";
 const editCustomerSchema = z.object({
 	name: z.string().min(1, "客戶名稱是必填的"),
 	code: z.string().min(1, "客戶編號是必填的"),
-	email: z.string().email("請輸入有效的電子郵件"),
+	email: z
+		.string()
+		.optional()
+		.or(z.literal(""))
+		.refine((val) => !val || z.string().email().safeParse(val).success, {
+			message: "請輸入有效的電子郵件",
+		}),
 	phone: z.string().optional(),
 	rm1Id: z.string().optional(),
 	rm1ProfitShare: z
@@ -106,7 +113,7 @@ export function EditCustomerDialog({
 		form.reset({
 			name: customerRecord.name,
 			code: customerRecord.code,
-			email: customerRecord.email,
+			email: customerRecord.email ?? "",
 			phone: customerRecord.phone || "",
 			rm1Id: customerRecord.rm1Id || "none",
 			rm1ProfitShare: customerRecord.rm1ProfitShare || undefined,
@@ -364,22 +371,11 @@ export function EditCustomerDialog({
 											RM1 利潤分享比例 (%)
 										</FormLabel>
 										<FormControl>
-											<Input
-												type="number"
-												step="0.01"
-												min="0"
-												max="100"
+											<PercentageInput
 												placeholder="0.00"
 												{...field}
-												onChange={(e) =>
-													field.onChange(
-														e.target.value
-															? Number.parseFloat(
-																	e.target
-																		.value,
-																)
-															: undefined,
-													)
+												onChange={(value) =>
+													field.onChange(value)
 												}
 											/>
 										</FormControl>
@@ -440,22 +436,11 @@ export function EditCustomerDialog({
 											RM2 利潤分享比例 (%)
 										</FormLabel>
 										<FormControl>
-											<Input
-												type="number"
-												step="0.01"
-												min="0"
-												max="100"
+											<PercentageInput
 												placeholder="0.00"
 												{...field}
-												onChange={(e) =>
-													field.onChange(
-														e.target.value
-															? Number.parseFloat(
-																	e.target
-																		.value,
-																)
-															: undefined,
-													)
+												onChange={(value) =>
+													field.onChange(value)
 												}
 											/>
 										</FormControl>
@@ -516,22 +501,11 @@ export function EditCustomerDialog({
 											Finder1 利潤分享比例 (%)
 										</FormLabel>
 										<FormControl>
-											<Input
-												type="number"
-												step="0.01"
-												min="0"
-												max="100"
+											<PercentageInput
 												placeholder="0.00"
 												{...field}
-												onChange={(e) =>
-													field.onChange(
-														e.target.value
-															? Number.parseFloat(
-																	e.target
-																		.value,
-																)
-															: undefined,
-													)
+												onChange={(value) =>
+													field.onChange(value)
 												}
 											/>
 										</FormControl>
@@ -592,22 +566,11 @@ export function EditCustomerDialog({
 											Finder2 利潤分享比例 (%)
 										</FormLabel>
 										<FormControl>
-											<Input
-												type="number"
-												step="0.01"
-												min="0"
-												max="100"
+											<PercentageInput
 												placeholder="0.00"
 												{...field}
-												onChange={(e) =>
-													field.onChange(
-														e.target.value
-															? Number.parseFloat(
-																	e.target
-																		.value,
-																)
-															: undefined,
-													)
+												onChange={(value) =>
+													field.onChange(value)
 												}
 											/>
 										</FormControl>

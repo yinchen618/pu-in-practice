@@ -6,7 +6,7 @@ export interface CreateBankAccountData {
 	// accountName: string; // 已隱藏
 	accountNumber: string;
 	currency?: string;
-	balance?: number;
+	// balance?: number;
 	organizationId: string;
 	customerId?: string | null;
 }
@@ -16,7 +16,7 @@ export interface UpdateBankAccountData {
 	// accountName?: string; // 已隱藏
 	accountNumber?: string;
 	currency?: string;
-	balance?: number;
+	// balance?: number;
 	status?: "active" | "inactive";
 	customerId?: string | null;
 }
@@ -69,7 +69,7 @@ export async function createBankAccount(data: CreateBankAccountData) {
 		bankName: data.bankName,
 		accountName: null, // 添加缺少的欄位
 		accountNumber: data.accountNumber,
-		balance: data.balance || 0,
+		// balance: data.balance || 0,
 		currency: data.currency || "TWD",
 		status: "active",
 		organizationId: data.organizationId,

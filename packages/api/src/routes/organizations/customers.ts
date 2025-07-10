@@ -18,7 +18,13 @@ import { verifyOrganizationMembership } from "./lib/membership";
 const CreateCustomerSchema = z.object({
 	name: z.string().min(1, "客戶名稱是必填的"),
 	code: z.string().min(1, "客戶編號是必填的"),
-	email: z.string().email("請輸入有效的電子郵件"),
+	email: z
+		.string()
+		.optional()
+		.or(z.literal(""))
+		.refine((val) => !val || z.string().email().safeParse(val).success, {
+			message: "請輸入有效的電子郵件",
+		}),
 	phone: z.string().optional(),
 	rm1Id: z.string().optional(),
 	rm1ProfitShare: z.number().min(0).max(100).optional().nullable(),
@@ -33,7 +39,13 @@ const CreateCustomerSchema = z.object({
 const UpdateCustomerSchema = z.object({
 	name: z.string().min(1, "客戶名稱是必填的"),
 	code: z.string().min(1, "客戶編號是必填的"),
-	email: z.string().email("請輸入有效的電子郵件"),
+	email: z
+		.string()
+		.optional()
+		.or(z.literal(""))
+		.refine((val) => !val || z.string().email().safeParse(val).success, {
+			message: "請輸入有效的電子郵件",
+		}),
 	phone: z.string().optional(),
 	rm1Id: z.string().optional().nullable(),
 	rm1ProfitShare: z.number().min(0).max(100).optional().nullable(),
@@ -65,7 +77,7 @@ export const customersRouter = new Hono()
 											id: z.string(),
 											name: z.string(),
 											code: z.string(),
-											email: z.string(),
+											email: z.string().nullable(),
 											phone: z.string().nullable(),
 											organizationId: z.string(),
 											bankAccounts: z.array(
@@ -189,7 +201,7 @@ export const customersRouter = new Hono()
 										id: z.string(),
 										name: z.string(),
 										code: z.string(),
-										email: z.string(),
+										email: z.string().nullable(),
 										phone: z.string().nullable(),
 										organizationId: z.string(),
 										bankAccounts: z.array(
@@ -313,7 +325,7 @@ export const customersRouter = new Hono()
 										id: z.string(),
 										name: z.string(),
 										code: z.string(),
-										email: z.string(),
+										email: z.string().nullable(),
 										phone: z.string().nullable(),
 										organizationId: z.string(),
 										bankAccounts: z.array(
@@ -508,7 +520,7 @@ export const customersRouter = new Hono()
 										id: z.string(),
 										name: z.string(),
 										code: z.string(),
-										email: z.string(),
+										email: z.string().nullable(),
 										phone: z.string().nullable(),
 										organizationId: z.string(),
 										bankAccounts: z.array(

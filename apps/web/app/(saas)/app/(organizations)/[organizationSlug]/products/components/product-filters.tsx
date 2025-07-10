@@ -18,7 +18,7 @@ import {
 	DISTRIBUTION_TYPE_OPTIONS,
 	PRODUCT_CATEGORIES,
 	PRODUCT_STATUSES,
-} from "../constants";
+} from "../../constants";
 import type { ProductRecord } from "./columns";
 
 export interface ProductFilters {

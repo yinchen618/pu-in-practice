@@ -12,7 +12,7 @@ export interface CustomerRecord {
 	id: string;
 	name: string;
 	code: string;
-	email: string;
+	email: string | null;
 	phone: string | null;
 	organizationId: string;
 	bankAccounts?: {

@@ -9,7 +9,6 @@ import { assetTransactionsRouter } from "./asset-transactions";
 import { bankAccountsRouter } from "./bank-accounts";
 import { customersRouter } from "./customers";
 import { expensesRouter } from "./expenses";
-// import { invitationsRouter } from "./invitations";
 import { productsRouter } from "./products";
 import { profitSharingRouter } from "./profit-sharing";
 import { relationshipManagersRouter } from "./relationship-managers";
@@ -20,7 +19,6 @@ export const organizationsRouter = new Hono()
 	.route("/", bankAccountsRouter)
 	.route("/", customersRouter)
 	.route("/", expensesRouter)
-	// .route("/", invitationsRouter)
 	.route("/", productsRouter)
 	.route("/", profitSharingRouter)
 	.route("/", relationshipManagersRouter)

@@ -62,7 +62,7 @@ export function CustomerFilters({
 				if (
 					!item.name.toLowerCase().includes(searchTerm) &&
 					!item.code.toLowerCase().includes(searchTerm) &&
-					!item.email.toLowerCase().includes(searchTerm) &&
+					!item.email?.toLowerCase().includes(searchTerm) &&
 					!item.phone?.toLowerCase().includes(searchTerm)
 				) {
 					return false;

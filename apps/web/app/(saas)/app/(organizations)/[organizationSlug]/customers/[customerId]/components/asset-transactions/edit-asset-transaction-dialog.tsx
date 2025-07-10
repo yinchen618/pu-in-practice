@@ -31,6 +31,7 @@ import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { CURRENCY_OPTIONS } from "../../../../constants";
 import type { AssetTransactionRecord } from "./columns";
 
 const editAssetTransactionSchema = z.object({
@@ -211,24 +212,20 @@ export function EditAssetTransactionDialog({
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
-													<SelectItem value="USD">
-														USD
-													</SelectItem>
-													<SelectItem value="TWD">
-														TWD
-													</SelectItem>
-													<SelectItem value="SGD">
-														SGD
-													</SelectItem>
-													<SelectItem value="HKD">
-														HKD
-													</SelectItem>
-													<SelectItem value="EUR">
-														EUR
-													</SelectItem>
-													<SelectItem value="JPY">
-														JPY
-													</SelectItem>
+													{CURRENCY_OPTIONS.map(
+														(option) => (
+															<SelectItem
+																key={
+																	option.value
+																}
+																value={
+																	option.value
+																}
+															>
+																{option.label}
+															</SelectItem>
+														),
+													)}
 												</SelectContent>
 											</Select>
 											<FormMessage />

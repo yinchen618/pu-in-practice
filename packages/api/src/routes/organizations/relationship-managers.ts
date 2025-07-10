@@ -1,5 +1,6 @@
 import {
 	createRelationshipManager,
+	db,
 	deleteRelationshipManager,
 	getRelationshipManagersByOrganizationId,
 	updateRelationshipManager,
@@ -45,26 +46,64 @@ export const relationshipManagersRouter = new Hono()
 					description: "Relationship managers",
 					content: {
 						"application/json": {
-							schema: resolver(
-								z.object({
-									relationshipManagers: z.array(
-										z.object({
-											id: z.string(),
-											name: z.string(),
-											email: z.string(),
-											phone: z.string().nullable(),
-											status: z.string(),
-											category: z.string(),
-											customerCount: z.number(),
-											joinDate: z.date(),
-											resignDate: z.date().nullable(),
-											organizationId: z.string(),
-											createdAt: z.date(),
-											updatedAt: z.date(),
-										}),
-									),
-								}),
-							),
+							schema: {
+								type: "object",
+								properties: {
+									relationshipManagers: {
+										type: "array",
+										items: {
+											type: "object",
+											properties: {
+												id: { type: "string" },
+												name: { type: "string" },
+												email: { type: "string" },
+												phone: {
+													type: "string",
+													nullable: true,
+												},
+												status: { type: "string" },
+												category: { type: "string" },
+												customerCount: {
+													type: "number",
+												},
+												joinDate: {
+													type: "string",
+													format: "date-time",
+												},
+												resignDate: {
+													type: "string",
+													format: "date-time",
+													nullable: true,
+												},
+												organizationId: {
+													type: "string",
+												},
+												createdAt: {
+													type: "string",
+													format: "date-time",
+												},
+												updatedAt: {
+													type: "string",
+													format: "date-time",
+												},
+											},
+											required: [
+												"id",
+												"name",
+												"email",
+												"status",
+												"category",
+												"customerCount",
+												"joinDate",
+												"organizationId",
+												"createdAt",
+												"updatedAt",
+											],
+										},
+									},
+								},
+								required: ["relationshipManagers"],
+							},
 						},
 					},
 				},
@@ -81,6 +120,75 @@ export const relationshipManagersRouter = new Hono()
 				await getRelationshipManagersByOrganizationId(organizationId);
 
 			return c.json({ relationshipManagers });
+		},
+	)
+	.get(
+		"/relationship-managers/ids",
+		describeRoute({
+			tags: ["RelationshipManagers"],
+			summary: "Get relationship managers by IDs",
+			description: "Get relationship managers by their IDs",
+			responses: {
+				200: {
+					description: "Relationship managers",
+					content: {
+						"application/json": {
+							schema: {
+								type: "object",
+								properties: {
+									relationshipManagers: {
+										type: "array",
+										items: {
+											type: "object",
+											properties: {
+												id: { type: "string" },
+												name: { type: "string" },
+											},
+											required: ["id", "name"],
+										},
+									},
+								},
+								required: ["relationshipManagers"],
+							},
+						},
+					},
+				},
+			},
+		}),
+		validator("query", z.object({ ids: z.string() })),
+		async (c) => {
+			try {
+				const { ids } = c.req.valid("query");
+
+				// 將逗號分隔的 ID 字串轉換為陣列
+				const rmIds = ids.split(",");
+				console.log("rmIds", rmIds);
+
+				// 從資料庫獲取 RM 資訊
+				const rms = await db.user.findMany({
+					where: {
+						id: {
+							in: rmIds,
+						},
+					},
+					select: {
+						id: true,
+						name: true,
+					},
+				});
+
+				return c.json({
+					relationshipManagers: rms,
+				});
+			} catch (error) {
+				console.error("獲取 RM 資訊失敗:", error);
+				return c.json(
+					{
+						message: "獲取 RM 資訊失敗",
+					},
+					400,
+				);
+			}
 		},
 	)
 	.post(

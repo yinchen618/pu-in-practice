@@ -33,6 +33,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useExchangeRate } from "../../../../../../../hooks/use-exchange-rate";
+import { CURRENCY_OPTIONS } from "../../constants";
 import { ReceiptUpload } from "./receipt-upload";
 
 const createExpenseSchema = z.object({
@@ -252,27 +253,22 @@ export function CreateExpenseDialog({
 														<SelectValue placeholder="選擇幣別" />
 													</SelectTrigger>
 													<SelectContent>
-														<SelectItem value="SGD">
-															新加坡幣 (SGD)
-														</SelectItem>
-														<SelectItem value="HKD">
-															港幣 (HKD)
-														</SelectItem>
-														<SelectItem value="TWD">
-															新台幣 (TWD)
-														</SelectItem>
-														<SelectItem value="USD">
-															美元 (USD)
-														</SelectItem>
-														<SelectItem value="EUR">
-															歐元 (EUR)
-														</SelectItem>
-														<SelectItem value="JPY">
-															日圓 (JPY)
-														</SelectItem>
-														<SelectItem value="CNY">
-															人民幣 (CNY)
-														</SelectItem>
+														{CURRENCY_OPTIONS.map(
+															(option) => (
+																<SelectItem
+																	key={
+																		option.value
+																	}
+																	value={
+																		option.value
+																	}
+																>
+																	{
+																		option.label
+																	}
+																</SelectItem>
+															),
+														)}
 													</SelectContent>
 												</Select>
 											</FormControl>

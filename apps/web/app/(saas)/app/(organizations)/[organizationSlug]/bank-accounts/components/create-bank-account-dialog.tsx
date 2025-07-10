@@ -32,6 +32,7 @@ import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { CURRENCY_OPTIONS } from "../../constants";
 
 const createBankAccountSchema = z.object({
 	customerId: z.string().optional(),
@@ -39,7 +40,7 @@ const createBankAccountSchema = z.object({
 	// accountName: z.string().min(1, "帳戶名稱是必填的"), // 已隱藏
 	accountNumber: z.string().min(1, "帳號是必填的"),
 	currency: z.string().min(1, "幣別是必填的"),
-	balance: z.number().min(0, "餘額不能為負數").optional(),
+	// balance: z.number().min(0, "餘額不能為負數").optional(),
 });
 
 type CreateBankAccountFormData = z.infer<typeof createBankAccountSchema>;
@@ -85,7 +86,7 @@ export function CreateBankAccountDialog({
 			// accountName: "", // 已隱藏
 			accountNumber: "",
 			currency: "TWD",
-			balance: 0,
+			// balance: 0,
 		},
 	});
 
@@ -265,35 +266,48 @@ export function CreateBankAccountDialog({
 								control={form.control}
 								name="currency"
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>幣別 *</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											defaultValue={field.value}
-										>
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											幣別 *
+										</FormLabel>
+										<div className="col-span-3">
 											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇幣別" />
-												</SelectTrigger>
+												<Select
+													value={field.value}
+													onValueChange={
+														field.onChange
+													}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇幣別" />
+													</SelectTrigger>
+													<SelectContent>
+														{CURRENCY_OPTIONS.map(
+															(option) => (
+																<SelectItem
+																	key={
+																		option.value
+																	}
+																	value={
+																		option.value
+																	}
+																>
+																	{
+																		option.label
+																	}
+																</SelectItem>
+															),
+														)}
+													</SelectContent>
+												</Select>
 											</FormControl>
-											<SelectContent>
-												<SelectItem value="TWD">
-													TWD
-												</SelectItem>
-												<SelectItem value="USD">
-													USD
-												</SelectItem>
-												<SelectItem value="SGD">
-													SGD
-												</SelectItem>
-											</SelectContent>
-										</Select>
-										<FormMessage />
+											<FormMessage />
+										</div>
 									</FormItem>
 								)}
 							/>
 
-							<FormField
+							{/* <FormField
 								control={form.control}
 								name="balance"
 								render={({ field }) => (
@@ -320,7 +334,7 @@ export function CreateBankAccountDialog({
 										<FormMessage />
 									</FormItem>
 								)}
-							/>
+							/> */}
 						</div>
 						<DialogFooter>
 							<Button

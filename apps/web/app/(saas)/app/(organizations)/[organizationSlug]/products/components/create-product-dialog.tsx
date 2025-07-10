@@ -32,7 +32,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CURRENCY_OPTIONS, DISTRIBUTION_TYPE_OPTIONS } from "../constants";
+import { CURRENCY_OPTIONS, DISTRIBUTION_TYPE_OPTIONS } from "../../constants";
 
 const ProductCategory = z.enum([
 	"AQ",

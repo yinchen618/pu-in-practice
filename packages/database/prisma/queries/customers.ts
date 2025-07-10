@@ -4,7 +4,7 @@ import { db } from "../client";
 export interface CreateCustomerData {
 	name: string;
 	code: string;
-	email: string;
+	email?: string;
 	phone?: string;
 	organizationId: string;
 	rm1Id?: string;
@@ -80,10 +80,12 @@ export async function getCustomersByOrganizationId(organizationId: string) {
 }
 
 export async function createCustomer(data: CreateCustomerData) {
+	const { email, ...restData } = data;
 	return await db.customer.create({
 		data: {
 			id: nanoid(),
-			...data,
+			...restData,
+			email: email ?? null,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		},

@@ -42,6 +42,17 @@ export function createColumns(
 	onEdit: (record: ProfitSharingRecord) => void,
 ): ColumnDef<ProfitSharingRecord>[] {
 	return [
+		// 第一行：客戶和產品資訊
+		{
+			accessorKey: "profitDate",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="分潤日期" />
+			),
+			cell: ({ row }) => {
+				const date = row.getValue("profitDate") as Date;
+				return new Date(date).toLocaleDateString("zh-TW");
+			},
+		},
 		{
 			accessorKey: "customerName",
 			header: ({ column }) => (
@@ -72,6 +83,7 @@ export function createColumns(
 				<DataTableColumnHeader column={column} title="產品類別" />
 			),
 		},
+		// 第二行：基本資訊
 		{
 			accessorKey: "currency",
 			header: ({ column }) => (
@@ -117,6 +129,19 @@ export function createColumns(
 				return `${currency} ${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 			},
 		},
+		// 第三行：分潤比例
+		{
+			accessorKey: "companyProfitSharePercent",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="Company分潤%" />
+			),
+			cell: ({ row }) => {
+				const value = row.getValue(
+					"companyProfitSharePercent",
+				) as number;
+				return `${value.toFixed(2)}%`;
+			},
+		},
 		{
 			accessorKey: "rmProfitSharePercent",
 			header: ({ column }) => (
@@ -140,24 +165,34 @@ export function createColumns(
 			},
 		},
 		{
-			accessorKey: "companyProfitSharePercent",
+			accessorKey: "fxRate",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="Company分潤%" />
+				<DataTableColumnHeader column={column} title="FX Rate" />
 			),
 			cell: ({ row }) => {
-				const value = row.getValue(
-					"companyProfitSharePercent",
-				) as number;
-				return `${value.toFixed(2)}%`;
+				const value = row.getValue("fxRate") as number;
+				return value.toFixed(5);
+			},
+		},
+		// 第四行：原幣分潤金額
+		{
+			accessorKey: "companyRevenueOriginal",
+			header: ({ column }) => (
+				<DataTableColumnHeader
+					column={column}
+					title="Company分潤(原幣)"
+				/>
+			),
+			cell: ({ row }) => {
+				const value = row.getValue("companyRevenueOriginal") as number;
+				const currency = row.getValue("currency") as string;
+				return `${currency} ${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 			},
 		},
 		{
 			accessorKey: "rmRevenueOriginal",
 			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					title="RM Revenue (原幣)"
-				/>
+				<DataTableColumnHeader column={column} title="RM分潤(原幣)" />
 			),
 			cell: ({ row }) => {
 				const value = row.getValue("rmRevenueOriginal") as number;
@@ -170,7 +205,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title="Finders Revenue (原幣)"
+					title="Finder分潤(原幣)"
 				/>
 			),
 			cell: ({ row }) => {
@@ -179,37 +214,11 @@ export function createColumns(
 				return `${currency} ${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 			},
 		},
-		{
-			accessorKey: "companyRevenueOriginal",
-			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					title="Company Revenue (原幣)"
-				/>
-			),
-			cell: ({ row }) => {
-				const value = row.getValue("companyRevenueOriginal") as number;
-				const currency = row.getValue("currency") as string;
-				return `${currency} ${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-			},
-		},
-		{
-			accessorKey: "fxRate",
-			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="FX Rate" />
-			),
-			cell: ({ row }) => {
-				const value = row.getValue("fxRate") as number;
-				return value.toFixed(5);
-			},
-		},
+		// 第五行：美金分潤金額
 		{
 			accessorKey: "rmRevenueUSD",
 			header: ({ column }) => (
-				<DataTableColumnHeader
-					column={column}
-					title="RM Revenue (USD)"
-				/>
+				<DataTableColumnHeader column={column} title="RM分潤(美金)" />
 			),
 			cell: ({ row }) => {
 				const value = row.getValue("rmRevenueUSD") as number;
@@ -221,22 +230,12 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title="Finders Revenue (USD)"
+					title="Finder分潤(美金)"
 				/>
 			),
 			cell: ({ row }) => {
 				const value = row.getValue("findersRevenueUSD") as number;
 				return `USD ${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-			},
-		},
-		{
-			accessorKey: "profitDate",
-			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="分潤日期" />
-			),
-			cell: ({ row }) => {
-				const date = row.getValue("profitDate") as Date;
-				return new Date(date).toLocaleDateString("zh-TW");
 			},
 		},
 		{

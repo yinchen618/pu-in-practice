@@ -10,7 +10,7 @@ import {
 	DISTRIBUTION_TYPE_OPTIONS,
 	type ProductCategory,
 	type ProductStatus,
-} from "../constants";
+} from "../../constants";
 
 export interface ProductRecord {
 	id: string;
