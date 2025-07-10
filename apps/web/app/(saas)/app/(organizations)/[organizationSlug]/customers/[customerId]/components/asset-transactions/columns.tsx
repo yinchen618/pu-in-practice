@@ -80,7 +80,7 @@ export function createColumns(
 							}
 						>
 							{type === "IN" ? "+" : "-"}
-							{amount.toLocaleString()} {currency}
+							{Number(amount).toLocaleString()} {currency}
 						</span>
 					</div>
 				);

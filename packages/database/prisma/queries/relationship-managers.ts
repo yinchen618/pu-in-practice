@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import { db } from "../client";
 
 export interface CreateRelationshipManagerData {
@@ -7,6 +6,9 @@ export interface CreateRelationshipManagerData {
 	phone?: string;
 	category?: "FINDER" | "RM" | "BOTH";
 	organizationId: string;
+	joinDate?: Date;
+	resignDate?: Date;
+	status?: "active" | "inactive";
 }
 
 export interface UpdateRelationshipManagerData {
@@ -15,6 +17,8 @@ export interface UpdateRelationshipManagerData {
 	phone?: string;
 	status?: "active" | "inactive";
 	category?: "FINDER" | "RM" | "BOTH";
+	joinDate?: Date;
+	resignDate?: Date | null;
 }
 
 export async function getRelationshipManagersByOrganizationId(
@@ -35,10 +39,9 @@ export async function createRelationshipManager(
 ) {
 	return await db.relationshipManager.create({
 		data: {
-			id: nanoid(),
 			...data,
-			createdAt: new Date(),
-			updatedAt: new Date(),
+			joinDate: data.joinDate || new Date(),
+			status: data.status || "active",
 		},
 	});
 }
@@ -56,12 +59,11 @@ export async function updateRelationshipManager(
 	data: UpdateRelationshipManagerData,
 ) {
 	return await db.relationshipManager.update({
-		where: {
-			id,
-		},
+		where: { id },
 		data: {
 			...data,
-			updatedAt: new Date(),
+			// 如果有離職日期，自動設定狀態為離職
+			status: data.resignDate ? "inactive" : data.status,
 		},
 	});
 }

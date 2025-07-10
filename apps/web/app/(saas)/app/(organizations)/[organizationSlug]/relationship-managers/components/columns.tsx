@@ -15,6 +15,7 @@ export interface RMRecord {
 	status: "active" | "inactive";
 	category: "FINDER" | "RM" | "BOTH";
 	joinDate: Date;
+	resignDate: Date | null;
 	organizationId: string;
 	createdAt: Date;
 	updatedAt: Date;
@@ -116,6 +117,16 @@ export const createColumns = (
 		cell: ({ row }) => {
 			const date = row.getValue("joinDate") as Date;
 			return new Date(date).toLocaleDateString("zh-TW");
+		},
+	},
+	{
+		accessorKey: "resignDate",
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="離職日期" />
+		),
+		cell: ({ row }) => {
+			const date = row.getValue("resignDate") as Date | null;
+			return date ? new Date(date).toLocaleDateString("zh-TW") : "-";
 		},
 	},
 	{

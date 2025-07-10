@@ -139,6 +139,8 @@ export const customersRouter = new Hono()
 				bankAccounts:
 					customer.bankAccounts?.map((account: any) => ({
 						...account,
+						// 隱藏帳戶名稱
+						accountName: undefined,
 						balance: Number(account.balance),
 					})) || [],
 				rm1Name: customer.rm1?.name || null,

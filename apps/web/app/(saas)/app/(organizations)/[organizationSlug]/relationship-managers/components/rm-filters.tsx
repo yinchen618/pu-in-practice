@@ -11,7 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@ui/components/select";
-import { Activity, Filter, Users, X } from "lucide-react";
+import { Activity, Calendar, Filter, Users, X } from "lucide-react";
 import { useState } from "react";
 import type { RMRecord } from "./columns";
 
@@ -19,6 +19,10 @@ export interface RMFilters {
 	search?: string;
 	category?: "FINDER" | "RM" | "BOTH";
 	status?: "active" | "inactive";
+	joinDateFrom?: string;
+	joinDateTo?: string;
+	resignDateFrom?: string;
+	resignDateTo?: string;
 }
 
 interface RMFiltersProps {
@@ -63,6 +67,38 @@ export function RMFilters({
 		if (newFilters.status) {
 			filteredData = filteredData.filter(
 				(item) => item.status === newFilters.status,
+			);
+		}
+
+		// 入職日期範圍篩選
+		if (newFilters.joinDateFrom) {
+			const fromDate = new Date(newFilters.joinDateFrom);
+			filteredData = filteredData.filter(
+				(item) => new Date(item.joinDate) >= fromDate,
+			);
+		}
+		if (newFilters.joinDateTo) {
+			const toDate = new Date(newFilters.joinDateTo);
+			toDate.setHours(23, 59, 59, 999); // 包含整天
+			filteredData = filteredData.filter(
+				(item) => new Date(item.joinDate) <= toDate,
+			);
+		}
+
+		// 離職日期範圍篩選
+		if (newFilters.resignDateFrom) {
+			const fromDate = new Date(newFilters.resignDateFrom);
+			filteredData = filteredData.filter(
+				(item) =>
+					item.resignDate && new Date(item.resignDate) >= fromDate,
+			);
+		}
+		if (newFilters.resignDateTo) {
+			const toDate = new Date(newFilters.resignDateTo);
+			toDate.setHours(23, 59, 59, 999); // 包含整天
+			filteredData = filteredData.filter(
+				(item) =>
+					item.resignDate && new Date(item.resignDate) <= toDate,
 			);
 		}
 
@@ -214,6 +250,61 @@ export function RMFilters({
 							</SelectContent>
 						</Select>
 					</div>
+
+					{/* 入職日期範圍篩選 */}
+					<div className="space-y-2">
+						<Label className="text-sm font-medium flex items-center gap-1">
+							<Calendar className="size-4" />
+							入職日期區間
+						</Label>
+						<div className="space-y-2">
+							<Input
+								type="date"
+								placeholder="開始日期"
+								value={filters.joinDateFrom || ""}
+								onChange={(e) =>
+									updateFilter("joinDateFrom", e.target.value)
+								}
+							/>
+							<Input
+								type="date"
+								placeholder="結束日期"
+								value={filters.joinDateTo || ""}
+								onChange={(e) =>
+									updateFilter("joinDateTo", e.target.value)
+								}
+							/>
+						</div>
+					</div>
+
+					{/* 離職日期範圍篩選 */}
+					<div className="space-y-2">
+						<Label className="text-sm font-medium flex items-center gap-1">
+							<Calendar className="size-4" />
+							離職日期區間
+						</Label>
+						<div className="space-y-2">
+							<Input
+								type="date"
+								placeholder="開始日期"
+								value={filters.resignDateFrom || ""}
+								onChange={(e) =>
+									updateFilter(
+										"resignDateFrom",
+										e.target.value,
+									)
+								}
+							/>
+							<Input
+								type="date"
+								placeholder="結束日期"
+								value={filters.resignDateTo || ""}
+								onChange={(e) =>
+									updateFilter("resignDateTo", e.target.value)
+								}
+							/>
+						</div>
+					</div>
 				</div>
 			)}
 
@@ -241,6 +332,62 @@ export function RMFilters({
 								type="button"
 								onClick={() =>
 									updateFilter("status", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.joinDateFrom && (
+						<Badge status="info" className="gap-1">
+							入職開始: {filters.joinDateFrom}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("joinDateFrom", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.joinDateTo && (
+						<Badge status="info" className="gap-1">
+							入職結束: {filters.joinDateTo}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("joinDateTo", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.resignDateFrom && (
+						<Badge status="info" className="gap-1">
+							離職開始: {filters.resignDateFrom}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("resignDateFrom", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.resignDateTo && (
+						<Badge status="info" className="gap-1">
+							離職結束: {filters.resignDateTo}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("resignDateTo", undefined)
 								}
 								className="ml-1 hover:bg-destructive/20 rounded-full"
 							>

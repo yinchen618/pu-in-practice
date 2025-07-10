@@ -42,7 +42,7 @@ export default function BankAccountsPage() {
 
 			if (response.ok) {
 				const result = await response.json();
-				const bankAccounts = result.bankAccounts || [];
+				const bankAccounts = result.data || [];
 				setAllData(bankAccounts);
 				setFilteredData(bankAccounts);
 			} else {

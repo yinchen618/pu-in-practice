@@ -4,6 +4,8 @@ import { useActiveOrganization } from "@saas/organizations/hooks/use-active-orga
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
 import { useEffect, useState } from "react";
+import type { BankAccountRecord } from "../bank-accounts/components/columns";
+import { EditBankAccountDialog } from "../bank-accounts/components/edit-bank-account-dialog";
 import { createColumns } from "./components/columns";
 import type { CustomerRecord } from "./components/columns";
 import { CreateCustomerDialog } from "./components/create-customer-dialog";
@@ -33,6 +35,12 @@ export default function CustomersPage() {
 	const [currentFilters, setCurrentFilters] = useState<CustomerFiltersType>(
 		{},
 	);
+
+	// 銀行帳戶相關狀態
+	const [editingBankAccount, setEditingBankAccount] =
+		useState<BankAccountRecord | null>(null);
+	const [editBankAccountDialogOpen, setEditBankAccountDialogOpen] =
+		useState(false);
 
 	const fetchData = async () => {
 		if (!activeOrganization?.id) return;
@@ -90,8 +98,19 @@ export default function CustomersPage() {
 		setCurrentFilters(filters);
 	};
 
+	// 銀行帳戶編輯處理
+	const handleEditBankAccount = (bankAccountRecord: BankAccountRecord) => {
+		setEditingBankAccount(bankAccountRecord);
+		setEditBankAccountDialogOpen(true);
+	};
+
+	const handleEditBankAccountSuccess = () => {
+		fetchData();
+		setEditingBankAccount(null);
+	};
+
 	// 新增 columns，傳入編輯函數
-	const columns = createColumns(handleEdit);
+	const columns = createColumns(handleEdit, handleEditBankAccount);
 
 	useEffect(() => {
 		if (activeOrganization?.id && loaded) {
@@ -146,6 +165,15 @@ export default function CustomersPage() {
 					open={editDialogOpen}
 					onOpenChange={setEditDialogOpen}
 					onSuccess={handleEditSuccess}
+				/>
+			)}
+
+			{editingBankAccount && (
+				<EditBankAccountDialog
+					bankAccountRecord={editingBankAccount}
+					open={editBankAccountDialogOpen}
+					onOpenChange={setEditBankAccountDialogOpen}
+					onSuccess={handleEditBankAccountSuccess}
 				/>
 			)}
 		</div>

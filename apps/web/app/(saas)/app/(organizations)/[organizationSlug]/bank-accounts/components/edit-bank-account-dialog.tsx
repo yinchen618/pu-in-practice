@@ -35,7 +35,7 @@ import type { BankAccountRecord } from "./columns";
 const editBankAccountSchema = z.object({
 	customerId: z.string().optional(),
 	bankName: z.string().min(1, "銀行名稱是必填的"),
-	accountName: z.string().min(1, "帳戶名稱是必填的"),
+	// accountName: z.string().min(1, "帳戶名稱是必填的"), // 已隱藏
 	accountNumber: z.string().min(1, "帳號是必填的"),
 	currency: z.string().min(1, "幣別是必填的"),
 	status: z.enum(["active", "inactive"]),
@@ -47,6 +47,7 @@ interface Customer {
 	id: string;
 	name: string;
 	email: string;
+	code: string;
 }
 
 interface EditBankAccountDialogProps {
@@ -54,6 +55,9 @@ interface EditBankAccountDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSuccess?: () => void;
+	dialogTitle?: string;
+	customerCode?: string;
+	customerName?: string;
 }
 
 export function EditBankAccountDialog({
@@ -61,17 +65,21 @@ export function EditBankAccountDialog({
 	open,
 	onOpenChange,
 	onSuccess,
+	dialogTitle = "編輯銀行帳戶",
+	customerCode,
+	customerName,
 }: EditBankAccountDialogProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [customers, setCustomers] = useState<Customer[]>([]);
+	const [isCustomersLoading, setIsCustomersLoading] = useState(false);
 
 	const form = useForm<EditBankAccountFormData>({
 		resolver: zodResolver(editBankAccountSchema),
 		defaultValues: {
 			customerId: bankAccountRecord.customerId || "none",
 			bankName: bankAccountRecord.bankName,
-			accountName: bankAccountRecord.accountName,
+			// accountName: bankAccountRecord.accountName, // 已隱藏
 			accountNumber: bankAccountRecord.accountNumber,
 			currency: bankAccountRecord.currency,
 			status: bankAccountRecord.status,
@@ -80,6 +88,7 @@ export function EditBankAccountDialog({
 
 	// 獲取客戶列表
 	const fetchCustomers = async () => {
+		setIsCustomersLoading(true);
 		try {
 			const response = await fetch(
 				`/api/organizations/customers?organizationId=${bankAccountRecord.organizationId}`,
@@ -98,6 +107,8 @@ export function EditBankAccountDialog({
 			}
 		} catch (error) {
 			console.error("獲取客戶列表失敗:", error);
+		} finally {
+			setIsCustomersLoading(false);
 		}
 	};
 
@@ -106,14 +117,23 @@ export function EditBankAccountDialog({
 			form.reset({
 				customerId: bankAccountRecord.customerId || "none",
 				bankName: bankAccountRecord.bankName,
-				accountName: bankAccountRecord.accountName,
+				// accountName: bankAccountRecord.accountName, // 已隱藏
 				accountNumber: bankAccountRecord.accountNumber,
 				currency: bankAccountRecord.currency,
 				status: bankAccountRecord.status,
 			});
-			fetchCustomers();
+			// 只有在沒有指定客戶時才需要載入客戶列表
+			if (!bankAccountRecord.customerId) {
+				fetchCustomers();
+			}
 		}
 	}, [open, bankAccountRecord, form]);
+
+	useEffect(() => {
+		if (bankAccountRecord.customerId && customers.length > 0) {
+			form.setValue("customerId", bankAccountRecord.customerId);
+		}
+	}, [bankAccountRecord.customerId, customers, form]);
 
 	const onSubmit = async (data: EditBankAccountFormData) => {
 		setIsLoading(true);
@@ -186,45 +206,86 @@ export function EditBankAccountDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>編輯銀行帳戶</DialogTitle>
+					<DialogTitle>
+						{dialogTitle}
+						{customerCode ? `（客戶編號：${customerCode}）` : ""}
+					</DialogTitle>
 					<DialogDescription>修改銀行帳戶的資訊。</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="grid gap-4 py-4">
-							<FormField
-								control={form.control}
-								name="customerId"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>客戶</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											value={field.value || "none"}
-										>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇客戶（可選）" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="none">
-													未指定客戶
-												</SelectItem>
-												{customers.map((customer) => (
-													<SelectItem
-														key={customer.id}
-														value={customer.id}
-													>
-														{customer.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+							{/* 客戶欄位：只有沒有 bankAccountRecord.customerId 或沒有 customerCode/customerName 時才顯示 */}
+							{!(
+								bankAccountRecord.customerId &&
+								customerCode &&
+								customerName
+							) && (
+								<FormField
+									control={form.control}
+									name="customerId"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>客戶</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												value={field.value || "none"}
+												disabled={
+													!!bankAccountRecord.customerId
+												}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇客戶（可選）" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{isCustomersLoading ? (
+														<SelectItem
+															value="loading"
+															disabled
+														>
+															載入中...
+														</SelectItem>
+													) : (
+														<>
+															<SelectItem value="none">
+																未指定客戶
+															</SelectItem>
+															{customers.map(
+																(customer) => (
+																	<SelectItem
+																		key={
+																			customer.id
+																		}
+																		value={
+																			customer.id
+																		}
+																	>
+																		<span className="inline-flex items-center gap-2">
+																			<span className="bg-gray-100 text-gray-600 text-xs font-mono px-2 py-0.5 rounded">
+																				{
+																					customer.code
+																				}
+																			</span>
+																			<span>
+																				{
+																					customer.name
+																				}
+																			</span>
+																		</span>
+																	</SelectItem>
+																),
+															)}
+														</>
+													)}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 							<FormField
 								control={form.control}
 								name="bankName"
@@ -241,7 +302,7 @@ export function EditBankAccountDialog({
 									</FormItem>
 								)}
 							/>
-							<FormField
+							{/* <FormField
 								control={form.control}
 								name="accountName"
 								render={({ field }) => (
@@ -256,7 +317,7 @@ export function EditBankAccountDialog({
 										<FormMessage />
 									</FormItem>
 								)}
-							/>
+							/> */}
 							<FormField
 								control={form.control}
 								name="accountNumber"

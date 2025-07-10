@@ -134,17 +134,6 @@ export default function RelationshipManagersPage() {
 					</button>
 				</div>
 			)}
-
-			{/* 除錯資訊 */}
-			{process.env.NODE_ENV === "development" && (
-				<div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-					<p className="text-sm text-gray-600">
-						除錯資訊: 載入中={isLoading.toString()}, 資料數量=
-						{allData.length}, 組織ID={activeOrganization?.id}
-					</p>
-				</div>
-			)}
-
 			{/* 篩選器組件 */}
 			<RMFilters
 				data={allData}

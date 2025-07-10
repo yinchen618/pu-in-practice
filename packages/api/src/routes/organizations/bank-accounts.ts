@@ -1,6 +1,7 @@
 import {
 	createBankAccount,
 	deleteBankAccount,
+	getBankAccountsByCustomerId,
 	getBankAccountsByOrganizationId,
 	updateBankAccount,
 } from "@repo/database";
@@ -14,7 +15,7 @@ import { verifyOrganizationMembership } from "./lib/membership";
 
 const CreateBankAccountSchema = z.object({
 	bankName: z.string().min(1, "銀行名稱是必填的"),
-	accountName: z.string().min(1, "帳戶名稱是必填的"),
+	accountName: z.string().optional(), // 已隱藏
 	accountNumber: z.string().min(1, "帳號是必填的"),
 	currency: z.string().optional(),
 	balance: z.number().optional(),
@@ -23,7 +24,7 @@ const CreateBankAccountSchema = z.object({
 
 const UpdateBankAccountSchema = z.object({
 	bankName: z.string().min(1, "銀行名稱是必填的").optional(),
-	accountName: z.string().min(1, "帳戶名稱是必填的").optional(),
+	accountName: z.string().optional(), // 已隱藏
 	accountNumber: z.string().min(1, "帳號是必填的").optional(),
 	currency: z.string().optional(),
 	balance: z.number().optional(),
@@ -38,7 +39,8 @@ export const bankAccountsRouter = new Hono()
 		describeRoute({
 			tags: ["BankAccounts"],
 			summary: "Get bank accounts",
-			description: "Get all bank accounts for an organization",
+			description:
+				"Get all bank accounts for an organization or customer",
 			responses: {
 				200: {
 					description: "List of bank accounts",
@@ -46,11 +48,11 @@ export const bankAccountsRouter = new Hono()
 						"application/json": {
 							schema: resolver(
 								z.object({
-									bankAccounts: z.array(
+									data: z.array(
 										z.object({
 											id: z.string(),
 											bankName: z.string(),
-											accountName: z.string(),
+											accountName: z.string().nullable(),
 											accountNumber: z.string(),
 											currency: z.string(),
 											balance: z.number(),
@@ -62,6 +64,7 @@ export const bankAccountsRouter = new Hono()
 													id: z.string(),
 													name: z.string(),
 													email: z.string(),
+													code: z.string(),
 												})
 												.nullable(),
 											createdAt: z.date(),
@@ -75,16 +78,28 @@ export const bankAccountsRouter = new Hono()
 				},
 			},
 		}),
-		validator("query", z.object({ organizationId: z.string() })),
+		validator(
+			"query",
+			z.object({
+				organizationId: z.string(),
+				customerId: z.string().optional(),
+			}),
+		),
 		async (c) => {
-			const { organizationId } = c.req.valid("query");
+			const { organizationId, customerId } = c.req.valid("query");
 			const user = c.get("user");
 
 			await verifyOrganizationMembership(organizationId, user.id);
 
-			const bankAccounts =
-				await getBankAccountsByOrganizationId(organizationId);
-			return c.json({ bankAccounts });
+			let bankAccounts: any;
+			if (customerId) {
+				bankAccounts = await getBankAccountsByCustomerId(customerId);
+			} else {
+				bankAccounts =
+					await getBankAccountsByOrganizationId(organizationId);
+			}
+
+			return c.json({ data: bankAccounts });
 		},
 	)
 	.post(
@@ -103,7 +118,7 @@ export const bankAccountsRouter = new Hono()
 									bankAccount: z.object({
 										id: z.string(),
 										bankName: z.string(),
-										accountName: z.string(),
+										accountName: z.string().nullable(),
 										accountNumber: z.string(),
 										currency: z.string(),
 										balance: z.number(),
@@ -115,6 +130,7 @@ export const bankAccountsRouter = new Hono()
 												id: z.string(),
 												name: z.string(),
 												email: z.string(),
+												code: z.string(),
 											})
 											.nullable(),
 										createdAt: z.date(),
@@ -173,7 +189,7 @@ export const bankAccountsRouter = new Hono()
 									bankAccount: z.object({
 										id: z.string(),
 										bankName: z.string(),
-										accountName: z.string(),
+										accountName: z.string().nullable(),
 										accountNumber: z.string(),
 										currency: z.string(),
 										balance: z.number(),
@@ -185,6 +201,7 @@ export const bankAccountsRouter = new Hono()
 												id: z.string(),
 												name: z.string(),
 												email: z.string(),
+												code: z.string(),
 											})
 											.nullable(),
 										createdAt: z.date(),

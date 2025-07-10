@@ -38,6 +38,8 @@ const editRMSchema = z.object({
 	phone: z.string().optional(),
 	status: z.enum(["active", "inactive"]),
 	category: z.enum(["FINDER", "RM", "BOTH"]),
+	joinDate: z.string(),
+	resignDate: z.string().optional(),
 });
 
 type EditRMFormData = z.infer<typeof editRMSchema>;
@@ -66,6 +68,8 @@ export function EditRMDialog({
 			phone: "",
 			status: "active",
 			category: "RM",
+			joinDate: "",
+			resignDate: "",
 		},
 	});
 
@@ -77,13 +81,36 @@ export function EditRMDialog({
 				phone: rmRecord.phone || "",
 				status: rmRecord.status,
 				category: rmRecord.category,
+				joinDate: new Date(rmRecord.joinDate)
+					.toISOString()
+					.split("T")[0],
+				resignDate: rmRecord.resignDate
+					? new Date(rmRecord.resignDate).toISOString().split("T")[0]
+					: "",
 			});
 		}
 	}, [open, rmRecord, form]);
 
+	// 監聽離職日期變化，自動更新狀態
+	const watchResignDate = form.watch("resignDate");
+	const watchStatus = form.watch("status");
+
+	useEffect(() => {
+		if (watchResignDate && watchStatus === "active") {
+			form.setValue("status", "inactive");
+		}
+	}, [watchResignDate, watchStatus, form]);
+
 	const onSubmit = async (data: EditRMFormData) => {
 		setIsLoading(true);
 		try {
+			// 直接提交字串格式的日期，讓 API 處理轉換
+			const submitData = {
+				...data,
+				// 如果有離職日期，自動設定狀態為離職
+				status: data.resignDate ? "inactive" : data.status,
+			};
+
 			const response = await fetch(
 				`/api/organizations/relationship-managers/${rmRecord.id}`,
 				{
@@ -92,7 +119,7 @@ export function EditRMDialog({
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify(data),
+					body: JSON.stringify(submitData),
 				},
 			);
 
@@ -286,6 +313,7 @@ export function EditRMDialog({
 											<Select
 												onValueChange={field.onChange}
 												defaultValue={field.value}
+												disabled={!!watchResignDate}
 											>
 												<FormControl>
 													<SelectTrigger>
@@ -294,10 +322,10 @@ export function EditRMDialog({
 												</FormControl>
 												<SelectContent>
 													<SelectItem value="active">
-														啟用
+														在職
 													</SelectItem>
 													<SelectItem value="inactive">
-														停用
+														離職
 													</SelectItem>
 												</SelectContent>
 											</Select>
@@ -336,6 +364,56 @@ export function EditRMDialog({
 													</SelectItem>
 												</SelectContent>
 											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="joinDate"
+								render={({ field, fieldState }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											入職日期 *
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													type="date"
+													{...field}
+													className={
+														fieldState.error
+															? "border-red-500 focus:border-red-500 focus:ring-red-500"
+															: ""
+													}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="resignDate"
+								render={({ field, fieldState }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											離職日期
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													type="date"
+													{...field}
+													className={
+														fieldState.error
+															? "border-red-500 focus:border-red-500 focus:ring-red-500"
+															: ""
+													}
+												/>
+											</FormControl>
 											<FormMessage />
 										</div>
 									</FormItem>

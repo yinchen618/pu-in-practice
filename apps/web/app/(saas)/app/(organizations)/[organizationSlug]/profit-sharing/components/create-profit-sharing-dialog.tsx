@@ -49,6 +49,7 @@ import { z } from "zod";
 const createSchema = z.object({
 	customerId: z.string().min(1, "客戶是必填的"),
 	productId: z.string().min(1, "產品是必填的"),
+	bankAccountId: z.string().min(1, "銀行帳戶是必填的"),
 	amount: z.number().min(0, "金額不能為負數"),
 	profitDate: z.string().min(1, "分潤日期是必填的"),
 	currency: z.string().min(1, "幣別是必填的"),
@@ -82,6 +83,15 @@ interface Product {
 	category: string;
 }
 
+interface BankAccount {
+	id: string;
+	bankName: string;
+	accountName: string;
+	accountNumber: string;
+	currency: string;
+	status: string;
+}
+
 export function CreateProfitSharingDialog({
 	organizationId,
 	onSuccess,
@@ -90,8 +100,10 @@ export function CreateProfitSharingDialog({
 	const [isLoading, setIsLoading] = useState(false);
 	const [customers, setCustomers] = useState<Customer[]>([]);
 	const [products, setProducts] = useState<Product[]>([]);
+	const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
 	const [customerOpen, setCustomerOpen] = useState(false);
 	const [productOpen, setProductOpen] = useState(false);
+	const [bankAccountOpen, setBankAccountOpen] = useState(false);
 
 	const form = useForm<CreateFormData>({
 		resolver: zodResolver(createSchema),
@@ -107,11 +119,12 @@ export function CreateProfitSharingDialog({
 		},
 	});
 
-	// 獲取客戶和產品列表
+	// 獲取客戶、產品和銀行帳戶列表
 	useEffect(() => {
 		if (open) {
 			fetchCustomers();
 			fetchProducts();
+			fetchBankAccounts();
 		}
 	}, [open]);
 
@@ -148,6 +161,28 @@ export function CreateProfitSharingDialog({
 			}
 		} catch (error) {
 			console.error("獲取產品列表失敗:", error);
+		}
+	};
+
+	const fetchBankAccounts = async () => {
+		try {
+			const response = await fetch(
+				`/api/organizations/bank-accounts?organizationId=${organizationId}`,
+				{
+					method: "GET",
+					credentials: "include",
+				},
+			);
+			if (response.ok) {
+				const result = await response.json();
+				// 只顯示狀態為 active 的銀行帳戶
+				const activeBankAccounts = (result.bankAccounts || []).filter(
+					(account: BankAccount) => account.status === "active",
+				);
+				setBankAccounts(activeBankAccounts);
+			}
+		} catch (error) {
+			console.error("獲取銀行帳戶列表失敗:", error);
 		}
 	};
 
@@ -206,7 +241,7 @@ export function CreateProfitSharingDialog({
 					新增分潤記錄
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+			<DialogContent className="min-w-6xl max-h-[95vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>新增分潤記錄</DialogTitle>
 					<DialogDescription>
@@ -216,8 +251,8 @@ export function CreateProfitSharingDialog({
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="grid gap-6 py-4">
-							{/* 第一行：客戶和產品 */}
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							{/* 第一行：客戶、產品和銀行帳戶 */}
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 								<FormField
 									control={form.control}
 									name="customerId"
@@ -300,6 +335,93 @@ export function CreateProfitSharingDialog({
 									)}
 								/>
 
+								<FormField
+									control={form.control}
+									name="bankAccountId"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>銀行帳戶 *</FormLabel>
+											<Popover
+												open={bankAccountOpen}
+												onOpenChange={
+													setBankAccountOpen
+												}
+											>
+												<PopoverTrigger asChild>
+													<FormControl>
+														<Button
+															variant="outline"
+															aria-expanded={
+																bankAccountOpen
+															}
+															className="w-full justify-between"
+														>
+															{field.value
+																? `${bankAccounts.find((account) => account.id === field.value)?.bankName} - ${bankAccounts.find((account) => account.id === field.value)?.accountName} (${bankAccounts.find((account) => account.id === field.value)?.accountNumber})`
+																: "選擇銀行帳戶"}
+															<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+														</Button>
+													</FormControl>
+												</PopoverTrigger>
+												<PopoverContent className="w-[400px] p-0">
+													<Command>
+														<CommandInput placeholder="搜尋銀行帳戶..." />
+														<CommandList>
+															<CommandEmpty>
+																找不到銀行帳戶。
+															</CommandEmpty>
+															<CommandGroup>
+																{bankAccounts.map(
+																	(
+																		account,
+																	) => (
+																		<CommandItem
+																			key={
+																				account.id
+																			}
+																			value={`${account.bankName} ${account.accountName} ${account.accountNumber}`}
+																			onSelect={() => {
+																				field.onChange(
+																					account.id,
+																				);
+																				setBankAccountOpen(
+																					false,
+																				);
+																			}}
+																		>
+																			<Check
+																				className={cn(
+																					"mr-2 h-4 w-4",
+																					field.value ===
+																						account.id
+																						? "opacity-100"
+																						: "opacity-0",
+																				)}
+																			/>
+																			{
+																				account.bankName
+																			}{" "}
+																			-{" "}
+																			{
+																				account.accountName
+																			}{" "}
+																			(
+																			{
+																				account.accountNumber
+																			}
+																			)
+																		</CommandItem>
+																	),
+																)}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 								<FormField
 									control={form.control}
 									name="productId"

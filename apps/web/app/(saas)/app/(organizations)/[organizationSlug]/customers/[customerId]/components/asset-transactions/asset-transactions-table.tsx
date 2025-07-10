@@ -148,7 +148,9 @@ export function AssetTransactionsTable({
 												{balance.balance >= 0
 													? "+"
 													: ""}
-												{balance.balance.toLocaleString()}
+												{Number(
+													balance.balance,
+												).toLocaleString()}
 											</div>
 										</div>
 									</div>
@@ -157,14 +159,18 @@ export function AssetTransactionsTable({
 											<span>入金總額:</span>
 											<span className="text-green-600 font-mono">
 												+
-												{balance.inAmount.toLocaleString()}
+												{Number(
+													balance.inAmount,
+												).toLocaleString()}
 											</span>
 										</div>
 										<div className="flex justify-between">
 											<span>出金總額:</span>
 											<span className="text-red-600 font-mono">
 												-
-												{balance.outAmount.toLocaleString()}
+												{Number(
+													balance.outAmount,
+												).toLocaleString()}
 											</span>
 										</div>
 									</div>

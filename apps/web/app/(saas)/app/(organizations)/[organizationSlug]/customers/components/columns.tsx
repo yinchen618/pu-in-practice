@@ -6,6 +6,7 @@ import { Button } from "@ui/components/button";
 import { Edit2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import type { BankAccountRecord } from "../../bank-accounts/components/columns";
 
 export interface CustomerRecord {
 	id: string;
@@ -17,7 +18,7 @@ export interface CustomerRecord {
 	bankAccounts?: {
 		id: string;
 		bankName: string;
-		accountName: string;
+		// accountName: string; // 已隱藏
 		accountNumber: string;
 		currency: string;
 		balance: number;
@@ -41,6 +42,7 @@ export interface CustomerRecord {
 
 export const createColumns = (
 	onEdit: (customerRecord: CustomerRecord) => void,
+	onEditBankAccount: (bankAccountRecord: BankAccountRecord) => void,
 ): ColumnDef<CustomerRecord>[] => {
 	const params = useParams();
 	const organizationSlug = params.organizationSlug as string;
@@ -83,7 +85,34 @@ export const createColumns = (
 					"bankAccounts",
 				) as CustomerRecord["bankAccounts"];
 				const count = bankAccounts?.length || 0;
-				return count > 0 ? `${count} 個帳戶` : "無銀行帳戶";
+
+				if (count === 0) {
+					return "無銀行帳戶";
+				}
+
+				return (
+					<div className="space-y-1">
+						<div>{`${count} 個帳戶`}</div>
+						<div className="flex gap-1">
+							{bankAccounts?.map((account) => (
+								<Button
+									key={account.id}
+									variant="ghost"
+									size="sm"
+									onClick={() =>
+										onEditBankAccount(
+											account as BankAccountRecord,
+										)
+									}
+									className="h-6 px-2 text-xs"
+								>
+									<Edit2 className="mr-1 size-3" />
+									{account.bankName} - {account.accountNumber}
+								</Button>
+							))}
+						</div>
+					</div>
+				);
 			},
 		},
 		{

@@ -58,7 +58,6 @@ export function BankAccountFilters({
 				const searchTerm = filters.search.toLowerCase();
 				if (
 					!item.bankName.toLowerCase().includes(searchTerm) &&
-					!item.accountName.toLowerCase().includes(searchTerm) &&
 					!item.accountNumber.toLowerCase().includes(searchTerm)
 				) {
 					return false;
@@ -153,7 +152,7 @@ export function BankAccountFilters({
 				{/* 主要搜尋框 */}
 				<div className="flex items-center gap-2">
 					<Input
-						placeholder="搜尋銀行名稱、帳戶名稱或帳號..."
+						placeholder="搜尋銀行名稱或帳號..."
 						value={filters.search || ""}
 						onChange={(e) => updateFilter("search", e.target.value)}
 						className="w-64"

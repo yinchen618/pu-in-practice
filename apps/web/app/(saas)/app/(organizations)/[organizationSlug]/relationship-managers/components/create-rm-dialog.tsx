@@ -28,7 +28,7 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -37,6 +37,9 @@ const createRMSchema = z.object({
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
 	category: z.enum(["FINDER", "RM", "BOTH"]),
+	joinDate: z.string(),
+	resignDate: z.string().optional(),
+	status: z.enum(["active", "inactive"]),
 });
 
 type CreateRMFormData = z.infer<typeof createRMSchema>;
@@ -60,12 +63,29 @@ export function CreateRMDialog({
 			email: "",
 			phone: "",
 			category: "RM",
+			joinDate: new Date().toISOString().split("T")[0], // 預設為今天
+			resignDate: "",
+			status: "active",
 		},
 	});
+
+	// 監聽離職日期變化，自動更新狀態
+	const watchResignDate = form.watch("resignDate");
+
+	useEffect(() => {
+		if (watchResignDate) {
+			form.setValue("status", "inactive");
+		}
+	}, [watchResignDate, form]);
 
 	const onSubmit = async (data: CreateRMFormData) => {
 		setIsLoading(true);
 		try {
+			// 直接提交字串格式的日期，讓 API 處理轉換
+			const submitData = {
+				...data,
+			};
+
 			const response = await fetch(
 				"/api/organizations/relationship-managers",
 				{
@@ -75,7 +95,7 @@ export function CreateRMDialog({
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({
-						...data,
+						...submitData,
 						organizationId,
 					}),
 				},
@@ -248,6 +268,89 @@ export function CreateRMDialog({
 													</SelectItem>
 												</SelectContent>
 											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="status"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											狀態 *
+										</FormLabel>
+										<div className="col-span-3">
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+												disabled={!!watchResignDate}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇狀態" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value="active">
+														在職
+													</SelectItem>
+													<SelectItem value="inactive">
+														離職
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="joinDate"
+								render={({ field, fieldState }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											入職日期 *
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													type="date"
+													{...field}
+													className={
+														fieldState.error
+															? "border-red-500 focus:border-red-500 focus:ring-red-500"
+															: ""
+													}
+												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="resignDate"
+								render={({ field, fieldState }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											離職日期
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Input
+													type="date"
+													{...field}
+													className={
+														fieldState.error
+															? "border-red-500 focus:border-red-500 focus:ring-red-500"
+															: ""
+													}
+												/>
+											</FormControl>
 											<FormMessage />
 										</div>
 									</FormItem>

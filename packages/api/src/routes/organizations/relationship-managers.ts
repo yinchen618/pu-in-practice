@@ -17,6 +17,9 @@ const CreateRMSchema = z.object({
 	email: z.string().email("請輸入有效的電子郵件"),
 	phone: z.string().optional(),
 	category: z.enum(["FINDER", "RM", "BOTH"]).optional().default("RM"),
+	joinDate: z.string(),
+	resignDate: z.string().optional(),
+	status: z.enum(["active", "inactive"]).optional().default("active"),
 });
 
 const UpdateRMSchema = z.object({
@@ -25,6 +28,8 @@ const UpdateRMSchema = z.object({
 	phone: z.string().optional(),
 	status: z.enum(["active", "inactive"]),
 	category: z.enum(["FINDER", "RM", "BOTH"]).optional(),
+	joinDate: z.string(),
+	resignDate: z.string().optional(),
 });
 
 export const relationshipManagersRouter = new Hono()
@@ -52,6 +57,7 @@ export const relationshipManagersRouter = new Hono()
 											category: z.string(),
 											customerCount: z.number(),
 											joinDate: z.date(),
+											resignDate: z.date().nullable(),
 											organizationId: z.string(),
 											createdAt: z.date(),
 											updatedAt: z.date(),
@@ -123,8 +129,16 @@ export const relationshipManagersRouter = new Hono()
 			await verifyOrganizationMembership(data.organizationId, user.id);
 
 			try {
+				const processedData = {
+					...data,
+					joinDate: new Date(data.joinDate),
+					resignDate: data.resignDate
+						? new Date(data.resignDate)
+						: undefined,
+					status: data.status || "active",
+				};
 				const relationshipManager =
-					await createRelationshipManager(data);
+					await createRelationshipManager(processedData);
 				return c.json({ relationshipManager }, 201);
 			} catch (error: any) {
 				if (error.code === "P2002") {
@@ -177,9 +191,18 @@ export const relationshipManagersRouter = new Hono()
 			const user = c.get("user");
 
 			try {
+				// 將字串日期轉換為 Date 物件
+				const processedData = {
+					...data,
+					joinDate: new Date(data.joinDate),
+					resignDate: data.resignDate
+						? new Date(data.resignDate)
+						: null,
+				};
+
 				const relationshipManager = await updateRelationshipManager(
 					id,
-					data,
+					processedData,
 				);
 
 				// 驗證用戶是否有權限修改此 RM（通過組織成員資格）

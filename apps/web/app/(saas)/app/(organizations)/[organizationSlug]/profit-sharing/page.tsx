@@ -81,7 +81,7 @@ export default function ProfitSharingPage() {
 	}
 
 	return (
-		<div className="container space-y-8 py-6">
+		<div className="space-y-8 py-6">
 			<PageHeader
 				title="分潤記錄"
 				subtitle="管理所有分潤記錄"

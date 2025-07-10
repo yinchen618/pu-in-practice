@@ -7,8 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@ui/components/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/components/tabs";
 import { Edit2 } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { BankAccountsTable } from "../../bank-accounts/components/bank-accounts-table";
+import type { BankAccountRecord } from "../../bank-accounts/components/columns";
+import { CreateBankAccountDialog } from "../../bank-accounts/components/create-bank-account-dialog";
+import { EditBankAccountDialog } from "../../bank-accounts/components/edit-bank-account-dialog";
 import { ProductsTable } from "../../products/components/products-table";
 import type { CustomerRecord } from "../components/columns";
 import { EditCustomerDialog } from "../components/edit-customer-dialog";
@@ -35,6 +39,18 @@ export default function CustomerProfilePage() {
 	const params = useParams();
 	const customerId = params.customerId as string;
 
+	// 使用 nuqs 管理分頁狀態
+	const [activeTab, setActiveTab] = useQueryState("tab", {
+		defaultValue: "products",
+		parse: (value) => {
+			// 驗證分頁值是否有效
+			if (["products", "accounts", "assets"].includes(value)) {
+				return value;
+			}
+			return "products";
+		},
+	});
+
 	const [customer, setCustomer] = useState<CustomerRecord | null>(null);
 	const [products, setProducts] = useState<Product[]>([]);
 	const [relationshipManagers, setRelationshipManagers] = useState<
@@ -42,6 +58,11 @@ export default function CustomerProfilePage() {
 	>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
+	const [bankAccounts, setBankAccounts] = useState<BankAccountRecord[]>([]);
+	const [isBankAccountsLoading, setIsBankAccountsLoading] = useState(false);
+	const [editBankAccount, setEditBankAccount] =
+		useState<BankAccountRecord | null>(null);
+	const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
 	const fetchCustomerData = async () => {
 		if (!activeOrganization?.id) return;
@@ -118,17 +139,42 @@ export default function CustomerProfilePage() {
 		}
 	};
 
+	const fetchBankAccounts = async () => {
+		if (!activeOrganization?.id) return;
+		setIsBankAccountsLoading(true);
+		try {
+			const response = await fetch(
+				`/api/organizations/bank-accounts?customerId=${customerId}&organizationId=${activeOrganization.id}`,
+			);
+			if (response.ok) {
+				const result = await response.json();
+				setBankAccounts(result.data || []);
+			}
+		} catch (e) {
+			console.error("獲取銀行帳戶失敗:", e);
+			setBankAccounts([]);
+		} finally {
+			setIsBankAccountsLoading(false);
+		}
+	};
+
 	useEffect(() => {
 		if (activeOrganization?.id) {
 			fetchCustomerData();
 			fetchCustomerProducts();
 			fetchRelationshipManagers();
+			fetchBankAccounts();
 		}
 	}, [activeOrganization?.id, customerId]);
 
 	const handleEditSuccess = () => {
 		fetchCustomerData();
 		setEditDialogOpen(false);
+	};
+
+	// 處理分頁變更
+	const handleTabChange = (value: string) => {
+		setActiveTab(value);
 	};
 
 	if (isLoading || !customer) {
@@ -255,20 +301,55 @@ export default function CustomerProfilePage() {
 				</Card>
 
 				{/* 銀行帳戶、產品和資產總表標籤頁 */}
-				<Tabs defaultValue="accounts" className="w-full">
+				<Tabs
+					value={activeTab}
+					onValueChange={handleTabChange}
+					className="w-full"
+				>
 					<TabsList>
-						<TabsTrigger value="products">產品</TabsTrigger>
+						<TabsTrigger value="products">持有產品</TabsTrigger>
 						<TabsTrigger value="accounts">銀行帳戶</TabsTrigger>
 						<TabsTrigger value="assets">資產總表</TabsTrigger>
 					</TabsList>
 					<TabsContent value="accounts">
 						<Card>
+							<CardHeader className="flex flex-row items-center justify-between">
+								<CardTitle>銀行帳戶</CardTitle>
+								{activeOrganization?.id && (
+									<CreateBankAccountDialog
+										onSuccess={fetchBankAccounts}
+										organizationId={activeOrganization.id}
+										customerId={customerId}
+										customerCode={customer.code}
+										dialogTitle="新增銀行帳戶"
+									/>
+								)}
+							</CardHeader>
 							<CardContent className="pt-6">
 								<BankAccountsTable
-									bankAccounts={customer.bankAccounts || []}
+									bankAccounts={bankAccounts}
+									onEdit={(record) => {
+										setEditBankAccount(record);
+										setEditDialogOpen(true);
+									}}
+									customerId={customerId}
 								/>
 							</CardContent>
 						</Card>
+						{editBankAccount && (
+							<EditBankAccountDialog
+								bankAccountRecord={editBankAccount}
+								open={editDialogOpen}
+								onOpenChange={setEditDialogOpen}
+								onSuccess={() => {
+									fetchBankAccounts();
+									setEditBankAccount(null);
+								}}
+								customerCode={customer.code}
+								customerName={customer.name}
+								dialogTitle="編輯銀行帳戶"
+							/>
+						)}
 					</TabsContent>
 					<TabsContent value="products">
 						<Card>

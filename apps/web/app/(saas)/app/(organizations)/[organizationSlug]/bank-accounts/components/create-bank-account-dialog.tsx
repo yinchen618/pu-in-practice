@@ -35,7 +35,7 @@ import { z } from "zod";
 const createBankAccountSchema = z.object({
 	customerId: z.string().optional(),
 	bankName: z.string().min(1, "銀行名稱是必填的"),
-	accountName: z.string().min(1, "帳戶名稱是必填的"),
+	// accountName: z.string().min(1, "帳戶名稱是必填的"), // 已隱藏
 	accountNumber: z.string().min(1, "帳號是必填的"),
 	currency: z.string().min(1, "幣別是必填的"),
 	balance: z.number().min(0, "餘額不能為負數").optional(),
@@ -47,35 +47,53 @@ interface Customer {
 	id: string;
 	name: string;
 	email: string;
+	code: string;
 }
 
 interface CreateBankAccountDialogProps {
 	organizationId: string;
 	onSuccess?: () => void;
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
+	dialogTitle?: string;
+	customerCode?: string;
+	customerId?: string;
+	customerName?: string;
 }
 
 export function CreateBankAccountDialog({
 	organizationId,
 	onSuccess,
+	open: controlledOpen,
+	onOpenChange,
+	dialogTitle = "新增銀行帳戶",
+	customerCode,
+	customerId,
+	customerName,
 }: CreateBankAccountDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [customers, setCustomers] = useState<Customer[]>([]);
+	const [isCustomersLoading, setIsCustomersLoading] = useState(false);
 
 	const form = useForm<CreateBankAccountFormData>({
 		resolver: zodResolver(createBankAccountSchema),
 		defaultValues: {
 			customerId: "none",
 			bankName: "",
-			accountName: "",
+			// accountName: "", // 已隱藏
 			accountNumber: "",
 			currency: "TWD",
 			balance: 0,
 		},
 	});
 
+	const actualOpen = controlledOpen !== undefined ? controlledOpen : open;
+	const handleOpenChange = onOpenChange || setOpen;
+
 	// 獲取客戶列表
 	const fetchCustomers = async () => {
+		setIsCustomersLoading(true);
 		try {
 			const response = await fetch(
 				`/api/organizations/customers?organizationId=${organizationId}`,
@@ -94,14 +112,22 @@ export function CreateBankAccountDialog({
 			}
 		} catch (error) {
 			console.error("獲取客戶列表失敗:", error);
+		} finally {
+			setIsCustomersLoading(false);
 		}
 	};
 
 	useEffect(() => {
-		if (open && organizationId) {
+		if (actualOpen && organizationId && !customerId) {
 			fetchCustomers();
 		}
-	}, [open, organizationId]);
+	}, [actualOpen, organizationId, customerId]);
+
+	useEffect(() => {
+		if (customerId && customers.length > 0) {
+			form.setValue("customerId", customerId);
+		}
+	}, [customerId, customers, form]);
 
 	const onSubmit = async (data: CreateBankAccountFormData) => {
 		setIsLoading(true);
@@ -109,10 +135,12 @@ export function CreateBankAccountDialog({
 			// 準備要發送的資料
 			const requestData = {
 				...data,
+				accountName: "", // 保證有 accountName 欄位
 				customerId:
-					data.customerId === "none" || !data.customerId
+					customerId ||
+					(data.customerId === "none" || !data.customerId
 						? null
-						: data.customerId,
+						: data.customerId),
 				organizationId,
 			};
 
@@ -150,16 +178,19 @@ export function CreateBankAccountDialog({
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog open={actualOpen} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>
 				<Button>
 					<Plus className="mr-2 size-4" />
-					新增銀行帳戶
+					{dialogTitle}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>新增銀行帳戶</DialogTitle>
+					<DialogTitle>
+						{dialogTitle}
+						{customerCode ? `（客戶編號：${customerCode}）` : ""}
+					</DialogTitle>
 					<DialogDescription>
 						填寫下方資訊來新增一個銀行帳戶。
 					</DialogDescription>
@@ -167,39 +198,77 @@ export function CreateBankAccountDialog({
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="grid gap-4 py-4">
-							<FormField
-								control={form.control}
-								name="customerId"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>客戶</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											value={field.value || "none"}
-										>
+							{/* 客戶欄位：只有沒有 customerId 時才顯示 */}
+							{!customerId && (
+								<FormField
+									control={form.control}
+									name="customerId"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>客戶</FormLabel>
 											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="選擇客戶（可選）" />
-												</SelectTrigger>
+												<Select
+													onValueChange={
+														field.onChange
+													}
+													value={
+														field.value || "none"
+													}
+													disabled={!!customerId}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇客戶（可選）" />
+													</SelectTrigger>
+													<SelectContent>
+														{isCustomersLoading ? (
+															<SelectItem
+																value="loading"
+																disabled
+															>
+																載入中...
+															</SelectItem>
+														) : (
+															<>
+																<SelectItem value="none">
+																	未指定客戶
+																</SelectItem>
+																{customers.map(
+																	(
+																		customer,
+																	) => (
+																		<SelectItem
+																			key={
+																				customer.id
+																			}
+																			value={
+																				customer.id
+																			}
+																		>
+																			<span className="inline-flex items-center gap-2">
+																				<span className="bg-gray-100 text-gray-600 text-xs font-mono px-2 py-0.5 rounded">
+																					{
+																						customer.code
+																					}
+																				</span>
+																				<span>
+																					{
+																						customer.name
+																					}
+																				</span>
+																			</span>
+																		</SelectItem>
+																	),
+																)}
+															</>
+														)}
+													</SelectContent>
+												</Select>
 											</FormControl>
-											<SelectContent>
-												<SelectItem value="none">
-													未指定客戶
-												</SelectItem>
-												{customers.map((customer) => (
-													<SelectItem
-														key={customer.id}
-														value={customer.id}
-													>
-														{customer.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 							<FormField
 								control={form.control}
 								name="bankName"
@@ -209,22 +278,6 @@ export function CreateBankAccountDialog({
 										<FormControl>
 											<Input
 												placeholder="輸入銀行名稱"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="accountName"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>帳戶名稱 *</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="輸入帳戶名稱"
 												{...field}
 											/>
 										</FormControl>
@@ -254,39 +307,39 @@ export function CreateBankAccountDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>幣別 *</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											value={field.value}
-										>
-											<FormControl>
+										<FormControl>
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
 												<SelectTrigger>
 													<SelectValue placeholder="選擇幣別" />
 												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="SGD">
-													新加坡幣 (SGD)
-												</SelectItem>
-												<SelectItem value="HKD">
-													港幣 (HKD)
-												</SelectItem>
-												<SelectItem value="TWD">
-													新台幣 (TWD)
-												</SelectItem>
-												<SelectItem value="USD">
-													美元 (USD)
-												</SelectItem>
-												<SelectItem value="EUR">
-													歐元 (EUR)
-												</SelectItem>
-												<SelectItem value="JPY">
-													日圓 (JPY)
-												</SelectItem>
-												<SelectItem value="CNY">
-													人民幣 (CNY)
-												</SelectItem>
-											</SelectContent>
-										</Select>
+												<SelectContent>
+													<SelectItem value="SGD">
+														新加坡幣 (SGD)
+													</SelectItem>
+													<SelectItem value="HKD">
+														港幣 (HKD)
+													</SelectItem>
+													<SelectItem value="TWD">
+														新台幣 (TWD)
+													</SelectItem>
+													<SelectItem value="USD">
+														美元 (USD)
+													</SelectItem>
+													<SelectItem value="EUR">
+														歐元 (EUR)
+													</SelectItem>
+													<SelectItem value="JPY">
+														日圓 (JPY)
+													</SelectItem>
+													<SelectItem value="CNY">
+														人民幣 (CNY)
+													</SelectItem>
+												</SelectContent>
+											</Select>
+										</FormControl>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -296,7 +349,7 @@ export function CreateBankAccountDialog({
 							<Button
 								type="button"
 								variant="outline"
-								onClick={() => setOpen(false)}
+								onClick={() => handleOpenChange(false)}
 							>
 								取消
 							</Button>

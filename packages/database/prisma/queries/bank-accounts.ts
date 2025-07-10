@@ -3,7 +3,7 @@ import { db } from "../client";
 
 export interface CreateBankAccountData {
 	bankName: string;
-	accountName: string;
+	// accountName: string; // 已隱藏
 	accountNumber: string;
 	currency?: string;
 	balance?: number;
@@ -13,7 +13,7 @@ export interface CreateBankAccountData {
 
 export interface UpdateBankAccountData {
 	bankName?: string;
-	accountName?: string;
+	// accountName?: string; // 已隱藏
 	accountNumber?: string;
 	currency?: string;
 	balance?: number;
@@ -32,6 +32,28 @@ export async function getBankAccountsByOrganizationId(organizationId: string) {
 					id: true,
 					name: true,
 					email: true,
+					code: true,
+				},
+			},
+		},
+		orderBy: {
+			createdAt: "desc",
+		},
+	});
+}
+
+export async function getBankAccountsByCustomerId(customerId: string) {
+	return await db.bankAccount.findMany({
+		where: {
+			customerId,
+		},
+		include: {
+			customer: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					code: true,
 				},
 			},
 		},
@@ -45,7 +67,7 @@ export async function createBankAccount(data: CreateBankAccountData) {
 	const createData = {
 		id: nanoid(),
 		bankName: data.bankName,
-		accountName: data.accountName,
+		accountName: null, // 添加缺少的欄位
 		accountNumber: data.accountNumber,
 		balance: data.balance || 0,
 		currency: data.currency || "TWD",
@@ -64,6 +86,7 @@ export async function createBankAccount(data: CreateBankAccountData) {
 					id: true,
 					name: true,
 					email: true,
+					code: true,
 				},
 			},
 		},
@@ -81,6 +104,7 @@ export async function getBankAccountById(id: string) {
 					id: true,
 					name: true,
 					email: true,
+					code: true,
 				},
 			},
 		},
@@ -105,6 +129,7 @@ export async function updateBankAccount(
 					id: true,
 					name: true,
 					email: true,
+					code: true,
 				},
 			},
 		},
