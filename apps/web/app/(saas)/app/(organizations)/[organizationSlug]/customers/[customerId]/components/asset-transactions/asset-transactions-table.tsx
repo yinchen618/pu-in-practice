@@ -45,7 +45,10 @@ export function AssetTransactionsTable({
 				});
 			}
 
-			const currencyData = currencyMap.get(currency)!;
+			const currencyData = currencyMap.get(currency);
+			if (!currencyData) {
+				return null;
+			}
 
 			if (type === "IN") {
 				currencyData.inAmount += amount;

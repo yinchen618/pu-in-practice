@@ -40,7 +40,9 @@ export default function CustomersPage() {
 		useState(false);
 
 	const fetchData = async () => {
-		if (!activeOrganization?.id) return;
+		if (!activeOrganization?.id) {
+			return;
+		}
 
 		setIsLoading(true);
 		try {

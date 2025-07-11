@@ -42,7 +42,7 @@ export interface CustomerRecord {
 
 export const createColumns = (
 	onEdit: (customerRecord: CustomerRecord) => void,
-	onEditBankAccount: (bankAccountRecord: BankAccountRecord) => void,
+	_onEditBankAccount: (bankAccountRecord: BankAccountRecord) => void,
 ): ColumnDef<CustomerRecord>[] => {
 	const params = useParams();
 	const organizationSlug = params.organizationSlug as string;

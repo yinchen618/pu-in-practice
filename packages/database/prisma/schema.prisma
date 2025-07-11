@@ -284,7 +284,7 @@ model BankAccount {
   accountName    String? // 改為可選
   accountNumber  String
   currency       String       @default("TWD")
-    balance        Decimal      @default(0) @db.Decimal(15, 2)
+  balance        Decimal      @default(0) @db.Decimal(15, 2)
   status         String       @default("active") // active, inactive
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -355,12 +355,40 @@ model ProfitSharing {
   directTradeBookingFee Decimal @db.Decimal(15, 2) // Direct trade booking fee
   shareable             Decimal @db.Decimal(15, 2) // 自動計算: companyRevenue + directTradeBookingFee
 
-  // 分潤比例 (%)
+  // RM1 資訊
+  rm1Id                 String?
+  rm1Name               String?
+  rm1ProfitSharePercent Decimal? @db.Decimal(5, 2) // RM1 分潤比例
+  rm1RevenueOriginal    Decimal? @db.Decimal(15, 2) // RM1 分潤金額 (原幣)
+  rm1RevenueUSD         Decimal? @db.Decimal(15, 2) // RM1 分潤金額 (USD)
+
+  // RM2 資訊
+  rm2Id                 String?
+  rm2Name               String?
+  rm2ProfitSharePercent Decimal? @db.Decimal(5, 2) // RM2 分潤比例
+  rm2RevenueOriginal    Decimal? @db.Decimal(15, 2) // RM2 分潤金額 (原幣)
+  rm2RevenueUSD         Decimal? @db.Decimal(15, 2) // RM2 分潤金額 (USD)
+
+  // Finder1 資訊
+  finder1Id                 String?
+  finder1Name               String?
+  finder1ProfitSharePercent Decimal? @db.Decimal(5, 2) // Finder1 分潤比例
+  finder1RevenueOriginal    Decimal? @db.Decimal(15, 2) // Finder1 分潤金額 (原幣)
+  finder1RevenueUSD         Decimal? @db.Decimal(15, 2) // Finder1 分潤金額 (USD)
+
+  // Finder2 資訊
+  finder2Id                 String?
+  finder2Name               String?
+  finder2ProfitSharePercent Decimal? @db.Decimal(5, 2) // Finder2 分潤比例
+  finder2RevenueOriginal    Decimal? @db.Decimal(15, 2) // Finder2 分潤金額 (原幣)
+  finder2RevenueUSD         Decimal? @db.Decimal(15, 2) // Finder2 分潤金額 (USD)
+
+  // 總分潤比例 (%)
   rmProfitSharePercent      Decimal @default(50.00) @db.Decimal(5, 2) // RM分潤 %，預設50%
   finderProfitSharePercent  Decimal @default(0.00) @db.Decimal(5, 2) // Finder分潤 %，預設0%
   companyProfitSharePercent Decimal @default(50.00) @db.Decimal(5, 2) // Company分潤 %，預設50%
 
-  // 分潤金額 (原幣別)
+  // 總分潤金額 (原幣別)
   rmRevenueOriginal      Decimal @db.Decimal(15, 2) // 自動計算: shareable * rmProfitSharePercent / 100
   findersRevenueOriginal Decimal @db.Decimal(15, 2) // 自動計算: shareable * finderProfitSharePercent / 100
   companyRevenueOriginal Decimal @db.Decimal(15, 2) // 自動計算: shareable * companyProfitSharePercent / 100

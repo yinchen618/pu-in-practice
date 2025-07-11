@@ -44,11 +44,17 @@ interface DataTableProps<TData, TValue> {
 	}[];
 	deleteRow?: (id: string) => void;
 	editRow?: (id: string) => void;
+	isLoading?: boolean;
+	searchKey?: string;
+	searchPlaceholder?: string;
 }
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
+	isLoading,
+	searchKey,
+	searchPlaceholder,
 	filterableColumns = [],
 	searchableColumns = [],
 	deleteRow,

@@ -61,8 +61,6 @@ Follow the documentation at supastarter.dev/docs/nextjs for supastarter specifc 
 import { cn } from "@ui/lib";
 
 我的.env在根目錄下
-"新增"的字樣，都改為"新增"
-
 ## Button 組件使用規則
 
 ### 支援的 Button variant 選項
@@ -1408,3 +1406,50 @@ const uniqueCategories = Array.from(
 12. ✅ 在主頁面正確整合篩選器
 
 這套篩選器標準確保了所有 CRUD 列表頁面都有一致的篩選體驗和視覺效果。
+
+## 開發流程規則
+
+### 構建和測試
+- **不需要每次修改後都執行 `pnpm dev` 來確認結果**
+- 只有在以下情況才需要執行構建命令：
+  - 修復 TypeScript 類型錯誤時
+  - 確認 API 路由或後端邏輯變更時
+  - 部署前的最終驗證
+  - 用戶明確要求測試構建時
+
+### 代碼修改原則
+- 專注於代碼邏輯的正確性和類型安全
+- 使用 TypeScript 類型檢查來確保代碼質量
+- 遵循現有的代碼風格和架構模式
+- 優先考慮代碼的可讀性和維護性
+
+### 錯誤處理
+- 如果遇到構建錯誤，優先修復 TypeScript 類型問題
+- 確保所有導入的組件和函數都存在
+- 檢查接口定義是否完整
+- 驗證 API 端點和數據結構的一致性
+
+### 性能考慮
+- 避免不必要的構建來節省開發時間
+- 使用 TypeScript 編譯器來快速檢查語法錯誤
+- 依賴 IDE 的實時錯誤檢查功能
+
+## 項目特定規則
+
+### 技術棧
+- TypeScript + Next.js App Router
+- Shadcn UI + Radix UI + Tailwind CSS
+- Prisma + PostgreSQL
+- Hono API 框架
+
+### 代碼風格
+- 使用函數式組件
+- 優先使用 Server Components
+- 遵循 Next.js 最佳實踐
+- 使用 ESLint 和 Prettier 進行代碼格式化
+
+### 文件組織
+- 前端代碼放在 `apps/web` 目錄
+- 後端邏輯放在 `packages` 目錄
+- 使用模組化架構
+- 保持清晰的目錄結構

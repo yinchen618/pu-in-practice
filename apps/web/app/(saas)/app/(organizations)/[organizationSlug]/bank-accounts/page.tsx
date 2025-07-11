@@ -25,7 +25,9 @@ export default function BankAccountsPage() {
 		useState<BankAccountFiltersType>({});
 
 	const fetchData = async () => {
-		if (!activeOrganization?.id) return;
+		if (!activeOrganization?.id) {
+			return;
+		}
 
 		setIsLoading(true);
 		try {

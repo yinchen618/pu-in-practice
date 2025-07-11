@@ -177,7 +177,9 @@ export function MyTanStackTable<T extends { id: string }>({
 }: ITableProps<T>) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+		{},
+	);
 	const [rowSelection, setRowSelection] = useState({});
 	const [editingRow, setEditingRow] = useState<string | null>(null);
 	const [editedData, setEditedData] = useState<Partial<T> | null>(null);
@@ -224,7 +226,9 @@ export function MyTanStackTable<T extends { id: string }>({
 	const handleDragEnd = useCallback(
 		async (event: DragEndEvent) => {
 			const { active, over } = event;
-			if (!over || active.id === over.id || !onReorder) return;
+			if (!over || active.id === over.id || !onReorder) {
+				return;
+			}
 
 			const oldIndex = data.findIndex((item) => item.id === active.id);
 			const newIndex = data.findIndex((item) => item.id === over.id);
@@ -248,7 +252,8 @@ export function MyTanStackTable<T extends { id: string }>({
 				} else if (column.type === "select" && column.options) {
 					// 如果是下拉菜单，选择第一个选项作为默认值
 					if (Array.isArray(column.options)) {
-						initialData[column.id as keyof T] = column.options[0] as any;
+						initialData[column.id as keyof T] = column
+							.options[0] as any;
 					} else {
 						initialData[column.id as keyof T] = Object.keys(
 							column.options,
@@ -397,15 +402,23 @@ export function MyTanStackTable<T extends { id: string }>({
 							<SelectContent>
 								{Array.isArray(column.options)
 									? column.options.map((option: string) => (
-											<SelectItem key={option} value={option}>
+											<SelectItem
+												key={option}
+												value={option}
+											>
 												{option}
 											</SelectItem>
 										))
-									: Object.entries(column.options).map(([value, label]) => (
-											<SelectItem key={value} value={value}>
-												{label}
-											</SelectItem>
-										))}
+									: Object.entries(column.options).map(
+											([value, label]) => (
+												<SelectItem
+													key={value}
+													value={value}
+												>
+													{label}
+												</SelectItem>
+											),
+										)}
 							</SelectContent>
 						</Select>
 					</div>
@@ -523,7 +536,9 @@ export function MyTanStackTable<T extends { id: string }>({
 	// 生成列名映射說明
 	const columnMappings = useMemo(() => {
 		return columns
-			.filter((col) => col.editable !== false && col.showBatchAdd !== false)
+			.filter(
+				(col) => col.editable !== false && col.showBatchAdd !== false,
+			)
 			.map((col) => ({
 				id: col.id,
 				header: typeof col.header === "string" ? col.header : col.id,
@@ -532,7 +547,9 @@ export function MyTanStackTable<T extends { id: string }>({
 
 	// 處理批量添加
 	const handleBatchAdd = async () => {
-		if (!onBatchAdd) return;
+		if (!onBatchAdd) {
+			return;
+		}
 
 		setIsBatchAdding(true);
 		setBatchAddErrors([]);
@@ -621,66 +638,104 @@ export function MyTanStackTable<T extends { id: string }>({
 												className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0"
 												style={{ width: column.width }}
 											>
-												{typeof column.header === "string"
+												{typeof column.header ===
+												"string"
 													? column.header
 													: column.id}
 											</th>
 										))}
-										{showSortHandle && <th className="w-[50px]" />}
+										{showSortHandle && (
+											<th className="w-[50px]" />
+										)}
 									</tr>
 								</thead>
 								<SortableContext
 									items={data.map((item) => item.id)}
 									strategy={verticalListSortingStrategy}
 								>
-									<tbody className={cn("border-0", isLoading && "opacity-50")}>
-										{table.getRowModel().rows.length === 0 ? (
+									<tbody
+										className={cn(
+											"border-0",
+											isLoading && "opacity-50",
+										)}
+									>
+										{table.getRowModel().rows.length ===
+										0 ? (
 											<tr>
 												<td
-													colSpan={allColumns.length + (showSortHandle ? 1 : 0)}
+													colSpan={
+														allColumns.length +
+														(showSortHandle ? 1 : 0)
+													}
 													className="h-24 text-center align-middle text-muted-foreground"
 												>
 													無資料
 												</td>
 											</tr>
 										) : (
-											table.getRowModel().rows.map((row) => (
-												<SortableRow
-													key={row.original.id}
-													id={row.original.id}
-													showDragHandle={showSortHandle}
-													selectedRowId={selectedRowId}
-													onClick={
-														onRowClick && !editingRow && !showSortHandle
-															? (e) => {
-																	// 防止點擊按鈕時觸發行點擊
-																	if (
-																		(e.target as HTMLElement).closest("button")
-																	) {
-																		return;
+											table
+												.getRowModel()
+												.rows.map((row) => (
+													<SortableRow
+														key={row.original.id}
+														id={row.original.id}
+														showDragHandle={
+															showSortHandle
+														}
+														selectedRowId={
+															selectedRowId
+														}
+														onClick={
+															onRowClick &&
+															!editingRow &&
+															!showSortHandle
+																? (e) => {
+																		// 防止點擊按鈕時觸發行點擊
+																		if (
+																			(
+																				e.target as HTMLElement
+																			).closest(
+																				"button",
+																			)
+																		) {
+																			return;
+																		}
+																		onRowClick(
+																			row.original,
+																		);
 																	}
-																	onRowClick(row.original);
-																}
-															: undefined
-													}
-												>
-													{allColumns.map((column, index) => (
-														<td
-															key={column.id || index}
-															className="p-4 align-middle [&:has([role=checkbox])]:pr-0"
-														>
-															{renderCell(
-																{
-																	getValue: () =>
-																		row.original[column.id as keyof T],
-																	column: { columnDef: column },
-																},
-																row,
-															)}
-														</td>
-													))}
-												</SortableRow>
-											))
+																: undefined
+														}
+													>
+														{allColumns.map(
+															(column, index) => (
+																<td
+																	key={
+																		column.id ||
+																		index
+																	}
+																	className="p-4 align-middle [&:has([role=checkbox])]:pr-0"
+																>
+																	{renderCell(
+																		{
+																			getValue:
+																				() =>
+																					row
+																						.original[
+																						column.id as keyof T
+																					],
+																			column: {
+																				columnDef:
+																					column,
+																			},
+																		},
+																		row,
+																	)}
+																</td>
+															),
+														)}
+													</SortableRow>
+												))
 										)}
 									</tbody>
 								</SortableContext>
@@ -715,7 +770,12 @@ export function MyTanStackTable<T extends { id: string }>({
 									))}
 								</tr>
 							</thead>
-							<tbody className={cn("border-0", isLoading && "opacity-50")}>
+							<tbody
+								className={cn(
+									"border-0",
+									isLoading && "opacity-50",
+								)}
+							>
 								{table.getRowModel().rows.length === 0 ? (
 									<tr>
 										<td
@@ -732,39 +792,65 @@ export function MyTanStackTable<T extends { id: string }>({
 											className={cn(
 												"border-b transition-colors hover:bg-muted/50",
 												onRowClick && "cursor-pointer",
-												selectedRowId === row.original.id &&
+												selectedRowId ===
+													row.original.id &&
 													"bg-accent/10 hover:bg-accent/15",
 											)}
 											onClick={
 												onRowClick && !editingRow
 													? (e) => {
 															// 防止點擊按鈕時觸發行點擊
-															if ((e.target as HTMLElement).closest("button")) {
+															if (
+																(
+																	e.target as HTMLElement
+																).closest(
+																	"button",
+																)
+															) {
 																return;
 															}
-															onRowClick(row.original);
+															onRowClick(
+																row.original,
+															);
 														}
 													: undefined
 											}
 											onKeyDown={(e) => {
-												if (e.key === "Enter" && onRowClick && !editingRow) {
+												if (
+													e.key === "Enter" &&
+													onRowClick &&
+													!editingRow
+												) {
 													onRowClick(row.original);
 												}
 											}}
-											tabIndex={onRowClick ? 0 : undefined}
-											role={onRowClick ? "button" : undefined}
+											tabIndex={
+												onRowClick ? 0 : undefined
+											}
+											role={
+												onRowClick
+													? "button"
+													: undefined
+											}
 										>
 											{allColumns.map((column, index) => (
 												<td
 													key={column.id || index}
 													className="p-4 align-middle [&:has([role=checkbox])]:pr-0"
-													style={{ width: column.width }}
+													style={{
+														width: column.width,
+													}}
 												>
 													{renderCell(
 														{
 															getValue: () =>
-																row.original[column.id as keyof T],
-															column: { columnDef: column },
+																row.original[
+																	column.id as keyof T
+																],
+															column: {
+																columnDef:
+																	column,
+															},
 														},
 														row,
 													)}
@@ -808,7 +894,10 @@ export function MyTanStackTable<T extends { id: string }>({
 						</SelectTrigger>
 						<SelectContent>
 							{[5, 10, 20, 50, 100].map((pageSize) => (
-								<SelectItem key={pageSize} value={String(pageSize)}>
+								<SelectItem
+									key={pageSize}
+									value={String(pageSize)}
+								>
 									顯示 {pageSize} 列
 								</SelectItem>
 							))}
@@ -861,9 +950,13 @@ export function MyTanStackTable<T extends { id: string }>({
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel disabled={isUpdating}>取消</AlertDialogCancel>
+						<AlertDialogCancel disabled={isUpdating}>
+							取消
+						</AlertDialogCancel>
 						<AlertDialogAction
-							onClick={() => deleteRowId && handleDelete(deleteRowId)}
+							onClick={() =>
+								deleteRowId && handleDelete(deleteRowId)
+							}
 							disabled={isUpdating}
 						>
 							{isUpdating ? (

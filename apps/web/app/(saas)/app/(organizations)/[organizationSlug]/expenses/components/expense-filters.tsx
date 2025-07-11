@@ -81,36 +81,36 @@ export function ExpenseFilters({
 		}
 
 		// 金額範圍篩選
-		if (newFilters.amountMin !== undefined) {
+		if (typeof newFilters.amountMin === "number") {
 			filteredData = filteredData.filter(
 				(item) => item.amount >= newFilters.amountMin!,
 			);
 		}
-		if (newFilters.amountMax !== undefined) {
+		if (typeof newFilters.amountMax === "number") {
 			filteredData = filteredData.filter(
 				(item) => item.amount <= newFilters.amountMax!,
 			);
 		}
 
 		// 新幣金額範圍篩選
-		if (newFilters.sgdAmountMin !== undefined) {
+		if (typeof newFilters.sgdAmountMin === "number") {
 			filteredData = filteredData.filter(
 				(item) => item.sgdAmount >= newFilters.sgdAmountMin!,
 			);
 		}
-		if (newFilters.sgdAmountMax !== undefined) {
+		if (typeof newFilters.sgdAmountMax === "number") {
 			filteredData = filteredData.filter(
 				(item) => item.sgdAmount <= newFilters.sgdAmountMax!,
 			);
 		}
 
 		// 美元金額範圍篩選
-		if (newFilters.usdAmountMin !== undefined) {
+		if (typeof newFilters.usdAmountMin === "number") {
 			filteredData = filteredData.filter(
 				(item) => item.usdAmount >= newFilters.usdAmountMin!,
 			);
 		}
-		if (newFilters.usdAmountMax !== undefined) {
+		if (typeof newFilters.usdAmountMax === "number") {
 			filteredData = filteredData.filter(
 				(item) => item.usdAmount <= newFilters.usdAmountMax!,
 			);

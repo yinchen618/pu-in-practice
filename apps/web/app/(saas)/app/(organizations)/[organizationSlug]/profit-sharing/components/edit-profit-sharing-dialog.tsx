@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { PercentageInput } from "@shared/components/PercentageInput";
 import { SearchableSelect } from "@shared/components/SearchableSelect";
 import { Button } from "@ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/components/card";
 import {
 	Dialog,
 	DialogContent,
@@ -28,6 +29,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@ui/components/select";
+import { cn } from "@ui/lib";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -35,26 +37,117 @@ import { z } from "zod";
 import { CURRENCY_OPTIONS } from "../../constants";
 import type { ProfitSharingRecord } from "./columns";
 
+// 格式化函數
+const formatCurrency = (value: number, currency: string) => {
+	return `${currency} ${value.toLocaleString("en-US", {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	})}`;
+};
+
+const formatPercentage = (value: number) => {
+	return `${value.toFixed(2)}%`;
+};
+
+const formatNumber = (value: number, decimals = 2) => {
+	return value.toLocaleString("en-US", {
+		minimumFractionDigits: decimals,
+		maximumFractionDigits: decimals,
+	});
+};
+
+// 計算分潤金額的函數
+const calculateProfitShare = (
+	totalAmount: number,
+	profitSharePercent: number,
+) => {
+	return Math.round(totalAmount * (profitSharePercent / 100) * 100) / 100;
+};
+
+// 修改驗證函數，返回總和
+const validateProfitSharePercentages = (
+	companyPercent: number,
+	rmPercent: number,
+	finderPercent: number,
+) => {
+	const total = companyPercent + rmPercent + finderPercent;
+	return {
+		isValid: Math.abs(total - 100) < 0.01,
+		total: total,
+	};
+};
+
+// 添加驗證函數
+const validateRMProfitSharePercentages = (rm1Share = 0, rm2Share = 0) => {
+	const total = rm1Share + rm2Share;
+	return Math.abs(total - 100) < 0.01;
+};
+
+const validateFinderProfitSharePercentages = (
+	finder1Share = 0,
+	finder2Share = 0,
+) => {
+	const total = finder1Share + finder2Share;
+	return Math.abs(total - 100) < 0.01;
+};
+
 const editSchema = z.object({
 	customerId: z.string().min(1, "客戶是必填的"),
 	productId: z.string().min(1, "產品是必填的"),
 	bankAccountId: z.string().min(1, "銀行帳戶是必填的"),
+	amount: z.number().min(0, "金額不能為負數"),
 	profitDate: z.string().min(1, "分潤日期是必填的"),
 	currency: z.string().min(1, "幣別是必填的"),
 	companyRevenue: z.number().min(0, "Company revenue 不能為負數"),
 	directTradeBookingFee: z
 		.number()
 		.min(0, "Direct trade booking fee 不能為負數"),
+
+	// 自動計算欄位
 	shareable: z.number().min(0),
 	rmProfitSharePercent: z.number().min(0).max(100),
 	finderProfitSharePercent: z.number().min(0).max(100),
 	companyProfitSharePercent: z.number().min(0).max(100),
-	fxRate: z.number().min(0, "FX Rate 不能為負數"),
+
+	// RM1 資訊
+	rm1Id: z.string().optional(),
+	rm1Name: z.string().optional(),
+	rm1ProfitSharePercent: z.number().min(0).max(100).optional(),
+	rm1RevenueOriginal: z.number().min(0).optional(),
+	rm1RevenueUSD: z.number().min(0).optional(),
+
+	// RM2 資訊
+	rm2Id: z.string().optional(),
+	rm2Name: z.string().optional(),
+	rm2ProfitSharePercent: z.number().min(0).max(100).optional(),
+	rm2RevenueOriginal: z.number().min(0).optional(),
+	rm2RevenueUSD: z.number().min(0).optional(),
+
+	// Finder1 資訊
+	finder1Id: z.string().optional(),
+	finder1Name: z.string().optional(),
+	finder1ProfitSharePercent: z.number().min(0).max(100).optional(),
+	finder1RevenueOriginal: z.number().min(0).optional(),
+	finder1RevenueUSD: z.number().min(0).optional(),
+
+	// Finder2 資訊
+	finder2Id: z.string().optional(),
+	finder2Name: z.string().optional(),
+	finder2ProfitSharePercent: z.number().min(0).max(100).optional(),
+	finder2RevenueOriginal: z.number().min(0).optional(),
+	finder2RevenueUSD: z.number().min(0).optional(),
+
+	// 原幣金額
 	rmRevenueOriginal: z.number().min(0),
 	findersRevenueOriginal: z.number().min(0),
 	companyRevenueOriginal: z.number().min(0),
+
+	// 美金金額
 	rmRevenueUSD: z.number().min(0),
 	findersRevenueUSD: z.number().min(0),
+
+	// 匯率
+	fxRate: z.number().min(0, "FX Rate 不能為負數"),
 });
 
 type EditFormData = z.infer<typeof editSchema>;
@@ -70,6 +163,18 @@ interface Customer {
 	id: string;
 	name: string;
 	code: string;
+	rm1Id: string | null;
+	rm1ProfitShare: number | null;
+	rm2Id: string | null;
+	rm2ProfitShare: number | null;
+	finder1Id: string | null;
+	finder1ProfitShare: number | null;
+	finder2Id: string | null;
+	finder2ProfitShare: number | null;
+	rm1Name?: string;
+	finder1Name?: string;
+	finder2Name?: string;
+	rm2Name?: string;
 }
 
 interface Product {
@@ -99,6 +204,12 @@ export function EditProfitSharingDialog({
 	const [customers, setCustomers] = useState<Customer[]>([]);
 	const [products, setProducts] = useState<Product[]>([]);
 	const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+	const [selectedCustomerRMs, setSelectedCustomerRMs] = useState<{
+		rm1?: { id: string; name: string; profitShare: number };
+		rm2?: { id: string; name: string; profitShare: number };
+		finder1?: { id: string; name: string; profitShare: number };
+		finder2?: { id: string; name: string; profitShare: number };
+	}>({});
 
 	const form = useForm<EditFormData>({
 		resolver: zodResolver(editSchema),
@@ -132,7 +243,7 @@ export function EditProfitSharingDialog({
 				currency: record.currency,
 				companyRevenue: record.companyRevenue,
 				directTradeBookingFee: record.directTradeBookingFee,
-				shareable: record.companyRevenue - record.directTradeBookingFee,
+				shareable: record.shareable,
 				rmProfitSharePercent: record.rmProfitSharePercent,
 				finderProfitSharePercent: record.finderProfitSharePercent,
 				companyProfitSharePercent: record.companyProfitSharePercent,
@@ -142,6 +253,26 @@ export function EditProfitSharingDialog({
 				companyRevenueOriginal: record.companyRevenueOriginal,
 				rmRevenueUSD: record.rmRevenueUSD,
 				findersRevenueUSD: record.findersRevenueUSD,
+				rm1Id: record.rm1Id,
+				rm1Name: record.rm1Name,
+				rm1ProfitSharePercent: record.rm1ProfitSharePercent,
+				rm1RevenueOriginal: record.rm1RevenueOriginal,
+				rm1RevenueUSD: record.rm1RevenueUSD,
+				rm2Id: record.rm2Id,
+				rm2Name: record.rm2Name,
+				rm2ProfitSharePercent: record.rm2ProfitSharePercent,
+				rm2RevenueOriginal: record.rm2RevenueOriginal,
+				rm2RevenueUSD: record.rm2RevenueUSD,
+				finder1Id: record.finder1Id,
+				finder1Name: record.finder1Name,
+				finder1ProfitSharePercent: record.finder1ProfitSharePercent,
+				finder1RevenueOriginal: record.finder1RevenueOriginal,
+				finder1RevenueUSD: record.finder1RevenueUSD,
+				finder2Id: record.finder2Id,
+				finder2Name: record.finder2Name,
+				finder2ProfitSharePercent: record.finder2ProfitSharePercent,
+				finder2RevenueOriginal: record.finder2RevenueOriginal,
+				finder2RevenueUSD: record.finder2RevenueUSD,
 			});
 		}
 	}, [record, form]);
@@ -154,35 +285,224 @@ export function EditProfitSharingDialog({
 		form.setValue("shareable", shareable >= 0 ? shareable : 0);
 	}, [form.watch("companyRevenue"), form.watch("directTradeBookingFee")]);
 
-	// 監聽分潤比例和可分潤金額的變化，計算各方收入
+	// 在 useEffect 中更新自動計算欄位
 	useEffect(() => {
-		const shareable = form.watch("shareable");
-		const rmPercent = form.watch("rmProfitSharePercent");
-		const finderPercent = form.watch("finderProfitSharePercent");
-		const companyPercent = form.watch("companyProfitSharePercent");
-		const fxRate = form.watch("fxRate");
+		const customer = customers.find(
+			(c) => c.id === form.watch("customerId"),
+		);
+		if (customer) {
+			// 設定 RM1 資訊
+			if (customer.rm1Id && customer.rm1Name) {
+				form.setValue("rm1Id", customer.rm1Id);
+				form.setValue("rm1Name", customer.rm1Name);
+				form.setValue(
+					"rm1ProfitSharePercent",
+					customer.rm1ProfitShare || 0,
+				);
+			}
 
-		// 計算原幣收入
-		const rmRevenueOriginal = (shareable * rmPercent) / 100;
-		const findersRevenueOriginal = (shareable * finderPercent) / 100;
-		const companyRevenueOriginal = (shareable * companyPercent) / 100;
+			// 設定 RM2 資訊
+			if (customer.rm2Id && customer.rm2Name) {
+				form.setValue("rm2Id", customer.rm2Id);
+				form.setValue("rm2Name", customer.rm2Name);
+				form.setValue(
+					"rm2ProfitSharePercent",
+					customer.rm2ProfitShare || 0,
+				);
+			}
 
-		// 計算美金收入
-		const rmRevenueUSD = rmRevenueOriginal * fxRate;
-		const findersRevenueUSD = findersRevenueOriginal * fxRate;
+			// 設定 Finder1 資訊
+			if (customer.finder1Id && customer.finder1Name) {
+				form.setValue("finder1Id", customer.finder1Id);
+				form.setValue("finder1Name", customer.finder1Name);
+				form.setValue(
+					"finder1ProfitSharePercent",
+					customer.finder1ProfitShare || 0,
+				);
+			}
 
-		// 更新表單值
-		form.setValue("rmRevenueOriginal", rmRevenueOriginal);
-		form.setValue("findersRevenueOriginal", findersRevenueOriginal);
-		form.setValue("companyRevenueOriginal", companyRevenueOriginal);
-		form.setValue("rmRevenueUSD", rmRevenueUSD);
-		form.setValue("findersRevenueUSD", findersRevenueUSD);
+			// 設定 Finder2 資訊
+			if (customer.finder2Id && customer.finder2Name) {
+				form.setValue("finder2Id", customer.finder2Id);
+				form.setValue("finder2Name", customer.finder2Name);
+				form.setValue(
+					"finder2ProfitSharePercent",
+					customer.finder2ProfitShare || 0,
+				);
+			}
+		}
+	}, [form, customers]);
+
+	// 添加新的 useEffect 來處理分潤比例計算，只在相關值變動時觸發
+	useEffect(() => {
+		// 只在這些值有變動時才計算
+		if (
+			form.formState.dirtyFields.rm1ProfitSharePercent ||
+			form.formState.dirtyFields.rm2ProfitSharePercent ||
+			form.formState.dirtyFields.finder1ProfitSharePercent ||
+			form.formState.dirtyFields.finder2ProfitSharePercent
+		) {
+			const rm1Percent = form.watch("rm1ProfitSharePercent") || 0;
+			const rm2Percent = form.watch("rm2ProfitSharePercent") || 0;
+			const finder1Percent = form.watch("finder1ProfitSharePercent") || 0;
+			const finder2Percent = form.watch("finder2ProfitSharePercent") || 0;
+
+			// 計算總分潤比例
+			const totalRMPercent = rm1Percent + rm2Percent;
+			const totalFinderPercent = finder1Percent + finder2Percent;
+			const totalPercent = totalRMPercent + totalFinderPercent;
+
+			// 更新分潤比例
+			form.setValue("rmProfitSharePercent", totalRMPercent);
+			form.setValue("finderProfitSharePercent", totalFinderPercent);
+			form.setValue(
+				"companyProfitSharePercent",
+				Math.max(0, 100 - totalPercent),
+			);
+
+			// 如果總分潤比例超過 100%，設置錯誤
+			if (totalPercent > 100) {
+				form.setError("rmProfitSharePercent", {
+					type: "manual",
+					message: `分潤比例總和超過 100%，目前為 ${totalPercent.toFixed(2)}%`,
+				});
+				form.setError("finderProfitSharePercent", {
+					type: "manual",
+					message: `分潤比例總和超過 100%，目前為 ${totalPercent.toFixed(2)}%`,
+				});
+			} else {
+				form.clearErrors("rmProfitSharePercent");
+				form.clearErrors("finderProfitSharePercent");
+			}
+		}
 	}, [
+		form,
+		form.watch("rm1ProfitSharePercent"),
+		form.watch("rm2ProfitSharePercent"),
+		form.watch("finder1ProfitSharePercent"),
+		form.watch("finder2ProfitSharePercent"),
+	]);
+
+	// 在 useEffect 中更新分潤金額，只在相關值變動時觸發
+	useEffect(() => {
+		// 只在這些值有變動時才計算
+		if (
+			form.formState.dirtyFields.shareable ||
+			form.formState.dirtyFields.companyProfitSharePercent ||
+			form.formState.dirtyFields.rmProfitSharePercent ||
+			form.formState.dirtyFields.finderProfitSharePercent ||
+			form.formState.dirtyFields.fxRate ||
+			form.formState.dirtyFields.rm1ProfitSharePercent ||
+			form.formState.dirtyFields.rm2ProfitSharePercent ||
+			form.formState.dirtyFields.finder1ProfitSharePercent ||
+			form.formState.dirtyFields.finder2ProfitSharePercent
+		) {
+			const shareable = form.watch("shareable") || 0;
+			const fxRate = form.watch("fxRate") || 1;
+			const companyProfitSharePercent =
+				form.watch("companyProfitSharePercent") || 0;
+			const rmProfitSharePercent =
+				form.watch("rmProfitSharePercent") || 0;
+			const finderProfitSharePercent =
+				form.watch("finderProfitSharePercent") || 0;
+
+			// 計算各方分潤金額
+			const rmRevenue = (shareable * rmProfitSharePercent) / 100;
+			const findersRevenue = (shareable * finderProfitSharePercent) / 100;
+			const companyRevenue =
+				(shareable * companyProfitSharePercent) / 100;
+
+			// 更新原幣分潤金額（四捨五入到小數點後兩位）
+			form.setValue(
+				"rmRevenueOriginal",
+				Math.round(rmRevenue * 100) / 100,
+			);
+			form.setValue(
+				"findersRevenueOriginal",
+				Math.round(findersRevenue * 100) / 100,
+			);
+			form.setValue(
+				"companyRevenueOriginal",
+				Math.round(companyRevenue * 100) / 100,
+			);
+
+			// 更新美金分潤金額（四捨五入到小數點後兩位）
+			form.setValue(
+				"rmRevenueUSD",
+				Math.round(rmRevenue * fxRate * 100) / 100,
+			);
+			form.setValue(
+				"findersRevenueUSD",
+				Math.round(findersRevenue * fxRate * 100) / 100,
+			);
+
+			// 更新個別 RM 和 Finder 的分潤金額
+			const rm1ProfitSharePercent =
+				form.watch("rm1ProfitSharePercent") || 0;
+			const rm2ProfitSharePercent =
+				form.watch("rm2ProfitSharePercent") || 0;
+			const finder1ProfitSharePercent =
+				form.watch("finder1ProfitSharePercent") || 0;
+			const finder2ProfitSharePercent =
+				form.watch("finder2ProfitSharePercent") || 0;
+
+			// 計算並更新 RM1 的分潤金額
+			const rm1Revenue = (rmRevenue * rm1ProfitSharePercent) / 100;
+			form.setValue(
+				"rm1RevenueOriginal",
+				Math.round(rm1Revenue * 100) / 100,
+			);
+			form.setValue(
+				"rm1RevenueUSD",
+				Math.round(rm1Revenue * fxRate * 100) / 100,
+			);
+
+			// 計算並更新 RM2 的分潤金額
+			const rm2Revenue = (rmRevenue * rm2ProfitSharePercent) / 100;
+			form.setValue(
+				"rm2RevenueOriginal",
+				Math.round(rm2Revenue * 100) / 100,
+			);
+			form.setValue(
+				"rm2RevenueUSD",
+				Math.round(rm2Revenue * fxRate * 100) / 100,
+			);
+
+			// 計算並更新 Finder1 的分潤金額
+			const finder1Revenue =
+				(findersRevenue * finder1ProfitSharePercent) / 100;
+			form.setValue(
+				"finder1RevenueOriginal",
+				Math.round(finder1Revenue * 100) / 100,
+			);
+			form.setValue(
+				"finder1RevenueUSD",
+				Math.round(finder1Revenue * fxRate * 100) / 100,
+			);
+
+			// 計算並更新 Finder2 的分潤金額
+			const finder2Revenue =
+				(findersRevenue * finder2ProfitSharePercent) / 100;
+			form.setValue(
+				"finder2RevenueOriginal",
+				Math.round(finder2Revenue * 100) / 100,
+			);
+			form.setValue(
+				"finder2RevenueUSD",
+				Math.round(finder2Revenue * fxRate * 100) / 100,
+			);
+		}
+	}, [
+		form,
 		form.watch("shareable"),
+		form.watch("companyProfitSharePercent"),
 		form.watch("rmProfitSharePercent"),
 		form.watch("finderProfitSharePercent"),
-		form.watch("companyProfitSharePercent"),
 		form.watch("fxRate"),
+		form.watch("rm1ProfitSharePercent"),
+		form.watch("rm2ProfitSharePercent"),
+		form.watch("finder1ProfitSharePercent"),
+		form.watch("finder2ProfitSharePercent"),
 	]);
 
 	// 獲取客戶和產品列表
@@ -271,11 +591,56 @@ export function EditProfitSharingDialog({
 		const customerId = form.watch("customerId");
 		if (customerId) {
 			fetchBankAccounts(customerId);
+			// 找到選中的客戶
+			const selectedCustomer = customers.find((c) => c.id === customerId);
+			if (selectedCustomer) {
+				// 獲取 RM 和 Finder 資訊
+				fetchRMsAndFinders(selectedCustomer);
+			}
 		} else {
 			setBankAccounts([]);
 			form.setValue("bankAccountId", "");
+			setSelectedCustomerRMs({});
 		}
-	}, [form.watch("customerId")]);
+	}, [form.watch("customerId"), customers]);
+
+	const fetchRMsAndFinders = async (customer: Customer) => {
+		const newSelectedRMs: typeof selectedCustomerRMs = {};
+
+		if (customer.rm1Id && customer.rm1Name) {
+			newSelectedRMs.rm1 = {
+				id: customer.rm1Id,
+				name: customer.rm1Name,
+				profitShare: customer.rm1ProfitShare || 0,
+			};
+		}
+
+		if (customer.rm2Id && customer.rm2Name) {
+			newSelectedRMs.rm2 = {
+				id: customer.rm2Id,
+				name: customer.rm2Name,
+				profitShare: customer.rm2ProfitShare || 0,
+			};
+		}
+
+		if (customer.finder1Id && customer.finder1Name) {
+			newSelectedRMs.finder1 = {
+				id: customer.finder1Id,
+				name: customer.finder1Name,
+				profitShare: customer.finder1ProfitShare || 0,
+			};
+		}
+
+		if (customer.finder2Id && customer.finder2Name) {
+			newSelectedRMs.finder2 = {
+				id: customer.finder2Id,
+				name: customer.finder2Name,
+				profitShare: customer.finder2ProfitShare || 0,
+			};
+		}
+
+		setSelectedCustomerRMs(newSelectedRMs);
+	};
 
 	const onSubmit = async (data: EditFormData) => {
 		setIsLoading(true);
@@ -525,7 +890,7 @@ export function EditProfitSharingDialog({
 											<FormControl>
 												<Input
 													type="number"
-													step="0.01"
+													step="1"
 													placeholder="0.00"
 													{...field}
 													onChange={(e) => {
@@ -556,7 +921,7 @@ export function EditProfitSharingDialog({
 											<FormControl>
 												<Input
 													type="number"
-													step="0.01"
+													step="1"
 													placeholder="0.00"
 													{...field}
 													onChange={(e) => {
@@ -585,7 +950,7 @@ export function EditProfitSharingDialog({
 											<FormControl>
 												<Input
 													type="number"
-													step="0.01"
+													step="1"
 													placeholder="0.00"
 													{...field}
 													disabled
@@ -603,64 +968,144 @@ export function EditProfitSharingDialog({
 								<FormField
 									control={form.control}
 									name="companyProfitSharePercent"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>
-												Company分潤 (%)
-											</FormLabel>
-											<FormControl>
-												<PercentageInput
-													placeholder="50.00"
-													{...field}
-													onChange={(value) =>
-														field.onChange(value)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
+									render={({ field }) => {
+										const validation =
+											validateProfitSharePercentages(
+												field.value,
+												form.watch(
+													"rmProfitSharePercent",
+												),
+												form.watch(
+													"finderProfitSharePercent",
+												),
+											);
+										return (
+											<FormItem>
+												<FormLabel>
+													Company分潤 (%)
+												</FormLabel>
+												<FormControl>
+													<div className="relative">
+														<PercentageInput
+															placeholder="50.00"
+															{...field}
+															className={
+																!validation.isValid
+																	? "border-red-500"
+																	: ""
+															}
+														/>
+														{!validation.isValid && (
+															<span className="absolute -bottom-5 left-0 text-xs text-red-500">
+																分潤比例非
+																100%，目前為{" "}
+																{validation.total.toFixed(
+																	2,
+																)}
+																%
+															</span>
+														)}
+													</div>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										);
+									}}
 								/>
 								<FormField
 									control={form.control}
 									name="rmProfitSharePercent"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>RM分潤 (%)</FormLabel>
-											<FormControl>
-												<PercentageInput
-													placeholder="50.00"
-													{...field}
-													onChange={(value) =>
-														field.onChange(value)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
+									render={({ field }) => {
+										const validation =
+											validateProfitSharePercentages(
+												form.watch(
+													"companyProfitSharePercent",
+												),
+												field.value,
+												form.watch(
+													"finderProfitSharePercent",
+												),
+											);
+										return (
+											<FormItem>
+												<FormLabel>
+													RM分潤 (%)
+												</FormLabel>
+												<FormControl>
+													<div className="relative">
+														<PercentageInput
+															placeholder="50.00"
+															{...field}
+															className={
+																!validation.isValid
+																	? "border-red-500"
+																	: ""
+															}
+														/>
+														{!validation.isValid && (
+															<span className="absolute -bottom-5 left-0 text-xs text-red-500">
+																分潤比例非
+																100%，目前為{" "}
+																{validation.total.toFixed(
+																	2,
+																)}
+																%
+															</span>
+														)}
+													</div>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										);
+									}}
 								/>
 
 								<FormField
 									control={form.control}
 									name="finderProfitSharePercent"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>
-												Finder分潤 (%)
-											</FormLabel>
-											<FormControl>
-												<PercentageInput
-													placeholder="0.00"
-													{...field}
-													onChange={(value) =>
-														field.onChange(value)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
+									render={({ field }) => {
+										const validation =
+											validateProfitSharePercentages(
+												form.watch(
+													"companyProfitSharePercent",
+												),
+												form.watch(
+													"rmProfitSharePercent",
+												),
+												field.value,
+											);
+										return (
+											<FormItem>
+												<FormLabel>
+													Finder分潤 (%)
+												</FormLabel>
+												<FormControl>
+													<div className="relative">
+														<PercentageInput
+															placeholder="0.00"
+															{...field}
+															className={
+																!validation.isValid
+																	? "border-red-500"
+																	: ""
+															}
+														/>
+														{!validation.isValid && (
+															<span className="absolute -bottom-5 left-0 text-xs text-red-500">
+																分潤比例非
+																100%，目前為{" "}
+																{validation.total.toFixed(
+																	2,
+																)}
+																%
+															</span>
+														)}
+													</div>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										);
+									}}
 								/>
 								<FormField
 									control={form.control}
@@ -705,7 +1150,7 @@ export function EditProfitSharingDialog({
 											<FormControl>
 												<Input
 													type="number"
-													step="0.01"
+													step="1"
 													placeholder="0.00"
 													{...field}
 													disabled
@@ -725,7 +1170,7 @@ export function EditProfitSharingDialog({
 											<FormControl>
 												<Input
 													type="number"
-													step="0.01"
+													step="1"
 													placeholder="0.00"
 													{...field}
 													disabled
@@ -748,7 +1193,7 @@ export function EditProfitSharingDialog({
 											<FormControl>
 												<Input
 													type="number"
-													step="0.01"
+													step="1"
 													placeholder="0.00"
 													{...field}
 													disabled
@@ -779,7 +1224,7 @@ export function EditProfitSharingDialog({
 											<FormControl>
 												<Input
 													type="number"
-													step="0.01"
+													step="1"
 													placeholder="0.00"
 													{...field}
 													disabled
@@ -802,7 +1247,7 @@ export function EditProfitSharingDialog({
 											<FormControl>
 												<Input
 													type="number"
-													step="0.01"
+													step="1"
 													placeholder="0.00"
 													{...field}
 													disabled
@@ -813,6 +1258,437 @@ export function EditProfitSharingDialog({
 										</FormItem>
 									)}
 								/>
+							</div>
+
+							{/* 第七行：RM 和 Finder 詳細分潤 */}
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								{/* RM 分潤詳細 */}
+								<Card className="h-full">
+									<CardHeader className="pb-2">
+										<CardTitle className="text-base">
+											RM 分潤詳細
+										</CardTitle>
+									</CardHeader>
+									<CardContent className="space-y-4 pt-0">
+										{selectedCustomerRMs.rm1 && (
+											<div className="grid grid-cols-3 gap-4">
+												<FormItem>
+													<FormLabel>RM1</FormLabel>
+													<FormControl>
+														<input
+															disabled
+															value={
+																selectedCustomerRMs
+																	.rm1.name
+															}
+														/>
+													</FormControl>
+												</FormItem>
+												<FormItem>
+													<FormLabel className="text-xs text-muted-foreground">
+														分潤比例 (%)
+													</FormLabel>
+													<FormControl>
+														<div className="relative">
+															<PercentageInput
+																placeholder="0.00"
+																value={
+																	selectedCustomerRMs
+																		.rm1
+																		.profitShare
+																}
+																onChange={(
+																	value,
+																) => {
+																	setSelectedCustomerRMs(
+																		(
+																			prev,
+																		) => ({
+																			...prev,
+																			rm1: prev.rm1
+																				? {
+																						...prev.rm1,
+																						profitShare:
+																							value,
+																					}
+																				: undefined,
+																		}),
+																	);
+																}}
+																className={
+																	!validateRMProfitSharePercentages(
+																		selectedCustomerRMs
+																			.rm1
+																			?.profitShare ||
+																			0,
+																		selectedCustomerRMs
+																			.rm2
+																			?.profitShare ||
+																			0,
+																	)
+																		? "border-red-500 focus:border-red-500 focus:ring-red-500"
+																		: ""
+																}
+															/>
+														</div>
+													</FormControl>
+												</FormItem>
+												<FormItem>
+													<FormLabel className="text-xs text-muted-foreground">
+														分潤金額 (美金)
+													</FormLabel>
+													<FormControl>
+														<Input
+															type="number"
+															step="1"
+															placeholder="0.00"
+															value={calculateProfitShare(
+																form.watch(
+																	"rmRevenueUSD",
+																),
+																selectedCustomerRMs
+																	.rm1
+																	.profitShare,
+															)}
+															disabled
+														/>
+													</FormControl>
+												</FormItem>
+											</div>
+										)}
+										{selectedCustomerRMs.rm2 && (
+											<div className="grid grid-cols-3 gap-4">
+												<FormItem>
+													<FormLabel>RM2</FormLabel>
+													<FormControl>
+														<input
+															disabled
+															value={
+																selectedCustomerRMs
+																	.rm2.name
+															}
+														/>
+													</FormControl>
+												</FormItem>
+												<FormItem>
+													<FormLabel className="text-xs text-muted-foreground">
+														分潤比例 (%)
+													</FormLabel>
+													<FormControl>
+														<div className="relative">
+															<PercentageInput
+																placeholder="0.00"
+																value={
+																	selectedCustomerRMs
+																		.rm2
+																		.profitShare
+																}
+																onChange={(
+																	value,
+																) => {
+																	setSelectedCustomerRMs(
+																		(
+																			prev,
+																		) => ({
+																			...prev,
+																			rm2: prev.rm2
+																				? {
+																						...prev.rm2,
+																						profitShare:
+																							value,
+																					}
+																				: undefined,
+																		}),
+																	);
+																}}
+																className={
+																	!validateRMProfitSharePercentages(
+																		selectedCustomerRMs
+																			.rm1
+																			?.profitShare ||
+																			0,
+																		selectedCustomerRMs
+																			.rm2
+																			?.profitShare ||
+																			0,
+																	)
+																		? "border-red-500 focus:border-red-500 focus:ring-red-500"
+																		: ""
+																}
+															/>
+														</div>
+													</FormControl>
+												</FormItem>
+												<FormItem>
+													<FormLabel className="text-xs text-muted-foreground">
+														分潤金額 (美金)
+													</FormLabel>
+													<FormControl>
+														<Input
+															type="number"
+															step="1"
+															placeholder="0.00"
+															value={calculateProfitShare(
+																form.watch(
+																	"rmRevenueUSD",
+																),
+																selectedCustomerRMs
+																	.rm2
+																	.profitShare,
+															)}
+															disabled
+														/>
+													</FormControl>
+												</FormItem>
+											</div>
+										)}
+										{/* 顯示 RM 分潤比例總和 */}
+										{(selectedCustomerRMs.rm1 ||
+											selectedCustomerRMs.rm2) && (
+											<div
+												className={cn(
+													"text-xs",
+													validateRMProfitSharePercentages(
+														selectedCustomerRMs.rm1
+															?.profitShare || 0,
+														selectedCustomerRMs.rm2
+															?.profitShare || 0,
+													)
+														? "text-muted-foreground"
+														: "text-red-500",
+												)}
+											>
+												比例總和{" "}
+												{(
+													(selectedCustomerRMs.rm1
+														?.profitShare || 0) +
+													(selectedCustomerRMs.rm2
+														?.profitShare || 0)
+												).toFixed(2)}
+												%/100%
+											</div>
+										)}
+									</CardContent>
+								</Card>
+
+								{/* Finder 分潤詳細 */}
+								<Card className="h-full">
+									<CardHeader className="pb-2">
+										<CardTitle className="text-base">
+											Finder 分潤詳細
+										</CardTitle>
+									</CardHeader>
+									<CardContent className="space-y-4 pt-0">
+										{selectedCustomerRMs.finder1 && (
+											<div className="grid grid-cols-3 gap-4">
+												<FormItem>
+													<FormLabel>
+														Finder1
+													</FormLabel>
+													<FormControl>
+														<input
+															disabled
+															value={
+																selectedCustomerRMs
+																	.finder1
+																	.name
+															}
+														/>
+													</FormControl>
+												</FormItem>
+												<FormItem>
+													<FormLabel className="text-xs text-muted-foreground">
+														分潤比例 (%)
+													</FormLabel>
+													<FormControl>
+														<div className="relative">
+															<PercentageInput
+																placeholder="0.00"
+																value={
+																	selectedCustomerRMs
+																		.finder1
+																		.profitShare
+																}
+																onChange={(
+																	value,
+																) => {
+																	setSelectedCustomerRMs(
+																		(
+																			prev,
+																		) => ({
+																			...prev,
+																			finder1:
+																				prev.finder1
+																					? {
+																							...prev.finder1,
+																							profitShare:
+																								value,
+																						}
+																					: undefined,
+																		}),
+																	);
+																}}
+																className={
+																	!validateFinderProfitSharePercentages(
+																		selectedCustomerRMs
+																			.finder1
+																			?.profitShare ||
+																			0,
+																		selectedCustomerRMs
+																			.finder2
+																			?.profitShare ||
+																			0,
+																	)
+																		? "border-red-500 focus:border-red-500 focus:ring-red-500"
+																		: ""
+																}
+															/>
+														</div>
+													</FormControl>
+												</FormItem>
+												<FormItem>
+													<FormLabel className="text-xs text-muted-foreground">
+														分潤金額 (美金)
+													</FormLabel>
+													<FormControl>
+														<Input
+															type="number"
+															step="1"
+															placeholder="0.00"
+															value={calculateProfitShare(
+																form.watch(
+																	"findersRevenueUSD",
+																),
+																selectedCustomerRMs
+																	.finder1
+																	.profitShare,
+															)}
+															disabled
+														/>
+													</FormControl>
+												</FormItem>
+											</div>
+										)}
+										{selectedCustomerRMs.finder2 && (
+											<div className="grid grid-cols-3 gap-4">
+												<FormItem>
+													<FormLabel>
+														Finder2
+													</FormLabel>
+													<FormControl>
+														<input
+															disabled
+															value={
+																selectedCustomerRMs
+																	.finder2
+																	.name
+															}
+														/>
+													</FormControl>
+												</FormItem>
+												<FormItem>
+													<FormLabel className="text-xs text-muted-foreground">
+														分潤比例 (%)
+													</FormLabel>
+													<FormControl>
+														<div className="relative">
+															<PercentageInput
+																placeholder="0.00"
+																value={
+																	selectedCustomerRMs
+																		.finder2
+																		.profitShare
+																}
+																onChange={(
+																	value,
+																) => {
+																	setSelectedCustomerRMs(
+																		(
+																			prev,
+																		) => ({
+																			...prev,
+																			finder2:
+																				prev.finder2
+																					? {
+																							...prev.finder2,
+																							profitShare:
+																								value,
+																						}
+																					: undefined,
+																		}),
+																	);
+																}}
+																className={
+																	!validateFinderProfitSharePercentages(
+																		selectedCustomerRMs
+																			.finder1
+																			?.profitShare ||
+																			0,
+																		selectedCustomerRMs
+																			.finder2
+																			?.profitShare ||
+																			0,
+																	)
+																		? "border-red-500 focus:border-red-500 focus:ring-red-500"
+																		: ""
+																}
+															/>
+														</div>
+													</FormControl>
+												</FormItem>
+												<FormItem>
+													<FormLabel className="text-xs text-muted-foreground">
+														分潤金額 (美金)
+													</FormLabel>
+													<FormControl>
+														<Input
+															type="number"
+															step="1"
+															placeholder="0.00"
+															value={calculateProfitShare(
+																form.watch(
+																	"findersRevenueUSD",
+																),
+																selectedCustomerRMs
+																	.finder2
+																	.profitShare,
+															)}
+															disabled
+														/>
+													</FormControl>
+												</FormItem>
+											</div>
+										)}
+										{/* 顯示 Finder 分潤比例總和 */}
+										{(selectedCustomerRMs.finder1 ||
+											selectedCustomerRMs.finder2) && (
+											<div
+												className={cn(
+													"text-xs",
+													validateFinderProfitSharePercentages(
+														selectedCustomerRMs
+															.finder1
+															?.profitShare || 0,
+														selectedCustomerRMs
+															.finder2
+															?.profitShare || 0,
+													)
+														? "text-muted-foreground"
+														: "text-red-500",
+												)}
+											>
+												比例總和{" "}
+												{(
+													(selectedCustomerRMs.finder1
+														?.profitShare || 0) +
+													(selectedCustomerRMs.finder2
+														?.profitShare || 0)
+												).toFixed(2)}
+												%/100%
+											</div>
+										)}
+									</CardContent>
+								</Card>
 							</div>
 						</div>
 

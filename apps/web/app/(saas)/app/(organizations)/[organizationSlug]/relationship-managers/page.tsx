@@ -24,7 +24,9 @@ export default function RelationshipManagersPage() {
 	const [error, setError] = useState<string | null>(null);
 
 	const fetchData = async () => {
-		if (!activeOrganization?.id) return;
+		if (!activeOrganization?.id) {
+			return;
+		}
 
 		setIsLoading(true);
 		setError(null);

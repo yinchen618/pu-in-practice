@@ -128,7 +128,9 @@ export function CustomerFilters({
 
 	// 獲取篩選器標籤顯示名稱
 	const getFilterLabel = (id: string | undefined, type: string) => {
-		if (!id) return "";
+		if (!id) {
+			return "";
+		}
 		const rm = relationshipManagers.find((rm) => rm.id === id);
 		return rm ? `${type}: ${rm.name}` : "";
 	};

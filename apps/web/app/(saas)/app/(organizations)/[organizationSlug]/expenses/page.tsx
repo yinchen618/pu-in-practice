@@ -28,7 +28,9 @@ export default function ExpensesPage() {
 	);
 
 	const fetchData = async () => {
-		if (!activeOrganization?.id) return;
+		if (!activeOrganization?.id) {
+			return;
+		}
 
 		setIsLoading(true);
 		try {

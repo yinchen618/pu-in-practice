@@ -254,7 +254,7 @@ export function NavBar() {
 						{menuItems.map((menuItem, index) => (
 							<li key={menuItem.href || `menu-${index}`}>
 								<Link
-									href={menuItem.href!}
+									href={menuItem.href || "#"}
 									className={cn(
 										"flex items-center gap-2 whitespace-nowrap border-b-2 px-1 pb-3",
 										[
@@ -288,7 +288,7 @@ export function NavBar() {
 						{menuItems.map((menuItem, index) => (
 							<li key={menuItem.href || `menu-${index}`}>
 								<Link
-									href={menuItem.href!}
+									href={menuItem.href || "#"}
 									className="flex items-center justify-center p-2 rounded-md hover:bg-muted transition-colors"
 									title={menuItem.label}
 								>

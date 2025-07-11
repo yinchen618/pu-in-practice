@@ -35,8 +35,12 @@ const MenuBar = ({ editor, onImageUpload }: MenuBarProps) => {
 		imageInputRef.current?.click();
 	};
 
-	const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (!onImageUpload) return;
+	const handleImageChange = async (
+		e: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		if (!onImageUpload) {
+			return;
+		}
 		const file = e.target.files?.[0];
 		if (file) {
 			const url = await onImageUpload(file);
@@ -70,9 +74,13 @@ const MenuBar = ({ editor, onImageUpload }: MenuBarProps) => {
 			<Button
 				variant="ghost"
 				size="sm"
-				onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+				onClick={() =>
+					editor.chain().focus().toggleHeading({ level: 1 }).run()
+				}
 				className={
-					editor.isActive("heading", { level: 1 }) ? "bg-slate-200" : ""
+					editor.isActive("heading", { level: 1 })
+						? "bg-slate-200"
+						: ""
 				}
 			>
 				<Heading1 className="h-4 w-4" />
@@ -80,9 +88,13 @@ const MenuBar = ({ editor, onImageUpload }: MenuBarProps) => {
 			<Button
 				variant="ghost"
 				size="sm"
-				onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+				onClick={() =>
+					editor.chain().focus().toggleHeading({ level: 2 }).run()
+				}
 				className={
-					editor.isActive("heading", { level: 2 }) ? "bg-slate-200" : ""
+					editor.isActive("heading", { level: 2 })
+						? "bg-slate-200"
+						: ""
 				}
 			>
 				<Heading2 className="h-4 w-4" />
@@ -90,9 +102,13 @@ const MenuBar = ({ editor, onImageUpload }: MenuBarProps) => {
 			<Button
 				variant="ghost"
 				size="sm"
-				onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+				onClick={() =>
+					editor.chain().focus().toggleHeading({ level: 3 }).run()
+				}
 				className={
-					editor.isActive("heading", { level: 3 }) ? "bg-slate-200" : ""
+					editor.isActive("heading", { level: 3 })
+						? "bg-slate-200"
+						: ""
 				}
 			>
 				<Heading3 className="h-4 w-4" />
@@ -131,7 +147,11 @@ const MenuBar = ({ editor, onImageUpload }: MenuBarProps) => {
 			</Button>
 			{onImageUpload && (
 				<>
-					<Button variant="ghost" size="sm" onClick={handleImageClick}>
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={handleImageClick}
+					>
 						<ImagePlus className="h-4 w-4" />
 					</Button>
 					<input

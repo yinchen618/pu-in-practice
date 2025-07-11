@@ -65,7 +65,9 @@ export default function CustomerProfilePage() {
 	const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
 	const fetchCustomerData = async () => {
-		if (!activeOrganization?.id) return;
+		if (!activeOrganization?.id) {
+			return;
+		}
 
 		setIsLoading(true);
 		try {
@@ -90,7 +92,9 @@ export default function CustomerProfilePage() {
 	};
 
 	const fetchCustomerProducts = async () => {
-		if (!activeOrganization?.id) return;
+		if (!activeOrganization?.id) {
+			return;
+		}
 
 		try {
 			const response = await fetch(
@@ -116,7 +120,9 @@ export default function CustomerProfilePage() {
 	};
 
 	const fetchRelationshipManagers = async () => {
-		if (!activeOrganization?.id) return;
+		if (!activeOrganization?.id) {
+			return;
+		}
 
 		try {
 			const response = await fetch(
@@ -140,7 +146,9 @@ export default function CustomerProfilePage() {
 	};
 
 	const fetchBankAccounts = async () => {
-		if (!activeOrganization?.id) return;
+		if (!activeOrganization?.id) {
+			return;
+		}
 		setIsBankAccountsLoading(true);
 		try {
 			const response = await fetch(
