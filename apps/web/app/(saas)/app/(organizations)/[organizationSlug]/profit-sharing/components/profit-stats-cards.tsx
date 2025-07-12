@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/components/card";
+import { useQueryState } from "nuqs";
 import {
 	aggregatePersonProfits,
 	calculateProfitStats,
@@ -11,10 +12,21 @@ interface ProfitStatsCardsProps {
 }
 
 export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
+	// 使用 nuqs 管理 URL 參數
+	const [rmFinder, setRmFinder] = useQueryState("rmFinder");
+	const [rmFinderType, setRmFinderType] = useQueryState("rmFinderType");
+	const [currency, setCurrency] = useQueryState("currency");
+
 	// 使用抽象化的統計函式
 	const stats = calculateProfitStats(data);
 	const rmStats = aggregatePersonProfits(data, "rm");
 	const finderStats = aggregatePersonProfits(data, "finder");
+
+	// 處理人名點擊
+	const handlePersonClick = (name: string, type: "rm" | "finder") => {
+		setRmFinder(name);
+		setRmFinderType(type);
+	};
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -84,28 +96,34 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 						<div className="mt-4 space-y-1.5">
 							{Object.entries(stats.companyProfitByCurrency)
 								.sort(([, a], [, b]) => b.totalUSD - a.totalUSD) // 按 USD 金額排序
-								.map(([currency, data]) => {
-									// 計算該幣別在總計中的佔比
+								.map(([currencyKey, data]) => {
 									const percentage =
 										stats.totalCompanyProfit > 0
 											? (data.totalUSD /
 													stats.totalCompanyProfit) *
 												100
 											: 0;
-
 									return (
 										<div
-											key={currency}
+											key={currencyKey}
 											className="flex items-center justify-between text-sm"
 										>
-											<span className="font-medium">
+											<button
+												type="button"
+												onClick={() =>
+													setCurrency(currencyKey)
+												}
+												className="flex items-center gap-1 font-medium text-primary underline underline-offset-2 hover:bg-primary/10 rounded px-1 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
+												aria-label={`篩選 ${currencyKey} 幣別`}
+											>
+												{/* <MousePointerClick className="size-4" /> */}
 												<span className="font-mono">
 													{formatCurrency(
 														data.amount,
-														currency,
+														currencyKey,
 													)}
 												</span>
-											</span>
+											</button>
 											<div className="text-right">
 												<span className="ml-2 text-xs text-muted-foreground">
 													{data.count} 筆 •{" "}
@@ -137,9 +155,17 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 									key={p.name}
 									className="flex items-center justify-between text-sm"
 								>
-									<span className="font-medium">
+									<button
+										type="button"
+										onClick={() =>
+											handlePersonClick(p.name, "rm")
+										}
+										className="flex items-center gap-1 font-medium text-primary underline underline-offset-2 hover:bg-primary/10 rounded px-1 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
+										aria-label={`篩選 ${p.name} 的分潤`}
+									>
+										{/* <MousePointerClick className="size-4" /> */}
 										{p.name}
-									</span>
+									</button>
 									<div className="text-right">
 										<span className="font-mono">
 											{formatCurrency(p.profit, "USD")}
@@ -178,9 +204,17 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 									key={p.name}
 									className="flex items-center justify-between text-sm"
 								>
-									<span className="font-medium">
+									<button
+										type="button"
+										onClick={() =>
+											handlePersonClick(p.name, "finder")
+										}
+										className="flex items-center gap-1 font-medium text-primary underline underline-offset-2 hover:bg-primary/10 rounded px-1 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
+										aria-label={`篩選 ${p.name} 的分潤`}
+									>
+										{/* <MousePointerClick className="size-4" /> */}
 										{p.name}
-									</span>
+									</button>
 									<div className="text-right">
 										<span className="font-mono">
 											{formatCurrency(p.profit, "USD")}

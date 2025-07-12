@@ -9,7 +9,6 @@ import { createColumns } from "./components/columns";
 import { CreateProfitSharingDialog } from "./components/create-profit-sharing-dialog";
 import { EditProfitSharingDialog } from "./components/edit-profit-sharing-dialog";
 import { ProfitSharingFilters } from "./components/profit-sharing-filters";
-import type { ProfitSharingFilters as ProfitSharingFiltersType } from "./components/profit-sharing-filters";
 import { ProfitStatsCards } from "./components/profit-stats-cards";
 
 export default function ProfitSharingPage() {
@@ -20,8 +19,6 @@ export default function ProfitSharingPage() {
 	const [editingRecord, setEditingRecord] =
 		useState<ProfitSharingRecord | null>(null);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
-	const [currentFilters, setCurrentFilters] =
-		useState<ProfitSharingFiltersType>({});
 
 	const fetchData = async () => {
 		if (!activeOrganization?.id) {
@@ -67,10 +64,6 @@ export default function ProfitSharingPage() {
 		setFilteredData(newFilteredData);
 	};
 
-	const handleFiltersChange = (filters: ProfitSharingFiltersType) => {
-		setCurrentFilters(filters);
-	};
-
 	const columns = createColumns(handleEdit);
 
 	useEffect(() => {
@@ -101,7 +94,6 @@ export default function ProfitSharingPage() {
 			<ProfitSharingFilters
 				data={allData}
 				onFilterChange={handleFilterChange}
-				onFiltersChange={handleFiltersChange}
 			/>
 
 			{/* 統計卡片 */}

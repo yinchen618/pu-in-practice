@@ -128,16 +128,27 @@ export function createColumns(
 			),
 		},
 		{
-			accessorKey: "productCode",
+			accessorKey: "productInfo",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="產品代碼" />
+				<DataTableColumnHeader column={column} title="產品" />
 			),
-		},
-		{
-			accessorKey: "productName",
-			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="產品名稱" />
-			),
+			cell: ({ row }) => {
+				const code = row.original.productCode;
+				const name = row.original.productName;
+				return (
+					<div>
+						<div className="font-mono text-xs text-muted-foreground">
+							{code}
+						</div>
+						<div className="font-medium">{name}</div>
+					</div>
+				);
+			},
+			sortingFn: (rowA, rowB) => {
+				const codeA = rowA.original.productCode || "";
+				const codeB = rowB.original.productCode || "";
+				return codeA.localeCompare(codeB, "en", { numeric: true });
+			},
 		},
 		// 第二行：基本資訊
 		// {
