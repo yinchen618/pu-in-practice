@@ -47,9 +47,9 @@ export function ProfitSharingFilters({
 	const [dateTo, setDateTo] = useQueryState("dateTo");
 	const [year, setYear] = useQueryState("year");
 	const [month, setMonth] = useQueryState("month");
-	const [rmFinder, setRmFinder] = useQueryState("rmFinder");
-	const [rmFinderType, setRmFinderType] = useQueryState("rmFinderType");
 	const [currency, setCurrency] = useQueryState("currency");
+	const [rmName, setRmName] = useQueryState("rmName");
+	const [finderName, setFinderName] = useQueryState("finderName");
 
 	const [isExpanded, setIsExpanded] = useState(false);
 
@@ -62,9 +62,9 @@ export function ProfitSharingFilters({
 			dateTo: dateTo || undefined,
 			year: year || undefined,
 			month: month || undefined,
-			rmFinder: rmFinder || undefined,
-			rmFinderType: (rmFinderType as "rm" | "finder") || undefined,
 			currency: currency || undefined,
+			rmName: rmName || undefined,
+			finderName: finderName || undefined,
 		}),
 		[
 			search,
@@ -73,9 +73,9 @@ export function ProfitSharingFilters({
 			dateTo,
 			year,
 			month,
-			rmFinder,
-			rmFinderType,
 			currency,
+			rmName,
+			finderName,
 		],
 	);
 
@@ -136,7 +136,12 @@ export function ProfitSharingFilters({
 		{ value: "12", label: "12月" },
 	];
 
-	const applyFilters = (newFilters: ProfitSharingFilters) => {
+	const applyFilters = (
+		newFilters: ProfitSharingFilters & {
+			rmName?: string;
+			finderName?: string;
+		},
+	) => {
 		onFiltersChange?.(newFilters);
 
 		let filteredData = [...data];
@@ -178,25 +183,21 @@ export function ProfitSharingFilters({
 			});
 		}
 
-		// RM/Finder 篩選
-		if (newFilters.rmFinder && newFilters.rmFinderType) {
-			filteredData = filteredData.filter((item) => {
-				if (newFilters.rmFinderType === "rm") {
-					// 搜尋 RM1 和 RM2
-					return (
-						item.rm1Name === newFilters.rmFinder ||
-						item.rm2Name === newFilters.rmFinder
-					);
-				}
-				if (newFilters.rmFinderType === "finder") {
-					// 搜尋 Finder1 和 Finder2
-					return (
-						item.finder1Name === newFilters.rmFinder ||
-						item.finder2Name === newFilters.rmFinder
-					);
-				}
-				return false;
-			});
+		// RM 篩選
+		if (newFilters.rmName) {
+			filteredData = filteredData.filter(
+				(item) =>
+					item.rm1Name === newFilters.rmName ||
+					item.rm2Name === newFilters.rmName,
+			);
+		}
+		// Finder 篩選
+		if (newFilters.finderName) {
+			filteredData = filteredData.filter(
+				(item) =>
+					item.finder1Name === newFilters.finderName ||
+					item.finder2Name === newFilters.finderName,
+			);
 		}
 
 		// 原幣篩選
@@ -230,7 +231,10 @@ export function ProfitSharingFilters({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [filters, data]);
 
-	const updateFilter = (key: keyof ProfitSharingFilters, value: any) => {
+	const updateFilter = (
+		key: keyof ProfitSharingFilters | "rmName" | "finderName",
+		value: any,
+	) => {
 		// 更新對應的 URL 參數
 		switch (key) {
 			case "search":
@@ -251,14 +255,14 @@ export function ProfitSharingFilters({
 			case "month":
 				setMonth(value || null);
 				break;
-			case "rmFinder":
-				setRmFinder(value || null);
-				break;
-			case "rmFinderType":
-				setRmFinderType(value || null);
-				break;
 			case "currency":
 				setCurrency(value || null);
+				break;
+			case "rmName":
+				setRmName(value || null);
+				break;
+			case "finderName":
+				setFinderName(value || null);
 				break;
 		}
 	};
@@ -271,9 +275,9 @@ export function ProfitSharingFilters({
 		setDateTo(null);
 		setYear(null);
 		setMonth(null);
-		setRmFinder(null);
-		setRmFinderType(null);
 		setCurrency(null);
+		setRmName(null);
+		setFinderName(null);
 	};
 
 	const hasActiveFilters = Object.values(filters).some(
@@ -360,6 +364,32 @@ export function ProfitSharingFilters({
 						</Select>
 					</div>
 
+					{/* 原幣篩選 */}
+					<div className="space-y-2">
+						<Label className="text-sm font-medium">原幣</Label>
+						<Select
+							value={filters.currency || ""}
+							onValueChange={(value) =>
+								updateFilter(
+									"currency",
+									value === "all" ? undefined : value,
+								)
+							}
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="選擇原幣" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">全部原幣</SelectItem>
+								{uniqueCurrencies.map((currency) => (
+									<SelectItem key={currency} value={currency}>
+										{currency}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+
 					{/* 年份篩選 */}
 					<div className="space-y-2">
 						<Label className="text-sm font-medium">年份</Label>
@@ -417,99 +447,6 @@ export function ProfitSharingFilters({
 							</SelectContent>
 						</Select>
 					</div>
-
-					{/* RM/Finder 類型選擇 */}
-					<div className="space-y-2">
-						<Label className="text-sm font-medium">人員類型</Label>
-						<Select
-							value={filters.rmFinderType || ""}
-							onValueChange={(value) => {
-								updateFilter(
-									"rmFinderType",
-									value === "all"
-										? undefined
-										: (value as "rm" | "finder"),
-								);
-								// 清除已選擇的人員
-								if (value === "all") {
-									updateFilter("rmFinder", undefined);
-								}
-							}}
-						>
-							<SelectTrigger>
-								<SelectValue placeholder="選擇人員類型" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">全部人員</SelectItem>
-								<SelectItem value="rm">RM</SelectItem>
-								<SelectItem value="finder">Finder</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
-
-					{/* RM/Finder 人員選擇 */}
-					{filters.rmFinderType && (
-						<div className="space-y-2">
-							<Label className="text-sm font-medium">
-								{filters.rmFinderType === "rm"
-									? "RM"
-									: "Finder"}
-							</Label>
-							<Select
-								value={filters.rmFinder || ""}
-								onValueChange={(value) =>
-									updateFilter(
-										"rmFinder",
-										value === "all" ? undefined : value,
-									)
-								}
-							>
-								<SelectTrigger>
-									<SelectValue
-										placeholder={`選擇${filters.rmFinderType === "rm" ? "RM" : "Finder"}`}
-									/>
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">全部</SelectItem>
-									{(filters.rmFinderType === "rm"
-										? uniqueRMNames
-										: uniqueFinderNames
-									).map((name) => (
-										<SelectItem key={name} value={name}>
-											{name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-					)}
-
-					{/* 原幣篩選 */}
-					<div className="space-y-2">
-						<Label className="text-sm font-medium">原幣</Label>
-						<Select
-							value={filters.currency || ""}
-							onValueChange={(value) =>
-								updateFilter(
-									"currency",
-									value === "all" ? undefined : value,
-								)
-							}
-						>
-							<SelectTrigger>
-								<SelectValue placeholder="選擇原幣" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">全部原幣</SelectItem>
-								{uniqueCurrencies.map((currency) => (
-									<SelectItem key={currency} value={currency}>
-										{currency}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-
 					{/* 日期範圍篩選 */}
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
@@ -534,6 +471,57 @@ export function ProfitSharingFilters({
 								}
 							/>
 						</div>
+					</div>
+
+					{/* RM 篩選 */}
+					<div className="space-y-2">
+						<Label className="text-sm font-medium">RM</Label>
+						<Select
+							value={filters.rmName || ""}
+							onValueChange={(value) =>
+								updateFilter(
+									"rmName",
+									value === "all" ? undefined : value,
+								)
+							}
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="選擇RM" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">全部</SelectItem>
+								{uniqueRMNames.map((name) => (
+									<SelectItem key={name} value={name}>
+										{name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+					{/* Finder 篩選 */}
+					<div className="space-y-2">
+						<Label className="text-sm font-medium">Finder</Label>
+						<Select
+							value={filters.finderName || ""}
+							onValueChange={(value) =>
+								updateFilter(
+									"finderName",
+									value === "all" ? undefined : value,
+								)
+							}
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="選擇Finder" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">全部</SelectItem>
+								{uniqueFinderNames.map((name) => (
+									<SelectItem key={name} value={name}>
+										{name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 				</div>
 			)}
@@ -573,6 +561,20 @@ export function ProfitSharingFilters({
 								</button>
 							</Badge>
 						)}
+					{filters.currency && (
+						<Badge status="info" className="gap-1">
+							原幣: {filters.currency}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("currency", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
 					{filters.year && (
 						<Badge status="info" className="gap-1">
 							年份: {filters.year}年
@@ -602,36 +604,6 @@ export function ProfitSharingFilters({
 							</button>
 						</Badge>
 					)}
-					{filters.rmFinder && filters.rmFinderType && (
-						<Badge status="info" className="gap-1">
-							{filters.rmFinderType === "rm" ? "RM" : "Finder"}:{" "}
-							{filters.rmFinder}
-							<button
-								type="button"
-								onClick={() => {
-									updateFilter("rmFinder", undefined);
-									updateFilter("rmFinderType", undefined);
-								}}
-								className="ml-1 hover:bg-destructive/20 rounded-full"
-							>
-								<X className="size-3" />
-							</button>
-						</Badge>
-					)}
-					{filters.currency && (
-						<Badge status="info" className="gap-1">
-							原幣: {filters.currency}
-							<button
-								type="button"
-								onClick={() =>
-									updateFilter("currency", undefined)
-								}
-								className="ml-1 hover:bg-destructive/20 rounded-full"
-							>
-								<X className="size-3" />
-							</button>
-						</Badge>
-					)}
 					{filters.dateFrom && (
 						<Badge status="info" className="gap-1">
 							開始: {filters.dateFrom}
@@ -653,6 +625,34 @@ export function ProfitSharingFilters({
 								type="button"
 								onClick={() =>
 									updateFilter("dateTo", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.rmName && (
+						<Badge status="info" className="gap-1">
+							RM: {filters.rmName}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("rmName", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.finderName && (
+						<Badge status="info" className="gap-1">
+							Finder: {filters.finderName}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("finderName", undefined)
 								}
 								className="ml-1 hover:bg-destructive/20 rounded-full"
 							>
