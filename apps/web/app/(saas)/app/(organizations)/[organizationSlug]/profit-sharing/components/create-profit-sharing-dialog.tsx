@@ -31,10 +31,11 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { cn } from "@ui/lib";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useExchangeRate } from "../../../../../../../hooks/use-exchange-rate";
 import { CURRENCY_OPTIONS } from "../../constants";
 
 // 格式化函數
@@ -212,6 +213,9 @@ export function CreateProfitSharingDialog({
 		finder2?: { id: string; name: string; profitShare: number };
 	}>({});
 
+	// 獲取今天的日期字符串（YYYY-MM-DD格式）
+	const today = new Date().toISOString().split("T")[0];
+
 	const form = useForm<CreateFormData>({
 		resolver: zodResolver(createSchema),
 		defaultValues: {
@@ -229,9 +233,66 @@ export function CreateProfitSharingDialog({
 			companyRevenueOriginal: 0,
 			rmRevenueUSD: 0,
 			findersRevenueUSD: 0,
-			profitDate: new Date().toISOString().split("T")[0],
+			profitDate: today,
+
+			// RM1 資訊
+			rm1Id: undefined,
+			rm1Name: undefined,
+			rm1ProfitSharePercent: undefined,
+			rm1RevenueOriginal: 0,
+			rm1RevenueUSD: 0,
+
+			// RM2 資訊
+			rm2Id: undefined,
+			rm2Name: undefined,
+			rm2ProfitSharePercent: undefined,
+			rm2RevenueOriginal: 0,
+			rm2RevenueUSD: 0,
+
+			// Finder1 資訊
+			finder1Id: undefined,
+			finder1Name: undefined,
+			finder1ProfitSharePercent: undefined,
+			finder1RevenueOriginal: 0,
+			finder1RevenueUSD: 0,
+
+			// Finder2 資訊
+			finder2Id: undefined,
+			finder2Name: undefined,
+			finder2ProfitSharePercent: undefined,
+			finder2RevenueOriginal: 0,
+			finder2RevenueUSD: 0,
 		},
 	});
+
+	// 監聽表單中的日期和幣別變化
+	const watchedDate = form.watch("profitDate");
+	const watchedCurrency = form.watch("currency");
+
+	// 使用匯率hook
+	const {
+		data: exchangeRateData,
+		loading: exchangeRateLoading,
+		error: exchangeRateError,
+	} = useExchangeRate({
+		date: watchedDate || today,
+		enabled: open, // 只有當對話框打開時才啟用
+		useUsdRates: true, // 使用 USD 匯率
+	});
+
+	// 當匯率數據變化時，自動更新表單中的匯率欄位
+	useEffect(() => {
+		if (watchedCurrency === "USD") {
+			// 如果是USD，直接設定匯率為1
+			form.setValue("fxRate", 1);
+		} else if (exchangeRateData?.rates && open) {
+			// 其他幣別則直接使用API獲取的匯率
+			const rate = exchangeRateData.rates[watchedCurrency];
+			if (rate) {
+				form.setValue("fxRate", Number(rate.toFixed(5)));
+			}
+		}
+	}, [exchangeRateData, form, open, watchedCurrency]);
 
 	// 監聽收入和費用的變化，計算可分潤金額
 	useEffect(() => {
@@ -336,77 +397,29 @@ export function CreateProfitSharingDialog({
 		form.watch("finder2ProfitSharePercent"),
 	]);
 
-	// 在 useEffect 中更新自動計算欄位
-	useEffect(() => {
-		const customer = customers.find(
-			(c) => c.id === form.watch("customerId"),
-		);
-		if (customer) {
-			// 設定 RM1 資訊
-			if (customer.rm1Id && customer.rm1Name) {
-				form.setValue("rm1Id", customer.rm1Id);
-				form.setValue("rm1Name", customer.rm1Name);
-				form.setValue(
-					"rm1ProfitSharePercent",
-					customer.rm1ProfitShare || 0,
-				);
-			}
-
-			// 設定 RM2 資訊
-			if (customer.rm2Id && customer.rm2Name) {
-				form.setValue("rm2Id", customer.rm2Id);
-				form.setValue("rm2Name", customer.rm2Name);
-				form.setValue(
-					"rm2ProfitSharePercent",
-					customer.rm2ProfitShare || 0,
-				);
-			}
-
-			// 設定 Finder1 資訊
-			if (customer.finder1Id && customer.finder1Name) {
-				form.setValue("finder1Id", customer.finder1Id);
-				form.setValue("finder1Name", customer.finder1Name);
-				form.setValue(
-					"finder1ProfitSharePercent",
-					customer.finder1ProfitShare || 0,
-				);
-			}
-
-			// 設定 Finder2 資訊
-			if (customer.finder2Id && customer.finder2Name) {
-				form.setValue("finder2Id", customer.finder2Id);
-				form.setValue("finder2Name", customer.finder2Name);
-				form.setValue(
-					"finder2ProfitSharePercent",
-					customer.finder2ProfitShare || 0,
-				);
-			}
-		}
-	}, [form, customers]);
-
 	// 添加新的 useEffect 來處理分潤比例計算
-	useEffect(() => {
-		const rm1Percent = form.watch("rm1ProfitSharePercent") || 0;
-		const rm2Percent = form.watch("rm2ProfitSharePercent") || 0;
-		const finder1Percent = form.watch("finder1ProfitSharePercent") || 0;
-		const finder2Percent = form.watch("finder2ProfitSharePercent") || 0;
+	// useEffect(() => {
+	// 	const rm1Percent = form.watch("rm1ProfitSharePercent") || 0;
+	// 	const rm2Percent = form.watch("rm2ProfitSharePercent") || 0;
+	// 	const finder1Percent = form.watch("finder1ProfitSharePercent") || 0;
+	// 	const finder2Percent = form.watch("finder2ProfitSharePercent") || 0;
 
-		// 計算總分潤比例
-		const totalRMPercent = rm1Percent + rm2Percent;
-		const totalFinderPercent = finder1Percent + finder2Percent;
-		const companyPercent = 100 - totalRMPercent - totalFinderPercent;
+	// 	// 計算總分潤比例
+	// 	const totalRMPercent = rm1Percent + rm2Percent;
+	// 	const totalFinderPercent = finder1Percent + finder2Percent;
+	// 	const companyPercent = 100 - totalRMPercent - totalFinderPercent;
 
-		// 更新分潤比例
-		form.setValue("rmProfitSharePercent", totalRMPercent);
-		form.setValue("finderProfitSharePercent", totalFinderPercent);
-		form.setValue("companyProfitSharePercent", companyPercent);
-	}, [
-		form,
-		form.watch("rm1ProfitSharePercent"),
-		form.watch("rm2ProfitSharePercent"),
-		form.watch("finder1ProfitSharePercent"),
-		form.watch("finder2ProfitSharePercent"),
-	]);
+	// 	// 更新分潤比例
+	// 	form.setValue("rmProfitSharePercent", totalRMPercent);
+	// 	form.setValue("finderProfitSharePercent", totalFinderPercent);
+	// 	form.setValue("companyProfitSharePercent", companyPercent);
+	// }, [
+	// 	form,
+	// 	form.watch("rm1ProfitSharePercent"),
+	// 	form.watch("rm2ProfitSharePercent"),
+	// 	form.watch("finder1ProfitSharePercent"),
+	// 	form.watch("finder2ProfitSharePercent"),
+	// ]);
 
 	// 在 useEffect 中更新分潤金額
 	useEffect(() => {
@@ -624,18 +637,105 @@ export function CreateProfitSharingDialog({
 	// 監聽客戶選擇變更
 	useEffect(() => {
 		const customerId = form.watch("customerId");
+		console.log("客戶選擇變更:", customerId);
+
 		if (customerId) {
 			fetchBankAccounts(customerId);
 			// 找到選中的客戶
 			const selectedCustomer = customers.find((c) => c.id === customerId);
+			console.log("選中的客戶:", selectedCustomer);
+
 			if (selectedCustomer) {
 				// 獲取 RM 和 Finder 資訊
 				fetchRMsAndFinders(selectedCustomer);
+
+				// 設置 RM 和 Finder 信息到表單
+				console.log("=== 設置 RM 和 Finder 信息到表單 ===");
+
+				// 設定 RM1 資訊
+				if (selectedCustomer.rm1Id && selectedCustomer.rm1Name) {
+					console.log("設置 RM1 信息到表單:", {
+						id: selectedCustomer.rm1Id,
+						name: selectedCustomer.rm1Name,
+						profitShare: selectedCustomer.rm1ProfitShare || 0,
+					});
+					form.setValue("rm1Id", selectedCustomer.rm1Id);
+					form.setValue("rm1Name", selectedCustomer.rm1Name);
+					form.setValue(
+						"rm1ProfitSharePercent",
+						selectedCustomer.rm1ProfitShare || 0,
+					);
+				}
+
+				// 設定 RM2 資訊
+				if (selectedCustomer.rm2Id && selectedCustomer.rm2Name) {
+					console.log("設置 RM2 信息到表單:", {
+						id: selectedCustomer.rm2Id,
+						name: selectedCustomer.rm2Name,
+						profitShare: selectedCustomer.rm2ProfitShare || 0,
+					});
+					form.setValue("rm2Id", selectedCustomer.rm2Id);
+					form.setValue("rm2Name", selectedCustomer.rm2Name);
+					form.setValue(
+						"rm2ProfitSharePercent",
+						selectedCustomer.rm2ProfitShare || 0,
+					);
+				}
+
+				// 設定 Finder1 資訊
+				if (
+					selectedCustomer.finder1Id &&
+					selectedCustomer.finder1Name
+				) {
+					console.log("設置 Finder1 信息到表單:", {
+						id: selectedCustomer.finder1Id,
+						name: selectedCustomer.finder1Name,
+						profitShare: selectedCustomer.finder1ProfitShare || 0,
+					});
+					form.setValue("finder1Id", selectedCustomer.finder1Id);
+					form.setValue("finder1Name", selectedCustomer.finder1Name);
+					form.setValue(
+						"finder1ProfitSharePercent",
+						selectedCustomer.finder1ProfitShare || 0,
+					);
+				}
+
+				// 設定 Finder2 資訊
+				if (
+					selectedCustomer.finder2Id &&
+					selectedCustomer.finder2Name
+				) {
+					console.log("設置 Finder2 信息到表單:", {
+						id: selectedCustomer.finder2Id,
+						name: selectedCustomer.finder2Name,
+						profitShare: selectedCustomer.finder2ProfitShare || 0,
+					});
+					form.setValue("finder2Id", selectedCustomer.finder2Id);
+					form.setValue("finder2Name", selectedCustomer.finder2Name);
+					form.setValue(
+						"finder2ProfitSharePercent",
+						selectedCustomer.finder2ProfitShare || 0,
+					);
+				}
 			}
 		} else {
 			setBankAccounts([]);
 			form.setValue("bankAccountId", "");
 			setSelectedCustomerRMs({});
+
+			// 清空 RM 和 Finder 信息
+			form.setValue("rm1Id", undefined);
+			form.setValue("rm1Name", undefined);
+			form.setValue("rm1ProfitSharePercent", undefined);
+			form.setValue("rm2Id", undefined);
+			form.setValue("rm2Name", undefined);
+			form.setValue("rm2ProfitSharePercent", undefined);
+			form.setValue("finder1Id", undefined);
+			form.setValue("finder1Name", undefined);
+			form.setValue("finder1ProfitSharePercent", undefined);
+			form.setValue("finder2Id", undefined);
+			form.setValue("finder2Name", undefined);
+			form.setValue("finder2ProfitSharePercent", undefined);
 		}
 	}, [form.watch("customerId"), customers]);
 
@@ -678,19 +778,54 @@ export function CreateProfitSharingDialog({
 	};
 
 	const onSubmit = async (data: CreateFormData) => {
+		console.log("=== 新增分潤記錄 - 提交數據 ===");
+		console.log("完整表單數據:", data);
+		console.log("RM1 相關欄位:", {
+			rm1Id: data.rm1Id,
+			rm1Name: data.rm1Name,
+			rm1ProfitSharePercent: data.rm1ProfitSharePercent,
+			rm1RevenueOriginal: data.rm1RevenueOriginal,
+			rm1RevenueUSD: data.rm1RevenueUSD,
+		});
+		console.log("RM2 相關欄位:", {
+			rm2Id: data.rm2Id,
+			rm2Name: data.rm2Name,
+			rm2ProfitSharePercent: data.rm2ProfitSharePercent,
+			rm2RevenueOriginal: data.rm2RevenueOriginal,
+			rm2RevenueUSD: data.rm2RevenueUSD,
+		});
+		console.log("Finder1 相關欄位:", {
+			finder1Id: data.finder1Id,
+			finder1Name: data.finder1Name,
+			finder1ProfitSharePercent: data.finder1ProfitSharePercent,
+			finder1RevenueOriginal: data.finder1RevenueOriginal,
+			finder1RevenueUSD: data.finder1RevenueUSD,
+		});
+		console.log("Finder2 相關欄位:", {
+			finder2Id: data.finder2Id,
+			finder2Name: data.finder2Name,
+			finder2ProfitSharePercent: data.finder2ProfitSharePercent,
+			finder2RevenueOriginal: data.finder2RevenueOriginal,
+			finder2RevenueUSD: data.finder2RevenueUSD,
+		});
+
 		setIsLoading(true);
 		try {
+			const requestData = { ...data, organizationId };
+			console.log("發送到 API 的數據:", requestData);
+
 			const response = await fetch("/api/organizations/profit-sharing", {
 				method: "POST",
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ ...data, organizationId }),
+				body: JSON.stringify(requestData),
 			});
 
 			if (!response.ok) {
 				let errorMessage = "新增失敗";
 				try {
 					const responseText = await response.text();
+					console.log("API 錯誤回應:", responseText);
 					try {
 						const error = JSON.parse(responseText);
 						errorMessage = error.message || errorMessage;
@@ -702,6 +837,9 @@ export function CreateProfitSharingDialog({
 				}
 				throw new Error(errorMessage);
 			}
+
+			const result = await response.json();
+			console.log("API 成功回應:", result);
 
 			form.reset();
 			setOpen(false);
@@ -1113,23 +1251,97 @@ export function CreateProfitSharingDialog({
 										<FormItem>
 											<FormLabel>FX Rate *</FormLabel>
 											<FormControl>
-												<Input
-													type="number"
-													step="0.00001"
-													placeholder="1.00000"
-													{...field}
-													onChange={(e) => {
-														const value =
-															e.target.value;
-														field.onChange(
-															value === ""
-																? 1
-																: Number(value),
-														);
-													}}
-													value={field.value || ""}
-												/>
+												<div className="flex gap-2">
+													<Input
+														type="number"
+														step="0.00001"
+														placeholder="1.00000"
+														{...field}
+														onChange={(e) => {
+															const value =
+																e.target.value;
+															field.onChange(
+																value === ""
+																	? 1
+																	: Number(
+																			value,
+																		),
+															);
+														}}
+														value={
+															field.value || ""
+														}
+														disabled={
+															watchedCurrency ===
+															"USD"
+														}
+														className={
+															exchangeRateLoading
+																? "bg-muted"
+																: ""
+														}
+													/>
+													{watchedCurrency !==
+														"USD" && (
+														<Button
+															type="button"
+															variant="outline"
+															size="sm"
+															onClick={() => {
+																if (
+																	exchangeRateData?.rates
+																) {
+																	const rate =
+																		exchangeRateData
+																			.rates[
+																			watchedCurrency
+																		];
+																	if (rate) {
+																		form.setValue(
+																			"fxRate",
+																			Number(
+																				rate.toFixed(
+																					5,
+																				),
+																			),
+																		);
+																	}
+																}
+															}}
+															disabled={
+																exchangeRateLoading
+															}
+															className="px-3"
+														>
+															{exchangeRateLoading ? (
+																<RefreshCw className="size-4 animate-spin" />
+															) : (
+																<RefreshCw className="size-4" />
+															)}
+														</Button>
+													)}
+												</div>
 											</FormControl>
+											{watchedCurrency === "USD" && (
+												<p className="text-sm text-gray-600 mt-1">
+													美元匯率固定為 1.00000
+												</p>
+											)}
+											{exchangeRateError &&
+												watchedCurrency !== "USD" && (
+													<p className="text-sm text-red-600 mt-1">
+														無法獲取匯率:{" "}
+														{exchangeRateError}
+													</p>
+												)}
+											{exchangeRateData &&
+												!exchangeRateError &&
+												watchedCurrency !== "USD" && (
+													<p className="text-sm text-green-600 mt-1">
+														{exchangeRateData.date}{" "}
+														的匯率已自動更新
+													</p>
+												)}
 											<FormMessage />
 										</FormItem>
 									)}
@@ -1282,6 +1494,14 @@ export function CreateProfitSharingDialog({
 															}
 														/>
 													</FormControl>
+													<div className="text-xs text-muted-foreground mt-1">
+														預設分潤比例:{" "}
+														{
+															selectedCustomerRMs
+																.rm1.profitShare
+														}
+														%
+													</div>
 												</FormItem>
 												<FormItem>
 													<FormLabel className="text-xs text-muted-foreground">
@@ -1312,6 +1532,11 @@ export function CreateProfitSharingDialog({
 																					}
 																				: undefined,
 																		}),
+																	);
+																	// 同步更新表單中的 rm1ProfitSharePercent
+																	form.setValue(
+																		"rm1ProfitSharePercent",
+																		value,
 																	);
 																}}
 																className={
@@ -1368,6 +1593,14 @@ export function CreateProfitSharingDialog({
 															}
 														/>
 													</FormControl>
+													<div className="text-xs text-muted-foreground mt-1">
+														預設分潤比例:{" "}
+														{
+															selectedCustomerRMs
+																.rm2.profitShare
+														}
+														%
+													</div>
 												</FormItem>
 												<FormItem>
 													<FormLabel className="text-xs text-muted-foreground">
@@ -1398,6 +1631,11 @@ export function CreateProfitSharingDialog({
 																					}
 																				: undefined,
 																		}),
+																	);
+																	// 同步更新表單中的 rm2ProfitSharePercent
+																	form.setValue(
+																		"rm2ProfitSharePercent",
+																		value,
 																	);
 																}}
 																className={
@@ -1494,6 +1732,15 @@ export function CreateProfitSharingDialog({
 															}
 														/>
 													</FormControl>
+													<div className="text-xs text-muted-foreground mt-1">
+														預設分潤比例:{" "}
+														{
+															selectedCustomerRMs
+																.finder1
+																.profitShare
+														}
+														%
+													</div>
 												</FormItem>
 												<FormItem>
 													<FormLabel className="text-xs text-muted-foreground">
@@ -1525,6 +1772,11 @@ export function CreateProfitSharingDialog({
 																						}
 																					: undefined,
 																		}),
+																	);
+																	// 同步更新表單中的 finder1ProfitSharePercent
+																	form.setValue(
+																		"finder1ProfitSharePercent",
+																		value,
 																	);
 																}}
 																className={
@@ -1584,6 +1836,15 @@ export function CreateProfitSharingDialog({
 															}
 														/>
 													</FormControl>
+													<div className="text-xs text-muted-foreground mt-1">
+														預設分潤比例:{" "}
+														{
+															selectedCustomerRMs
+																.finder2
+																.profitShare
+														}
+														%
+													</div>
 												</FormItem>
 												<FormItem>
 													<FormLabel className="text-xs text-muted-foreground">
@@ -1615,6 +1876,11 @@ export function CreateProfitSharingDialog({
 																						}
 																					: undefined,
 																		}),
+																	);
+																	// 同步更新表單中的 finder2ProfitSharePercent
+																	form.setValue(
+																		"finder2ProfitSharePercent",
+																		value,
 																	);
 																}}
 																className={

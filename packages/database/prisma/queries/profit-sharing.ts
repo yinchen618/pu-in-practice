@@ -153,13 +153,21 @@ function calculateAutoFields(
 }
 
 export async function createProfitSharing(data: CreateProfitSharingData) {
-	const autoFields = calculateAutoFields(data);
+	// 過濾掉 undefined 欄位
+	const filteredData = Object.fromEntries(
+		Object.entries(data).filter(([_, v]) => v !== undefined),
+	);
+
+	const autoFields = calculateAutoFields(data); // 用原始 data
+
+	// 合併 autoFields（只覆蓋有值的欄位）
+	const finalData = { ...filteredData };
+	for (const [k, v] of Object.entries(autoFields)) {
+		if (v !== undefined) finalData[k] = v;
+	}
 
 	return await db.profitSharing.create({
-		data: {
-			...data,
-			...autoFields,
-		},
+		data: finalData as any,
 		include: {
 			customer: {
 				include: {

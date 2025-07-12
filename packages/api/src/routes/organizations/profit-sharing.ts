@@ -30,6 +30,42 @@ const CreateSchema = z.object({
 	companyProfitSharePercent: z.number().min(0).max(100).default(50),
 	fxRate: z.number().min(0, "FX Rate 不能為負數"),
 	bankAccountId: z.string().optional(),
+
+	// RM1 資訊
+	rm1Id: z.string().optional(),
+	rm1Name: z.string().optional(),
+	rm1ProfitSharePercent: z.number().min(0).max(100).optional(),
+	rm1RevenueOriginal: z.number().min(0).optional(),
+	rm1RevenueUSD: z.number().min(0).optional(),
+
+	// RM2 資訊
+	rm2Id: z.string().optional(),
+	rm2Name: z.string().optional(),
+	rm2ProfitSharePercent: z.number().min(0).max(100).optional(),
+	rm2RevenueOriginal: z.number().min(0).optional(),
+	rm2RevenueUSD: z.number().min(0).optional(),
+
+	// Finder1 資訊
+	finder1Id: z.string().optional(),
+	finder1Name: z.string().optional(),
+	finder1ProfitSharePercent: z.number().min(0).max(100).optional(),
+	finder1RevenueOriginal: z.number().min(0).optional(),
+	finder1RevenueUSD: z.number().min(0).optional(),
+
+	// Finder2 資訊
+	finder2Id: z.string().optional(),
+	finder2Name: z.string().optional(),
+	finder2ProfitSharePercent: z.number().min(0).max(100).optional(),
+	finder2RevenueOriginal: z.number().min(0).optional(),
+	finder2RevenueUSD: z.number().min(0).optional(),
+
+	// 其他計算欄位
+	shareable: z.number().min(0).optional(),
+	rmRevenueOriginal: z.number().min(0).optional(),
+	findersRevenueOriginal: z.number().min(0).optional(),
+	companyRevenueOriginal: z.number().min(0).optional(),
+	rmRevenueUSD: z.number().min(0).optional(),
+	findersRevenueUSD: z.number().min(0).optional(),
 });
 
 const UpdateSchema = CreateSchema.partial();
@@ -76,6 +112,7 @@ export const profitSharingRouter = new Hono()
 				id: item.id,
 				customerId: item.customerId,
 				productId: item.productId,
+				bankAccountId: item.bankAccountId || null,
 				amount: Number(item.amount),
 				profitDate: item.profitDate,
 				organizationId: item.organizationId,
@@ -104,6 +141,58 @@ export const profitSharingRouter = new Hono()
 				fxRate: Number(item.fxRate || 1),
 				rmRevenueUSD: Number(item.rmRevenueUSD || 0),
 				findersRevenueUSD: Number(item.findersRevenueUSD || 0),
+
+				// RM1 資訊
+				rm1Id: item.rm1Id || null,
+				rm1Name: item.rm1Name || null,
+				rm1ProfitSharePercent: item.rm1ProfitSharePercent
+					? Number(item.rm1ProfitSharePercent)
+					: null,
+				rm1RevenueOriginal: item.rm1RevenueOriginal
+					? Number(item.rm1RevenueOriginal)
+					: null,
+				rm1RevenueUSD: item.rm1RevenueUSD
+					? Number(item.rm1RevenueUSD)
+					: null,
+
+				// RM2 資訊
+				rm2Id: item.rm2Id || null,
+				rm2Name: item.rm2Name || null,
+				rm2ProfitSharePercent: item.rm2ProfitSharePercent
+					? Number(item.rm2ProfitSharePercent)
+					: null,
+				rm2RevenueOriginal: item.rm2RevenueOriginal
+					? Number(item.rm2RevenueOriginal)
+					: null,
+				rm2RevenueUSD: item.rm2RevenueUSD
+					? Number(item.rm2RevenueUSD)
+					: null,
+
+				// Finder1 資訊
+				finder1Id: item.finder1Id || null,
+				finder1Name: item.finder1Name || null,
+				finder1ProfitSharePercent: item.finder1ProfitSharePercent
+					? Number(item.finder1ProfitSharePercent)
+					: null,
+				finder1RevenueOriginal: item.finder1RevenueOriginal
+					? Number(item.finder1RevenueOriginal)
+					: null,
+				finder1RevenueUSD: item.finder1RevenueUSD
+					? Number(item.finder1RevenueUSD)
+					: null,
+
+				// Finder2 資訊
+				finder2Id: item.finder2Id || null,
+				finder2Name: item.finder2Name || null,
+				finder2ProfitSharePercent: item.finder2ProfitSharePercent
+					? Number(item.finder2ProfitSharePercent)
+					: null,
+				finder2RevenueOriginal: item.finder2RevenueOriginal
+					? Number(item.finder2RevenueOriginal)
+					: null,
+				finder2RevenueUSD: item.finder2RevenueUSD
+					? Number(item.finder2RevenueUSD)
+					: null,
 
 				// 關聯資料
 				customerName: item.customer?.name || "",
@@ -170,6 +259,7 @@ export const profitSharingRouter = new Hono()
 			await verifyOrganizationMembership(data.organizationId, user.id);
 
 			const result = await createProfitSharing(data);
+
 			return c.json({ data: result }, 201);
 		},
 	)

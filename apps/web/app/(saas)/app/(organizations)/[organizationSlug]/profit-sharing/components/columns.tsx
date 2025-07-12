@@ -28,6 +28,7 @@ export interface ProfitSharingRecord {
 	id: string;
 	customerId: string;
 	productId: string;
+	bankAccountId?: string | null;
 	amount: number;
 	profitDate: Date;
 	organizationId: string;
@@ -267,7 +268,7 @@ export function createColumns(
 									)
 								</div>
 								<div className="text-xs text-muted-foreground">
-									USD:{" "}
+									{/* USD:{" "} */}
 									{formatCurrency(
 										record.rm2RevenueUSD || 0,
 										"USD",
@@ -293,7 +294,7 @@ export function createColumns(
 								)
 							</div>
 							<div className="text-xs text-muted-foreground">
-								USD:{" "}
+								{/* USD:{" "} */}
 								{formatCurrency(
 									record.rmRevenueUSD || 0,
 									"USD",

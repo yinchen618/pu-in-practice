@@ -8,11 +8,13 @@ interface ExchangeRateData {
 interface UseExchangeRateOptions {
 	date: string;
 	enabled?: boolean;
+	useUsdRates?: boolean; // 新增參數，指定是否使用 USD 匯率
 }
 
 export function useExchangeRate({
 	date,
 	enabled = true,
+	useUsdRates = false, // 預設使用 SGD 匯率
 }: UseExchangeRateOptions) {
 	const [data, setData] = useState<ExchangeRateData | null>(null);
 	const [loading, setLoading] = useState(false);
@@ -34,7 +36,11 @@ export function useExchangeRate({
 					date,
 				});
 
-				const response = await fetch(`/api/exchange-rate/?${params}`);
+				// 根據 useUsdRates 參數選擇不同的端點
+				const endpoint = useUsdRates ? "/usd" : "/";
+				const response = await fetch(
+					`/api/exchange-rate${endpoint}?${params}`,
+				);
 
 				if (!response.ok) {
 					let errorMessage = "獲取匯率失敗";
@@ -77,7 +83,7 @@ export function useExchangeRate({
 		return () => {
 			isCancelled = true;
 		};
-	}, [date, enabled]);
+	}, [date, enabled, useUsdRates]);
 
 	return {
 		data,
