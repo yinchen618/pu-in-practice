@@ -23,8 +23,8 @@ export interface ProfitSharingFilters {
 	dateTo?: string;
 	year?: string;
 	month?: string;
-	rmFinder?: string;
-	rmFinderType?: "rm" | "finder";
+	rmName?: string;
+	finderName?: string;
 	currency?: string;
 }
 

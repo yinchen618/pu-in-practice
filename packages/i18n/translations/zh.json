@@ -73,8 +73,8 @@
 		"menu": {
 			"accountSettings": "帳戶設置",
 			"admin": "管理員",
-			"aiDemo": "AI 演示",
-			"organizationSettings": "設置",
+			"aiChatbot": "AI 聊天機器人",
+			"organizationSettings": "組織設置",
 			"start": "開始"
 		},
 		"userMenu": {
@@ -109,7 +109,9 @@
 			"userEmailNotFound": "找不到電子郵件。",
 			"userAlreadyExists": "此用戶已存在。",
 			"invalidInvitation": "邀請無效或已過期。",
-			"sessionExpired": "會話已過期。"
+			"sessionExpired": "會話已過期。",
+			"failedToUnlinkLastAccount": "無法取消連結帳戶",
+			"accountNotFound": "找不到帳戶"
 		},
 		"forgotPassword": {
 			"backToSignin": "返回登錄",
@@ -146,7 +148,7 @@
 				"password": "密碼"
 			},
 			"submit": "登錄",
-			"subtitle": "請輸入您的憑據以登錄。",
+			"subtitle": "請輸入您的憑證以登錄。",
 			"title": "歡迎回來",
 			"sendMagicLink": "發送魔法鏈接"
 		},
@@ -174,11 +176,19 @@
 			"signIn": "登錄",
 			"submit": "新增帳戶",
 			"title": "新增帳戶"
+		},
+		"verify": {
+			"title": "驗證您的帳戶",
+			"code": "一次性密碼",
+			"submit": "驗證",
+			"backToSignin": "返回登錄",
+			"message": "請輸入您驗證器應用中的一次性密碼以繼續。"
 		}
 	},
 	"blog": {
 		"description": "閱讀我們公司的最新消息",
-		"title": "我的精彩博客"
+		"title": "我的精彩博客",
+		"back": "返回博客"
 	},
 	"changelog": {
 		"description": "隨時了解我們產品的最新變化。",
@@ -201,6 +211,10 @@
 		},
 		"tableOfContents": {
 			"title": "本頁內容"
+		},
+		"actions": {
+			"continue": "繼續",
+			"verify": "驗證"
 		}
 	},
 	"contact": {
@@ -429,7 +443,10 @@
 				"organizationNotDeleted": "我們無法刪除您的組織。請稍後再試。"
 			},
 			"subtitle": "管理組織的設置。",
-			"title": "組織"
+			"title": "組織",
+			"dangerZone": {
+				"title": "危險區域"
+			}
 		},
 		"start": {
 			"subtitle": "歡迎來到此組織的開始頁面！"
@@ -544,7 +561,13 @@
 			"security": {
 				"activeSessions": {
 					"description": "這是您帳戶的所有活躍會話。單擊 X 以結束特定會話。",
-					"title": "活躍會話"
+					"title": "活躍會話",
+					"notifications": {
+						"revokeSession": {
+							"success": "會話已撤銷"
+						}
+					},
+					"currentSession": "當前會話"
 				},
 				"changePassword": {
 					"currentPassword": "當前密碼",
@@ -588,20 +611,63 @@
 				"setPassword": {
 					"description": "您尚未設置密碼。要設置密碼，您需要通過密碼重置流程。單擊下面的按鈕以發送電子郵件以重置您的密碼，並按照電子郵件中的說明進行操作。",
 					"notifications": {
-						"error": "無法設置密碼",
-						"success": "密碼已成功設置"
+						"error": "無法發送設置密碼的鏈接。請再試一次。",
+						"success": "請檢查您的收件箱以獲取設置密碼的鏈接。"
 					},
 					"submit": "設置密碼",
 					"title": "您的密碼"
 				},
-				"title": "安全"
+				"title": "安全",
+				"twoFactor": {
+					"title": "雙重驗證",
+					"description": "為您的帳戶添加額外的安全層。",
+					"dialog": {
+						"password": {
+							"title": "使用密碼驗證",
+							"description": "請通過輸入您的密碼來驗證您的帳戶：",
+							"label": "您的密碼："
+						},
+						"totpUrl": {
+							"description": "使用您偏好的驗證器應用程序並掃描 QR 碼，或手動輸入下面的密鑰來設置雙重驗證。",
+							"code": "輸入 6 位數代碼以驗證設置：",
+							"title": "啟用雙重驗證"
+						}
+					},
+					"enable": "啟用雙重驗證",
+					"notifications": {
+						"verify": {
+							"success": {
+								"title": "雙重驗證已成功啟用。"
+							}
+						},
+						"enable": {
+							"error": {
+								"title": "無法使用提供的密碼驗證您的帳戶。請再試一次。"
+							}
+						},
+						"disable": {
+							"success": {
+								"title": "雙重驗證已成功停用。"
+							}
+						}
+					},
+					"disable": "停用雙重驗證",
+					"enabled": "您的帳戶已啟用雙重驗證。"
+				}
 			},
 			"subtitle": "管理您的個人帳戶設置。",
 			"title": "帳戶設置"
 		},
 		"billing": {
+			"createCustomerPortal": {
+				"label": "管理賬單詳情",
+				"notifications": {
+					"error": {
+						"title": "無法新增客戶門戶會話。請再試一次。"
+					}
+				}
+			},
 			"activePlan": {
-				"title": "當前方案",
 				"status": {
 					"active": "活躍",
 					"canceled": "已取消",
@@ -611,68 +677,12 @@
 					"paused": "已暫停",
 					"trialing": "試用中",
 					"unpaid": "未付款"
-				}
+				},
+				"title": "您的計劃"
 			},
 			"changePlan": {
-				"title": "更改方案",
-				"description": "選擇一個新的方案以升級或降級您的訂閱。"
-			},
-			"cancelSubscription": {
-				"notifications": {
-					"error": {
-						"title": "無法取消訂閱"
-					},
-					"success": {
-						"title": "訂閱已取消"
-					}
-				}
-			},
-			"createCustomerPortal": {
-				"label": "管理賬單詳情",
-				"notifications": {
-					"error": {
-						"title": "無法新增客戶門戶會話。請再試一次。"
-					}
-				}
-			},
-			"pauseSubscription": {
-				"label": "暫停訂閱",
-				"notifications": {
-					"error": {
-						"title": "無法暫停訂閱"
-					},
-					"success": {
-						"title": "訂閱已暫停"
-					}
-				}
-			},
-			"resumeSubscription": {
-				"notifications": {
-					"error": {
-						"title": "無法恢復訂閱"
-					},
-					"success": {
-						"title": "訂閱已恢復"
-					}
-				}
-			},
-			"subscription": {
-				"cancel": "取消您的訂閱",
-				"changePlan": {
-					"description": "選擇要訂閱的計劃。",
-					"title": "更改您的計劃"
-				},
-				"status": {
-					"active": "活躍",
-					"canceled": "已取消",
-					"expired": "已過期",
-					"incomplete": "不完整",
-					"past_due": "逾期",
-					"paused": "已暫停",
-					"trialing": "試用中",
-					"unpaid": "未支付"
-				},
-				"title": "您的訂閱"
+				"description": "選擇要訂閱的計劃。",
+				"title": "更改您的計劃"
 			},
 			"title": "賬單"
 		},
@@ -688,7 +698,8 @@
 				"billing": "賬單",
 				"general": "常規",
 				"members": "成員",
-				"title": "組織"
+				"title": "組織",
+				"dangerZone": "危險區域"
 			}
 		},
 		"save": "保存"
@@ -811,5 +822,9 @@
 			"url": "url",
 			"uuid": "uuid"
 		}
+	},
+	"choosePlan": {
+		"title": "選擇您的計劃",
+		"description": "要繼續，請選擇一個計劃。"
 	}
 }

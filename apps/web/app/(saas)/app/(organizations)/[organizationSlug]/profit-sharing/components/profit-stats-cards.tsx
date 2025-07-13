@@ -13,8 +13,8 @@ interface ProfitStatsCardsProps {
 
 export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 	// 使用 nuqs 管理 URL 參數
-	const [rmFinder, setRmFinder] = useQueryState("rmFinder");
-	const [rmFinderType, setRmFinderType] = useQueryState("rmFinderType");
+	const [rmName, setRmName] = useQueryState("rmName");
+	const [finderName, setFinderName] = useQueryState("finderName");
 	const [currency, setCurrency] = useQueryState("currency");
 
 	// 使用抽象化的統計函式
@@ -24,8 +24,11 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 
 	// 處理人名點擊
 	const handlePersonClick = (name: string, type: "rm" | "finder") => {
-		setRmFinder(name);
-		setRmFinderType(type);
+		if (type === "rm") {
+			setRmName(name);
+		} else {
+			setFinderName(name);
+		}
 	};
 
 	return (

@@ -97,7 +97,7 @@ export default function ProfitSharingPage() {
 			/>
 
 			{/* 統計卡片 */}
-			<ProfitStatsCards data={filteredData} />
+			<ProfitStatsCards data={allData} />
 
 			<DataTable
 				columns={columns}

@@ -3,7 +3,6 @@ import { ColorModeToggle } from "@shared/components/ColorModeToggle";
 import { LocaleSwitch } from "@shared/components/LocaleSwitch";
 import { cn } from "@ui/lib";
 import Image from "next/image";
-import Link from "next/link";
 import { type PropsWithChildren, Suspense } from "react";
 import bgImage from "../../../../public/cwasset/cwasset_bg.jpg";
 import logoImage from "../../../../public/cwasset/cwasset_logo.jpeg";
@@ -15,17 +14,18 @@ export function AuthWrapper({
 	return (
 		<div className="flex min-h-screen">
 			{/* 左側登入區域 */}
-			<div className="flex w-[500px] flex-col bg-[#0B1C2E] px-8 py-12">
-				<div className="mb-12">
-					<Link href="/" className="block">
+			<div className="flex w-[500px] flex-col px-8 py-12 dark:bg-[#0B1C2E] bg-white">
+				<div className="flex justify-center mb-8">
+					<div className="bg-white/80 dark:bg-white/10 rounded-xl shadow-lg p-2">
 						<Image
 							src={logoImage}
 							alt="CW Asset Management"
-							width={200}
-							height={80}
-							className="object-contain"
+							width={180}
+							height={72}
+							className="object-contain rounded-lg"
+							priority
 						/>
-					</Link>
+					</div>
 				</div>
 
 				<div className="flex-1">

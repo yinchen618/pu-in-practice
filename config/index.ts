@@ -23,7 +23,7 @@ export const config = {
 			},
 		},
 		// The default locale is used if no locale is provided
-		defaultLocale: "en",
+		defaultLocale: "zh",
 		// The default currency is used for pricing if no currency is provided
 		defaultCurrency: "USD",
 		// The name of the cookie that is used to determine the locale
@@ -62,7 +62,7 @@ export const config = {
 		// Whether users should be able to create accounts (otherwise users can only be by admins)
 		enableSignup: true,
 		// Whether users should be able to sign in with a magic link
-		enableMagicLink: true,
+		enableMagicLink: false,
 		// Whether users should be able to sign in with a social provider
 		enableSocialLogin: false,
 		// Whether users should be able to sign in with a passkey
@@ -115,7 +115,7 @@ export const config = {
 		// whether the contact form should be enabled
 		enabled: true,
 		// the email to which the contact form messages should be sent
-		to: "hello@your-domain.com",
+		to: "hello@cwamsg.com",
 		// the subject of the email
 		subject: "Contact form message",
 	},
