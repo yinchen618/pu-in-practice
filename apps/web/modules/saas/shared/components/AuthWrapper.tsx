@@ -15,7 +15,7 @@ export function AuthWrapper({
 	return (
 		<div className="flex min-h-screen">
 			{/* 左側登入區域 */}
-			<div className="flex w-[500px] flex-col bg-[#0B1C2E] px-8 py-12">
+			<div className="flex w-[500px] flex-col px-8 py-12 dark:bg-[#0B1C2E] bg-white">
 				<div className="mb-12">
 					<Link href="/" className="block">
 						<Image

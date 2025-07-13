@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import type { z } from "zod";
 import { db } from "../client";
 import { account, user } from "../schema/postgres";
@@ -50,8 +49,9 @@ export async function createUser({
 	emailVerified: boolean;
 	onboardingComplete: boolean;
 }) {
-	const [{ id }] = await db.insert(user).values({
-		id: nanoid(),
+	const [{ id }] = await db
+		.insert(user)
+		.values({
 		email,
 		name,
 		role,
@@ -59,6 +59,9 @@ export async function createUser({
 		onboardingComplete,
 		createdAt: new Date(),
 		updatedAt: new Date(),
+		})
+		.returning({
+			id: user.id,
 	});
 
 	const newUser = await getUserById(id);
@@ -83,14 +86,18 @@ export async function createUserAccount({
 	accountId: string;
 	hashedPassword?: string;
 }) {
-	const [{ id }] = await db.insert(account).values({
-		id: nanoid(),
+	const [{ id }] = await db
+		.insert(account)
+		.values({
 		userId,
 		accountId,
 		providerId,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		password: hashedPassword,
+		})
+		.returning({
+			id: account.id,
 	});
 
 	const newAccount = await getAccountById(id);
