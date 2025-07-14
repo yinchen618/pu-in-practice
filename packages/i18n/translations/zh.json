@@ -80,7 +80,7 @@
 		"userMenu": {
 			"accountSettings": "帳戶設置",
 			"colorMode": "顏色模式",
-			"documentation": "文檔",
+			"documentation": "文件",
 			"home": "主頁",
 			"logout": "登出"
 		}
@@ -187,8 +187,8 @@
 	},
 	"blog": {
 		"description": "閱讀我們公司的最新消息",
-		"title": "我的精彩博客",
-		"back": "返回博客"
+		"title": "我的精彩文章",
+		"back": "返回文章"
 	},
 	"changelog": {
 		"description": "隨時了解我們產品的最新變化。",
@@ -200,7 +200,7 @@
 			"confirm": "確認"
 		},
 		"menu": {
-			"blog": "博客",
+			"blog": "部落格",
 			"changelog": "更新日誌",
 			"contact": "聯繫",
 			"dashboard": "管理系統",
@@ -232,7 +232,7 @@
 		"title": "聯繫我們"
 	},
 	"documentation": {
-		"title": "文檔"
+		"title": "文件"
 	},
 	"faq": {
 		"description": "您有任何問題嗎？我們為您提供支持。",
@@ -669,7 +669,7 @@
 			},
 			"activePlan": {
 				"status": {
-					"active": "活躍",
+					"active": "已啟用",
 					"canceled": "已取消",
 					"expired": "已過期",
 					"incomplete": "未完成",
