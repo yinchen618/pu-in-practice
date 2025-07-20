@@ -5,4 +5,4 @@ supastarter is the ultimate starter kit for production-ready, scalable SaaS appl
 ## Helpful links
 
 - [📘 Documentation](https://supastarter.dev/docs/nextjs)
-- [🚀 Demo](https://demo.supastarter.dev)
+- [🚀 Demo](https://demo.supastarter.dev)# supa-tw4_2-ai
