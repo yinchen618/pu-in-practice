@@ -146,11 +146,12 @@ export const productsRouter = new Hono()
 					});
 				}
 
+				const { organizationId, ...productData } = data;
 				const product = await createProduct({
-					...data,
+					...productData,
 					organization: {
 						connect: {
-							id: data.organizationId,
+							id: organizationId,
 						},
 					},
 				});
