@@ -139,6 +139,8 @@ export function EditCustomerDialog({
 					credentials: "include",
 					body: JSON.stringify({
 						...data,
+						// 處理空字符串電子郵件
+						email: data.email?.trim() || null,
 						// 過濾"none"值，將其轉換為 null
 						rm1Id: data.rm1Id === "none" ? null : data.rm1Id,
 						rm2Id: data.rm2Id === "none" ? null : data.rm2Id,
@@ -173,14 +175,6 @@ export function EditCustomerDialog({
 				}
 
 				// 根據錯誤類型設定對應欄位錯誤
-				if (errorMessage.includes("電子郵件已被使用")) {
-					form.setError("email", {
-						type: "server",
-						message: errorMessage,
-					});
-					return;
-				}
-
 				if (errorMessage.includes("客戶編號已被使用")) {
 					form.setError("code", {
 						type: "server",
@@ -247,7 +241,12 @@ export function EditCustomerDialog({
 								name="name"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>客戶名稱</FormLabel>
+										<FormLabel>
+											客戶名稱
+											<span className="text-red-500 ml-1">
+												*
+											</span>
+										</FormLabel>
 										<FormControl>
 											<Input
 												placeholder="輸入客戶名稱"
@@ -263,7 +262,12 @@ export function EditCustomerDialog({
 								name="code"
 								render={({ field, fieldState }) => (
 									<FormItem>
-										<FormLabel>客戶編號</FormLabel>
+										<FormLabel>
+											客戶編號
+											<span className="text-red-500 ml-1">
+												*
+											</span>
+										</FormLabel>
 										<FormControl>
 											<Input
 												placeholder="輸入客戶編號"
@@ -287,7 +291,7 @@ export function EditCustomerDialog({
 								name="email"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>電子郵件</FormLabel>
+										<FormLabel>電子郵件（選填）</FormLabel>
 										<FormControl>
 											<Input
 												type="email"

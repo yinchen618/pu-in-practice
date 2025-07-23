@@ -1994,26 +1994,10 @@ export const CustomerOrderByWithRelationInputSchema: z.ZodType<Prisma.CustomerOr
 export const CustomerWhereUniqueInputSchema: z.ZodType<Prisma.CustomerWhereUniqueInput> = z.union([
   z.object({
     id: z.string().cuid(),
-    organizationId_email: z.lazy(() => CustomerOrganizationIdEmailCompoundUniqueInputSchema),
     organizationId_code: z.lazy(() => CustomerOrganizationIdCodeCompoundUniqueInputSchema)
   }),
   z.object({
     id: z.string().cuid(),
-    organizationId_email: z.lazy(() => CustomerOrganizationIdEmailCompoundUniqueInputSchema),
-  }),
-  z.object({
-    id: z.string().cuid(),
-    organizationId_code: z.lazy(() => CustomerOrganizationIdCodeCompoundUniqueInputSchema),
-  }),
-  z.object({
-    id: z.string().cuid(),
-  }),
-  z.object({
-    organizationId_email: z.lazy(() => CustomerOrganizationIdEmailCompoundUniqueInputSchema),
-    organizationId_code: z.lazy(() => CustomerOrganizationIdCodeCompoundUniqueInputSchema),
-  }),
-  z.object({
-    organizationId_email: z.lazy(() => CustomerOrganizationIdEmailCompoundUniqueInputSchema),
   }),
   z.object({
     organizationId_code: z.lazy(() => CustomerOrganizationIdCodeCompoundUniqueInputSchema),
@@ -2021,7 +2005,6 @@ export const CustomerWhereUniqueInputSchema: z.ZodType<Prisma.CustomerWhereUniqu
 ])
 .and(z.object({
   id: z.string().cuid().optional(),
-  organizationId_email: z.lazy(() => CustomerOrganizationIdEmailCompoundUniqueInputSchema).optional(),
   organizationId_code: z.lazy(() => CustomerOrganizationIdCodeCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => CustomerWhereInputSchema),z.lazy(() => CustomerWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => CustomerWhereInputSchema).array().optional(),
@@ -5665,11 +5648,6 @@ export const AssetTransactionListRelationFilterSchema: z.ZodType<Prisma.AssetTra
 
 export const AssetTransactionOrderByRelationAggregateInputSchema: z.ZodType<Prisma.AssetTransactionOrderByRelationAggregateInput> = z.object({
   _count: z.lazy(() => SortOrderSchema).optional()
-}).strict();
-
-export const CustomerOrganizationIdEmailCompoundUniqueInputSchema: z.ZodType<Prisma.CustomerOrganizationIdEmailCompoundUniqueInput> = z.object({
-  organizationId: z.string(),
-  email: z.string()
 }).strict();
 
 export const CustomerOrganizationIdCodeCompoundUniqueInputSchema: z.ZodType<Prisma.CustomerOrganizationIdCodeCompoundUniqueInput> = z.object({

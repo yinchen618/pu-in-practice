@@ -116,7 +116,7 @@ export function CreateCustomerDialog({
 	useEffect(() => {
 		const rm1Id = form.watch("rm1Id");
 		if (rm1Id === "none") {
-			form.setValue("rm1ProfitShare", 0);
+			form.setValue("rm1ProfitShare", undefined);
 		}
 	}, [form.watch("rm1Id")]);
 
@@ -124,7 +124,7 @@ export function CreateCustomerDialog({
 	useEffect(() => {
 		const rm2Id = form.watch("rm2Id");
 		if (rm2Id === "none") {
-			form.setValue("rm2ProfitShare", 0);
+			form.setValue("rm2ProfitShare", undefined);
 		}
 	}, [form.watch("rm2Id")]);
 
@@ -132,7 +132,7 @@ export function CreateCustomerDialog({
 	useEffect(() => {
 		const finder1Id = form.watch("finder1Id");
 		if (finder1Id === "none") {
-			form.setValue("finder1ProfitShare", 0);
+			form.setValue("finder1ProfitShare", undefined);
 		}
 	}, [form.watch("finder1Id")]);
 
@@ -140,7 +140,7 @@ export function CreateCustomerDialog({
 	useEffect(() => {
 		const finder2Id = form.watch("finder2Id");
 		if (finder2Id === "none") {
-			form.setValue("finder2ProfitShare", 0);
+			form.setValue("finder2ProfitShare", undefined);
 		}
 	}, [form.watch("finder2Id")]);
 
@@ -154,20 +154,35 @@ export function CreateCustomerDialog({
 				},
 				credentials: "include",
 				body: JSON.stringify({
-					...data,
+					name: data.name,
+					code: data.code,
+					email: data.email?.trim() || undefined,
+					phone: data.phone || undefined,
 					organizationId,
-					// 過濾"none"值，將其轉換為 undefined
+					// 處理 RM 和 Finder ID
 					rm1Id: data.rm1Id === "none" ? undefined : data.rm1Id,
 					rm2Id: data.rm2Id === "none" ? undefined : data.rm2Id,
 					finder1Id:
 						data.finder1Id === "none" ? undefined : data.finder1Id,
 					finder2Id:
 						data.finder2Id === "none" ? undefined : data.finder2Id,
-					// 處理ProfitShare，將空值或0轉換為null
-					rm1ProfitShare: data.rm1ProfitShare || null,
-					rm2ProfitShare: data.rm2ProfitShare || null,
-					finder1ProfitShare: data.finder1ProfitShare || null,
-					finder2ProfitShare: data.finder2ProfitShare || null,
+					// 處理 ProfitShare，確保數字類型或 null
+					rm1ProfitShare:
+						data.rm1ProfitShare !== undefined
+							? Number(data.rm1ProfitShare)
+							: null,
+					rm2ProfitShare:
+						data.rm2ProfitShare !== undefined
+							? Number(data.rm2ProfitShare)
+							: null,
+					finder1ProfitShare:
+						data.finder1ProfitShare !== undefined
+							? Number(data.finder1ProfitShare)
+							: null,
+					finder2ProfitShare:
+						data.finder2ProfitShare !== undefined
+							? Number(data.finder2ProfitShare)
+							: null,
 				}),
 			});
 
@@ -190,14 +205,6 @@ export function CreateCustomerDialog({
 				}
 
 				// 根據錯誤類型設定對應欄位錯誤
-				if (errorMessage.includes("電子郵件已被使用")) {
-					form.setError("email", {
-						type: "server",
-						message: errorMessage,
-					});
-					return;
-				}
-
 				if (errorMessage.includes("客戶編號已被使用")) {
 					form.setError("code", {
 						type: "server",
@@ -241,7 +248,12 @@ export function CreateCustomerDialog({
 								name="name"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>客戶名稱</FormLabel>
+										<FormLabel>
+											客戶名稱
+											<span className="text-red-500 ml-1">
+												*
+											</span>
+										</FormLabel>
 										<FormControl>
 											<Input
 												placeholder="輸入客戶名稱"
@@ -257,7 +269,12 @@ export function CreateCustomerDialog({
 								name="code"
 								render={({ field, fieldState }) => (
 									<FormItem>
-										<FormLabel>客戶編號</FormLabel>
+										<FormLabel>
+											客戶編號
+											<span className="text-red-500 ml-1">
+												*
+											</span>
+										</FormLabel>
 										<FormControl>
 											<Input
 												placeholder="輸入客戶編號"
@@ -281,7 +298,7 @@ export function CreateCustomerDialog({
 								name="email"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>電子郵件</FormLabel>
+										<FormLabel>電子郵件（選填）</FormLabel>
 										<FormControl>
 											<Input
 												type="email"

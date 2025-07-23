@@ -80,12 +80,16 @@ export async function getCustomersByOrganizationId(organizationId: string) {
 }
 
 export async function createCustomer(data: CreateCustomerData) {
-	const { email, ...restData } = data;
+	const { email, rm1Id, rm2Id, finder1Id, finder2Id, ...restData } = data;
 	return await db.customer.create({
 		data: {
 			id: nanoid(),
 			...restData,
 			email: email ?? null,
+			rm1Id: rm1Id || null,
+			rm2Id: rm2Id || null,
+			finder1Id: finder1Id || null,
+			finder2Id: finder2Id || null,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		},
