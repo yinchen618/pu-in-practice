@@ -44,7 +44,6 @@ model User {
     members            Member[]
     twofactors         TwoFactor[]
     aiChats            AiChat[]
-    rmExpenses         Expense[]    @relation("ExpenseRM")
 
     @@unique([email])
     @@unique([username])
@@ -174,6 +173,9 @@ model RelationshipManager {
     finder1Customers Customer[] @relation("Finder1Customers")
     finder2Customers Customer[] @relation("Finder2Customers")
 
+    // Expense relationships
+    expenses Expense[] @relation("ExpenseRM")
+
     @@unique([organizationId, email])
     @@map("relationship_manager")
 }
@@ -302,24 +304,24 @@ model BankAccount {
 }
 
 model Expense {
-    id             String       @id @default(cuid())
+    id             String               @id @default(cuid())
     category       String // 餐飲, 機票, 酒店, 快遞, 交通
-    amount         Decimal      @db.Decimal(15, 2)
-    currency       String       @default("TWD")
-    exchangeRate   Decimal      @default(1) @db.Decimal(10, 4) // X.XXXX format for exchange rate
-    sgdAmount      Decimal      @default(0) @db.Decimal(15, 2) // 新幣金額 (amount * exchangeRate)
-    usdRate        Decimal      @default(1) @db.Decimal(10, 4) // USD 匯率
-    usdAmount      Decimal      @default(0) @db.Decimal(15, 2) // 美元金額 (amount * usdRate)
+    amount         Decimal              @db.Decimal(15, 2)
+    currency       String               @default("TWD")
+    exchangeRate   Decimal              @default(1) @db.Decimal(10, 4) // X.XXXX format for exchange rate
+    sgdAmount      Decimal              @default(0) @db.Decimal(15, 2) // 新幣金額 (amount * exchangeRate)
+    usdRate        Decimal              @default(1) @db.Decimal(10, 4) // USD 匯率
+    usdAmount      Decimal              @default(0) @db.Decimal(15, 2) // 美元金額 (amount * usdRate)
     receiptUrl     String? // 上傳收據 URL，保留向後相容
-    receiptUrls    String[]     @default([]) // 多檔案收據 URL 陣列
+    receiptUrls    String[]             @default([]) // 多檔案收據 URL 陣列
     description    String? // 支出描述
-    date           DateTime     @default(now()) // 支出日期
+    date           DateTime             @default(now()) // 支出日期
     rmId           String? // RM ID，選填
-    rm             User?        @relation("ExpenseRM", fields: [rmId], references: [id], onDelete: SetNull)
+    rm             RelationshipManager? @relation("ExpenseRM", fields: [rmId], references: [id], onDelete: SetNull)
     organizationId String
-    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-    createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @updatedAt
+    organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    createdAt      DateTime             @default(now())
+    updatedAt      DateTime             @updatedAt
 
     @@map("expense")
 }

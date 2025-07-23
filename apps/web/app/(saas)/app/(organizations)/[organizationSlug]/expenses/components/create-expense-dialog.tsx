@@ -47,7 +47,7 @@ const createExpenseSchema = z.object({
 	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
 	date: z.string().optional(),
-	rmId: z.string().optional(),
+	rmId: z.string().optional().nullable(),
 });
 
 type CreateExpenseFormData = z.infer<typeof createExpenseSchema>;
@@ -139,7 +139,11 @@ export function CreateExpenseDialog({
 				date: data.date ? new Date(data.date) : new Date(),
 				// 確保 receiptUrls 被正確發送
 				receiptUrls: data.receiptUrls || [],
+				// 處理 rmId，將 "none" 轉換為 null
+				rmId: data.rmId === "none" ? null : data.rmId,
 			};
+
+			console.log("新增支出 - 提交資料:", submitData);
 
 			const response = await fetch("/api/organizations/expenses", {
 				method: "POST",
@@ -196,6 +200,52 @@ export function CreateExpenseDialog({
 										<div className="col-span-3">
 											<FormControl>
 												<Input type="date" {...field} />
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="rmId"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											RM
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Select
+													value={
+														field.value || "none"
+													}
+													onValueChange={(value) =>
+														field.onChange(
+															value === "none"
+																? undefined
+																: value,
+														)
+													}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇 RM（選填）" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="none">
+															無
+														</SelectItem>
+														{rmOptions.map((rm) => (
+															<SelectItem
+																key={rm.id}
+																value={rm.id}
+															>
+																{rm.name}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
 											</FormControl>
 											<FormMessage />
 										</div>
@@ -595,52 +645,6 @@ export function CreateExpenseDialog({
 													placeholder="輸入支出描述"
 													{...field}
 												/>
-											</FormControl>
-											<FormMessage />
-										</div>
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="rmId"
-								render={({ field }) => (
-									<FormItem className="grid grid-cols-4 items-center gap-4">
-										<FormLabel className="text-right">
-											RM
-										</FormLabel>
-										<div className="col-span-3">
-											<FormControl>
-												<Select
-													value={
-														field.value || "none"
-													}
-													onValueChange={(value) =>
-														field.onChange(
-															value === "none"
-																? undefined
-																: value,
-														)
-													}
-												>
-													<SelectTrigger>
-														<SelectValue placeholder="選擇 RM（選填）" />
-													</SelectTrigger>
-													<SelectContent>
-														<SelectItem value="none">
-															無
-														</SelectItem>
-														{rmOptions.map((rm) => (
-															<SelectItem
-																key={rm.id}
-																value={rm.id}
-															>
-																{rm.name}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
 											</FormControl>
 											<FormMessage />
 										</div>

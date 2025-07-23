@@ -25,7 +25,7 @@ const CreateExpenseSchema = z.object({
 	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
 	date: z.coerce.date().optional(),
-	rmId: z.string().optional(),
+	rmId: z.string().optional().nullable(),
 });
 
 const UpdateExpenseSchema = z.object({
@@ -186,6 +186,11 @@ export const expensesRouter = new Hono()
 				return c.json({ expense }, 201);
 			} catch (error: any) {
 				console.error("新增支出失敗:", error);
+				if (error.code === "P2003") {
+					throw new HTTPException(400, {
+						message: "無效的 RM 選擇",
+					});
+				}
 				throw new HTTPException(500, {
 					message: "新增支出失敗",
 				});
@@ -249,12 +254,20 @@ export const expensesRouter = new Hono()
 
 				return c.json({ expense });
 			} catch (error: any) {
+				console.error("更新支出失敗:", error);
 				if (error.code === "P2025") {
 					throw new HTTPException(404, {
 						message: "找不到該支出記錄",
 					});
 				}
-				throw error;
+				if (error.code === "P2003") {
+					throw new HTTPException(400, {
+						message: "無效的 RM 選擇",
+					});
+				}
+				throw new HTTPException(500, {
+					message: "更新支出失敗",
+				});
 			}
 		},
 	)
