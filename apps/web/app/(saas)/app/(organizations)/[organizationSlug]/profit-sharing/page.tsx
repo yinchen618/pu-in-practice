@@ -3,7 +3,7 @@
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ProfitSharingRecord } from "./components/columns";
 import { createColumns } from "./components/columns";
 import { CreateProfitSharingDialog } from "./components/create-profit-sharing-dialog";
@@ -20,7 +20,7 @@ export default function ProfitSharingPage() {
 		useState<ProfitSharingRecord | null>(null);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-	const fetchData = async () => {
+	const fetchData = useCallback(async () => {
 		if (!activeOrganization?.id) {
 			return;
 		}
@@ -48,29 +48,29 @@ export default function ProfitSharingPage() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [activeOrganization?.id]);
 
-	const handleEdit = (record: ProfitSharingRecord) => {
+	const handleEdit = useCallback((record: ProfitSharingRecord) => {
 		setEditingRecord(record);
 		setEditDialogOpen(true);
-	};
+	}, []);
 
-	const handleEditSuccess = () => {
+	const handleEditSuccess = useCallback(() => {
 		fetchData();
 		setEditingRecord(null);
-	};
+	}, [fetchData]);
 
 	const handleFilterChange = (newFilteredData: ProfitSharingRecord[]) => {
 		setFilteredData(newFilteredData);
 	};
 
-	const columns = createColumns(handleEdit);
+	const columns = useMemo(() => createColumns(handleEdit), [handleEdit]);
 
 	useEffect(() => {
 		if (activeOrganization?.id && loaded) {
 			fetchData();
 		}
-	}, [activeOrganization?.id, loaded]);
+	}, [activeOrganization?.id, loaded, fetchData]);
 
 	if (!loaded) {
 		return <div className="container py-6">載入中...</div>;
@@ -105,9 +105,10 @@ export default function ProfitSharingPage() {
 				isLoading={isLoading}
 			/>
 
-			{editingRecord && (
+			{editingRecord && activeOrganization && (
 				<EditProfitSharingDialog
-					record={editingRecord}
+					data={editingRecord}
+					organizationId={activeOrganization.id}
 					open={editDialogOpen}
 					onOpenChange={setEditDialogOpen}
 					onSuccess={handleEditSuccess}

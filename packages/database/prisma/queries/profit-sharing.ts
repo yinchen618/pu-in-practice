@@ -83,10 +83,16 @@ function calculateAutoFields(
 ) {
 	const companyRevenue = Number(data.companyRevenue) || 0;
 	const directTradeBookingFee = Number(data.directTradeBookingFee) || 0;
+	const bankRetroPercent = Number(data.bankRetroPercent) || 50;
 	const fxRate = Number(data.fxRate) || 1;
 
-	// 計算 shareable
-	const shareable = companyRevenue + directTradeBookingFee;
+	// 計算總分潤金額的新邏輯
+	// 可分潤金額1 = Company Revenue - Direct Trade Booking Fee
+	const shareable1 = companyRevenue - directTradeBookingFee;
+	// 可分潤金額2 = Direct Trade Booking Fee * Bank Retro(%)
+	const shareable2 = (directTradeBookingFee * bankRetroPercent) / 100;
+	// 總分潤金額 = 可分潤金額1 + 可分潤金額2
+	const shareable = shareable1 + shareable2;
 
 	// 計算總分潤比例
 	const rmPercent = Number(data.rmProfitSharePercent) || 50;

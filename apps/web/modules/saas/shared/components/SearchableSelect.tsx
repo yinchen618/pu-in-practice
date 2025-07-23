@@ -55,7 +55,9 @@ export function SearchableSelect<T extends Option>({
 }: SearchableSelectProps<T>) {
 	const [open, setOpen] = useState(false);
 
-	const selectedOption = options.find((option) => option.id === field.value);
+	const selectedOption = (options || []).find(
+		(option) => option.id === field.value,
+	);
 
 	return (
 		<FormItem>
@@ -84,7 +86,7 @@ export function SearchableSelect<T extends Option>({
 						<CommandList>
 							<CommandEmpty>{emptyText}</CommandEmpty>
 							<CommandGroup>
-								{options.map((option) => (
+								{(options || []).map((option) => (
 									<CommandItem
 										key={option.id}
 										value={getSearchValue(option)}

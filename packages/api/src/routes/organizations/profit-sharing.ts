@@ -25,6 +25,7 @@ const CreateSchema = z.object({
 	directTradeBookingFee: z
 		.number()
 		.min(0, "Direct trade booking fee 不能為負數"),
+	bankRetroPercent: z.number().min(0).max(100).default(50), // 新增 Bank Retro(%)
 	rmProfitSharePercent: z.number().min(0).max(100).default(50),
 	finderProfitSharePercent: z.number().min(0).max(100).default(0),
 	companyProfitSharePercent: z.number().min(0).max(100).default(50),
@@ -123,6 +124,7 @@ export const profitSharingRouter = new Hono()
 				currency: item.currency || "USD",
 				companyRevenue: Number(item.companyRevenue || 0),
 				directTradeBookingFee: Number(item.directTradeBookingFee || 0),
+				bankRetroPercent: Number(item.bankRetroPercent || 50), // 新增 Bank Retro(%)
 				shareable: Number(item.shareable || 0),
 				rmProfitSharePercent: Number(item.rmProfitSharePercent || 50),
 				finderProfitSharePercent: Number(

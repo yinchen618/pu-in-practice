@@ -357,7 +357,8 @@ model ProfitSharing {
     currency              String  @default("USD") // 幣別
     companyRevenue        Decimal @db.Decimal(15, 2) // Company revenue
     directTradeBookingFee Decimal @db.Decimal(15, 2) // Direct trade booking fee
-    shareable             Decimal @db.Decimal(15, 2) // 自動計算: companyRevenue + directTradeBookingFee
+    bankRetroPercent      Decimal @default(50.00) @db.Decimal(5, 2) // Bank Retro(%)，預設50%
+    shareable             Decimal @db.Decimal(15, 2) // 總分潤金額：自動計算
 
     // RM1 資訊
     rm1Id                 String?

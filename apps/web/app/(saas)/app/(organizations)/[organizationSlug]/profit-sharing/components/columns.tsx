@@ -39,6 +39,7 @@ export interface ProfitSharingRecord {
 	currency: string;
 	companyRevenue: number;
 	directTradeBookingFee: number;
+	bankRetroPercent: number; // 新增 Bank Retro(%)
 	shareable: number;
 
 	// 分潤比例
@@ -188,7 +189,7 @@ export function createColumns(
 		{
 			accessorKey: "shareable",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="Shareable" />
+				<DataTableColumnHeader column={column} title="總分潤金額" />
 			),
 			cell: ({ row }) => {
 				const value = row.original.shareable;
