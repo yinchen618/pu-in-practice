@@ -19,6 +19,11 @@ export interface ExpenseRecord {
 	receiptUrls?: string[]; // 新的多檔案支援
 	description?: string | null;
 	date: Date;
+	rmId?: string | null;
+	rm?: {
+		id: string;
+		name: string;
+	} | null;
 	organizationId: string;
 	createdAt: Date;
 	updatedAt: Date;
@@ -87,6 +92,16 @@ export function createColumns(
 					| string
 					| null;
 				return description || "-";
+			},
+		},
+		{
+			accessorKey: "rm",
+			header: ({ column }) => (
+				<DataTableColumnHeader column={column} title="RM" />
+			),
+			cell: ({ row }) => {
+				const rm = row.original.rm;
+				return rm ? rm.name : "-";
 			},
 		},
 		{

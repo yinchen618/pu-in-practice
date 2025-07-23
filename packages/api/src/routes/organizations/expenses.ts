@@ -2,6 +2,7 @@ import {
 	createExpense,
 	deleteExpense,
 	getExpensesByOrganizationId,
+	getRelationshipManagersByOrganizationId,
 	updateExpense,
 } from "@repo/database";
 import { Hono } from "hono";
@@ -24,6 +25,7 @@ const CreateExpenseSchema = z.object({
 	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
 	date: z.coerce.date().optional(),
+	rmId: z.string().optional(),
 });
 
 const UpdateExpenseSchema = z.object({
@@ -36,6 +38,7 @@ const UpdateExpenseSchema = z.object({
 	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
 	date: z.coerce.date().optional(),
+	rmId: z.string().optional().nullable(),
 });
 
 export const expensesRouter = new Hono()
@@ -69,9 +72,23 @@ export const expensesRouter = new Hono()
 												.optional(),
 											description: z.string().nullable(),
 											date: z.date(),
+											rmId: z.string().nullable(),
+											rm: z
+												.object({
+													id: z.string(),
+													name: z.string(),
+												})
+												.nullable(),
 											organizationId: z.string(),
 											createdAt: z.date(),
 											updatedAt: z.date(),
+										}),
+									),
+									relationshipManagers: z.array(
+										z.object({
+											id: z.string(),
+											name: z.string(),
+											category: z.string(),
 										}),
 									),
 								}),
@@ -88,8 +105,29 @@ export const expensesRouter = new Hono()
 
 			await verifyOrganizationMembership(organizationId, user.id);
 
-			const expenses = await getExpensesByOrganizationId(organizationId);
-			return c.json({ expenses });
+			const [expensesData, relationshipManagers] = await Promise.all([
+				getExpensesByOrganizationId(organizationId),
+				getRelationshipManagersByOrganizationId(organizationId),
+			]);
+
+			// 轉換數據格式
+			const expenses = expensesData.map((expense: any) => ({
+				...expense,
+				amount: Number(expense.amount),
+				exchangeRate: Number(expense.exchangeRate),
+				sgdAmount: Number(expense.sgdAmount),
+				usdRate: Number(expense.usdRate),
+				usdAmount: Number(expense.usdAmount),
+			}));
+
+			return c.json({
+				expenses,
+				relationshipManagers: relationshipManagers.map((rm: any) => ({
+					id: rm.id,
+					name: rm.name,
+					category: rm.category || "RM", // 如果沒有設定，預設為 RM
+				})),
+			});
 		},
 	)
 	.post(

@@ -47,21 +47,35 @@ const createExpenseSchema = z.object({
 	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
 	date: z.string().optional(),
+	rmId: z.string().optional(),
 });
 
 type CreateExpenseFormData = z.infer<typeof createExpenseSchema>;
 
+interface RelationshipManager {
+	id: string;
+	name: string;
+	category: "RM" | "FINDER" | "BOTH";
+}
+
 interface CreateExpenseDialogProps {
 	organizationId: string;
+	relationshipManagers: RelationshipManager[];
 	onSuccess?: () => void;
 }
 
 export function CreateExpenseDialog({
 	organizationId,
+	relationshipManagers,
 	onSuccess,
 }: CreateExpenseDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+
+	// 根據角色類型過濾 RM 列表
+	const rmOptions = relationshipManagers.filter(
+		(rm) => rm.category === "RM" || rm.category === "BOTH",
+	);
 
 	// 獲取今天的日期字符串（YYYY-MM-DD格式）
 	const today = new Date().toISOString().split("T")[0];
@@ -581,6 +595,52 @@ export function CreateExpenseDialog({
 													placeholder="輸入支出描述"
 													{...field}
 												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="rmId"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											RM
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Select
+													value={
+														field.value || "none"
+													}
+													onValueChange={(value) =>
+														field.onChange(
+															value === "none"
+																? undefined
+																: value,
+														)
+													}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇 RM（選填）" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="none">
+															無
+														</SelectItem>
+														{rmOptions.map((rm) => (
+															<SelectItem
+																key={rm.id}
+																value={rm.id}
+															>
+																{rm.name}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
 											</FormControl>
 											<FormMessage />
 										</div>

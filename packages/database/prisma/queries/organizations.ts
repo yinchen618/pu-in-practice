@@ -63,6 +63,28 @@ export async function getOrganizationBySlug(slug: string) {
 	});
 }
 
+export async function getOrganizationMembers(organizationId: string) {
+	return db.member.findMany({
+		where: {
+			organizationId,
+		},
+		include: {
+			user: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+				},
+			},
+		},
+		orderBy: {
+			user: {
+				name: "asc",
+			},
+		},
+	});
+}
+
 export async function getOrganizationMembership(
 	organizationId: string,
 	userId: string,

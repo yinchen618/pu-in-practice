@@ -14,10 +14,19 @@ import {
 } from "./components/expense-filters";
 import { ExpenseSummaryTable } from "./components/expense-summary-table";
 
+interface RelationshipManager {
+	id: string;
+	name: string;
+	category: "RM" | "FINDER" | "BOTH";
+}
+
 export default function ExpensesPage() {
 	const { activeOrganization, loaded } = useActiveOrganization();
 	const [allData, setAllData] = useState<ExpenseRecord[]>([]);
 	const [filteredData, setFilteredData] = useState<ExpenseRecord[]>([]);
+	const [relationshipManagers, setRelationshipManagers] = useState<
+		RelationshipManager[]
+	>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [editingExpense, setEditingExpense] = useState<ExpenseRecord | null>(
 		null,
@@ -50,15 +59,18 @@ export default function ExpensesPage() {
 				const expenses = result.expenses || [];
 				setAllData(expenses);
 				setFilteredData(expenses);
+				setRelationshipManagers(result.relationshipManagers || []);
 			} else {
 				console.error("獲取支出數據失敗", await response.text());
 				setAllData([]);
 				setFilteredData([]);
+				setRelationshipManagers([]);
 			}
 		} catch (error) {
 			console.error("獲取數據失敗:", error);
 			setAllData([]);
 			setFilteredData([]);
+			setRelationshipManagers([]);
 		} finally {
 			setIsLoading(false);
 		}
@@ -111,6 +123,7 @@ export default function ExpensesPage() {
 					activeOrganization && (
 						<CreateExpenseDialog
 							organizationId={activeOrganization.id}
+							relationshipManagers={relationshipManagers}
 							onSuccess={fetchData}
 						/>
 					)
@@ -136,6 +149,7 @@ export default function ExpensesPage() {
 			{editingExpense && (
 				<EditExpenseDialog
 					expenseRecord={editingExpense}
+					relationshipManagers={relationshipManagers}
 					open={editDialogOpen}
 					onOpenChange={setEditDialogOpen}
 					onSuccess={handleEditSuccess}

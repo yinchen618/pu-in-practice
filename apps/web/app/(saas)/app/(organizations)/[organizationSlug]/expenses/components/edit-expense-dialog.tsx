@@ -47,12 +47,20 @@ const editExpenseSchema = z.object({
 	receiptUrls: z.array(z.string()).optional(),
 	description: z.string().optional(),
 	date: z.string().optional(),
+	rmId: z.string().optional(),
 });
 
 type EditExpenseFormData = z.infer<typeof editExpenseSchema>;
 
+interface RelationshipManager {
+	id: string;
+	name: string;
+	category: "RM" | "FINDER" | "BOTH";
+}
+
 interface EditExpenseDialogProps {
 	expenseRecord: ExpenseRecord;
+	relationshipManagers: RelationshipManager[];
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSuccess?: () => void;
@@ -60,12 +68,18 @@ interface EditExpenseDialogProps {
 
 export function EditExpenseDialog({
 	expenseRecord,
+	relationshipManagers,
 	open,
 	onOpenChange,
 	onSuccess,
 }: EditExpenseDialogProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+
+	// 根據角色類型過濾 RM 列表
+	const rmOptions = relationshipManagers.filter(
+		(rm) => rm.category === "RM" || rm.category === "BOTH",
+	);
 
 	const form = useForm<EditExpenseFormData>({
 		resolver: zodResolver(editExpenseSchema),
@@ -134,6 +148,7 @@ export function EditExpenseDialog({
 				receiptUrls: allReceiptUrls,
 				description: expenseRecord.description || "",
 				date: dateStr,
+				rmId: expenseRecord.rmId || undefined,
 			});
 		}
 	}, [open, expenseRecord, form]);
@@ -630,6 +645,52 @@ export function EditExpenseDialog({
 													placeholder="輸入支出描述"
 													{...field}
 												/>
+											</FormControl>
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="rmId"
+								render={({ field }) => (
+									<FormItem className="grid grid-cols-4 items-center gap-4">
+										<FormLabel className="text-right">
+											RM
+										</FormLabel>
+										<div className="col-span-3">
+											<FormControl>
+												<Select
+													value={
+														field.value || "none"
+													}
+													onValueChange={(value) =>
+														field.onChange(
+															value === "none"
+																? undefined
+																: value,
+														)
+													}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="選擇 RM（選填）" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="none">
+															無
+														</SelectItem>
+														{rmOptions.map((rm) => (
+															<SelectItem
+																key={rm.id}
+																value={rm.id}
+															>
+																{rm.name}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
 											</FormControl>
 											<FormMessage />
 										</div>

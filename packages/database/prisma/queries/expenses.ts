@@ -11,6 +11,7 @@ export interface CreateExpenseData {
 	receiptUrls?: string[];
 	description?: string;
 	date?: Date;
+	rmId?: string;
 	organizationId: string;
 }
 
@@ -24,12 +25,21 @@ export interface UpdateExpenseData {
 	receiptUrls?: string[];
 	description?: string;
 	date?: Date;
+	rmId?: string | null;
 }
 
 export async function getExpensesByOrganizationId(organizationId: string) {
 	return await db.expense.findMany({
 		where: {
 			organizationId,
+		},
+		include: {
+			rm: {
+				select: {
+					id: true,
+					name: true,
+				},
+			},
 		},
 		orderBy: {
 			date: "desc",
@@ -58,9 +68,18 @@ export async function createExpense(data: CreateExpenseData) {
 			receiptUrls: data.receiptUrls || [],
 			description: data.description,
 			date: data.date || new Date(),
+			rmId: data.rmId || null,
 			organizationId: data.organizationId,
 			createdAt: new Date(),
 			updatedAt: new Date(),
+		},
+		include: {
+			rm: {
+				select: {
+					id: true,
+					name: true,
+				},
+			},
 		},
 	});
 }
@@ -69,6 +88,14 @@ export async function getExpenseById(id: string) {
 	return await db.expense.findUnique({
 		where: {
 			id,
+		},
+		include: {
+			rm: {
+				select: {
+					id: true,
+					name: true,
+				},
+			},
 		},
 	});
 }
@@ -110,9 +137,18 @@ export async function updateExpense(id: string, data: UpdateExpenseData) {
 			receiptUrls: data.receiptUrls,
 			description: data.description,
 			date: data.date,
+			rmId: data.rmId,
 			sgdAmount: sgdAmount,
 			usdAmount: usdAmount,
 			updatedAt: new Date(),
+		},
+		include: {
+			rm: {
+				select: {
+					id: true,
+					name: true,
+				},
+			},
 		},
 	});
 }
