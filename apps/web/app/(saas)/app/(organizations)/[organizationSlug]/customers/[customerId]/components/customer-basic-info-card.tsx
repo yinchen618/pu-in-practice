@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/components/card";
-import type { CustomerRecord } from "../columns";
+import type { CustomerRecord } from "../../components/columns";
 
 interface Props {
 	customer: CustomerRecord;
