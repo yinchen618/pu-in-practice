@@ -7,8 +7,7 @@ interface Product {
 	name: string;
 	code: string;
 	category: string;
-	price: number | null;
-	currency: string | null;
+	currency: string;
 	status: string;
 }
 
@@ -36,15 +35,10 @@ const columns: ColumnDef<Product>[] = [
 		),
 	},
 	{
-		id: "price",
+		accessorKey: "currency",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="價格" />
+			<DataTableColumnHeader column={column} title="幣別" />
 		),
-		cell: ({ row }) => {
-			const price = row.original.price;
-			const currency = row.original.currency;
-			return price ? `${price} ${currency}` : "-";
-		},
 	},
 	{
 		accessorKey: "status",

@@ -166,17 +166,6 @@ export function EditProfitSharingDialog({
 	const [allRMs, setAllRMs] = useState<RelationshipManager[]>([]);
 	const [allFinders, setAllFinders] = useState<RelationshipManager[]>([]);
 
-	// 調試用 - 監視 allRMs 和 allFinders 的變化
-	useEffect(() => {
-		console.log("🔄 Edit Dialog - allRMs state 更新:", allRMs);
-		console.log("🔄 Edit Dialog - allRMs count:", allRMs.length);
-	}, [allRMs]);
-
-	useEffect(() => {
-		console.log("🔄 Edit Dialog - allFinders state 更新:", allFinders);
-		console.log("🔄 Edit Dialog - allFinders count:", allFinders.length);
-	}, [allFinders]);
-
 	const form = useForm<EditFormData>({
 		resolver: zodResolver(editSchema),
 		defaultValues: {
@@ -236,9 +225,6 @@ export function EditProfitSharingDialog({
 			return;
 		}
 
-		console.log("🔄 開始載入 RM 和 Finder 資料...");
-		console.log("Organization ID:", organizationId);
-
 		setIsLoadingRMsAndFinders(true);
 		try {
 			// 並行載入 RM 和 Finder 資料
@@ -250,9 +236,6 @@ export function EditProfitSharingDialog({
 					`/api/organizations/relationship-managers?organizationId=${organizationId}&type=finder`,
 				),
 			]);
-
-			console.log("📡 RM API 回應狀態:", rmsResponse.status);
-			console.log("📡 Finder API 回應狀態:", findersResponse.status);
 
 			if (!rmsResponse.ok) {
 				throw new Error(`載入 RM 資料失敗: ${rmsResponse.status}`);
@@ -266,9 +249,6 @@ export function EditProfitSharingDialog({
 			const rmsData = await rmsResponse.json();
 			const findersData = await findersResponse.json();
 
-			console.log("✅ RM 資料載入成功:", rmsData);
-			console.log("✅ Finder 資料載入成功:", findersData);
-
 			setAllRMs(rmsData.relationshipManagers || []);
 			setAllFinders(findersData.relationshipManagers || []);
 		} catch (error) {
@@ -277,7 +257,6 @@ export function EditProfitSharingDialog({
 			setAllFinders([]);
 		} finally {
 			setIsLoadingRMsAndFinders(false);
-			console.log("🏁 RM 和 Finder 資料載入完成");
 		}
 	};
 
@@ -331,8 +310,6 @@ export function EditProfitSharingDialog({
 	// 當 data 更新時，重新設定表單預設值
 	useEffect(() => {
 		if (data) {
-			console.log("🔄 設定編輯表單資料:", data);
-
 			form.reset({
 				customerId: data.customerId,
 				productId: data.productId,
@@ -399,9 +376,6 @@ export function EditProfitSharingDialog({
 			return;
 		}
 
-		console.log("=== 編輯表單提交 ===");
-		console.log("表單資料:", formData);
-
 		setIsLoading(true);
 		try {
 			const response = await fetch(
@@ -432,7 +406,6 @@ export function EditProfitSharingDialog({
 
 			const result = await response.json();
 
-			console.log("✅ 分潤記錄更新成功");
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
@@ -446,9 +419,6 @@ export function EditProfitSharingDialog({
 		if (!data) {
 			return;
 		}
-
-		console.log("=== 刪除分潤記錄 ===");
-		console.log("記錄 ID:", data.id);
 
 		setIsDeleting(true);
 		try {
@@ -471,7 +441,6 @@ export function EditProfitSharingDialog({
 				throw new Error(errorMessage);
 			}
 
-			console.log("✅ 分潤記錄刪除成功");
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
@@ -498,12 +467,6 @@ export function EditProfitSharingDialog({
 				<Form {...form}>
 					<form
 						onSubmit={(e) => {
-							console.log("=== 表單提交事件觸發 ===");
-							console.log(
-								"表單是否有效:",
-								form.formState.isValid,
-							);
-							console.log("表單錯誤:", form.formState.errors);
 							form.handleSubmit(onSubmit)(e);
 						}}
 						className="space-y-6"
@@ -1640,25 +1603,7 @@ export function EditProfitSharingDialog({
 								>
 									取消
 								</Button>
-								<Button
-									type="submit"
-									disabled={isLoading}
-									onClick={() => {
-										console.log("=== 更新按鈕被點擊 ===");
-										console.log(
-											"isLoading 狀態:",
-											isLoading,
-										);
-										console.log(
-											"表單是否有效:",
-											form.formState.isValid,
-										);
-										console.log(
-											"表單錯誤:",
-											form.formState.errors,
-										);
-									}}
-								>
+								<Button type="submit" disabled={isLoading}>
 									{isLoading ? "更新中..." : "更新"}
 								</Button>
 							</div>

@@ -25,8 +25,8 @@ export function DataTablePagination<TData>({
 	return (
 		<div className="flex items-center justify-between px-2">
 			<div className="flex-1 text-sm text-muted-foreground">
-				{table.getFilteredSelectedRowModel().rows.length} /{" "}
-				{table.getFilteredRowModel().rows.length} 列已選擇
+				{/* {table.getFilteredSelectedRowModel().rows.length} /{" "}
+				{table.getFilteredRowModel().rows.length} 筆已選擇 */}
 			</div>
 			<div className="flex items-center space-x-6 lg:space-x-8">
 				<div className="flex items-center space-x-2">
@@ -45,7 +45,7 @@ export function DataTablePagination<TData>({
 							/>
 						</SelectTrigger>
 						<SelectContent side="top">
-							{[10, 20, 30, 40, 50].map((pageSize) => (
+							{[5, 10, 20, 50].map((pageSize) => (
 								<SelectItem
 									key={pageSize}
 									value={`${pageSize}`}
@@ -67,7 +67,7 @@ export function DataTablePagination<TData>({
 						onClick={() => table.setPageIndex(0)}
 						disabled={!table.getCanPreviousPage()}
 					>
-						<span className="sr-only">跳至第一頁</span>
+						<span className="sr-only">前往第一頁</span>
 						<ChevronsLeftIcon className="h-4 w-4" />
 					</Button>
 					<Button
@@ -76,7 +76,7 @@ export function DataTablePagination<TData>({
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}
 					>
-						<span className="sr-only">上一頁</span>
+						<span className="sr-only">前往上一頁</span>
 						<ChevronLeftIcon className="h-4 w-4" />
 					</Button>
 					<Button
@@ -85,7 +85,7 @@ export function DataTablePagination<TData>({
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}
 					>
-						<span className="sr-only">下一頁</span>
+						<span className="sr-only">前往下一頁</span>
 						<ChevronRightIcon className="h-4 w-4" />
 					</Button>
 					<Button
@@ -96,7 +96,7 @@ export function DataTablePagination<TData>({
 						}
 						disabled={!table.getCanNextPage()}
 					>
-						<span className="sr-only">跳至最後一頁</span>
+						<span className="sr-only">前往最後一頁</span>
 						<ChevronsRightIcon className="h-4 w-4" />
 					</Button>
 				</div>

@@ -3,6 +3,7 @@
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
+import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ProfitSharingRecord } from "./components/columns";
 import { createColumns } from "./components/columns";
@@ -13,6 +14,8 @@ import { ProfitStatsCards } from "./components/profit-stats-cards";
 
 export default function ProfitSharingPage() {
 	const { activeOrganization, loaded } = useActiveOrganization();
+	const params = useParams();
+	const organizationSlug = params.organizationSlug as string;
 	const [allData, setAllData] = useState<ProfitSharingRecord[]>([]);
 	const [filteredData, setFilteredData] = useState<ProfitSharingRecord[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +41,10 @@ export default function ProfitSharingPage() {
 
 			if (response.ok) {
 				const result = await response.json();
+				console.log(
+					"📊 獲取到的分潤記錄數量:",
+					result.data?.length || 0,
+				);
 				setAllData(result.data || []);
 				setFilteredData(result.data || []);
 			}
@@ -60,11 +67,17 @@ export default function ProfitSharingPage() {
 		setEditingRecord(null);
 	}, [fetchData]);
 
-	const handleFilterChange = (newFilteredData: ProfitSharingRecord[]) => {
-		setFilteredData(newFilteredData);
-	};
+	const handleFilterChange = useCallback(
+		(newFilteredData: ProfitSharingRecord[]) => {
+			setFilteredData(newFilteredData);
+		},
+		[],
+	);
 
-	const columns = useMemo(() => createColumns(handleEdit), [handleEdit]);
+	const columns = useMemo(
+		() => createColumns(handleEdit, organizationSlug),
+		[handleEdit, organizationSlug],
+	);
 
 	useEffect(() => {
 		if (activeOrganization?.id && loaded) {
@@ -103,6 +116,7 @@ export default function ProfitSharingPage() {
 				columns={columns}
 				data={filteredData}
 				isLoading={isLoading}
+				searchableColumns={[]} // 禁用內建搜尋，使用自定義篩選器
 			/>
 
 			{editingRecord && activeOrganization && (

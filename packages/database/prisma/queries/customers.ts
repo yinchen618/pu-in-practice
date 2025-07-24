@@ -229,8 +229,58 @@ export async function updateCustomer(id: string, data: UpdateCustomerData) {
 
 export async function deleteCustomer(id: string) {
 	return await db.customer.delete({
+		where: { id },
+	});
+}
+
+export async function getCustomerProducts(customerId: string) {
+	// 通過 ProfitSharing 表獲取客戶購買的產品
+	const profitSharingRecords = await db.profitSharing.findMany({
 		where: {
-			id,
+			customerId,
+		},
+		include: {
+			product: {
+				select: {
+					id: true,
+					name: true,
+					code: true,
+					category: true,
+					currency: true,
+					status: true,
+				},
+			},
+		},
+		orderBy: {
+			profitDate: "desc",
 		},
 	});
+
+	// 去重並返回唯一的產品
+	const uniqueProducts = profitSharingRecords.reduce(
+		(acc, record) => {
+			const productId = record.product.id;
+			if (!acc.find((p) => p.id === productId)) {
+				acc.push({
+					id: record.product.id,
+					name: record.product.name,
+					code: record.product.code,
+					category: record.product.category,
+					currency: record.product.currency,
+					status: record.product.status,
+				});
+			}
+			return acc;
+		},
+		[] as Array<{
+			id: string;
+			name: string;
+			code: string;
+			category: string;
+			currency: string;
+			status: string;
+		}>,
+	);
+
+	return uniqueProducts;
 }

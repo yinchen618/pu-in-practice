@@ -3,15 +3,22 @@
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
+	type PaginationState,
 	type SortingState,
+	type VisibilityState,
 	flexRender,
 	getCoreRowModel,
+	getFacetedRowModel,
+	getFacetedUniqueValues,
 	getFilteredRowModel,
+	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
 import * as React from "react";
 
+import { DataTablePagination } from "@saas/shared/components/DataTable/DataTablePagination";
+import { DataTableToolbar } from "@saas/shared/components/DataTable/DataTableToolbar";
 import { Skeleton } from "@ui/components/skeleton";
 import {
 	Table,
@@ -21,7 +28,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@ui/components/table";
-import { DataTableToolbar } from "./DataTableToolbar";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -29,6 +35,18 @@ interface DataTableProps<TData, TValue> {
 	searchKey?: string;
 	searchPlaceholder?: string;
 	isLoading?: boolean;
+	filterableColumns?: {
+		id: string;
+		title: string;
+		options: {
+			label: string;
+			value: string;
+		}[];
+	}[];
+	searchableColumns?: {
+		id: string;
+		title: string;
+	}[];
 }
 
 export function DataTable<TData, TValue>({
@@ -37,23 +55,43 @@ export function DataTable<TData, TValue>({
 	searchKey,
 	searchPlaceholder,
 	isLoading = false,
+	filterableColumns = [],
+	searchableColumns = [],
 }: DataTableProps<TData, TValue>) {
-	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [rowSelection, setRowSelection] = React.useState({});
+	const [columnVisibility, setColumnVisibility] =
+		React.useState<VisibilityState>({});
 	const [columnFilters, setColumnFilters] =
 		React.useState<ColumnFiltersState>([]);
+	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [pagination, setPagination] = React.useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 10,
+	});
 
 	const table = useReactTable({
 		data,
 		columns,
-		getCoreRowModel: getCoreRowModel(),
-		onSortingChange: setSorting,
-		getSortedRowModel: getSortedRowModel(),
-		onColumnFiltersChange: setColumnFilters,
-		getFilteredRowModel: getFilteredRowModel(),
 		state: {
 			sorting,
+			columnVisibility,
+			rowSelection,
 			columnFilters,
+			pagination,
 		},
+		enableRowSelection: true,
+		onRowSelectionChange: setRowSelection,
+		onSortingChange: setSorting,
+		onColumnFiltersChange: setColumnFilters,
+		onColumnVisibilityChange: setColumnVisibility,
+		onPaginationChange: setPagination,
+		getCoreRowModel: getCoreRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFacetedRowModel: getFacetedRowModel(),
+		getFacetedUniqueValues: getFacetedUniqueValues(),
+		manualPagination: false,
 	});
 
 	const renderTableBody = () => {
@@ -103,20 +141,20 @@ export function DataTable<TData, TValue>({
 		);
 	};
 
+	// 合併 searchableColumns，優先使用傳入的 searchableColumns，如果沒有則使用 searchKey
+	const finalSearchableColumns =
+		searchableColumns.length > 0
+			? searchableColumns
+			: searchKey
+				? [{ id: searchKey, title: searchPlaceholder ?? "內容" }]
+				: [];
+
 	return (
 		<div className="space-y-4">
 			<DataTableToolbar
 				table={table}
-				searchableColumns={
-					searchKey
-						? [
-								{
-									id: searchKey,
-									title: searchPlaceholder ?? "內容",
-								},
-							]
-						: []
-				}
+				filterableColumns={filterableColumns}
+				searchableColumns={finalSearchableColumns}
 			/>
 			<div className="rounded-md border">
 				<Table>
@@ -142,6 +180,7 @@ export function DataTable<TData, TValue>({
 					<TableBody>{renderTableBody()}</TableBody>
 				</Table>
 			</div>
+			<DataTablePagination table={table} />
 		</div>
 	);
 }

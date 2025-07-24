@@ -1,8 +1,8 @@
-import type { Product } from "@prisma/client";
 import {
 	createCustomer,
 	deleteCustomer,
 	getCustomerById,
+	getCustomerProducts,
 	getCustomersByOrganizationId,
 	getRelationshipManagersByOrganizationId,
 	updateCustomer,
@@ -486,9 +486,7 @@ export const customersRouter = new Hono()
 
 			await verifyOrganizationMembership(organizationId, user.id);
 
-			// TODO: 實現獲取客戶產品的邏輯
-			// 這裡需要根據實際的資料庫結構來實現
-			const products: Product[] = [];
+			const products = await getCustomerProducts(customerId);
 
 			return c.json({ data: products });
 		},

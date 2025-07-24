@@ -188,9 +188,15 @@ export async function createProfitSharing(data: CreateProfitSharingData) {
 	});
 }
 
-export async function getProfitSharingByOrganizationId(organizationId: string) {
+export async function getProfitSharingByOrganizationId(
+	organizationId: string,
+	customerId?: string,
+) {
 	return await db.profitSharing.findMany({
-		where: { organizationId },
+		where: {
+			organizationId,
+			...(customerId ? { customerId } : {}),
+		},
 		include: {
 			customer: {
 				include: {

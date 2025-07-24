@@ -202,7 +202,6 @@ export function CreateProfitSharingDialog({
 	organizationId,
 	onSuccess,
 }: CreateDialogProps) {
-
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isLoadingRMsAndFinders, setIsLoadingRMsAndFinders] = useState(false);
@@ -212,16 +211,6 @@ export function CreateProfitSharingDialog({
 	const [allRMs, setAllRMs] = useState<RelationshipManager[]>([]);
 	const [allFinders, setAllFinders] = useState<RelationshipManager[]>([]);
 
-	// 除錯用 - 監視 allRMs 和 allFinders 的變化
-	useEffect(() => {
-		console.log("🔄 allRMs state 更新:", allRMs);
-		console.log("🔄 allRMs count:", allRMs.length);
-	}, [allRMs]);
-
-	useEffect(() => {
-		console.log("🔄 allFinders state 更新:", allFinders);
-		console.log("🔄 allFinders count:", allFinders.length);
-	}, [allFinders]);
 	const [selectedCustomerRMs, setSelectedCustomerRMs] = useState<{
 		rm1?: { id: string; name: string; profitShare: number };
 		rm2?: { id: string; name: string; profitShare: number };
@@ -466,7 +455,7 @@ export function CreateProfitSharingDialog({
 		const rmRevenue = (shareable * rmProfitSharePercent) / 100;
 		const findersRevenue = (shareable * finderProfitSharePercent) / 100;
 		const companyRevenue = (shareable * companyProfitSharePercent) / 100;
-		console.log(companyRevenue, shareable, companyProfitSharePercent);
+		// console.log(companyRevenue, shareable, companyProfitSharePercent);
 
 		// 更新原幣分潤金額（四捨五入到小數點後兩位）
 		form.setValue("rmRevenueOriginal", Math.round(rmRevenue * 100) / 100);
@@ -548,9 +537,7 @@ export function CreateProfitSharingDialog({
 
 	// 獲取客戶、產品和銀行帳戶列表
 	useEffect(() => {
-		console.log("🚀 Dialog open 狀態變化:", open);
 		if (open) {
-			console.log("🚀 Dialog 已開啟，開始載入資料...");
 			fetchCustomers();
 			fetchProducts();
 			fetchAllRMsAndFinders();
@@ -631,31 +618,21 @@ export function CreateProfitSharingDialog({
 	};
 
 	const fetchAllRMsAndFinders = async () => {
-		console.log("🔄 開始獲取 RM 和 Finder 資料...");
-		console.log("organizationId:", organizationId);
-
 		setIsLoadingRMsAndFinders(true);
 
 		try {
 			const url = `/api/organizations/relationship-managers?organizationId=${organizationId}`;
-			console.log("📡 API URL:", url);
 
 			const response = await fetch(url, {
 				method: "GET",
 				credentials: "include",
 			});
 
-			console.log("📥 Response status:", response.status);
-			console.log("📥 Response ok:", response.ok);
-
 			if (response.ok) {
 				const result = await response.json();
-				console.log("📦 API Response result:", result);
 
 				// 修正：API 回應的是 relationshipManagers，不是 data
 				const data = result.relationshipManagers || result.data || [];
-				console.log("📋 Raw data array:", data);
-				console.log("📋 Data length:", data.length);
 
 				// 分離 RM 和 Finder
 				const rms = data.filter(
@@ -666,16 +643,8 @@ export function CreateProfitSharingDialog({
 					(item: any) =>
 						item.category === "FINDER" || item.category === "BOTH",
 				);
-
-				console.log("🏢 Filtered RMs:", rms);
-				console.log("🏢 RMs count:", rms.length);
-				console.log("🔍 Filtered Finders:", finders);
-				console.log("🔍 Finders count:", finders.length);
-
 				setAllRMs(rms);
 				setAllFinders(finders);
-
-				console.log("✅ 成功設置 RM 和 Finder 資料");
 			} else {
 				console.error(
 					"❌ API Response not ok:",

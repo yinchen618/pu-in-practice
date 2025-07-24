@@ -73,6 +73,7 @@ const UpdateSchema = CreateSchema.partial();
 
 const QuerySchema = z.object({
 	organizationId: z.string(),
+	customerId: z.string().optional(),
 	search: z.string().optional(),
 	productCategory: z.string().optional(),
 	dateFrom: z.string().optional(),
@@ -97,6 +98,7 @@ export const profitSharingRouter = new Hono()
 		async (c) => {
 			const {
 				organizationId,
+				customerId,
 				search,
 				productCategory,
 				dateFrom,
@@ -106,7 +108,10 @@ export const profitSharingRouter = new Hono()
 
 			await verifyOrganizationMembership(organizationId, user.id);
 
-			const data = await getProfitSharingByOrganizationId(organizationId);
+			const data = await getProfitSharingByOrganizationId(
+				organizationId,
+				customerId,
+			);
 
 			// 轉換資料格式
 			const formattedData = data.map((item: any) => ({

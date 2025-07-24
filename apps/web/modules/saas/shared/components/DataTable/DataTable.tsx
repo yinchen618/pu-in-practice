@@ -3,6 +3,7 @@
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
+	type PaginationState,
 	type SortingState,
 	type VisibilityState,
 	flexRender,
@@ -42,23 +43,15 @@ interface DataTableProps<TData, TValue> {
 		id: string;
 		title: string;
 	}[];
-	deleteRow?: (id: string) => void;
-	editRow?: (id: string) => void;
 	isLoading?: boolean;
-	searchKey?: string;
-	searchPlaceholder?: string;
 }
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
 	isLoading,
-	searchKey,
-	searchPlaceholder,
 	filterableColumns = [],
 	searchableColumns = [],
-	deleteRow,
-	editRow,
 }: DataTableProps<TData, TValue>) {
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
@@ -66,6 +59,10 @@ export function DataTable<TData, TValue>({
 	const [columnFilters, setColumnFilters] =
 		React.useState<ColumnFiltersState>([]);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [pagination, setPagination] = React.useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 10,
+	});
 
 	const table = useReactTable({
 		data,
@@ -75,22 +72,57 @@ export function DataTable<TData, TValue>({
 			columnVisibility,
 			rowSelection,
 			columnFilters,
+			pagination,
 		},
 		enableRowSelection: true,
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
 		onColumnVisibilityChange: setColumnVisibility,
+		onPaginationChange: setPagination,
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues(),
+		manualPagination: false,
+	});
+
+	// 調試信息
+	console.log("🔍 DataTable 調試信息:", {
+		dataLength: data.length,
+		pageCount: table.getPageCount(),
+		currentPage: table.getState().pagination.pageIndex + 1,
+		pageSize: table.getState().pagination.pageSize,
+		rowsOnCurrentPage: table.getRowModel().rows.length,
 	});
 
 	return (
-		<div className="space-y-4">
+		<div className="flex flex-col gap-4">
+			{/* 調試：檢查資料狀態 */}
+			<div
+				style={{
+					border: "2px solid green",
+					padding: "10px",
+					marginBottom: "10px",
+				}}
+			>
+				🔍 Table 狀態：
+				<pre>
+					{JSON.stringify(
+						{
+							總資料筆數: table.getRowModel().rows.length,
+							目前頁碼: table.getState().pagination.pageIndex + 1,
+							每頁筆數: table.getState().pagination.pageSize,
+							總頁數: table.getPageCount(),
+						},
+						null,
+						2,
+					)}
+				</pre>
+			</div>
+
 			<DataTableToolbar
 				table={table}
 				filterableColumns={filterableColumns}
@@ -148,6 +180,10 @@ export function DataTable<TData, TValue>({
 						)}
 					</TableBody>
 				</Table>
+			</div>
+			{/* 測試：確認這個位置能否渲染 */}
+			<div style={{ border: "2px solid red", padding: "10px" }}>
+				📄 分頁應該在這裡顯示 (總頁數: {table.getPageCount()})
 			</div>
 			<DataTablePagination table={table} />
 		</div>

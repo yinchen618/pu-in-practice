@@ -4,6 +4,7 @@ import { DataTableColumnHeader } from "@saas/shared/components/DataTable/DataTab
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@ui/components/button";
 import { Edit2 } from "lucide-react";
+import Link from "next/link";
 
 // 格式化函數
 const formatCurrency = (value: number, currency: string) => {
@@ -97,6 +98,7 @@ export interface ProfitSharingRecord {
 
 export function createColumns(
 	onEdit: (record: ProfitSharingRecord) => void,
+	organizationSlug: string,
 ): ColumnDef<ProfitSharingRecord>[] {
 	return [
 		// 第一行：客戶和產品資訊
@@ -115,6 +117,18 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader column={column} title="客戶名稱" />
 			),
+			cell: ({ row }) => {
+				const customerName = row.getValue("customerName") as string;
+				const customerId = row.original.customerId;
+				return (
+					<Link
+						href={`/app/${organizationSlug}/customers/${customerId}`}
+						className="text-primary hover:underline"
+					>
+						{customerName}
+					</Link>
+				);
+			},
 		},
 		{
 			accessorKey: "customerCode",

@@ -147,7 +147,7 @@ export default function RelationshipManagersPage() {
 				columns={columns}
 				data={filteredData}
 				isLoading={isLoading}
-				// 移除內建搜尋功能，改用篩選器
+				searchableColumns={[]} // 禁用內建搜尋，使用自定義篩選器
 			/>
 
 			{editingRM && (

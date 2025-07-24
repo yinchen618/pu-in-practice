@@ -1,9 +1,9 @@
 "use client";
 
 import { DataTable } from "@saas/shared/components/DataTable";
-import { Badge } from "@ui/components/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/components/card";
 import { useEffect, useState } from "react";
+import { BalanceSummary } from "./balance-summary";
 import type { AssetTransactionRecord } from "./columns";
 import { createColumns } from "./columns";
 import { CreateAssetTransactionDialog } from "./create-asset-transaction-dialog";
@@ -11,13 +11,6 @@ import { EditAssetTransactionDialog } from "./edit-asset-transaction-dialog";
 
 interface AssetTransactionsTableProps {
 	customerId: string;
-}
-
-interface CurrencyBalance {
-	currency: string;
-	balance: number;
-	inAmount: number;
-	outAmount: number;
 }
 
 export function AssetTransactionsTable({
@@ -28,10 +21,10 @@ export function AssetTransactionsTable({
 	const [editingRecord, setEditingRecord] =
 		useState<AssetTransactionRecord | null>(null);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
-	const [balances, setBalances] = useState<CurrencyBalance[]>([]);
+	const [balances, setBalances] = useState<any[]>([]); // Changed from CurrencyBalance[] to any[]
 
 	const calculateBalances = (transactions: AssetTransactionRecord[]) => {
-		const currencyMap = new Map<string, CurrencyBalance>();
+		const currencyMap = new Map<string, any>(); // Changed from CurrencyBalance to any
 
 		transactions.forEach((transaction) => {
 			const { currency, type, amount } = transaction;
@@ -122,67 +115,7 @@ export function AssetTransactionsTable({
 			</CardHeader>
 			<CardContent className="space-y-6">
 				{/* 結餘統計 */}
-				{balances.length > 0 && (
-					<div className="space-y-3">
-						<h3 className="text-sm font-medium text-gray-700">
-							目前結餘
-						</h3>
-						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-							{balances.map((balance) => (
-								<div
-									key={balance.currency}
-									className="p-4 border rounded-lg bg-gray-50"
-								>
-									<div className="flex items-center justify-between mb-2">
-										<Badge
-											status="info"
-											className="font-mono"
-										>
-											{balance.currency}
-										</Badge>
-										<div className="text-right">
-											<div
-												className={`text-lg font-bold font-mono ${
-													balance.balance >= 0
-														? "text-green-600"
-														: "text-red-600"
-												}`}
-											>
-												{balance.balance >= 0
-													? "+"
-													: ""}
-												{Number(
-													balance.balance,
-												).toLocaleString()}
-											</div>
-										</div>
-									</div>
-									<div className="text-xs text-gray-500 space-y-1">
-										<div className="flex justify-between">
-											<span>入金總額:</span>
-											<span className="text-green-600 font-mono">
-												+
-												{Number(
-													balance.inAmount,
-												).toLocaleString()}
-											</span>
-										</div>
-										<div className="flex justify-between">
-											<span>出金總額:</span>
-											<span className="text-red-600 font-mono">
-												-
-												{Number(
-													balance.outAmount,
-												).toLocaleString()}
-											</span>
-										</div>
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
-				)}
-
+				<BalanceSummary balances={balances} isLoading={isLoading} />
 				{/* 交易記錄表格 */}
 				<div className="space-y-2">
 					<h3 className="text-sm font-medium text-gray-700">
