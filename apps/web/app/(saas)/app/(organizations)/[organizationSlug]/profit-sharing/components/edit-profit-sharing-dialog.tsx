@@ -678,8 +678,8 @@ export function EditProfitSharingDialog({
 										<FormControl>
 											<Input
 												type="number"
-												step="0.000001"
-												placeholder="1.000000"
+												step="0.01"
+												placeholder="1.00"
 												{...field}
 												onChange={(e) => {
 													const value =

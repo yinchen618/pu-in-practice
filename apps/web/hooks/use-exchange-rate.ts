@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface ExchangeRateData {
 	rates: Record<string, number>;
@@ -20,74 +20,64 @@ export function useExchangeRate({
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		if (!enabled || !date) {
+	const fetchExchangeRates = useCallback(async () => {
+		if (!date) {
 			return;
 		}
 
-		let isCancelled = false;
+		setLoading(true);
+		setError(null);
 
-		const fetchExchangeRates = async () => {
-			setLoading(true);
-			setError(null);
+		try {
+			const params = new URLSearchParams({
+				date,
+			});
 
-			try {
-				const params = new URLSearchParams({
-					date,
-				});
+			// 根據 useUsdRates 參數選擇不同的端點
+			const endpoint = useUsdRates ? "/usd" : "/";
+			const response = await fetch(
+				`/api/exchange-rate${endpoint}?${params}`,
+			);
 
-				// 根據 useUsdRates 參數選擇不同的端點
-				const endpoint = useUsdRates ? "/usd" : "/";
-				const response = await fetch(
-					`/api/exchange-rate${endpoint}?${params}`,
-				);
-
-				if (!response.ok) {
-					let errorMessage = "獲取匯率失敗";
+			if (!response.ok) {
+				let errorMessage = "獲取匯率失敗";
+				try {
+					const responseText = await response.text();
 					try {
-						const responseText = await response.text();
-						try {
-							const error = JSON.parse(responseText);
-							errorMessage = error.message || errorMessage;
-						} catch {
-							errorMessage = responseText || errorMessage;
-						}
+						const error = JSON.parse(responseText);
+						errorMessage = error.message || errorMessage;
 					} catch {
-						errorMessage = "獲取匯率失敗";
+						errorMessage = responseText || errorMessage;
 					}
-					throw new Error(errorMessage);
+				} catch {
+					errorMessage = "獲取匯率失敗";
 				}
-
-				const result = await response.json();
-
-				if (!isCancelled) {
-					setData(result);
-					setError(null);
-				}
-			} catch (error) {
-				if (!isCancelled) {
-					console.error("匯率API錯誤:", error);
-					setError(
-						error instanceof Error ? error.message : "獲取匯率失敗",
-					);
-				}
-			} finally {
-				if (!isCancelled) {
-					setLoading(false);
-				}
+				throw new Error(errorMessage);
 			}
-		};
+
+			const result = await response.json();
+			setData(result);
+			setError(null);
+		} catch (error) {
+			console.error("匯率API錯誤:", error);
+			setError(error instanceof Error ? error.message : "獲取匯率失敗");
+		} finally {
+			setLoading(false);
+		}
+	}, [date, useUsdRates]);
+
+	useEffect(() => {
+		if (!enabled) {
+			return;
+		}
 
 		fetchExchangeRates();
-
-		return () => {
-			isCancelled = true;
-		};
-	}, [date, enabled, useUsdRates]);
+	}, [date, enabled, fetchExchangeRates]);
 
 	return {
 		data,
 		loading,
 		error,
+		refetch: fetchExchangeRates,
 	};
 }

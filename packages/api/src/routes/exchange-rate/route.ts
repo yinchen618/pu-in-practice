@@ -74,13 +74,23 @@ export const exchangeRateRouter = new Hono()
 
 				// 構建 API URL
 				const apiUrl = `https://${date}.currency-api.pages.dev/v1/currencies/${baseCurrency.toLowerCase()}.json`;
-
-				const response = await fetch(apiUrl);
+				console.log("apiUrl", apiUrl);
+				let response = await fetch(apiUrl);
 
 				if (!response.ok) {
-					throw new Error(
-						`Exchange rate API error: ${response.status}`,
-					);
+					// 嘗試抓前一天的資料
+					const prevDate = new Date(date);
+					prevDate.setDate(prevDate.getDate() - 1);
+					const prevDateStr = prevDate.toISOString().slice(0, 10);
+					const prevApiUrl = `https://${prevDateStr}.currency-api.pages.dev/v1/currencies/${baseCurrency.toLowerCase()}.json`;
+					response = await fetch(prevApiUrl);
+					if (!response.ok) {
+						throw new Error(
+							`Exchange rate API error: ${response.status} and previous day ${response.status}`,
+						);
+					}
+					// 用前一天的 response
+					// return prevResponse;
 				}
 
 				const data = await response.json();
@@ -176,13 +186,21 @@ export const exchangeRateRouter = new Hono()
 
 				// 使用 USD 作為 base 幣別
 				const apiUrl = `https://${date}.currency-api.pages.dev/v1/currencies/usd.json`;
-
-				const response = await fetch(apiUrl);
+				console.log("apiUrl", apiUrl);
+				let response = await fetch(apiUrl);
 
 				if (!response.ok) {
-					throw new Error(
-						`Exchange rate API error: ${response.status}`,
-					);
+					// 嘗試抓前一天的資料
+					const prevDate = new Date(date);
+					prevDate.setDate(prevDate.getDate() - 1);
+					const prevDateStr = prevDate.toISOString().slice(0, 10);
+					const prevApiUrl = `https://${prevDateStr}.currency-api.pages.dev/v1/currencies/usd.json`;
+					response = await fetch(prevApiUrl);
+					if (!response.ok) {
+						throw new Error(
+							`Exchange rate API error: ${response.status} and previous day ${response.status}`,
+						);
+					}
 				}
 
 				const data = await response.json();

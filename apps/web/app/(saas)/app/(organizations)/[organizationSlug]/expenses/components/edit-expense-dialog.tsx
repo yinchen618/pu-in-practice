@@ -89,23 +89,60 @@ export function EditExpenseDialog({
 	const watchedDate = form.watch("date");
 	const watchedCurrency = form.watch("currency");
 
-	// 使用匯率hook
+	// 使用匯率hook - SGD匯率
 	const {
 		data: exchangeRateData,
 		loading: exchangeRateLoading,
 		error: exchangeRateError,
+		refetch: refetchExchangeRate,
 	} = useExchangeRate({
 		date: watchedDate || new Date().toISOString().split("T")[0],
-		enabled: open, // 只有當對話框打開時才啟用
+		enabled: false, // 預設不啟用，只在需要時手動載入
 	});
+
+	// 使用匯率hook - USD匯率
+	const {
+		data: usdExchangeRateData,
+		loading: usdExchangeRateLoading,
+		error: usdExchangeRateError,
+		refetch: refetchUsdExchangeRate,
+	} = useExchangeRate({
+		date: watchedDate || new Date().toISOString().split("T")[0],
+		enabled: false, // 預設不啟用，只在需要時手動載入
+		useUsdRates: true,
+	});
+
+	// 監聽幣別和日期變更，手動載入匯率
+	useEffect(() => {
+		if (!open || !watchedCurrency || !watchedDate) {
+			return;
+		}
+
+		// 如果幣別不是 SGD，載入 SGD 匯率
+		if (watchedCurrency !== "SGD") {
+			refetchExchangeRate();
+		}
+
+		// 載入 USD 匯率
+		refetchUsdExchangeRate();
+	}, [
+		watchedCurrency,
+		watchedDate,
+		open,
+		refetchExchangeRate,
+		refetchUsdExchangeRate,
+	]);
 
 	// 當幣別變化時，自動更新匯率
 	useEffect(() => {
 		if (watchedCurrency === "SGD") {
 			// 如果是SGD，直接設定匯率為1
 			form.setValue("exchangeRate", 1);
-		} else if (exchangeRateData?.rates && open) {
-			// 其他幣別則使用API獲取的匯率
+		} else if (watchedCurrency === "USD") {
+			// 如果是USD，匯率為1
+			form.setValue("exchangeRate", 1);
+		} else if (exchangeRateData?.rates?.[watchedCurrency] && open) {
+			// 其他幣別則使用一般匯率API
 			const rate = exchangeRateData.rates[watchedCurrency];
 			if (rate) {
 				form.setValue("exchangeRate", Number(rate.toFixed(4)));
@@ -115,13 +152,13 @@ export function EditExpenseDialog({
 		// 設定 USD 匯率
 		if (watchedCurrency === "USD") {
 			form.setValue("usdRate", 1);
-		} else if (exchangeRateData?.rates && open) {
-			const usdRate = exchangeRateData.rates.USD;
+		} else if (usdExchangeRateData?.rates?.USD && open) {
+			const usdRate = usdExchangeRateData.rates.USD;
 			if (usdRate) {
 				form.setValue("usdRate", Number(usdRate.toFixed(4)));
 			}
 		}
-	}, [exchangeRateData, form, open, watchedCurrency]);
+	}, [exchangeRateData, usdExchangeRateData, form, open, watchedCurrency]);
 
 	// 當對話框打開時，設置表單的初始值
 	useEffect(() => {
@@ -436,9 +473,9 @@ export function EditExpenseDialog({
 												<FormControl>
 													<Input
 														type="number"
-														step="0.0001"
+														step="0.01"
 														min="0"
-														placeholder="1.0000"
+														placeholder="1.00"
 														{...field}
 														onChange={(e) =>
 															field.onChange(
@@ -464,26 +501,8 @@ export function EditExpenseDialog({
 														type="button"
 														variant="outline"
 														size="sm"
-														onClick={() => {
-															if (
-																exchangeRateData?.rates
-															) {
-																const rate =
-																	exchangeRateData
-																		.rates[
-																		watchedCurrency
-																	];
-																if (rate) {
-																	form.setValue(
-																		"exchangeRate",
-																		Number(
-																			rate.toFixed(
-																				4,
-																			),
-																		),
-																	);
-																}
-															}
+														onClick={async () => {
+															await refetchExchangeRate();
 														}}
 														disabled={
 															exchangeRateLoading
@@ -500,7 +519,7 @@ export function EditExpenseDialog({
 											</div>
 											{watchedCurrency === "SGD" && (
 												<p className="text-sm text-gray-600 mt-1">
-													新幣匯率固定為 1.0000
+													新幣匯率固定為 1.00
 												</p>
 											)}
 											{exchangeRateError &&
@@ -515,7 +534,7 @@ export function EditExpenseDialog({
 												watchedCurrency !== "SGD" && (
 													<p className="text-sm text-green-600 mt-1">
 														{exchangeRateData.date}{" "}
-														的匯率已自動更新
+														的新幣匯率已更新
 													</p>
 												)}
 											<FormMessage />
@@ -537,9 +556,9 @@ export function EditExpenseDialog({
 												<FormControl>
 													<Input
 														type="number"
-														step="0.0001"
+														step="0.01"
 														min="0"
-														placeholder="1.0000"
+														placeholder="1.00"
 														{...field}
 														onChange={(e) =>
 															field.onChange(
@@ -565,32 +584,15 @@ export function EditExpenseDialog({
 														type="button"
 														variant="outline"
 														size="sm"
-														onClick={() => {
-															if (
-																exchangeRateData?.rates
-															) {
-																const rate =
-																	exchangeRateData
-																		.rates
-																		.USD;
-																if (rate) {
-																	form.setValue(
-																		"usdRate",
-																		Number(
-																			rate.toFixed(
-																				4,
-																			),
-																		),
-																	);
-																}
-															}
+														onClick={async () => {
+															await refetchUsdExchangeRate();
 														}}
 														disabled={
-															exchangeRateLoading
+															usdExchangeRateLoading
 														}
 														className="px-3"
 													>
-														{exchangeRateLoading ? (
+														{usdExchangeRateLoading ? (
 															<RefreshCw className="size-4 animate-spin" />
 														) : (
 															<RefreshCw className="size-4" />
@@ -600,22 +602,24 @@ export function EditExpenseDialog({
 											</div>
 											{watchedCurrency === "USD" && (
 												<p className="text-sm text-gray-600 mt-1">
-													美元匯率固定為 1.0000
+													美元匯率固定為 1.00
 												</p>
 											)}
-											{exchangeRateError &&
+											{usdExchangeRateError &&
 												watchedCurrency !== "USD" && (
 													<p className="text-sm text-red-600 mt-1">
-														無法獲取新幣匯率:{" "}
-														{exchangeRateError}
+														無法獲取美元匯率:{" "}
+														{usdExchangeRateError}
 													</p>
 												)}
-											{exchangeRateData &&
-												!exchangeRateError &&
+											{usdExchangeRateData &&
+												!usdExchangeRateError &&
 												watchedCurrency !== "USD" && (
 													<p className="text-sm text-green-600 mt-1">
-														{exchangeRateData.date}{" "}
-														的新幣匯率已自動更新
+														{
+															usdExchangeRateData.date
+														}{" "}
+														的美元匯率已更新
 													</p>
 												)}
 											<FormMessage />

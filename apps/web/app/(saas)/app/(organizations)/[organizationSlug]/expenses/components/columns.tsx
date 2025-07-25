@@ -132,7 +132,7 @@ export function createColumns(
 			cell: ({ row }) => {
 				const exchangeRate = row.getValue("exchangeRate") as number;
 				const rate = Number(exchangeRate);
-				return Number.isNaN(rate) ? "1.0000" : rate.toFixed(4);
+				return Number.isNaN(rate) ? "1.00" : rate.toFixed(4);
 			},
 		},
 		{
@@ -156,7 +156,7 @@ export function createColumns(
 			cell: ({ row }) => {
 				const usdRate = row.getValue("usdRate") as number;
 				const rate = Number(usdRate);
-				return Number.isNaN(rate) ? "1.0000" : rate.toFixed(4);
+				return Number.isNaN(rate) ? "1.00" : rate.toFixed(4);
 			},
 		},
 		{

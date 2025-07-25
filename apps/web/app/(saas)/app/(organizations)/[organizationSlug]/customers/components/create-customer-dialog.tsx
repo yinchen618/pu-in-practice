@@ -41,26 +41,26 @@ const createCustomerSchema = z.object({
 	rm1Id: z.string().optional(),
 	rm1ProfitShare: z
 		.number()
-		.min(0, "利潤分享比例不能小於0")
-		.max(100, "利潤分享比例不能大於100")
+		.min(0, "預設分潤比例不能小於0")
+		.max(100, "預設分潤比例不能大於100")
 		.optional(),
 	rm2Id: z.string().optional(),
 	rm2ProfitShare: z
 		.number()
-		.min(0, "利潤分享比例不能小於0")
-		.max(100, "利潤分享比例不能大於100")
+		.min(0, "預設分潤比例不能小於0")
+		.max(100, "預設分潤比例不能大於100")
 		.optional(),
 	finder1Id: z.string().optional(),
 	finder1ProfitShare: z
 		.number()
-		.min(0, "利潤分享比例不能小於0")
-		.max(100, "利潤分享比例不能大於100")
+		.min(0, "預設分潤比例不能小於0")
+		.max(100, "預設分潤比例不能大於100")
 		.optional(),
 	finder2Id: z.string().optional(),
 	finder2ProfitShare: z
 		.number()
-		.min(0, "利潤分享比例不能小於0")
-		.max(100, "利潤分享比例不能大於100")
+		.min(0, "預設分潤比例不能小於0")
+		.max(100, "預設分潤比例不能大於100")
 		.optional(),
 });
 
@@ -298,7 +298,7 @@ export function CreateCustomerDialog({
 								name="email"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>電子郵件（選填）</FormLabel>
+										<FormLabel>電子郵件</FormLabel>
 										<FormControl>
 											<Input
 												type="email"
@@ -310,24 +310,24 @@ export function CreateCustomerDialog({
 									</FormItem>
 								)}
 							/>
-						</div>
 
-						<FormField
-							control={form.control}
-							name="phone"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>電話</FormLabel>
-									<FormControl>
-										<Input
-											placeholder="輸入電話號碼"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+							<FormField
+								control={form.control}
+								name="phone"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>電話</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="輸入電話號碼"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
 
 						<div className="grid grid-cols-2 gap-4">
 							<FormField
@@ -371,7 +371,7 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											RM1 利潤分享比例 (%)
+											RM1 預設分潤比例 (%)
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -430,7 +430,7 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											RM2 利潤分享比例 (%)
+											RM2 預設分潤比例 (%)
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -489,7 +489,7 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											Finder1 利潤分享比例 (%)
+											Finder1 預設分潤比例 (%)
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -548,7 +548,7 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											Finder2 利潤分享比例 (%)
+											Finder2 預設分潤比例 (%)
 										</FormLabel>
 										<FormControl>
 											<PercentageInput

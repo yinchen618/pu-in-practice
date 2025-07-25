@@ -1254,8 +1254,8 @@ export function CreateProfitSharingDialog({
 												<div className="flex gap-2">
 													<Input
 														type="number"
-														step="0.00001"
-														placeholder="1.00000"
+														step="0.01"
+														placeholder="1.00"
 														{...field}
 														onChange={(e) => {
 															const value =
@@ -1324,7 +1324,7 @@ export function CreateProfitSharingDialog({
 											</FormControl>
 											{watchedCurrency === "USD" && (
 												<p className="text-sm text-gray-600 mt-1">
-													美元匯率固定為 1.00000
+													美元匯率固定為 1.00
 												</p>
 											)}
 											{exchangeRateError &&
@@ -1339,7 +1339,7 @@ export function CreateProfitSharingDialog({
 												watchedCurrency !== "USD" && (
 													<p className="text-sm text-green-600 mt-1">
 														{exchangeRateData.date}{" "}
-														的匯率已自動更新
+														的新幣匯率已更新
 													</p>
 												)}
 											<FormMessage />
