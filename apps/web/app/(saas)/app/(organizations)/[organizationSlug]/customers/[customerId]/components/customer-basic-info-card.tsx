@@ -26,7 +26,7 @@ export function CustomerBasicInfoCard({ customer }: Props) {
 							電子郵件
 						</dt>
 						<dd className="mt-1 text-sm text-gray-900">
-							{customer.email}
+							{customer.email || "-"}
 						</dd>
 					</div>
 					<div>
