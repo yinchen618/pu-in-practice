@@ -277,7 +277,7 @@ export function EditAssetTransactionDialog({
 											<FormControl>
 												<Input
 													type="number"
-													step="0.01"
+													step="1"
 													placeholder="輸入金額"
 													{...field}
 													onChange={(e) => {

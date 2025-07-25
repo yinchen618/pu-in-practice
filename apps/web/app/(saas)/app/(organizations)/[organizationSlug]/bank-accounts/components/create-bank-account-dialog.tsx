@@ -316,7 +316,7 @@ export function CreateBankAccountDialog({
 										<FormControl>
 											<Input
 												type="number"
-												step="0.01"
+												step="1"
 												placeholder="輸入餘額"
 												{...field}
 												onChange={(e) => {

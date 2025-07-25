@@ -125,14 +125,9 @@ export function EditProfitSharingDialog({
 			// 設定表單值
 			form.setValue("customerId", record.customerId);
 			form.setValue("productId", record.productId);
-			form.setValue("bankAccountId", record.bankAccountId || "");
+			form.setValue("bankAccountId", record.bankAccountId);
 			form.setValue("amount", record.amount);
-			form.setValue(
-				"profitDate",
-				record.profitDate instanceof Date
-					? record.profitDate.toISOString().split("T")[0]
-					: record.profitDate,
-			);
+			form.setValue("profitDate", record.profitDate);
 			form.setValue("currency", record.currency);
 			form.setValue("companyRevenue", record.companyRevenue || 0);
 			form.setValue(
@@ -345,9 +340,7 @@ export function EditProfitSharingDialog({
 	]);
 
 	const onSubmit = async (data: ProfitSharingFormData) => {
-		if (!record) {
-			return;
-		}
+		if (!record) return;
 
 		console.log("=== 更新分潤記錄 - 提交數據 ===");
 		console.log("完整表單數據:", data);
@@ -398,9 +391,7 @@ export function EditProfitSharingDialog({
 	};
 
 	const handleDelete = async () => {
-		if (!record) {
-			return;
-		}
+		if (!record) return;
 
 		if (!confirm("確定要刪除此分潤記錄嗎？此操作無法復原。")) {
 			return;
@@ -441,7 +432,7 @@ export function EditProfitSharingDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="min-w-[90vw] max-h-[90vh] overflow-y-auto">
+			<DialogContent className="max-w-[90vw] max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>編輯分潤記錄</DialogTitle>
 					<DialogDescription>
@@ -474,7 +465,7 @@ export function EditProfitSharingDialog({
 						<DialogFooter className="gap-2">
 							<Button
 								type="button"
-								variant="error"
+								variant="destructive"
 								onClick={handleDelete}
 								disabled={isDeleting || isLoading}
 								className="mr-auto"

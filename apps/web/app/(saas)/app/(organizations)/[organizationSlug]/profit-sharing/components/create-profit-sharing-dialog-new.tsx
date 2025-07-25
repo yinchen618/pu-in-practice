@@ -9,13 +9,13 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
+	DialogTrigger,
 } from "@ui/components/dialog";
 import { Form } from "@ui/components/form";
-import { Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useExchangeRate } from "../../../../../../../hooks/use-exchange-rate";
-import type { ProfitSharingRecord } from "./columns";
 import { BasicFormFields } from "./form-fields/BasicFormFields";
 import { ProfitShareAllocation } from "./form-fields/ProfitShareAllocation";
 import { ShareableAmountSection } from "./form-fields/ShareableAmountSection";
@@ -29,23 +29,17 @@ import {
 	isValidProfitSharePercent,
 } from "./shared/utils";
 
-interface EditDialogProps {
-	record: ProfitSharingRecord | null;
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
+interface CreateDialogProps {
 	organizationId: string;
 	onSuccess?: () => void;
 }
 
-export function EditProfitSharingDialog({
-	record,
-	open,
-	onOpenChange,
+export function CreateProfitSharingDialog({
 	organizationId,
 	onSuccess,
-}: EditDialogProps) {
+}: CreateDialogProps) {
+	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [isDeleting, setIsDeleting] = useState(false);
 
 	// 使用共用的 Hook 來取得資料
 	const {
@@ -58,6 +52,9 @@ export function EditProfitSharingDialog({
 		fetchBankAccounts,
 		fetchRMsAndFinders,
 	} = useBaseData({ organizationId, open });
+
+	// 獲取今天的日期字符串（YYYY-MM-DD格式）
+	const today = new Date().toISOString().split("T")[0];
 
 	const form = useForm<ProfitSharingFormData>({
 		resolver: zodResolver(profitSharingFormSchema),
@@ -77,7 +74,7 @@ export function EditProfitSharingDialog({
 			companyRevenueOriginal: 0,
 			rmRevenueUSD: 0,
 			findersRevenueUSD: 0,
-			profitDate: new Date().toISOString().split("T")[0],
+			profitDate: today,
 			rm1Id: undefined,
 			rm1Name: undefined,
 			rm1ProfitSharePercent: undefined,
@@ -111,94 +108,10 @@ export function EditProfitSharingDialog({
 		loading: exchangeRateLoading,
 		error: exchangeRateError,
 	} = useExchangeRate({
-		date: watchedDate || new Date().toISOString().split("T")[0],
+		date: watchedDate || today,
 		enabled: open, // 只有當對話框打開時才啟用
 		useUsdRates: true, // 使用 USD 匯率
 	});
-
-	// 當有記錄時，填充表單數據
-	useEffect(() => {
-		if (record && open) {
-			console.log("=== 編輯分潤記錄 - 設定表單數據 ===");
-			console.log("原始記錄:", record);
-
-			// 設定表單值
-			form.setValue("customerId", record.customerId);
-			form.setValue("productId", record.productId);
-			form.setValue("bankAccountId", record.bankAccountId || "");
-			form.setValue("amount", record.amount);
-			form.setValue(
-				"profitDate",
-				record.profitDate instanceof Date
-					? record.profitDate.toISOString().split("T")[0]
-					: record.profitDate,
-			);
-			form.setValue("currency", record.currency);
-			form.setValue("companyRevenue", record.companyRevenue || 0);
-			form.setValue(
-				"directTradeBookingFee",
-				record.directTradeBookingFee || 0,
-			);
-			form.setValue("bankRetroPercent", record.bankRetroPercent || 50);
-			form.setValue("shareable", record.shareable || 0);
-			form.setValue("fxRate", record.fxRate || 1);
-
-			// 設定分潤比例
-			form.setValue(
-				"companyProfitSharePercent",
-				record.companyProfitSharePercent || 0,
-			);
-			form.setValue(
-				"rmProfitSharePercent",
-				record.rmProfitSharePercent || 0,
-			);
-			form.setValue(
-				"finderProfitSharePercent",
-				record.finderProfitSharePercent || 0,
-			);
-
-			// 設定 RM 資訊
-			if (record.rm1Id) {
-				form.setValue("rm1Id", record.rm1Id);
-				form.setValue("rm1Name", record.rm1Name || "");
-				form.setValue(
-					"rm1ProfitSharePercent",
-					record.rm1ProfitSharePercent || 0,
-				);
-			}
-			if (record.rm2Id) {
-				form.setValue("rm2Id", record.rm2Id);
-				form.setValue("rm2Name", record.rm2Name || "");
-				form.setValue(
-					"rm2ProfitSharePercent",
-					record.rm2ProfitSharePercent || 0,
-				);
-			}
-
-			// 設定 Finder 資訊
-			if (record.finder1Id) {
-				form.setValue("finder1Id", record.finder1Id);
-				form.setValue("finder1Name", record.finder1Name || "");
-				form.setValue(
-					"finder1ProfitSharePercent",
-					record.finder1ProfitSharePercent || 0,
-				);
-			}
-			if (record.finder2Id) {
-				form.setValue("finder2Id", record.finder2Id);
-				form.setValue("finder2Name", record.finder2Name || "");
-				form.setValue(
-					"finder2ProfitSharePercent",
-					record.finder2ProfitSharePercent || 0,
-				);
-			}
-
-			// 載入對應的銀行帳戶
-			if (record.customerId) {
-				fetchBankAccounts(record.customerId);
-			}
-		}
-	}, [record, open, form, fetchBankAccounts]);
 
 	// 當匯率數據變化時，自動更新表單中的匯率欄位
 	useEffect(() => {
@@ -345,11 +258,7 @@ export function EditProfitSharingDialog({
 	]);
 
 	const onSubmit = async (data: ProfitSharingFormData) => {
-		if (!record) {
-			return;
-		}
-
-		console.log("=== 更新分潤記錄 - 提交數據 ===");
+		console.log("=== 新增分潤記錄 - 提交數據 ===");
 		console.log("完整表單數據:", data);
 
 		setIsLoading(true);
@@ -357,18 +266,15 @@ export function EditProfitSharingDialog({
 			const requestData = { ...data, organizationId };
 			console.log("發送到 API 的數據:", requestData);
 
-			const response = await fetch(
-				`/api/organizations/profit-sharing/${record.id}`,
-				{
-					method: "PUT",
-					credentials: "include",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(requestData),
-				},
-			);
+			const response = await fetch("/api/organizations/profit-sharing", {
+				method: "POST",
+				credentials: "include",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(requestData),
+			});
 
 			if (!response.ok) {
-				let errorMessage = "更新失敗";
+				let errorMessage = "新增失敗";
 				try {
 					const responseText = await response.text();
 					console.log("API 錯誤回應:", responseText);
@@ -379,7 +285,7 @@ export function EditProfitSharingDialog({
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					errorMessage = "更新失敗";
+					errorMessage = "新增失敗";
 				}
 				throw new Error(errorMessage);
 			}
@@ -387,46 +293,14 @@ export function EditProfitSharingDialog({
 			const result = await response.json();
 			console.log("API 成功回應:", result);
 
-			onOpenChange(false);
+			form.reset();
+			setOpen(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("更新分潤記錄失敗:", error);
-			alert(error instanceof Error ? error.message : "更新失敗");
+			console.error("新增分潤記錄失敗:", error);
+			alert(error instanceof Error ? error.message : "新增失敗");
 		} finally {
 			setIsLoading(false);
-		}
-	};
-
-	const handleDelete = async () => {
-		if (!record) {
-			return;
-		}
-
-		if (!confirm("確定要刪除此分潤記錄嗎？此操作無法復原。")) {
-			return;
-		}
-
-		setIsDeleting(true);
-		try {
-			const response = await fetch(
-				`/api/organizations/profit-sharing/${record.id}`,
-				{
-					method: "DELETE",
-					credentials: "include",
-				},
-			);
-
-			if (!response.ok) {
-				throw new Error("刪除失敗");
-			}
-
-			onOpenChange(false);
-			onSuccess?.();
-		} catch (error) {
-			console.error("刪除分潤記錄失敗:", error);
-			alert(error instanceof Error ? error.message : "刪除失敗");
-		} finally {
-			setIsDeleting(false);
 		}
 	};
 
@@ -440,12 +314,18 @@ export function EditProfitSharingDialog({
 	);
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="min-w-[90vw] max-h-[90vh] overflow-y-auto">
+		<Dialog open={open} onOpenChange={setOpen}>
+			<DialogTrigger asChild>
+				<Button size="sm" className="h-8">
+					<Plus className="h-4 w-4 mr-2" />
+					新增分潤
+				</Button>
+			</DialogTrigger>
+			<DialogContent className="max-w-[90vw] max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>編輯分潤記錄</DialogTitle>
+					<DialogTitle>新增分潤記錄</DialogTitle>
 					<DialogDescription>
-						修改分潤記錄的資訊和分潤比例分配。
+						填寫分潤記錄的基本資訊和分潤比例分配。
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -471,21 +351,11 @@ export function EditProfitSharingDialog({
 							/>
 						</div>
 
-						<DialogFooter className="gap-2">
-							<Button
-								type="button"
-								variant="error"
-								onClick={handleDelete}
-								disabled={isDeleting || isLoading}
-								className="mr-auto"
-							>
-								<Trash2 className="h-4 w-4 mr-2" />
-								{isDeleting ? "刪除中..." : "刪除"}
-							</Button>
+						<DialogFooter>
 							<Button
 								type="button"
 								variant="outline"
-								onClick={() => onOpenChange(false)}
+								onClick={() => setOpen(false)}
 							>
 								取消
 							</Button>
@@ -493,13 +363,12 @@ export function EditProfitSharingDialog({
 								type="submit"
 								disabled={
 									isLoading ||
-									isDeleting ||
 									!isValidProfitSharePercent(
 										totalProfitSharePercent,
 									)
 								}
 							>
-								{isLoading ? "更新中..." : "更新"}
+								{isLoading ? "新增中..." : "新增"}
 							</Button>
 						</DialogFooter>
 					</form>
