@@ -30,6 +30,9 @@ interface BasicFormFieldsProps {
 	customers: Customer[];
 	products: Product[];
 	bankAccounts: BankAccount[];
+	isLoadingCustomers?: boolean;
+	isLoadingProducts?: boolean;
+	isLoadingBankAccounts?: boolean;
 }
 
 export function BasicFormFields({
@@ -37,7 +40,12 @@ export function BasicFormFields({
 	customers,
 	products,
 	bankAccounts,
+	isLoadingCustomers = false,
+	isLoadingProducts = false,
+	isLoadingBankAccounts = false,
 }: BasicFormFieldsProps) {
+	const selectedCustomerId = form.watch("customerId");
+
 	return (
 		<>
 			{/* 第一行：客戶、產品和銀行帳戶 */}
@@ -62,9 +70,15 @@ export function BasicFormFields({
 						<SearchableSelect
 							field={field}
 							label="客戶"
-							placeholder="選擇客戶"
+							placeholder={
+								isLoadingCustomers ? "讀取中..." : "選擇客戶"
+							}
 							searchPlaceholder="搜尋客戶..."
-							emptyText="找不到客戶。"
+							emptyText={
+								isLoadingCustomers
+									? "讀取中..."
+									: "找不到客戶。"
+							}
 							options={customers}
 							getDisplayValue={(customer) =>
 								customer
@@ -89,9 +103,21 @@ export function BasicFormFields({
 						<SearchableSelect<BankAccount>
 							field={field}
 							label="銀行帳戶"
-							placeholder="選擇銀行帳戶"
+							placeholder={
+								isLoadingBankAccounts
+									? "讀取中..."
+									: selectedCustomerId
+										? "選擇銀行帳戶"
+										: "請先選擇客戶"
+							}
 							searchPlaceholder="搜尋銀行帳戶..."
-							emptyText="找不到銀行帳戶。"
+							emptyText={
+								isLoadingBankAccounts
+									? "讀取中..."
+									: selectedCustomerId
+										? "該客戶沒有銀行帳戶。"
+										: "請先選擇客戶。"
+							}
 							options={bankAccounts}
 							getDisplayValue={(account) =>
 								account
@@ -105,6 +131,9 @@ export function BasicFormFields({
 								`${account.bankName} - ${account.accountNumber}`
 							}
 							required
+							disabled={
+								!selectedCustomerId || isLoadingBankAccounts
+							}
 						/>
 					)}
 				/>
@@ -116,9 +145,13 @@ export function BasicFormFields({
 						<SearchableSelect
 							field={field}
 							label="產品"
-							placeholder="選擇產品"
+							placeholder={
+								isLoadingProducts ? "讀取中..." : "選擇產品"
+							}
 							searchPlaceholder="搜尋產品..."
-							emptyText="找不到產品。"
+							emptyText={
+								isLoadingProducts ? "讀取中..." : "找不到產品。"
+							}
 							options={products}
 							getDisplayValue={(product) =>
 								product

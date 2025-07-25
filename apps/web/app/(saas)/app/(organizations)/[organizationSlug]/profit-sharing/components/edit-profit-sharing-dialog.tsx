@@ -30,7 +30,7 @@ import {
 } from "./shared/utils";
 
 interface EditDialogProps {
-	record: ProfitSharingRecord | null;
+	data: ProfitSharingRecord | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	organizationId: string;
@@ -38,7 +38,7 @@ interface EditDialogProps {
 }
 
 export function EditProfitSharingDialog({
-	record,
+	data: record,
 	open,
 	onOpenChange,
 	organizationId,
@@ -55,6 +55,9 @@ export function EditProfitSharingDialog({
 		allRMs,
 		allFinders,
 		isLoadingRMsAndFinders,
+		isLoadingCustomers,
+		isLoadingProducts,
+		isLoadingBankAccounts,
 		fetchBankAccounts,
 		fetchRMsAndFinders,
 	} = useBaseData({ organizationId, open });
@@ -105,16 +108,36 @@ export function EditProfitSharingDialog({
 	const watchedDate = form.watch("profitDate");
 	const watchedCurrency = form.watch("currency");
 
+	// 確保日期格式正確 (YYYY-MM-DD)
+	const normalizedDate = watchedDate
+		? typeof watchedDate === "string" && watchedDate.includes("T")
+			? watchedDate.split("T")[0]
+			: watchedDate
+		: new Date().toISOString().split("T")[0];
+
 	// 使用匯率hook
 	const {
 		data: exchangeRateData,
 		loading: exchangeRateLoading,
 		error: exchangeRateError,
+		refetch: refetchExchangeRate,
 	} = useExchangeRate({
-		date: watchedDate || new Date().toISOString().split("T")[0],
-		enabled: open, // 只有當對話框打開時才啟用
+		date: normalizedDate,
+		enabled: false, // 預設不啟用，只在需要時手動載入
 		useUsdRates: true, // 使用 USD 匯率
 	});
+
+	// 監聽幣別和日期變更，手動載入匯率
+	useEffect(() => {
+		if (!open || !watchedCurrency || !normalizedDate) {
+			return;
+		}
+
+		// 如果幣別不是 USD，載入 USD 匯率
+		if (watchedCurrency !== "USD") {
+			refetchExchangeRate();
+		}
+	}, [watchedCurrency, normalizedDate, open, refetchExchangeRate]);
 
 	// 當有記錄時，填充表單數據
 	useEffect(() => {
@@ -122,83 +145,102 @@ export function EditProfitSharingDialog({
 			console.log("=== 編輯分潤記錄 - 設定表單數據 ===");
 			console.log("原始記錄:", record);
 
-			// 設定表單值
-			form.setValue("customerId", record.customerId);
-			form.setValue("productId", record.productId);
-			form.setValue("bankAccountId", record.bankAccountId || "");
-			form.setValue("amount", record.amount);
-			form.setValue(
-				"profitDate",
-				record.profitDate instanceof Date
-					? record.profitDate.toISOString().split("T")[0]
-					: record.profitDate,
-			);
-			form.setValue("currency", record.currency);
-			form.setValue("companyRevenue", record.companyRevenue || 0);
-			form.setValue(
-				"directTradeBookingFee",
-				record.directTradeBookingFee || 0,
-			);
-			form.setValue("bankRetroPercent", record.bankRetroPercent || 50);
-			form.setValue("shareable", record.shareable || 0);
-			form.setValue("fxRate", record.fxRate || 1);
-
-			// 設定分潤比例
-			form.setValue(
-				"companyProfitSharePercent",
-				record.companyProfitSharePercent || 0,
-			);
-			form.setValue(
-				"rmProfitSharePercent",
-				record.rmProfitSharePercent || 0,
-			);
-			form.setValue(
-				"finderProfitSharePercent",
-				record.finderProfitSharePercent || 0,
-			);
-
-			// 設定 RM 資訊
-			if (record.rm1Id) {
-				form.setValue("rm1Id", record.rm1Id);
-				form.setValue("rm1Name", record.rm1Name || "");
-				form.setValue(
-					"rm1ProfitSharePercent",
-					record.rm1ProfitSharePercent || 0,
+			// 處理分潤日期格式
+			let formattedDate = "";
+			if (record.profitDate) {
+				console.log(
+					"原始分潤日期:",
+					record.profitDate,
+					typeof record.profitDate,
 				);
-			}
-			if (record.rm2Id) {
-				form.setValue("rm2Id", record.rm2Id);
-				form.setValue("rm2Name", record.rm2Name || "");
-				form.setValue(
-					"rm2ProfitSharePercent",
-					record.rm2ProfitSharePercent || 0,
-				);
+
+				if (record.profitDate instanceof Date) {
+					// 如果是 Date 物件
+					formattedDate = record.profitDate
+						.toISOString()
+						.split("T")[0];
+				} else if (typeof record.profitDate === "string") {
+					// 如果是字串，嘗試解析
+					const date = new Date(record.profitDate);
+					if (!Number.isNaN(date.getTime())) {
+						formattedDate = date.toISOString().split("T")[0];
+					} else {
+						// 如果已經是 YYYY-MM-DD 格式
+						formattedDate = record.profitDate;
+					}
+				}
+
+				console.log("格式化後的分潤日期:", formattedDate);
 			}
 
-			// 設定 Finder 資訊
-			if (record.finder1Id) {
-				form.setValue("finder1Id", record.finder1Id);
-				form.setValue("finder1Name", record.finder1Name || "");
-				form.setValue(
-					"finder1ProfitSharePercent",
-					record.finder1ProfitSharePercent || 0,
-				);
-			}
-			if (record.finder2Id) {
-				form.setValue("finder2Id", record.finder2Id);
-				form.setValue("finder2Name", record.finder2Name || "");
-				form.setValue(
-					"finder2ProfitSharePercent",
-					record.finder2ProfitSharePercent || 0,
-				);
-			}
+			// 先重置表單到預設值
+			form.reset({
+				currency: record.currency,
+				companyRevenue: record.companyRevenue || 0,
+				directTradeBookingFee: record.directTradeBookingFee || 0,
+				bankRetroPercent: record.bankRetroPercent || 50,
+				shareable: record.shareable || 0,
+				rmProfitSharePercent: record.rmProfitSharePercent || 0,
+				finderProfitSharePercent: record.finderProfitSharePercent || 0,
+				companyProfitSharePercent:
+					record.companyProfitSharePercent || 0,
+				fxRate: record.fxRate || 1,
+				amount: record.amount,
+				rmRevenueOriginal: record.rmRevenueOriginal || 0,
+				findersRevenueOriginal: record.findersRevenueOriginal || 0,
+				companyRevenueOriginal: record.companyRevenueOriginal || 0,
+				rmRevenueUSD: record.rmRevenueUSD || 0,
+				findersRevenueUSD: record.findersRevenueUSD || 0,
+				profitDate: formattedDate,
+				customerId: record.customerId,
+				productId: record.productId,
+				bankAccountId: record.bankAccountId || "",
+				// RM1 資訊
+				rm1Id: record.rm1Id || undefined,
+				rm1Name: record.rm1Name || undefined,
+				rm1ProfitSharePercent:
+					record.rm1ProfitSharePercent || undefined,
+				rm1RevenueOriginal: record.rm1RevenueOriginal || 0,
+				rm1RevenueUSD: record.rm1RevenueUSD || 0,
+				// RM2 資訊
+				rm2Id: record.rm2Id || undefined,
+				rm2Name: record.rm2Name || undefined,
+				rm2ProfitSharePercent:
+					record.rm2ProfitSharePercent || undefined,
+				rm2RevenueOriginal: record.rm2RevenueOriginal || 0,
+				rm2RevenueUSD: record.rm2RevenueUSD || 0,
+				// Finder1 資訊
+				finder1Id: record.finder1Id || undefined,
+				finder1Name: record.finder1Name || undefined,
+				finder1ProfitSharePercent:
+					record.finder1ProfitSharePercent || undefined,
+				finder1RevenueOriginal: record.finder1RevenueOriginal || 0,
+				finder1RevenueUSD: record.finder1RevenueUSD || 0,
+				// Finder2 資訊
+				finder2Id: record.finder2Id || undefined,
+				finder2Name: record.finder2Name || undefined,
+				finder2ProfitSharePercent:
+					record.finder2ProfitSharePercent || undefined,
+				finder2RevenueOriginal: record.finder2RevenueOriginal || 0,
+				finder2RevenueUSD: record.finder2RevenueUSD || 0,
+			});
+
+			// 添加調試信息
+			console.log("表單重置完成，當前表單值:");
+			console.log("- profitDate:", form.getValues("profitDate"));
+			console.log("- customerId:", form.getValues("customerId"));
+			console.log("- productId:", form.getValues("productId"));
+			console.log("- bankAccountId:", form.getValues("bankAccountId"));
 
 			// 載入對應的銀行帳戶
 			if (record.customerId) {
 				fetchBankAccounts(record.customerId);
 			}
+		} else if (!open) {
+			// 當對話框關閉時，重置表單為預設值
+			form.reset();
 		}
-	}, [record, open, form, fetchBankAccounts]);
+	}, [record, open]);
 
 	// 當匯率數據變化時，自動更新表單中的匯率欄位
 	useEffect(() => {
@@ -212,7 +254,7 @@ export function EditProfitSharingDialog({
 				form.setValue("fxRate", Number(rate.toFixed(5)));
 			}
 		}
-	}, [exchangeRateData, form, open, watchedCurrency]);
+	}, [exchangeRateData, open, watchedCurrency]);
 
 	// 監聽收入和費用的變化，計算分潤金額
 	useEffect(() => {
@@ -336,13 +378,11 @@ export function EditProfitSharingDialog({
 				fetchBankAccounts(customerId);
 				fetchRMsAndFinders(selectedCustomer);
 			}
+		} else {
+			// 如果沒有選擇客戶，清空銀行帳戶
+			fetchBankAccounts();
 		}
-	}, [
-		form.watch("customerId"),
-		customers,
-		fetchBankAccounts,
-		fetchRMsAndFinders,
-	]);
+	}, [form.watch("customerId"), customers]);
 
 	const onSubmit = async (data: ProfitSharingFormData) => {
 		if (!record) {
@@ -457,10 +497,20 @@ export function EditProfitSharingDialog({
 								customers={customers}
 								products={products}
 								bankAccounts={bankAccounts}
+								isLoadingCustomers={isLoadingCustomers}
+								isLoadingProducts={isLoadingProducts}
+								isLoadingBankAccounts={isLoadingBankAccounts}
 							/>
 
 							{/* 可分潤金額區塊 */}
-							<ShareableAmountSection form={form} />
+							<ShareableAmountSection
+								form={form}
+								exchangeRateLoading={exchangeRateLoading}
+								exchangeRateError={exchangeRateError}
+								exchangeRateData={exchangeRateData}
+								onRefreshExchangeRate={refetchExchangeRate}
+								watchedCurrency={watchedCurrency}
+							/>
 
 							{/* 分潤比例分配 */}
 							<ProfitShareAllocation

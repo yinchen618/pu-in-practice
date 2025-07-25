@@ -49,6 +49,9 @@ export function CreateProfitSharingDialog({
 		allRMs,
 		allFinders,
 		isLoadingRMsAndFinders,
+		isLoadingCustomers,
+		isLoadingProducts,
+		isLoadingBankAccounts,
 		fetchBankAccounts,
 		fetchRMsAndFinders,
 	} = useBaseData({ organizationId, open });
@@ -102,16 +105,36 @@ export function CreateProfitSharingDialog({
 	const watchedDate = form.watch("profitDate");
 	const watchedCurrency = form.watch("currency");
 
+	// 確保日期格式正確 (YYYY-MM-DD)
+	const normalizedDate = watchedDate
+		? typeof watchedDate === "string" && watchedDate.includes("T")
+			? watchedDate.split("T")[0]
+			: watchedDate
+		: today;
+
 	// 使用匯率hook
 	const {
 		data: exchangeRateData,
 		loading: exchangeRateLoading,
 		error: exchangeRateError,
+		refetch: refetchExchangeRate,
 	} = useExchangeRate({
-		date: watchedDate || today,
-		enabled: open, // 只有當對話框打開時才啟用
+		date: normalizedDate,
+		enabled: false, // 預設不啟用，只在需要時手動載入
 		useUsdRates: true, // 使用 USD 匯率
 	});
+
+	// 監聽幣別和日期變更，手動載入匯率
+	useEffect(() => {
+		if (!open || !watchedCurrency || !normalizedDate) {
+			return;
+		}
+
+		// 如果幣別不是 USD，載入 USD 匯率
+		if (watchedCurrency !== "USD") {
+			refetchExchangeRate();
+		}
+	}, [watchedCurrency, normalizedDate, open, refetchExchangeRate]);
 
 	// 當匯率數據變化時，自動更新表單中的匯率欄位
 	useEffect(() => {
@@ -249,13 +272,11 @@ export function CreateProfitSharingDialog({
 				fetchBankAccounts(customerId);
 				fetchRMsAndFinders(selectedCustomer);
 			}
+		} else {
+			// 如果沒有選擇客戶，清空銀行帳戶
+			fetchBankAccounts();
 		}
-	}, [
-		form.watch("customerId"),
-		customers,
-		fetchBankAccounts,
-		fetchRMsAndFinders,
-	]);
+	}, [form.watch("customerId"), customers]);
 
 	const onSubmit = async (data: ProfitSharingFormData) => {
 		console.log("=== 新增分潤記錄 - 提交數據 ===");
@@ -337,10 +358,20 @@ export function CreateProfitSharingDialog({
 								customers={customers}
 								products={products}
 								bankAccounts={bankAccounts}
+								isLoadingCustomers={isLoadingCustomers}
+								isLoadingProducts={isLoadingProducts}
+								isLoadingBankAccounts={isLoadingBankAccounts}
 							/>
 
 							{/* 可分潤金額區塊 */}
-							<ShareableAmountSection form={form} />
+							<ShareableAmountSection
+								form={form}
+								exchangeRateLoading={exchangeRateLoading}
+								exchangeRateError={exchangeRateError}
+								exchangeRateData={exchangeRateData}
+								onRefreshExchangeRate={refetchExchangeRate}
+								watchedCurrency={watchedCurrency}
+							/>
 
 							{/* 分潤比例分配 */}
 							<ProfitShareAllocation
