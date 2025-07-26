@@ -80,7 +80,8 @@
 			"expenses": "支出",
 			"customers": "客戶",
 			"products": "產品",
-			"bankAccounts": "銀行帳戶"
+			"bankAccounts": "銀行帳戶",
+			"relationshipManagers": "關係經理"
 		},
 		"sidebar": {
 			"expand": "展開選單",

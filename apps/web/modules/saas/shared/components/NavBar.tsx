@@ -26,7 +26,6 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LanguageSwitcher } from "../../../../components/language-switcher";
 import { OrganzationSelect } from "../../organizations/components/OrganizationSelect";
 
 export function NavBar() {
@@ -228,7 +227,7 @@ export function NavBar() {
 							},
 						)}
 					>
-						<LanguageSwitcher />
+						{/* <LanguageSwitcher /> */}
 						<UserMenu />
 					</div>
 				</div>
@@ -323,13 +322,13 @@ export function NavBar() {
 				>
 					{!isSidebarCollapsed && (
 						<div className="flex flex-col gap-2">
-							<LanguageSwitcher />
+							{/* <LanguageSwitcher /> */}
 							<UserMenu showUserName={!isSidebarCollapsed} />
 						</div>
 					)}
 					{isSidebarCollapsed && (
 						<div className="flex flex-col gap-2 items-center">
-							<LanguageSwitcher />
+							{/* <LanguageSwitcher /> */}
 							<UserMenu showUserName={!isSidebarCollapsed} />
 						</div>
 					)}
