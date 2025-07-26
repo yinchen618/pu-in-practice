@@ -1,3 +1,4 @@
+// 為了向後兼容，保留原始常數
 export const CURRENCY_OPTIONS = [
 	{ value: "TWD", label: "新台幣 (TWD)" },
 	{ value: "USD", label: "美元 (USD)" },
@@ -33,6 +34,47 @@ export const PRODUCT_STATUSES = [
 	{ value: "active", label: "銷售中" },
 	{ value: "inactive", label: "已下架" },
 ] as const;
+
+// 支持多國化的函數版本
+export const getCurrencyOptions = (t: (key: string) => string) =>
+	[
+		{ value: "TWD", label: t("currency.twd") },
+		{ value: "USD", label: t("currency.usd") },
+		{ value: "CNY", label: t("currency.cny") },
+		{ value: "HKD", label: t("currency.hkd") },
+		{ value: "JPY", label: t("currency.jpy") },
+		{ value: "EUR", label: t("currency.eur") },
+		{ value: "GBP", label: t("currency.gbp") },
+		{ value: "AUD", label: t("currency.aud") },
+		{ value: "SGD", label: t("currency.sgd") },
+		{ value: "CHF", label: t("currency.chf") },
+	] as const;
+
+export const getDistributionTypeOptions = (t: (key: string) => string) =>
+	[
+		{ value: "IRREGULAR", label: t("distributionType.irregular") },
+		{ value: "MONTHLY", label: t("distributionType.monthly") },
+		{ value: "NONE", label: t("distributionType.none") },
+		{ value: "ACCUMULATE", label: t("distributionType.accumulate") },
+		{ value: "REBATE", label: t("distributionType.rebate") },
+	] as const;
+
+export const getProductCategories = (t: (key: string) => string) =>
+	[
+		{ value: "AQ", label: t("productCategory.aq") },
+		{ value: "Bond", label: t("productCategory.bond") },
+		{ value: "DCI", label: t("productCategory.dci") },
+		{ value: "EQ", label: t("productCategory.eq") },
+		{ value: "FCN", label: t("productCategory.fcn") },
+		{ value: "Fund", label: t("productCategory.fund") },
+		{ value: "FX", label: t("productCategory.fx") },
+	] as const;
+
+export const getProductStatuses = (t: (key: string) => string) =>
+	[
+		{ value: "active", label: t("productStatus.active") },
+		{ value: "inactive", label: t("productStatus.inactive") },
+	] as const;
 
 export type Currency = (typeof CURRENCY_OPTIONS)[number]["value"];
 export type DistributionType =

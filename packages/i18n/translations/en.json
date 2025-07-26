@@ -75,7 +75,17 @@
 			"admin": "Admin",
 			"aiChatbot": "AI Chatbot",
 			"organizationSettings": "Organization settings",
-			"start": "Start"
+			"start": "Start",
+			"profitSharing": "Profit Sharing",
+			"expenses": "Expenses",
+			"customers": "Customers",
+			"relationshipManagers": "RM",
+			"products": "Products",
+			"bankAccounts": "Bank Accounts"
+		},
+		"sidebar": {
+			"expand": "Expand Menu",
+			"collapse": "Collapse Menu"
 		},
 		"userMenu": {
 			"accountSettings": "Account settings",
@@ -195,9 +205,32 @@
 		"title": "Changelog"
 	},
 	"common": {
+		"status": "Status",
+		"customer": "Customer",
+		"clickToEdit": "Click to edit",
+		"unspecifiedCustomer": "Unspecified customer",
+		"currency": "Currency",
 		"confirmation": {
 			"cancel": "Cancel",
 			"confirm": "Confirm"
+		},
+		"dataTable": {
+			"searchPlaceholder": "Search {column}...",
+			"resetFilters": "Reset filters",
+			"selectedCount": "{count} selected",
+			"noResults": "No results found",
+			"clearFilters": "Clear filters",
+			"viewColumns": "View Columns",
+			"toggleColumns": "Toggle Columns",
+			"content": "Content",
+			"pagination": {
+				"rowsPerPage": "Rows per page",
+				"pageInfo": "Page {current} of {total}",
+				"goToFirstPage": "Go to first page",
+				"goToPreviousPage": "Go to previous page",
+				"goToNextPage": "Go to next page",
+				"goToLastPage": "Go to last page"
+			}
 		},
 		"menu": {
 			"blog": "Blog",
@@ -215,6 +248,74 @@
 		"actions": {
 			"continue": "Continue",
 			"verify": "Verify"
+		},
+		"format": {
+			"items": "items",
+			"percentage": "%"
+		},
+		"filter": {
+			"currency": "Filter {currency} currency",
+			"profit": "Filter {name}'s profit"
+		},
+		"filters": {
+			"title": "Filters",
+			"clearFilters": "Clear Filters",
+			"searchPlaceholder": "Search...",
+			"dateRange": "Date Range",
+			"startDate": "Start Date",
+			"endDate": "End Date",
+			"category": "Category",
+			"selectCategory": "Select Category",
+			"allCategories": "All Categories",
+			"currency": "Currency",
+			"selectCurrency": "Select Currency",
+			"allCurrencies": "All Currencies",
+			"status": "Status",
+			"selectStatus": "Select Status",
+			"allStatuses": "All",
+			"active": "Active",
+			"inactive": "Inactive",
+			"amountRange": "Amount Range",
+			"minAmount": "Min Amount",
+			"maxAmount": "Max Amount",
+			"attachmentStatus": "Attachment Status",
+			"selectAttachmentStatus": "Select Attachment Status",
+			"uploaded": "Uploaded",
+			"notUploaded": "Not Uploaded",
+			"badges": {
+				"startDate": "Start Date",
+				"endDate": "End Date",
+				"category": "Category",
+				"start": "Start",
+				"end": "End",
+				"min": "Min",
+				"max": "Max",
+				"sgdMin": "SGD Min",
+				"sgdMax": "SGD Max",
+				"usdMin": "USD Min",
+				"usdMax": "USD Max",
+				"currency": "Currency",
+				"attachment": "Attachment",
+				"search": "Search"
+			}
+		},
+		"table": {
+			"actions": "Actions",
+			"loading": "Loading...",
+			"noData": "No data",
+			"confirmDelete": "Confirm Delete",
+			"deleteConfirmation": "Are you sure you want to delete this data? This action cannot be undone.",
+			"cancel": "Cancel",
+			"delete": "Delete",
+			"batchAddFailed": "Batch add failed",
+			"dataProcessError": "Error occurred while processing data",
+			"previous": "Previous",
+			"next": "Next",
+			"itemsPerPage": "Items per page",
+			"page": "Page",
+			"of": "of",
+			"total": "Total",
+			"rows": "rows"
 		}
 	},
 	"contact": {
@@ -695,7 +796,78 @@
 				"general": "General",
 				"members": "Members",
 				"title": "Organization",
-				"dangerZone": "Danger zone"
+				"dangerZone": "Danger zone",
+				"constants": {
+					"currency": {
+						"twd": "Taiwan Dollar (TWD)",
+						"usd": "US Dollar (USD)",
+						"cny": "Chinese Yuan (CNY)",
+						"hkd": "Hong Kong Dollar (HKD)",
+						"jpy": "Japanese Yen (JPY)",
+						"eur": "Euro (EUR)",
+						"gbp": "British Pound (GBP)",
+						"aud": "Australian Dollar (AUD)",
+						"sgd": "Singapore Dollar (SGD)",
+						"chf": "Swiss Franc (CHF)"
+					},
+					"distributionType": {
+						"irregular": "Irregular",
+						"monthly": "Monthly Distribution",
+						"none": "No Fixed Distribution",
+						"accumulate": "Monthly Accumulation",
+						"rebate": "Fund Management Fee Rebate"
+					},
+					"productCategory": {
+						"aq": "AQ",
+						"bond": "Bond",
+						"dci": "DCI",
+						"eq": "Equity",
+						"fcn": "FCN",
+						"fund": "Fund",
+						"fx": "Foreign Exchange"
+					},
+					"productStatus": {
+						"active": "Active",
+						"inactive": "Inactive"
+					}
+				},
+				"bankAccounts": {
+					"title": "Bank Accounts",
+					"subtitle": "Manage bank account information within the organization",
+					"customer": "Customer",
+					"bankName": "Bank Name",
+					"accountNumber": "Account Number",
+					"currency": "Currency",
+					"status": "Status",
+					"createdDate": "Created Date",
+					"actions": "Actions",
+					"unspecifiedCustomer": "Unspecified Customer",
+					"clickToEdit": "Click to Edit",
+					"active": "Active",
+					"inactive": "Inactive",
+					"createTitle": "Create Bank Account",
+					"editTitle": "Edit Bank Account",
+					"createDescription": "Fill in the information below to create a new bank account.",
+					"editDescription": "Modify the bank account information.",
+					"customerCode": "Customer Code",
+					"selectCustomer": "Select Customer",
+					"searchCustomer": "Search customers...",
+					"customerNotFound": "Customer not found",
+					"bankNamePlaceholder": "Enter bank name",
+					"accountNumberPlaceholder": "Enter account number",
+					"selectCurrency": "Select Currency",
+					"selectStatus": "Select Status",
+					"none": "None",
+					"cancel": "Cancel",
+					"create": "Create",
+					"creating": "Creating...",
+					"update": "Update",
+					"updating": "Updating...",
+					"delete": "Delete",
+					"deleting": "Deleting...",
+					"deleteConfirm": "Are you sure you want to delete this bank account? This action cannot be undone.",
+					"deleteFailed": "Delete failed"
+				}
 			}
 		},
 		"save": "Save"
@@ -822,5 +994,866 @@
 	"choosePlan": {
 		"title": "Choose your plan",
 		"description": "To continue, please select a plan."
+	},
+	"organization": {
+		"common": {
+			"loading": "Loading...",
+			"save": "Save",
+			"cancel": "Cancel",
+			"edit": "Edit",
+			"delete": "Delete",
+			"create": "Create",
+			"update": "Update",
+			"confirm": "Confirm",
+			"search": "Search",
+			"filter": "Filter",
+			"none": "None"
+		},
+		"expenses": {
+			"title": "Expense List",
+			"subtitle": "Manage all expense records",
+			"create": "Add Expense",
+			"edit": "Edit Expense",
+			"delete": "Delete",
+			"category": "Category",
+			"amount": "Amount",
+			"currency": "Currency",
+			"exchangeRate": "SGD Exchange Rate",
+			"usdRate": "USD Exchange Rate",
+			"sgdAmount": "SGD Amount",
+			"usdAmount": "USD Amount",
+			"description": "Description",
+			"date": "Date",
+			"receipts": "Receipts",
+			"rmId": "RM",
+			"categories": {
+				"餐飲": "Dining",
+				"機票": "Flight",
+				"酒店": "Hotel",
+				"快遞": "Express",
+				"交通": "Transportation"
+			},
+			"form": {
+				"categoryRequired": "Category is required",
+				"amountNegative": "Amount cannot be negative",
+				"currencyRequired": "Currency is required",
+				"exchangeRateNegative": "Exchange rate cannot be negative",
+				"usdRateNegative": "USD rate cannot be negative",
+				"selectCategory": "Select category",
+				"selectCurrency": "Select currency",
+				"selectRm": "Select RM (optional)",
+				"none": "None",
+				"enterAmount": "0.00",
+				"enterDescription": "Enter expense description",
+				"sgdRateFixed": "SGD rate is fixed at 1.00",
+				"usdRateFixed": "USD rate is fixed at 1.00",
+				"exchangeRateError": "Unable to fetch exchange rate",
+				"exchangeRateUpdated": "SGD exchange rate updated",
+				"usdRateError": "Unable to fetch USD rate",
+				"usdRateUpdated": "USD exchange rate updated",
+				"creating": "Creating...",
+				"updating": "Updating...",
+				"deleting": "Deleting...",
+				"cancel": "Cancel",
+				"save": "Save",
+				"update": "Update",
+				"confirmDelete": "Are you sure you want to delete this expense record? This action cannot be undone.",
+				"updateFailed": "Failed to fetch expense data",
+				"fetchDataFailed": "Failed to fetch data",
+				"deleteFailed": "Failed to delete expense"
+			},
+			"filters": {
+				"title": "Filters",
+				"clearFilters": "Clear Filters",
+				"searchPlaceholder": "Search description or category...",
+				"dateRange": "Date Range",
+				"category": "Category",
+				"selectCategory": "Select Category",
+				"allCategories": "All Categories",
+				"currency": "Currency",
+				"selectCurrency": "Select Currency",
+				"allCurrencies": "All Currencies",
+				"attachmentStatus": "Attachment Status",
+				"selectAttachmentStatus": "Select Attachment Status",
+				"uploaded": "Uploaded",
+				"notUploaded": "Not Uploaded",
+				"all": "All",
+				"amountRange": "Amount Range",
+				"minAmount": "Min Amount",
+				"maxAmount": "Max Amount",
+				"sgdAmountRange": "SGD Amount Range",
+				"minSgdAmount": "Min SGD Amount",
+				"maxSgdAmount": "Max SGD Amount",
+				"usdAmountRange": "USD Amount Range",
+				"minUsdAmount": "Min USD Amount",
+				"maxUsdAmount": "Max USD Amount",
+				"startDate": "Start Date",
+				"endDate": "End Date"
+			},
+			"summary": {
+				"title": "Expense Summary",
+				"category": "Category",
+				"count": "Count",
+				"sgdAmount": "SGD Amount",
+				"usdAmount": "USD Amount",
+				"total": "Total",
+				"noData": "No expense data",
+				"uncategorized": "Uncategorized"
+			},
+			"table": {
+				"date": "Date",
+				"category": "Category",
+				"description": "Description",
+				"currency": "Currency",
+				"amount": "Amount",
+				"exchangeRate": "Exchange Rate",
+				"sgdAmount": "SGD Amount",
+				"usdRate": "USD Rate",
+				"usdAmount": "USD Amount",
+				"receipt": "Receipt",
+				"actions": "Actions",
+				"uploaded": "Uploaded",
+				"notUploaded": "Not Uploaded",
+				"items": " items"
+			},
+			"dialog": {
+				"create": {
+					"triggerButton": "Add Expense",
+					"title": "Add Expense",
+					"description": "Fill in the information below to add a new expense record.",
+					"cancel": "Cancel",
+					"submit": "Add",
+					"submitting": "Adding...",
+					"createFailed": "Failed to add"
+				}
+			}
+		},
+		"customers": {
+			"title": "Customer List",
+			"subtitle": "Manage all customer data",
+			"create": "Add Customer",
+			"edit": "Edit Customer",
+			"delete": "Delete",
+			"name": "Name",
+			"code": "Code",
+			"email": "Email",
+			"phone": "Phone",
+			"nationality": "Nationality",
+			"dateOfBirth": "Date of Birth",
+			"rmId": "Relationship Manager",
+			"finderId": "Finder",
+			"dialog": {
+				"create": {
+					"trigger": "Add Customer",
+					"title": "Add Customer",
+					"description": "Fill in the information below to add a customer."
+				}
+			},
+			"form": {
+				"createDescription": "Fill in basic customer information and assign responsible RM and Finder",
+				"nameRequired": "Customer name is required",
+				"codeRequired": "Customer code is required",
+				"emailInvalid": "Please enter a valid email address",
+				"phoneRequired": "Phone is required",
+				"nationalityRequired": "Nationality is required",
+				"dateOfBirthRequired": "Date of birth is required",
+				"profitShareMin": "Default profit share cannot be less than 0",
+				"profitShareMax": "Default profit share cannot be greater than 100",
+				"enterName": "Enter customer name",
+				"enterCode": "Enter customer code",
+				"enterEmail": "Enter email address",
+				"enterPhone": "Enter phone number",
+				"selectNationality": "Select nationality",
+				"selectRm": "Select relationship manager (optional)",
+				"selectFinder": "Select finder (optional)",
+				"none": "None",
+				"creating": "Creating...",
+				"updating": "Updating...",
+				"deleting": "Deleting...",
+				"cancel": "Cancel",
+				"save": "Save",
+				"update": "Update",
+				"confirmDelete": "Are you sure you want to delete this customer? This action cannot be undone.",
+				"fetchDataFailed": "Failed to fetch data",
+				"name": "Customer Name",
+				"namePlaceholder": "Enter customer name",
+				"code": "Customer Code",
+				"codePlaceholder": "Enter customer code",
+				"email": "Email",
+				"emailPlaceholder": "Enter email address",
+				"phone": "Phone",
+				"phonePlaceholder": "Enter phone number",
+				"rm1": "RM 1",
+				"rm1Placeholder": "Select RM 1",
+				"rm2": "RM 2",
+				"rm2Placeholder": "Select RM 2",
+				"finder1": "Finder 1",
+				"finder1Placeholder": "Select Finder 1",
+				"finder2": "Finder 2",
+				"finder2Placeholder": "Select Finder 2",
+				"rm1ProfitShare": "RM 1 Profit Share (%)",
+				"rm2ProfitShare": "RM 2 Profit Share (%)",
+				"finder1ProfitShare": "Finder 1 Profit Share (%)",
+				"finder2ProfitShare": "Finder 2 Profit Share (%)",
+				"rmSearchPlaceholder": "Search RM...",
+				"rmEmptyText": "No RM found",
+				"finderSearchPlaceholder": "Search Finder...",
+				"finderEmptyText": "No Finder found",
+				"unspecified": "Unspecified",
+				"create": "Create"
+			},
+			"error": {
+				"createFailed": "Failed to create customer",
+				"codeExists": "Customer code already exists"
+			},
+			"filters": {
+				"nationality": "Nationality Filter",
+				"rmFilter": "Relationship Manager Filter",
+				"finderFilter": "Finder Filter",
+				"allNationalities": "All Nationalities",
+				"allRms": "All Relationship Managers",
+				"allFinders": "All Finders"
+			},
+			"details": {
+				"basicInfo": "Basic Information",
+				"rmInfo": "Relationship Manager Info",
+				"balanceSummary": "Balance Summary",
+				"bankAccounts": "Bank Accounts",
+				"assets": "Asset Summary",
+				"profitSharing": "Profit Sharing Overview",
+				"assetTransactions": "Asset Transactions",
+				"profitSharingTable": "Profit Sharing Table",
+				"customerCode": "Customer Code",
+				"editData": "Edit Data"
+			},
+			"editDialog": {
+				"title": "Edit Customer",
+				"description": "Update customer basic information and adjust responsible RM and Finder",
+				"fields": {
+					"name": "Customer Name",
+					"namePlaceholder": "Enter customer name",
+					"code": "Customer Code",
+					"codePlaceholder": "Enter customer code",
+					"email": "Email",
+					"emailPlaceholder": "Enter email",
+					"phone": "Phone",
+					"phonePlaceholder": "Enter phone number",
+					"rm1": "Responsible RM1",
+					"rm1ProfitShare": "RM1 Default Profit Share (%)",
+					"rm2": "Responsible RM2",
+					"rm2ProfitShare": "RM2 Default Profit Share (%)",
+					"finder1": "Responsible Finder1",
+					"finder1ProfitShare": "Finder1 Default Profit Share (%)",
+					"finder2": "Responsible Finder2",
+					"finder2ProfitShare": "Finder2 Default Profit Share (%)",
+					"selectRM1": "Select RM1",
+					"selectRM2": "Select RM2",
+					"selectFinder1": "Select Finder1",
+					"selectFinder2": "Select Finder2",
+					"none": "None"
+				},
+				"actions": {
+					"cancel": "Cancel",
+					"update": "Update Customer",
+					"updating": "Updating...",
+					"delete": "Delete Customer",
+					"deleting": "Deleting..."
+				},
+				"validation": {
+					"nameRequired": "Customer name is required",
+					"codeRequired": "Customer code is required",
+					"emailInvalid": "Please enter a valid email",
+					"profitShareMin": "Default profit share cannot be less than 0",
+					"profitShareMax": "Default profit share cannot be greater than 100"
+				},
+				"errors": {
+					"updateFailed": "Failed to update customer",
+					"deleteFailed": "Failed to delete customer"
+				},
+				"deleteConfirm": "Are you sure you want to delete this customer? This action cannot be undone."
+			},
+			"basicInfo": {
+				"title": "Basic Information",
+				"customerCode": "Customer Code",
+				"email": "Email",
+				"phone": "Phone",
+				"noData": "-"
+			},
+			"table": {
+				"code": "Customer Code",
+				"name": "Customer Name",
+				"bankAccounts": "Bank Accounts",
+				"email": "Email",
+				"phone": "Phone",
+				"rm1": "Responsible RM1",
+				"rm2": "Responsible RM2",
+				"finder1": "Responsible Finder1",
+				"finder2": "Responsible Finder2",
+				"actions": "Actions",
+				"noBankAccounts": "No bank accounts",
+				"accountCount": " accounts",
+				"searchPlaceholder": "Search customer name"
+			}
+		},
+		"products": {
+			"title": "Products",
+			"subtitle": "Manage product data",
+			"create": "Add Product",
+			"edit": "Edit Product",
+			"delete": "Delete",
+			"name": "Product Name",
+			"category": "Product Category",
+			"description": "Description",
+			"constants": {
+				"productCategory": {
+					"title": "Product Category",
+					"placeholder": "Select category",
+					"all": "All Categories"
+				},
+				"currency": {
+					"title": "Currency",
+					"placeholder": "Select currency",
+					"all": "All Currencies"
+				},
+				"distributionType": {
+					"title": "Distribution Type",
+					"placeholder": "Select distribution type",
+					"all": "All Distribution Types"
+				},
+				"status": {
+					"title": "Status",
+					"placeholder": "Select status",
+					"all": "All Statuses"
+				}
+			},
+			"filters": {
+				"title": "Filters",
+				"clearFilters": "Clear Filters",
+				"searchPlaceholder": "Search product name, code or description..."
+			},
+			"dialog": {
+				"create": {
+					"trigger": "Add Product",
+					"title": "Add Product",
+					"description": "Fill out the information below to add a product.",
+					"submit": "Add",
+					"submitting": "Adding..."
+				},
+				"edit": {
+					"title": "Edit Product",
+					"description": "Modify the information below to update the product.",
+					"submit": "Update",
+					"submitting": "Updating...",
+					"cancel": "Cancel",
+					"delete": "Delete",
+					"deleting": "Deleting..."
+				}
+			},
+			"form": {
+				"category": "Category",
+				"categoryPlaceholder": "Select category",
+				"name": "Product Name",
+				"namePlaceholder": "Enter product name",
+				"nameRequired": "Product name is required",
+				"code": "Product Code",
+				"codePlaceholder": "Enter product code",
+				"codeRequired": "Product code is required",
+				"currency": "Currency",
+				"currencyPlaceholder": "Select currency",
+				"currencyRequired": "Currency is required",
+				"distributionType": "Distribution Type",
+				"distributionTypePlaceholder": "Select distribution type",
+				"distributionTypeRequired": "Distribution type is required",
+				"description": "Description",
+				"descriptionPlaceholder": "Enter product description",
+				"status": "Status",
+				"statusPlaceholder": "Select status",
+				"statusActive": "Active",
+				"statusInactive": "Inactive"
+			},
+			"table": {
+				"category": "Category",
+				"categoryBond": "Bond",
+				"categoryEQ": "Equity",
+				"categoryFund": "Fund",
+				"categoryFX": "FX",
+				"name": "Product Name",
+				"code": "Product Code",
+				"currency": "Currency",
+				"distributionType": "Distribution Type",
+				"description": "Description",
+				"createdAt": "Created Date",
+				"status": "Status",
+				"statusActive": "Active",
+				"statusInactive": "Inactive",
+				"actions": "Actions",
+				"searchPlaceholder": "Search products..."
+			},
+			"error": {
+				"createFailed": "Create failed",
+				"updateFailed": "Update failed",
+				"deleteFailed": "Delete failed",
+				"codeExists": "Code already exists"
+			}
+		},
+		"profitSharing": {
+			"title": "Profit Sharing Management",
+			"subtitle": "Manage profit sharing configurations",
+			"create": "Add Profit Sharing",
+			"edit": "Edit Profit Sharing",
+			"delete": "Delete",
+			"productName": "Product Name",
+			"productCode": "Code",
+			"productCategory": "Category",
+			"profitDate": "Profit Date",
+			"totalProfitAmount": "Total Profit Amount",
+			"companyProfit": "Company Profit",
+			"rmProfit": "RM Profit",
+			"finderProfit": "Finder Profit",
+			"bankAccount": "Bank Account",
+			"product": "Product",
+			"loading": "Loading...",
+			"selectCustomer": "Select Customer",
+			"searchCustomer": "Search customer...",
+			"noCustomersFound": "No customers found.",
+			"selectBankAccount": "Select Bank Account",
+			"searchBankAccount": "Search bank account...",
+			"noBankAccountsFound": "No bank accounts found for this customer.",
+			"selectCustomerFirst": "Please select a customer first",
+			"selectProduct": "Select Product",
+			"searchProduct": "Search product...",
+			"noProductsFound": "No products found.",
+			"selectCurrency": "Select Currency",
+			"stats": {
+				"totalShareable": "Total Shareable",
+				"totalCompanyProfit": "Total Company Profit",
+				"totalRMProfit": "Total RM Profit",
+				"totalFinderProfit": "Total Finder Profit"
+			},
+			"filters": {
+				"productName": "Product Name",
+				"startDate": "Start Date",
+				"endDate": "End Date",
+				"minProfit": "Min Profit",
+				"maxProfit": "Max Profit",
+				"searchProducts": "Search products...",
+				"filterButton": "Filters",
+				"clearFilters": "Clear Filters",
+				"searchPlaceholder": "Search product name, code or customer name...",
+				"productCategory": "Product Category",
+				"selectProductCategory": "Select Product Category",
+				"allCategories": "All Categories",
+				"currency": "Currency",
+				"selectCurrency": "Select Currency",
+				"allCurrencies": "All Currencies",
+				"year": "Year",
+				"selectYear": "Select Year",
+				"allYears": "All Years",
+				"month": "Month",
+				"selectMonth": "Select Month",
+				"allMonths": "All Months",
+				"dateRange": "Date Range",
+				"dateFrom": "Start Date",
+				"dateTo": "End Date",
+				"rm": "RM",
+				"selectRM": "Select RM",
+				"finder": "Finder",
+				"selectFinder": "Select Finder",
+				"all": "All",
+				"search": "Search",
+				"category": "Category",
+				"months": {
+					"01": "January",
+					"02": "February",
+					"03": "March",
+					"04": "April",
+					"05": "May",
+					"06": "June",
+					"07": "July",
+					"08": "August",
+					"09": "September",
+					"10": "October",
+					"11": "November",
+					"12": "December"
+				}
+			},
+			"columns": {
+				"profitDate": "Profit Date",
+				"customerName": "Customer Name",
+				"customerCode": "Customer Code",
+				"productCategory": "Product Category",
+				"product": "Product",
+				"totalProfitAmount": "Total Profit Amount",
+				"companyProfit": "Company Profit",
+				"rmProfit": "RM Profit",
+				"finderProfit": "Finder Profit",
+				"total": "Total",
+				"actions": "Actions"
+			},
+			"dialog": {
+				"create": {
+					"title": "Create Profit Sharing Record",
+					"description": "Fill in the basic information and profit sharing allocation for the profit sharing record.",
+					"triggerButton": "Add Profit Sharing",
+					"cancel": "Cancel",
+					"submit": "Create",
+					"submitting": "Creating...",
+					"addFailed": "Failed to create",
+					"addFailedDefault": "Creation failed"
+				},
+				"edit": {
+					"title": "Edit Profit Sharing Record",
+					"description": "Modify the information and profit sharing allocation for the profit sharing record.",
+					"cancel": "Cancel",
+					"submit": "Update",
+					"submitting": "Updating...",
+					"updateFailed": "Failed to update",
+					"delete": "Delete",
+					"deleting": "Deleting...",
+					"deleteFailed": "Failed to delete",
+					"deleteConfirm": "Are you sure you want to delete this profit sharing record? This action cannot be undone."
+				}
+			},
+			"allocation": {
+				"title": "Profit Sharing Allocation",
+				"company": {
+					"title": "Company Share",
+					"description": "Company profit sharing"
+				},
+				"rm1": {
+					"title": "RM1 Share",
+					"description": "Relationship Manager 1"
+				},
+				"rm2": {
+					"title": "RM2 Share",
+					"description": "Relationship Manager 2"
+				},
+				"finder1": {
+					"title": "Finder1 Share",
+					"description": "Finder 1"
+				},
+				"finder2": {
+					"title": "Finder2 Share",
+					"description": "Finder 2"
+				},
+				"fields": {
+					"percentage": "Percentage (%)",
+					"person": "Person",
+					"originalCurrency": "Original Amount",
+					"usdAmount": "USD Amount"
+				},
+				"selectors": {
+					"selectRM": "Select RM",
+					"selectFinder": "Select Finder",
+					"searchRM": "Search RM...",
+					"searchFinder": "Search Finder...",
+					"noRMFound": "No RM found.",
+					"noFinderFound": "No Finder found.",
+					"loading": "Loading..."
+				},
+				"summary": {
+					"totalPercentage": "Total Percentage",
+					"validationError": "Total percentage must equal 100%"
+				}
+			},
+			"shareableAmount": {
+				"shareableLabel": "Total Shareable Amount",
+				"shareableDescription": "Company Revenue + Direct Trade Booking Fee × Bank Retro(%)",
+				"fxRateLabel": "FX Rate",
+				"shareableUsdLabel": "Shareable (USD)",
+				"usdRateFixed": "USD rate fixed at 1.00",
+				"exchangeRateError": "Unable to fetch exchange rate",
+				"exchangeRateUpdated": "USD exchange rate for {} has been updated"
+			}
+		},
+		"relationshipManagers": {
+			"title": "RM List",
+			"subtitle": "Manage all relationship managers",
+			"error": "Error",
+			"retry": "Retry",
+			"create": "Add RM",
+			"edit": "Edit RM",
+			"delete": "Delete RM",
+			"name": "Name",
+			"code": "Code",
+			"email": "Email",
+			"phone": "Phone",
+			"status": "Status",
+			"actions": "Actions",
+			"active": "Active",
+			"inactive": "Inactive",
+			"table": {
+				"rmName": "RM Name",
+				"email": "Email",
+				"phone": "Phone",
+				"category": "RM Category",
+				"status": "Status",
+				"joinDate": "Join Date",
+				"resignDate": "Resign Date",
+				"actions": "Actions"
+			},
+			"category": {
+				"finder": "FINDER",
+				"rm": "RM",
+				"both": "BOTH"
+			},
+			"statusLabels": {
+				"active": "Active",
+				"inactive": "Inactive"
+			},
+			"filters": {
+				"title": "Filters",
+				"clearFilters": "Clear Filters",
+				"searchPlaceholder": "Search RM name, email or phone...",
+				"category": "RM Category",
+				"selectCategory": "Select Category",
+				"all": "All",
+				"status": {
+					"label": "Status",
+					"active": "Active",
+					"inactive": "Inactive"
+				},
+				"selectStatus": "Select Status",
+				"joinDateRange": "Join Date Range",
+				"resignDateRange": "Resign Date Range",
+				"startDate": "Start Date",
+				"endDate": "End Date",
+				"badges": {
+					"category": "Category",
+					"joinStart": "Join Start",
+					"joinEnd": "Join End",
+					"resignStart": "Resign Start",
+					"resignEnd": "Resign End"
+				}
+			},
+			"createDialog": {
+				"trigger": "Add RM",
+				"title": "Add Relationship Manager",
+				"description": "Fill in the information below to add a new relationship manager.",
+				"fields": {
+					"name": "Name",
+					"nameRequired": "Name is required",
+					"namePlaceholder": "Enter name",
+					"email": "Email",
+					"emailRequired": "Please enter a valid email",
+					"emailPlaceholder": "Enter email",
+					"phone": "Phone",
+					"phonePlaceholder": "Enter phone number",
+					"category": "RM Category",
+					"categoryPlaceholder": "Select RM category",
+					"status": "Status",
+					"statusPlaceholder": "Select status",
+					"joinDate": "Join Date",
+					"resignDate": "Resign Date"
+				},
+				"actions": {
+					"cancel": "Cancel",
+					"submit": "Add",
+					"submitting": "Adding..."
+				},
+				"validation": {
+					"nameRequired": "Name is required",
+					"emailInvalid": "Please enter a valid email"
+				},
+				"errors": {
+					"createFailed": "Failed to add",
+					"updateFailed": "Failed to update"
+				}
+			},
+			"editDialog": {
+				"title": "Edit Relationship Manager",
+				"description": "Modify the relationship manager's information.",
+				"actions": {
+					"delete": "Delete",
+					"deleting": "Deleting...",
+					"cancel": "Cancel",
+					"update": "Update",
+					"updating": "Updating..."
+				},
+				"deleteConfirm": "Are you sure you want to delete relationship manager \"{name}\"? This action cannot be undone."
+			}
+		},
+		"settings": {
+			"title": "Settings",
+			"general": {
+				"title": "General Settings",
+				"organizationName": "Organization Name",
+				"description": "Description",
+				"save": "Save Changes"
+			},
+			"dangerZone": {
+				"title": "Danger Zone",
+				"deleteOrganization": "Delete Organization",
+				"deleteDescription": "Delete this organization and all its related data. This action cannot be undone.",
+				"confirmDelete": "Are you sure you want to delete this organization?"
+			}
+		},
+		"start": {
+			"loading": "Loading...",
+			"totalShareable": "Total Shareable",
+			"totalCompanyProfit": "Total Company Profit",
+			"totalRMProfit": "Total RM Profit",
+			"totalFinderProfit": "Total Finder Profit",
+			"placeholder": "Place your content here..."
+		},
+		"chatbot": {
+			"title": "Chatbot",
+			"subtitle": "AI Assistant",
+			"placeholder": "Enter your question..."
+		},
+		"bankAccounts": {
+			"title": "Bank Accounts",
+			"subtitle": "Manage bank account information within the organization",
+			"customer": "Customer",
+			"bankName": "Bank Name",
+			"accountNumber": "Account Number",
+			"currency": "Currency",
+			"balance": "Balance",
+			"status": "Status",
+			"createdDate": "Created Date",
+			"actions": "Actions",
+			"active": "Active",
+			"inactive": "Inactive",
+			"create": "Add Bank Account",
+			"edit": "Edit Bank Account",
+			"delete": "Delete",
+			"clickToEdit": "Click to edit",
+			"unspecifiedCustomer": "Unspecified customer",
+			"createTitle": "Add Bank Account",
+			"createDescription": "Fill in the bank account information.",
+			"cancel": "Cancel",
+			"selectCustomer": "Select customer",
+			"searchCustomer": "Search customer...",
+			"customerNotFound": "No customer found.",
+			"bankNamePlaceholder": "Enter bank name",
+			"accountNumberPlaceholder": "Enter account number",
+			"selectCurrency": "Select currency",
+			"form": {
+				"customer": "Customer",
+				"customerRequired": "Customer is required",
+				"selectCustomer": "Select customer",
+				"bankName": "Bank Name",
+				"bankNameRequired": "Bank name is required",
+				"bankNamePlaceholder": "Enter bank name",
+				"accountName": "Account Name",
+				"accountNamePlaceholder": "Enter account name",
+				"accountNumber": "Account Number",
+				"accountNumberRequired": "Account number is required",
+				"accountNumberPlaceholder": "Enter account number",
+				"currency": "Currency",
+				"currencyRequired": "Currency is required",
+				"selectCurrency": "Select currency",
+				"balance": "Balance",
+				"balancePlaceholder": "0.00",
+				"status": "Status",
+				"statusRequired": "Status is required",
+				"selectStatus": "Select status",
+				"creating": "Creating...",
+				"updating": "Updating...",
+				"deleting": "Deleting...",
+				"cancel": "Cancel",
+				"save": "Save",
+				"update": "Update",
+				"confirmDelete": "Are you sure you want to delete this bank account? This action cannot be undone.",
+				"fetchDataFailed": "Failed to fetch data",
+				"none": "None"
+			},
+			"dialog": {
+				"create": {
+					"title": "Add Bank Account",
+					"description": "Fill in the bank account information.",
+					"triggerButton": "Add Bank Account",
+					"cancel": "Cancel",
+					"submit": "Create",
+					"submitting": "Creating...",
+					"addFailed": "Failed to create"
+				},
+				"edit": {
+					"title": "Edit Bank Account",
+					"description": "Modify the bank account information.",
+					"cancel": "Cancel",
+					"submit": "Update",
+					"submitting": "Updating...",
+					"updateFailed": "Failed to update",
+					"delete": "Delete",
+					"deleting": "Deleting...",
+					"deleteFailed": "Failed to delete",
+					"deleteConfirm": "Are you sure you want to delete this bank account? This action cannot be undone."
+				}
+			},
+			"filters": {
+				"title": "Filters",
+				"clearFilters": "Clear Filters",
+				"searchPlaceholder": "Search bank name or account number...",
+				"customer": "Customer",
+				"selectCustomer": "Select customer",
+				"allCustomers": "All customers",
+				"currency": "Currency",
+				"selectCurrency": "Select currency",
+				"allCurrencies": "All currencies",
+				"status": "Status",
+				"selectStatus": "Select status",
+				"all": "All",
+				"bankName": "Bank Name",
+				"selectBankName": "Select bank name",
+				"selectBank": "Select bank",
+				"allBanks": "All banks",
+				"allStatuses": "All statuses",
+				"statusActive": "Active",
+				"statusInactive": "Inactive"
+			}
+		},
+		"constants": {
+			"currency": {
+				"title": "Currency",
+				"placeholder": "Select currency",
+				"all": "All Currencies",
+				"sgd": "Singapore Dollar (SGD)",
+				"usd": "US Dollar (USD)",
+				"hkd": "Hong Kong Dollar (HKD)",
+				"cny": "Chinese Yuan (CNY)",
+				"eur": "Euro (EUR)",
+				"jpy": "Japanese Yen (JPY)",
+				"gbp": "British Pound (GBP)",
+				"aud": "Australian Dollar (AUD)",
+				"cad": "Canadian Dollar (CAD)",
+				"chf": "Swiss Franc (CHF)",
+				"twd": "Taiwan Dollar (TWD)"
+			},
+			"distributionType": {
+				"title": "Distribution Type",
+				"placeholder": "Select distribution type",
+				"all": "All Distribution Types",
+				"rebate": "Fund Management Fee Rebate",
+				"dividend": "Dividend",
+				"coupon": "Coupon",
+				"bonus": "Bonus",
+				"irregular": "Irregular",
+				"monthly": "Monthly Distribution",
+				"none": "No Fixed Distribution",
+				"accumulate": "Monthly Accumulation"
+			},
+			"productCategory": {
+				"title": "Product Category",
+				"placeholder": "Select category",
+				"all": "All Categories",
+				"bond": "Bond",
+				"eq": "Equity",
+				"fund": "Fund",
+				"fx": "Foreign Exchange",
+				"aq": "AQ",
+				"dci": "DCI",
+				"fcn": "FCN"
+			},
+			"status": {
+				"title": "Status",
+				"placeholder": "Select status",
+				"all": "All Statuses"
+			},
+			"productStatus": {
+				"active": "Active",
+				"inactive": "Inactive"
+			}
+		}
 	}
 }

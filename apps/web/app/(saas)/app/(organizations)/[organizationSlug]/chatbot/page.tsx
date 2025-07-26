@@ -3,6 +3,7 @@ import { aiChatListQueryKey, aiChatQueryKey } from "@saas/ai/lib/api";
 import { getActiveOrganization } from "@saas/auth/lib/server";
 import { PageHeader } from "@saas/shared/components/PageHeader";
 import { getServerApiClient, getServerQueryClient } from "@shared/lib/server";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 export default async function AiDemoPage({
@@ -10,6 +11,7 @@ export default async function AiDemoPage({
 }: {
 	params: Promise<{ organizationSlug: string }>;
 }) {
+	const t = await getTranslations("organization.chatbot");
 	const { organizationSlug } = await params;
 	const organization = await getActiveOrganization(organizationSlug);
 	const queryClient = getServerQueryClient();
@@ -61,10 +63,7 @@ export default async function AiDemoPage({
 
 	return (
 		<>
-			<PageHeader
-				title="AI Chatbot"
-				subtitle="This is an example chatbot built with the OpenAI API"
-			/>
+			<PageHeader title={t("title")} subtitle={t("subtitle")} />
 
 			<AiChat organizationId={organizationId} />
 		</>

@@ -23,48 +23,66 @@ import {
 } from "@ui/components/form";
 import { Input } from "@ui/components/input";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const createCustomerSchema = z.object({
-	name: z.string().min(1, "客戶名稱是必填的"),
-	code: z.string().min(1, "客戶編號是必填的"),
-	email: z
-		.string()
-		.optional()
-		.or(z.literal(""))
-		.refine((val) => !val || z.string().email().safeParse(val).success, {
-			message: "請輸入有效的電子郵件",
-		}),
-	phone: z.string().optional(),
-	rm1Id: z.string().optional(),
-	rm1ProfitShare: z
-		.number()
-		.min(0, "預設分潤比例不能小於0")
-		.max(100, "預設分潤比例不能大於100")
-		.optional(),
-	rm2Id: z.string().optional(),
-	rm2ProfitShare: z
-		.number()
-		.min(0, "預設分潤比例不能小於0")
-		.max(100, "預設分潤比例不能大於100")
-		.optional(),
-	finder1Id: z.string().optional(),
-	finder1ProfitShare: z
-		.number()
-		.min(0, "預設分潤比例不能小於0")
-		.max(100, "預設分潤比例不能大於100")
-		.optional(),
-	finder2Id: z.string().optional(),
-	finder2ProfitShare: z
-		.number()
-		.min(0, "預設分潤比例不能小於0")
-		.max(100, "預設分潤比例不能大於100")
-		.optional(),
-});
+const createCustomerSchema = (t: (key: string) => string) =>
+	z.object({
+		name: z.string().min(1, t("form.nameRequired")),
+		code: z.string().min(1, t("form.codeRequired")),
+		email: z
+			.string()
+			.optional()
+			.or(z.literal(""))
+			.refine(
+				(val) => !val || z.string().email().safeParse(val).success,
+				{
+					message: t("form.emailInvalid"),
+				},
+			),
+		phone: z.string().optional(),
+		rm1Id: z.string().optional(),
+		rm1ProfitShare: z
+			.number()
+			.min(0, t("form.profitShareMin"))
+			.max(100, t("form.profitShareMax"))
+			.optional(),
+		rm2Id: z.string().optional(),
+		rm2ProfitShare: z
+			.number()
+			.min(0, t("form.profitShareMin"))
+			.max(100, t("form.profitShareMax"))
+			.optional(),
+		finder1Id: z.string().optional(),
+		finder1ProfitShare: z
+			.number()
+			.min(0, t("form.profitShareMin"))
+			.max(100, t("form.profitShareMax"))
+			.optional(),
+		finder2Id: z.string().optional(),
+		finder2ProfitShare: z
+			.number()
+			.min(0, t("form.profitShareMin"))
+			.max(100, t("form.profitShareMax"))
+			.optional(),
+	});
 
-type CreateCustomerForm = z.infer<typeof createCustomerSchema>;
+type CreateCustomerForm = {
+	name: string;
+	code: string;
+	email?: string;
+	phone?: string;
+	rm1Id?: string;
+	rm1ProfitShare?: number;
+	rm2Id?: string;
+	rm2ProfitShare?: number;
+	finder1Id?: string;
+	finder1ProfitShare?: number;
+	finder2Id?: string;
+	finder2ProfitShare?: number;
+};
 
 interface RelationshipManager {
 	id: string;
@@ -83,6 +101,7 @@ export function CreateCustomerDialog({
 	relationshipManagers,
 	onSuccess,
 }: CreateCustomerDialogProps) {
+	const t = useTranslations("organization.customers");
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -94,8 +113,9 @@ export function CreateCustomerDialog({
 		(rm) => rm.category === "FINDER" || rm.category === "BOTH",
 	);
 
+	const schema = createCustomerSchema(t);
 	const form = useForm<CreateCustomerForm>({
-		resolver: zodResolver(createCustomerSchema),
+		resolver: zodResolver(schema),
 		defaultValues: {
 			name: "",
 			code: "",
@@ -191,7 +211,7 @@ export function CreateCustomerDialog({
 				setOpen(false);
 				onSuccess();
 			} else {
-				let errorMessage = "新增客戶失敗";
+				let errorMessage = t("error.createFailed");
 				try {
 					const responseText = await response.text();
 					try {
@@ -201,11 +221,11 @@ export function CreateCustomerDialog({
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					errorMessage = "新增客戶失敗";
+					errorMessage = t("error.createFailed");
 				}
 
 				// 根據錯誤類型設定對應欄位錯誤
-				if (errorMessage.includes("客戶編號已被使用")) {
+				if (errorMessage.includes(t("error.codeExists"))) {
 					form.setError("code", {
 						type: "server",
 						message: errorMessage,
@@ -213,10 +233,10 @@ export function CreateCustomerDialog({
 					return;
 				}
 
-				console.error("新增客戶失敗:", errorMessage);
+				console.error(t("error.createFailed"), errorMessage);
 			}
 		} catch (error) {
-			console.error("新增客戶失敗:", error);
+			console.error(t("error.createFailed"), error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -227,14 +247,14 @@ export function CreateCustomerDialog({
 			<DialogTrigger asChild>
 				<Button>
 					<Plus className="mr-2 size-4" />
-					新增客戶
+					{t("dialog.create.trigger")}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[525px]">
 				<DialogHeader>
-					<DialogTitle>新增客戶</DialogTitle>
+					<DialogTitle>{t("dialog.create.title")}</DialogTitle>
 					<DialogDescription>
-						填寫客戶基本資料，並指派負責的 RM 和 Finder
+						{t("dialog.create.description")}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -249,14 +269,16 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											客戶名稱
+											{t("form.name")}
 											<span className="text-red-500 ml-1">
 												*
 											</span>
 										</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入客戶名稱"
+												placeholder={t(
+													"form.namePlaceholder",
+												)}
 												{...field}
 											/>
 										</FormControl>
@@ -270,14 +292,16 @@ export function CreateCustomerDialog({
 								render={({ field, fieldState }) => (
 									<FormItem>
 										<FormLabel>
-											客戶編號
+											{t("form.code")}
 											<span className="text-red-500 ml-1">
 												*
 											</span>
 										</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入客戶編號"
+												placeholder={t(
+													"form.codePlaceholder",
+												)}
 												{...field}
 												className={
 													fieldState.error
@@ -298,11 +322,13 @@ export function CreateCustomerDialog({
 								name="email"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>電子郵件</FormLabel>
+										<FormLabel>{t("form.email")}</FormLabel>
 										<FormControl>
 											<Input
 												type="email"
-												placeholder="輸入電子郵件"
+												placeholder={t(
+													"form.emailPlaceholder",
+												)}
 												{...field}
 											/>
 										</FormControl>
@@ -316,10 +342,12 @@ export function CreateCustomerDialog({
 								name="phone"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>電話</FormLabel>
+										<FormLabel>{t("form.phone")}</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入電話號碼"
+												placeholder={t(
+													"form.phonePlaceholder",
+												)}
 												{...field}
 											/>
 										</FormControl>
@@ -336,30 +364,32 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<SearchableSelect<RelationshipManager>
 										field={field}
-										label="RM 1"
-										placeholder="選擇 RM 1"
-										searchPlaceholder="搜尋 RM..."
-										emptyText="找不到 RM"
+										label={t("form.rm1")}
+										placeholder={t("form.rm1Placeholder")}
+										searchPlaceholder={t(
+											"form.rmSearchPlaceholder",
+										)}
+										emptyText={t("form.rmEmptyText")}
 										options={[
 											{
 												id: "none",
-												name: "未指定",
+												name: t("form.unspecified"),
 											} as RelationshipManager,
 											...rmOptions,
 										]}
 										getDisplayValue={(option) =>
 											option?.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option?.name || ""
 										}
 										getSearchValue={(option) =>
 											option.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option.name
 										}
 										getOptionDisplayValue={(option) =>
 											option.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option.name
 										}
 									/>
@@ -371,7 +401,7 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											RM1 預設分潤比例 (%)
+											{t("form.rm1ProfitShare")}
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -395,30 +425,32 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<SearchableSelect<RelationshipManager>
 										field={field}
-										label="RM 2"
-										placeholder="選擇 RM 2"
-										searchPlaceholder="搜尋 RM..."
-										emptyText="找不到 RM"
+										label={t("form.rm2")}
+										placeholder={t("form.rm2Placeholder")}
+										searchPlaceholder={t(
+											"form.rmSearchPlaceholder",
+										)}
+										emptyText={t("form.rmEmptyText")}
 										options={[
 											{
 												id: "none",
-												name: "未指定",
+												name: t("form.unspecified"),
 											} as RelationshipManager,
 											...rmOptions,
 										]}
 										getDisplayValue={(option) =>
 											option?.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option?.name || ""
 										}
 										getSearchValue={(option) =>
 											option.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option.name
 										}
 										getOptionDisplayValue={(option) =>
 											option.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option.name
 										}
 									/>
@@ -430,7 +462,7 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											RM2 預設分潤比例 (%)
+											{t("form.rm2ProfitShare")}
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -454,30 +486,34 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<SearchableSelect<RelationshipManager>
 										field={field}
-										label="Finder 1"
-										placeholder="選擇 Finder 1"
-										searchPlaceholder="搜尋 Finder..."
-										emptyText="找不到 Finder"
+										label={t("form.finder1")}
+										placeholder={t(
+											"form.finder1Placeholder",
+										)}
+										searchPlaceholder={t(
+											"form.finderSearchPlaceholder",
+										)}
+										emptyText={t("form.finderEmptyText")}
 										options={[
 											{
 												id: "none",
-												name: "未指定",
+												name: t("form.unspecified"),
 											} as RelationshipManager,
 											...finderOptions,
 										]}
 										getDisplayValue={(option) =>
 											option?.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option?.name || ""
 										}
 										getSearchValue={(option) =>
 											option.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option.name
 										}
 										getOptionDisplayValue={(option) =>
 											option.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option.name
 										}
 									/>
@@ -489,7 +525,7 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											Finder1 預設分潤比例 (%)
+											{t("form.finder1ProfitShare")}
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -513,30 +549,34 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<SearchableSelect<RelationshipManager>
 										field={field}
-										label="Finder 2"
-										placeholder="選擇 Finder 2"
-										searchPlaceholder="搜尋 Finder..."
-										emptyText="找不到 Finder"
+										label={t("form.finder2")}
+										placeholder={t(
+											"form.finder2Placeholder",
+										)}
+										searchPlaceholder={t(
+											"form.finderSearchPlaceholder",
+										)}
+										emptyText={t("form.finderEmptyText")}
 										options={[
 											{
 												id: "none",
-												name: "未指定",
+												name: t("form.unspecified"),
 											} as RelationshipManager,
 											...finderOptions,
 										]}
 										getDisplayValue={(option) =>
 											option?.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option?.name || ""
 										}
 										getSearchValue={(option) =>
 											option.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option.name
 										}
 										getOptionDisplayValue={(option) =>
 											option.id === "none"
-												? "未指定"
+												? t("form.unspecified")
 												: option.name
 										}
 									/>
@@ -548,7 +588,7 @@ export function CreateCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											Finder2 預設分潤比例 (%)
+											{t("form.finder2ProfitShare")}
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -571,10 +611,12 @@ export function CreateCustomerDialog({
 								variant="outline"
 								onClick={() => setOpen(false)}
 							>
-								取消
+								{t("form.cancel")}
 							</Button>
 							<Button type="submit" disabled={isLoading}>
-								{isLoading ? "新增中..." : "新增"}
+								{isLoading
+									? t("form.creating")
+									: t("form.create")}
 							</Button>
 						</DialogFooter>
 					</form>

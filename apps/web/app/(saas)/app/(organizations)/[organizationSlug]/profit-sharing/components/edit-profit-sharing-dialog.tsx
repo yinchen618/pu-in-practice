@@ -12,6 +12,7 @@ import {
 } from "@ui/components/dialog";
 import { Form } from "@ui/components/form";
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useExchangeRate } from "../../../../../../../hooks/use-exchange-rate";
@@ -46,6 +47,7 @@ export function EditProfitSharingDialog({
 }: EditDialogProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const t = useTranslations("organization.profitSharing.dialog.edit");
 
 	// 使用共用的 Hook 來取得資料
 	const {
@@ -408,7 +410,7 @@ export function EditProfitSharingDialog({
 			);
 
 			if (!response.ok) {
-				let errorMessage = "更新失敗";
+				let errorMessage = t("updateFailed");
 				try {
 					const responseText = await response.text();
 					console.log("API 錯誤回應:", responseText);
@@ -419,7 +421,7 @@ export function EditProfitSharingDialog({
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					errorMessage = "更新失敗";
+					errorMessage = t("updateFailed");
 				}
 				throw new Error(errorMessage);
 			}
@@ -431,7 +433,7 @@ export function EditProfitSharingDialog({
 			onSuccess?.();
 		} catch (error) {
 			console.error("更新分潤記錄失敗:", error);
-			alert(error instanceof Error ? error.message : "更新失敗");
+			alert(error instanceof Error ? error.message : t("updateFailed"));
 		} finally {
 			setIsLoading(false);
 		}
@@ -442,7 +444,7 @@ export function EditProfitSharingDialog({
 			return;
 		}
 
-		if (!confirm("確定要刪除此分潤記錄嗎？此操作無法復原。")) {
+		if (!confirm(t("deleteConfirm"))) {
 			return;
 		}
 
@@ -457,14 +459,14 @@ export function EditProfitSharingDialog({
 			);
 
 			if (!response.ok) {
-				throw new Error("刪除失敗");
+				throw new Error(t("deleteFailed"));
 			}
 
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
 			console.error("刪除分潤記錄失敗:", error);
-			alert(error instanceof Error ? error.message : "刪除失敗");
+			alert(error instanceof Error ? error.message : t("deleteFailed"));
 		} finally {
 			setIsDeleting(false);
 		}
@@ -483,10 +485,8 @@ export function EditProfitSharingDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="min-w-[90vw] max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>編輯分潤記錄</DialogTitle>
-					<DialogDescription>
-						修改分潤記錄的資訊和分潤比例分配。
-					</DialogDescription>
+					<DialogTitle>{t("title")}</DialogTitle>
+					<DialogDescription>{t("description")}</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
@@ -530,14 +530,14 @@ export function EditProfitSharingDialog({
 								className="mr-auto"
 							>
 								<Trash2 className="h-4 w-4 mr-2" />
-								{isDeleting ? "刪除中..." : "刪除"}
+								{isDeleting ? t("deleting") : t("delete")}
 							</Button>
 							<Button
 								type="button"
 								variant="outline"
 								onClick={() => onOpenChange(false)}
 							>
-								取消
+								{t("cancel")}
 							</Button>
 							<Button
 								type="submit"
@@ -549,7 +549,7 @@ export function EditProfitSharingDialog({
 									)
 								}
 							>
-								{isLoading ? "更新中..." : "更新"}
+								{isLoading ? t("submitting") : t("submit")}
 							</Button>
 						</DialogFooter>
 					</form>

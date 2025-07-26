@@ -31,11 +31,15 @@ export interface BankAccountRecord {
 // 客戶連結組件
 function CustomerLink({
 	customer,
-}: { customer: BankAccountRecord["customer"] }) {
+	t,
+}: {
+	customer: BankAccountRecord["customer"];
+	t: (key: string) => string;
+}) {
 	const { activeOrganization } = useActiveOrganization();
 
 	if (!customer) {
-		return <span>未指定客戶</span>;
+		return <span>{t("unspecifiedCustomer")}</span>;
 	}
 
 	return (
@@ -50,11 +54,12 @@ function CustomerLink({
 
 export const createColumns = (
 	onEdit: (bankAccountRecord: BankAccountRecord) => void,
+	t: (key: string) => string,
 ): ColumnDef<BankAccountRecord>[] => [
 	{
 		accessorKey: "customer",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="客戶" />
+			<DataTableColumnHeader column={column} title={t("customer")} />
 		),
 		cell: ({ row }) => {
 			const customer = row.getValue(
@@ -68,20 +73,20 @@ export const createColumns = (
 						type="button"
 						className="text-gray-400 cursor-pointer underline bg-transparent border-none p-0 text-left"
 						onClick={() => onEdit(record)}
-						title="點擊編輯"
+						title={t("clickToEdit")}
 					>
-						未指定客戶
+						{t("unspecifiedCustomer")}
 					</button>
 				);
 			}
 
-			return <CustomerLink customer={customer} />;
+			return <CustomerLink customer={customer} t={t} />;
 		},
 	},
 	{
 		accessorKey: "bankName",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="銀行名稱" />
+			<DataTableColumnHeader column={column} title={t("bankName")} />
 		),
 	},
 	// {
@@ -93,13 +98,13 @@ export const createColumns = (
 	{
 		accessorKey: "accountNumber",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="帳號" />
+			<DataTableColumnHeader column={column} title={t("accountNumber")} />
 		),
 	},
 	{
 		accessorKey: "currency",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="幣別" />
+			<DataTableColumnHeader column={column} title={t("currency")} />
 		),
 	},
 	// {
@@ -119,13 +124,13 @@ export const createColumns = (
 	{
 		accessorKey: "status",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="狀態" />
+			<DataTableColumnHeader column={column} title={t("status")} />
 		),
 		cell: ({ row }) => {
 			const status = row.getValue("status") as string;
 			return (
 				<Badge status={status === "active" ? "success" : "info"}>
-					{status === "active" ? "使用中" : "已停用"}
+					{status === "active" ? t("active") : t("inactive")}
 				</Badge>
 			);
 		},
@@ -133,7 +138,7 @@ export const createColumns = (
 	{
 		accessorKey: "createdAt",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="建立日期" />
+			<DataTableColumnHeader column={column} title={t("createdDate")} />
 		),
 		cell: ({ row }) => {
 			const date = row.getValue("createdAt") as Date;
@@ -142,7 +147,7 @@ export const createColumns = (
 	},
 	{
 		id: "actions",
-		header: "操作",
+		header: t("actions"),
 		cell: ({ row }) => {
 			const bankAccountRecord = row.original;
 

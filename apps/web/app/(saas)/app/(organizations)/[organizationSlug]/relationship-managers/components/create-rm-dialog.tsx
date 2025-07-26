@@ -28,21 +28,10 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-const createRMSchema = z.object({
-	name: z.string().min(1, "姓名是必填的"),
-	email: z.string().email("請輸入有效的電子郵件"),
-	phone: z.string().optional(),
-	category: z.enum(["FINDER", "RM", "BOTH"]),
-	joinDate: z.string(),
-	resignDate: z.string().optional(),
-	status: z.enum(["active", "inactive"]),
-});
-
-type CreateRMFormData = z.infer<typeof createRMSchema>;
 
 interface CreateRMDialogProps {
 	organizationId: string;
@@ -53,8 +42,21 @@ export function CreateRMDialog({
 	organizationId,
 	onSuccess,
 }: CreateRMDialogProps) {
+	const t = useTranslations("organization.relationshipManagers");
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+
+	const createRMSchema = z.object({
+		name: z.string().min(1, t("createDialog.validation.nameRequired")),
+		email: z.string().email(t("createDialog.validation.emailInvalid")),
+		phone: z.string().optional(),
+		category: z.enum(["FINDER", "RM", "BOTH"]),
+		joinDate: z.string(),
+		resignDate: z.string().optional(),
+		status: z.enum(["active", "inactive"]),
+	});
+
+	type CreateRMFormData = z.infer<typeof createRMSchema>;
 
 	const form = useForm<CreateRMFormData>({
 		resolver: zodResolver(createRMSchema),
@@ -102,7 +104,7 @@ export function CreateRMDialog({
 			);
 
 			if (!response.ok) {
-				let errorMessage = "新增失敗";
+				let errorMessage = t("createDialog.errors.createFailed");
 				try {
 					const responseText = await response.text();
 					try {
@@ -112,7 +114,7 @@ export function CreateRMDialog({
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					errorMessage = "新增失敗";
+					errorMessage = t("createDialog.errors.createFailed");
 				}
 
 				// 根據錯誤類型設定對應欄位錯誤
@@ -147,14 +149,14 @@ export function CreateRMDialog({
 			<DialogTrigger asChild>
 				<Button>
 					<Plus className="mr-2 size-4" />
-					新增 RM
+					{t("createDialog.trigger")}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>新增客戶關係經理</DialogTitle>
+					<DialogTitle>{t("createDialog.title")}</DialogTitle>
 					<DialogDescription>
-						填寫下方資訊來新增一位客戶關係經理。
+						{t("createDialog.description")}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -166,12 +168,14 @@ export function CreateRMDialog({
 								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											姓名 *
+											{t("createDialog.fields.name")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
-													placeholder="輸入姓名"
+													placeholder={t(
+														"createDialog.fields.namePlaceholder",
+													)}
 													{...field}
 													className={
 														fieldState.error
@@ -191,13 +195,15 @@ export function CreateRMDialog({
 								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											電子郵件 *
+											{t("createDialog.fields.email")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
 													type="email"
-													placeholder="輸入電子郵件"
+													placeholder={t(
+														"createDialog.fields.emailPlaceholder",
+													)}
 													{...field}
 													className={
 														fieldState.error
@@ -217,13 +223,15 @@ export function CreateRMDialog({
 								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											電話
+											{t("createDialog.fields.phone")}
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
 													type="tel"
-													placeholder="輸入電話號碼"
+													placeholder={t(
+														"createDialog.fields.phonePlaceholder",
+													)}
 													{...field}
 													value={field.value || ""}
 													className={
@@ -244,7 +252,8 @@ export function CreateRMDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											RM 類別 *
+											{t("createDialog.fields.category")}{" "}
+											*
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -253,18 +262,22 @@ export function CreateRMDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇 RM 類別" />
+														<SelectValue
+															placeholder={t(
+																"createDialog.fields.categoryPlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
 													<SelectItem value="RM">
-														RM
+														{t("category.rm")}
 													</SelectItem>
 													<SelectItem value="FINDER">
-														FINDER
+														{t("category.finder")}
 													</SelectItem>
 													<SelectItem value="BOTH">
-														BOTH
+														{t("category.both")}
 													</SelectItem>
 												</SelectContent>
 											</Select>
@@ -279,7 +292,7 @@ export function CreateRMDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											狀態 *
+											{t("createDialog.fields.status")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -289,15 +302,23 @@ export function CreateRMDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇狀態" />
+														<SelectValue
+															placeholder={t(
+																"createDialog.fields.statusPlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
 													<SelectItem value="active">
-														在職
+														{t(
+															"statusLabels.active",
+														)}
 													</SelectItem>
 													<SelectItem value="inactive">
-														離職
+														{t(
+															"statusLabels.inactive",
+														)}
 													</SelectItem>
 												</SelectContent>
 											</Select>
@@ -312,7 +333,8 @@ export function CreateRMDialog({
 								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											入職日期 *
+											{t("createDialog.fields.joinDate")}{" "}
+											*
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -337,7 +359,9 @@ export function CreateRMDialog({
 								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											離職日期
+											{t(
+												"createDialog.fields.resignDate",
+											)}
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -363,10 +387,12 @@ export function CreateRMDialog({
 								variant="outline"
 								onClick={() => setOpen(false)}
 							>
-								取消
+								{t("createDialog.actions.cancel")}
 							</Button>
 							<Button type="submit" disabled={isLoading}>
-								{isLoading ? "新增中..." : "新增"}
+								{isLoading
+									? t("createDialog.actions.submitting")
+									: t("createDialog.actions.submit")}
 							</Button>
 						</DialogFooter>
 					</form>

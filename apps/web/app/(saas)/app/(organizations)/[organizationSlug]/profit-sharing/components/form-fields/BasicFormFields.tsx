@@ -16,6 +16,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@ui/components/select";
+import { useTranslations } from "next-intl";
 import type { UseFormReturn } from "react-hook-form";
 import { CURRENCY_OPTIONS } from "../../../constants";
 import type {
@@ -44,6 +45,8 @@ export function BasicFormFields({
 	isLoadingProducts = false,
 	isLoadingBankAccounts = false,
 }: BasicFormFieldsProps) {
+	const t = useTranslations("organization.profitSharing");
+	const tCommon = useTranslations("common");
 	const selectedCustomerId = form.watch("customerId");
 
 	return (
@@ -55,7 +58,7 @@ export function BasicFormFields({
 					name="profitDate"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>分潤日期 *</FormLabel>
+							<FormLabel>{t("profitDate")} *</FormLabel>
 							<FormControl>
 								<Input type="date" {...field} />
 							</FormControl>
@@ -69,15 +72,17 @@ export function BasicFormFields({
 					render={({ field }) => (
 						<SearchableSelect
 							field={field}
-							label="客戶"
+							label={tCommon("customer")}
 							placeholder={
-								isLoadingCustomers ? "讀取中..." : "選擇客戶"
+								isLoadingCustomers
+									? t("loading")
+									: t("selectCustomer")
 							}
-							searchPlaceholder="搜尋客戶..."
+							searchPlaceholder={t("searchCustomer")}
 							emptyText={
 								isLoadingCustomers
-									? "讀取中..."
-									: "找不到客戶。"
+									? t("loading")
+									: t("noCustomersFound")
 							}
 							options={customers}
 							getDisplayValue={(customer) =>
@@ -102,21 +107,21 @@ export function BasicFormFields({
 					render={({ field }) => (
 						<SearchableSelect<BankAccount>
 							field={field}
-							label="銀行帳戶"
+							label={t("bankAccount")}
 							placeholder={
 								isLoadingBankAccounts
-									? "讀取中..."
+									? t("loading")
 									: selectedCustomerId
-										? "選擇銀行帳戶"
-										: "請先選擇客戶"
+										? t("selectBankAccount")
+										: t("selectCustomerFirst")
 							}
-							searchPlaceholder="搜尋銀行帳戶..."
+							searchPlaceholder={t("searchBankAccount")}
 							emptyText={
 								isLoadingBankAccounts
-									? "讀取中..."
+									? t("loading")
 									: selectedCustomerId
-										? "該客戶沒有銀行帳戶。"
-										: "請先選擇客戶。"
+										? t("noBankAccountsFound")
+										: t("selectCustomerFirst")
 							}
 							options={bankAccounts}
 							getDisplayValue={(account) =>
@@ -144,13 +149,17 @@ export function BasicFormFields({
 					render={({ field }) => (
 						<SearchableSelect
 							field={field}
-							label="產品"
+							label={t("product")}
 							placeholder={
-								isLoadingProducts ? "讀取中..." : "選擇產品"
+								isLoadingProducts
+									? t("loading")
+									: t("selectProduct")
 							}
-							searchPlaceholder="搜尋產品..."
+							searchPlaceholder={t("searchProduct")}
 							emptyText={
-								isLoadingProducts ? "讀取中..." : "找不到產品。"
+								isLoadingProducts
+									? t("loading")
+									: t("noProductsFound")
 							}
 							options={products}
 							getDisplayValue={(product) =>
@@ -177,14 +186,16 @@ export function BasicFormFields({
 					name="currency"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>幣別</FormLabel>
+							<FormLabel>{tCommon("currency")}</FormLabel>
 							<Select
 								onValueChange={field.onChange}
 								value={field.value}
 							>
 								<FormControl>
 									<SelectTrigger>
-										<SelectValue placeholder="選擇幣別" />
+										<SelectValue
+											placeholder={t("selectCurrency")}
+										/>
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>

@@ -3,6 +3,7 @@
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
 	BankAccountFilters,
@@ -14,6 +15,7 @@ import { CreateBankAccountDialog } from "./components/create-bank-account-dialog
 import { EditBankAccountDialog } from "./components/edit-bank-account-dialog";
 
 export default function BankAccountsPage() {
+	const t = useTranslations("organization.bankAccounts");
 	const { activeOrganization, loaded } = useActiveOrganization();
 	const [allData, setAllData] = useState<BankAccountRecord[]>([]);
 	const [filteredData, setFilteredData] = useState<BankAccountRecord[]>([]);
@@ -79,8 +81,8 @@ export default function BankAccountsPage() {
 		setCurrentFilters(filters);
 	};
 
-	// 新增 columns，傳入編輯函數
-	const columns = createColumns(handleEdit);
+	// 新增 columns，傳入編輯函數和翻譯函數
+	const columns = createColumns(handleEdit, t);
 
 	useEffect(() => {
 		if (activeOrganization?.id && loaded) {
@@ -102,8 +104,8 @@ export default function BankAccountsPage() {
 	return (
 		<div className="container max-w-6xl space-y-8 py-6">
 			<PageHeader
-				title="銀行帳戶列表"
-				subtitle="管理所有銀行帳戶"
+				title={t("title")}
+				subtitle={t("subtitle")}
 				actions={
 					activeOrganization && (
 						<CreateBankAccountDialog

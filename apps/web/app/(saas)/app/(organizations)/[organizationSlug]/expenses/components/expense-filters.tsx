@@ -12,6 +12,7 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Calendar, DollarSign, Filter, Paperclip, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { ExpenseRecord } from "./columns";
 
@@ -43,6 +44,8 @@ export function ExpenseFilters({
 }: ExpenseFiltersProps) {
 	const [filters, setFilters] = useState<ExpenseFilters>({});
 	const [isExpanded, setIsExpanded] = useState(false);
+	const t = useTranslations("organization.expenses.filters");
+	const tCommon = useTranslations("common.filters");
 
 	// 從資料中提取唯一值
 	const uniqueCategories = Array.from(
@@ -177,7 +180,7 @@ export function ExpenseFilters({
 						className="gap-2"
 					>
 						<Filter className="size-4" />
-						篩選器{" "}
+						{t("title")}{" "}
 						{hasActiveFilters &&
 							`(${Object.values(filters).filter((v) => v !== undefined && v !== null && v !== "").length})`}
 					</Button>
@@ -188,7 +191,7 @@ export function ExpenseFilters({
 							onClick={clearFilters}
 						>
 							<X className="size-4 mr-1" />
-							清除篩選
+							{t("clearFilters")}
 						</Button>
 					)}
 				</div>
@@ -196,7 +199,7 @@ export function ExpenseFilters({
 				{/* 主要搜尋框 */}
 				<div className="flex items-center gap-2">
 					<Input
-						placeholder="搜尋描述或類別..."
+						placeholder={t("searchPlaceholder")}
 						value={filters.description || ""}
 						onChange={(e) =>
 							updateFilter("description", e.target.value)
@@ -213,12 +216,12 @@ export function ExpenseFilters({
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
 							<Calendar className="size-4" />
-							日期區間
+							{t("dateRange")}
 						</Label>
 						<div className="space-y-2">
 							<Input
 								type="date"
-								placeholder="開始日期"
+								placeholder={t("startDate")}
 								value={filters.dateFrom || ""}
 								onChange={(e) =>
 									updateFilter("dateFrom", e.target.value)
@@ -226,7 +229,7 @@ export function ExpenseFilters({
 							/>
 							<Input
 								type="date"
-								placeholder="結束日期"
+								placeholder={t("endDate")}
 								value={filters.dateTo || ""}
 								onChange={(e) =>
 									updateFilter("dateTo", e.target.value)
@@ -239,7 +242,9 @@ export function ExpenseFilters({
 					<div className="space-y-4">
 						{/* 類別 */}
 						<div className="space-y-2">
-							<Label className="text-sm font-medium">類別</Label>
+							<Label className="text-sm font-medium">
+								{t("category")}
+							</Label>
 							<Select
 								value={filters.category || ""}
 								onValueChange={(value) =>
@@ -250,11 +255,13 @@ export function ExpenseFilters({
 								}
 							>
 								<SelectTrigger>
-									<SelectValue placeholder="選擇類別" />
+									<SelectValue
+										placeholder={t("selectCategory")}
+									/>
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value="all">
-										全部類別
+										{t("allCategories")}
 									</SelectItem>
 									{uniqueCategories.map((category) => (
 										<SelectItem
@@ -270,7 +277,9 @@ export function ExpenseFilters({
 
 						{/* 幣別 */}
 						<div className="space-y-2">
-							<Label className="text-sm font-medium">幣別</Label>
+							<Label className="text-sm font-medium">
+								{t("currency")}
+							</Label>
 							<Select
 								value={filters.currency || ""}
 								onValueChange={(value) =>
@@ -281,11 +290,13 @@ export function ExpenseFilters({
 								}
 							>
 								<SelectTrigger>
-									<SelectValue placeholder="選擇幣別" />
+									<SelectValue
+										placeholder={t("selectCurrency")}
+									/>
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value="all">
-										全部幣別
+										{t("allCurrencies")}
 									</SelectItem>
 									{uniqueCurrencies.map((currency) => (
 										<SelectItem
@@ -303,7 +314,7 @@ export function ExpenseFilters({
 						<div className="space-y-2">
 							<Label className="text-sm font-medium flex items-center gap-1">
 								<Paperclip className="size-4" />
-								附件狀態
+								{t("attachmentStatus")}
 							</Label>
 							<Select
 								value={
@@ -324,13 +335,21 @@ export function ExpenseFilters({
 								}}
 							>
 								<SelectTrigger>
-									<SelectValue placeholder="選擇附件狀態" />
+									<SelectValue
+										placeholder={t(
+											"selectAttachmentStatus",
+										)}
+									/>
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="all">全部</SelectItem>
-									<SelectItem value="true">已上傳</SelectItem>
+									<SelectItem value="all">
+										{t("all")}
+									</SelectItem>
+									<SelectItem value="true">
+										{t("uploaded")}
+									</SelectItem>
 									<SelectItem value="false">
-										未上傳
+										{t("notUploaded")}
 									</SelectItem>
 								</SelectContent>
 							</Select>
@@ -341,12 +360,12 @@ export function ExpenseFilters({
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
 							<DollarSign className="size-4" />
-							金額範圍
+							{t("amountRange")}
 						</Label>
 						<div className="space-y-2">
 							<Input
 								type="number"
-								placeholder="最小金額"
+								placeholder={t("minAmount")}
 								value={filters.amountMin || ""}
 								onChange={(e) => {
 									const value = e.target.value;
@@ -360,7 +379,7 @@ export function ExpenseFilters({
 							/>
 							<Input
 								type="number"
-								placeholder="最大金額"
+								placeholder={t("maxAmount")}
 								value={filters.amountMax || ""}
 								onChange={(e) => {
 									const value = e.target.value;
@@ -379,12 +398,12 @@ export function ExpenseFilters({
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
 							<DollarSign className="size-4" />
-							新幣金額範圍
+							{t("sgdAmountRange")}
 						</Label>
 						<div className="space-y-2">
 							<Input
 								type="number"
-								placeholder="最小新幣金額"
+								placeholder={t("minSgdAmount")}
 								value={filters.sgdAmountMin || ""}
 								onChange={(e) => {
 									const value = e.target.value;
@@ -398,7 +417,7 @@ export function ExpenseFilters({
 							/>
 							<Input
 								type="number"
-								placeholder="最大新幣金額"
+								placeholder={t("maxSgdAmount")}
 								value={filters.sgdAmountMax || ""}
 								onChange={(e) => {
 									const value = e.target.value;
@@ -417,12 +436,12 @@ export function ExpenseFilters({
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
 							<DollarSign className="size-4" />
-							美元金額範圍
+							{t("usdAmountRange")}
 						</Label>
 						<div className="space-y-2">
 							<Input
 								type="number"
-								placeholder="最小美元金額"
+								placeholder={t("minUsdAmount")}
 								value={filters.usdAmountMin || ""}
 								onChange={(e) => {
 									const value = e.target.value;
@@ -436,7 +455,7 @@ export function ExpenseFilters({
 							/>
 							<Input
 								type="number"
-								placeholder="最大美元金額"
+								placeholder={t("maxUsdAmount")}
 								value={filters.usdAmountMax || ""}
 								onChange={(e) => {
 									const value = e.target.value;
@@ -458,7 +477,7 @@ export function ExpenseFilters({
 				<div className="flex flex-wrap gap-2">
 					{filters.dateFrom && (
 						<Badge status="info" className="gap-1">
-							開始: {filters.dateFrom}
+							{tCommon("badges.start")}: {filters.dateFrom}
 							<button
 								type="button"
 								onClick={() =>
@@ -472,7 +491,7 @@ export function ExpenseFilters({
 					)}
 					{filters.dateTo && (
 						<Badge status="info" className="gap-1">
-							結束: {filters.dateTo}
+							{tCommon("badges.end")}: {filters.dateTo}
 							<button
 								type="button"
 								onClick={() =>
@@ -486,7 +505,7 @@ export function ExpenseFilters({
 					)}
 					{filters.category && (
 						<Badge status="info" className="gap-1">
-							類別: {filters.category}
+							{t("category")}: {filters.category}
 							<button
 								type="button"
 								onClick={() =>
@@ -500,7 +519,7 @@ export function ExpenseFilters({
 					)}
 					{filters.amountMin !== undefined && (
 						<Badge status="info" className="gap-1">
-							最小: {filters.amountMin}
+							{tCommon("badges.min")}: {filters.amountMin}
 							<button
 								type="button"
 								onClick={() =>
@@ -514,7 +533,7 @@ export function ExpenseFilters({
 					)}
 					{filters.amountMax !== undefined && (
 						<Badge status="info" className="gap-1">
-							最大: {filters.amountMax}
+							{tCommon("badges.max")}: {filters.amountMax}
 							<button
 								type="button"
 								onClick={() =>
@@ -528,7 +547,7 @@ export function ExpenseFilters({
 					)}
 					{filters.sgdAmountMin !== undefined && (
 						<Badge status="info" className="gap-1">
-							新幣最小: {filters.sgdAmountMin}
+							{tCommon("badges.sgdMin")}: {filters.sgdAmountMin}
 							<button
 								type="button"
 								onClick={() =>
@@ -542,7 +561,7 @@ export function ExpenseFilters({
 					)}
 					{filters.sgdAmountMax !== undefined && (
 						<Badge status="info" className="gap-1">
-							新幣最大: {filters.sgdAmountMax}
+							{tCommon("badges.sgdMax")}: {filters.sgdAmountMax}
 							<button
 								type="button"
 								onClick={() =>
@@ -556,7 +575,7 @@ export function ExpenseFilters({
 					)}
 					{filters.usdAmountMin !== undefined && (
 						<Badge status="info" className="gap-1">
-							美元最小: {filters.usdAmountMin}
+							{tCommon("badges.usdMin")}: {filters.usdAmountMin}
 							<button
 								type="button"
 								onClick={() =>
@@ -570,7 +589,7 @@ export function ExpenseFilters({
 					)}
 					{filters.usdAmountMax !== undefined && (
 						<Badge status="info" className="gap-1">
-							美元最大: {filters.usdAmountMax}
+							{tCommon("badges.usdMax")}: {filters.usdAmountMax}
 							<button
 								type="button"
 								onClick={() =>
@@ -584,7 +603,7 @@ export function ExpenseFilters({
 					)}
 					{filters.currency && (
 						<Badge status="info" className="gap-1">
-							幣別: {filters.currency}
+							{tCommon("badges.currency")}: {filters.currency}
 							<button
 								type="button"
 								onClick={() =>
@@ -599,7 +618,10 @@ export function ExpenseFilters({
 					{filters.hasReceipt !== null &&
 						filters.hasReceipt !== undefined && (
 							<Badge status="info" className="gap-1">
-								附件: {filters.hasReceipt ? "已上傳" : "未上傳"}
+								{tCommon("badges.attachment")}:{" "}
+								{filters.hasReceipt
+									? t("uploaded")
+									: t("notUploaded")}
 								<button
 									type="button"
 									onClick={() =>

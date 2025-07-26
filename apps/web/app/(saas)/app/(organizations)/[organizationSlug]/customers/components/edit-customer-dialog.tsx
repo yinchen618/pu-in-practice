@@ -28,49 +28,11 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import type { CustomerRecord } from "./columns";
-
-const editCustomerSchema = z.object({
-	name: z.string().min(1, "客戶名稱是必填的"),
-	code: z.string().min(1, "客戶編號是必填的"),
-	email: z
-		.string()
-		.optional()
-		.or(z.literal(""))
-		.refine((val) => !val || z.string().email().safeParse(val).success, {
-			message: "請輸入有效的電子郵件",
-		}),
-	phone: z.string().optional(),
-	rm1Id: z.string().optional(),
-	rm1ProfitShare: z
-		.number()
-		.min(0, "預設分潤比例不能小於0")
-		.max(100, "預設分潤比例不能大於100")
-		.optional(),
-	rm2Id: z.string().optional(),
-	rm2ProfitShare: z
-		.number()
-		.min(0, "預設分潤比例不能小於0")
-		.max(100, "預設分潤比例不能大於100")
-		.optional(),
-	finder1Id: z.string().optional(),
-	finder1ProfitShare: z
-		.number()
-		.min(0, "預設分潤比例不能小於0")
-		.max(100, "預設分潤比例不能大於100")
-		.optional(),
-	finder2Id: z.string().optional(),
-	finder2ProfitShare: z
-		.number()
-		.min(0, "預設分潤比例不能小於0")
-		.max(100, "預設分潤比例不能大於100")
-		.optional(),
-});
-
-type EditCustomerForm = z.infer<typeof editCustomerSchema>;
 
 interface RelationshipManager {
 	id: string;
@@ -93,8 +55,51 @@ export function EditCustomerDialog({
 	onOpenChange,
 	onSuccess,
 }: EditCustomerDialogProps) {
+	const t = useTranslations("organization.customers.editDialog");
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+
+	const editCustomerSchema = z.object({
+		name: z.string().min(1, t("validation.nameRequired")),
+		code: z.string().min(1, t("validation.codeRequired")),
+		email: z
+			.string()
+			.optional()
+			.or(z.literal(""))
+			.refine(
+				(val) => !val || z.string().email().safeParse(val).success,
+				{
+					message: t("validation.emailInvalid"),
+				},
+			),
+		phone: z.string().optional(),
+		rm1Id: z.string().optional(),
+		rm1ProfitShare: z
+			.number()
+			.min(0, t("validation.profitShareMin"))
+			.max(100, t("validation.profitShareMax"))
+			.optional(),
+		rm2Id: z.string().optional(),
+		rm2ProfitShare: z
+			.number()
+			.min(0, t("validation.profitShareMin"))
+			.max(100, t("validation.profitShareMax"))
+			.optional(),
+		finder1Id: z.string().optional(),
+		finder1ProfitShare: z
+			.number()
+			.min(0, t("validation.profitShareMin"))
+			.max(100, t("validation.profitShareMax"))
+			.optional(),
+		finder2Id: z.string().optional(),
+		finder2ProfitShare: z
+			.number()
+			.min(0, t("validation.profitShareMin"))
+			.max(100, t("validation.profitShareMax"))
+			.optional(),
+	});
+
+	type EditCustomerForm = z.infer<typeof editCustomerSchema>;
 
 	// 根據角色類型過濾 RM 和 Finder 列表
 	const rmOptions = relationshipManagers.filter(
@@ -161,7 +166,7 @@ export function EditCustomerDialog({
 				onOpenChange(false);
 				onSuccess();
 			} else {
-				let errorMessage = "更新客戶失敗";
+				let errorMessage = t("errors.updateFailed");
 				try {
 					const responseText = await response.text();
 					try {
@@ -171,7 +176,7 @@ export function EditCustomerDialog({
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					errorMessage = "更新客戶失敗";
+					errorMessage = t("errors.updateFailed");
 				}
 
 				// 根據錯誤類型設定對應欄位錯誤
@@ -193,7 +198,7 @@ export function EditCustomerDialog({
 	};
 
 	const handleDelete = async () => {
-		if (!confirm("確定要刪除這個客戶嗎？此操作無法撤銷。")) {
+		if (!confirm(t("deleteConfirm"))) {
 			return;
 		}
 
@@ -225,10 +230,8 @@ export function EditCustomerDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[525px]">
 				<DialogHeader>
-					<DialogTitle>編輯客戶</DialogTitle>
-					<DialogDescription>
-						更新客戶基本資料，並調整負責的 RM 和 Finder
-					</DialogDescription>
+					<DialogTitle>{t("title")}</DialogTitle>
+					<DialogDescription>{t("description")}</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form
@@ -242,14 +245,16 @@ export function EditCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											客戶名稱
+											{t("fields.name")}
 											<span className="text-red-500 ml-1">
 												*
 											</span>
 										</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入客戶名稱"
+												placeholder={t(
+													"fields.namePlaceholder",
+												)}
 												{...field}
 											/>
 										</FormControl>
@@ -263,14 +268,16 @@ export function EditCustomerDialog({
 								render={({ field, fieldState }) => (
 									<FormItem>
 										<FormLabel>
-											客戶編號
+											{t("fields.code")}
 											<span className="text-red-500 ml-1">
 												*
 											</span>
 										</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入客戶編號"
+												placeholder={t(
+													"fields.codePlaceholder",
+												)}
 												{...field}
 												className={
 													fieldState.error
@@ -291,11 +298,15 @@ export function EditCustomerDialog({
 								name="email"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>電子郵件</FormLabel>
+										<FormLabel>
+											{t("fields.email")}
+										</FormLabel>
 										<FormControl>
 											<Input
 												type="email"
-												placeholder="輸入電子郵件"
+												placeholder={t(
+													"fields.emailPlaceholder",
+												)}
 												{...field}
 											/>
 										</FormControl>
@@ -308,10 +319,14 @@ export function EditCustomerDialog({
 								name="phone"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>電話</FormLabel>
+										<FormLabel>
+											{t("fields.phone")}
+										</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入電話號碼"
+												placeholder={t(
+													"fields.phonePlaceholder",
+												)}
 												{...field}
 											/>
 										</FormControl>
@@ -327,7 +342,7 @@ export function EditCustomerDialog({
 								name="rm1Id"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>負責 RM1</FormLabel>
+										<FormLabel>{t("fields.rm1")}</FormLabel>
 										<Select
 											onValueChange={(value) => {
 												field.onChange(value);
@@ -342,12 +357,16 @@ export function EditCustomerDialog({
 										>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder="選擇 RM1" />
+													<SelectValue
+														placeholder={t(
+															"fields.selectRM1",
+														)}
+													/>
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
 												<SelectItem value="none">
-													無
+													{t("fields.none")}
 												</SelectItem>
 												{rmOptions.map((rm) => (
 													<SelectItem
@@ -369,7 +388,7 @@ export function EditCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											RM1 預設分潤比例 (%)
+											{t("fields.rm1ProfitShare")}
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -392,7 +411,7 @@ export function EditCustomerDialog({
 								name="rm2Id"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>負責 RM2</FormLabel>
+										<FormLabel>{t("fields.rm2")}</FormLabel>
 										<Select
 											onValueChange={(value) => {
 												field.onChange(value);
@@ -407,12 +426,16 @@ export function EditCustomerDialog({
 										>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder="選擇 RM2" />
+													<SelectValue
+														placeholder={t(
+															"fields.selectRM2",
+														)}
+													/>
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
 												<SelectItem value="none">
-													無
+													{t("fields.none")}
 												</SelectItem>
 												{rmOptions.map((rm) => (
 													<SelectItem
@@ -434,7 +457,7 @@ export function EditCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											RM2 預設分潤比例 (%)
+											{t("fields.rm2ProfitShare")}
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -457,7 +480,9 @@ export function EditCustomerDialog({
 								name="finder1Id"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>負責 Finder1</FormLabel>
+										<FormLabel>
+											{t("fields.finder1")}
+										</FormLabel>
 										<Select
 											onValueChange={(value) => {
 												field.onChange(value);
@@ -472,12 +497,16 @@ export function EditCustomerDialog({
 										>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder="選擇 Finder1" />
+													<SelectValue
+														placeholder={t(
+															"fields.selectFinder1",
+														)}
+													/>
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
 												<SelectItem value="none">
-													無
+													{t("fields.none")}
 												</SelectItem>
 												{finderOptions.map((rm) => (
 													<SelectItem
@@ -499,7 +528,7 @@ export function EditCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											Finder1 預設分潤比例 (%)
+											{t("fields.finder1ProfitShare")}
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -522,7 +551,9 @@ export function EditCustomerDialog({
 								name="finder2Id"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>負責 Finder2</FormLabel>
+										<FormLabel>
+											{t("fields.finder2")}
+										</FormLabel>
 										<Select
 											onValueChange={(value) => {
 												field.onChange(value);
@@ -537,12 +568,16 @@ export function EditCustomerDialog({
 										>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder="選擇 Finder2" />
+													<SelectValue
+														placeholder={t(
+															"fields.selectFinder2",
+														)}
+													/>
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
 												<SelectItem value="none">
-													無
+													{t("fields.none")}
 												</SelectItem>
 												{finderOptions.map((rm) => (
 													<SelectItem
@@ -564,7 +599,7 @@ export function EditCustomerDialog({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											Finder2 預設分潤比例 (%)
+											{t("fields.finder2ProfitShare")}
 										</FormLabel>
 										<FormControl>
 											<PercentageInput
@@ -589,7 +624,9 @@ export function EditCustomerDialog({
 								disabled={isDeleting}
 							>
 								<Trash2 className="mr-2 size-4" />
-								{isDeleting ? "刪除中..." : "刪除客戶"}
+								{isDeleting
+									? t("actions.deleting")
+									: t("actions.delete")}
 							</Button>
 							<div className="flex gap-2">
 								<Button
@@ -597,10 +634,12 @@ export function EditCustomerDialog({
 									variant="outline"
 									onClick={() => onOpenChange(false)}
 								>
-									取消
+									{t("actions.cancel")}
 								</Button>
 								<Button type="submit" disabled={isLoading}>
-									{isLoading ? "更新中..." : "更新客戶"}
+									{isLoading
+										? t("actions.updating")
+										: t("actions.update")}
 								</Button>
 							</div>
 						</DialogFooter>

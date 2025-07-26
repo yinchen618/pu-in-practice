@@ -28,6 +28,7 @@ import {
 } from "@ui/components/select";
 import { Textarea } from "@ui/components/textarea";
 import { RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -35,6 +36,24 @@ import { useExchangeRate } from "../../../../../../../hooks/use-exchange-rate";
 import { CURRENCY_OPTIONS } from "../../constants";
 import type { ExpenseRecord } from "./columns";
 import { ReceiptUpload } from "./receipt-upload";
+
+const createEditExpenseSchema = (t: any) =>
+	z.object({
+		category: z.enum(["餐飲", "機票", "酒店", "快遞", "交通"], {
+			required_error: t("form.categoryRequired"),
+		}),
+		amount: z.number().min(0, t("form.amountNegative")),
+		currency: z.string().min(1, t("form.currencyRequired")),
+		exchangeRate: z
+			.number()
+			.min(0, t("form.exchangeRateNegative"))
+			.optional(),
+		usdRate: z.number().min(0, t("form.usdRateNegative")).optional(),
+		receiptUrls: z.array(z.string()).optional(),
+		description: z.string().optional(),
+		date: z.string().optional(),
+		rmId: z.string().optional().nullable(),
+	});
 
 const editExpenseSchema = z.object({
 	category: z.enum(["餐飲", "機票", "酒店", "快遞", "交通"], {
@@ -73,6 +92,7 @@ export function EditExpenseDialog({
 	onOpenChange,
 	onSuccess,
 }: EditExpenseDialogProps) {
+	const t = useTranslations("organization.expenses");
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 
@@ -82,7 +102,7 @@ export function EditExpenseDialog({
 	);
 
 	const form = useForm<EditExpenseFormData>({
-		resolver: zodResolver(editExpenseSchema),
+		resolver: zodResolver(createEditExpenseSchema(t)),
 	});
 
 	// 監聽表單中的日期和幣別變化
@@ -227,7 +247,7 @@ export function EditExpenseDialog({
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("更新支出失敗:", error);
+			console.error(t("form.updateFailed"), error);
 			// 這裡可以添加 toast 通知
 		} finally {
 			setIsLoading(false);
@@ -235,7 +255,7 @@ export function EditExpenseDialog({
 	};
 
 	const handleDelete = async () => {
-		if (!confirm("確定要刪除這筆支出記錄嗎？此操作無法復原。")) {
+		if (!confirm(t("form.confirmDelete"))) {
 			return;
 		}
 
@@ -257,7 +277,7 @@ export function EditExpenseDialog({
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("刪除支出失敗:", error);
+			console.error(t("form.deleteFailed"), error);
 			// 這裡可以添加 toast 通知
 		} finally {
 			setIsDeleting(false);
@@ -268,7 +288,7 @@ export function EditExpenseDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>編輯支出</DialogTitle>
+					<DialogTitle>{t("edit")}</DialogTitle>
 					<DialogDescription>
 						修改下方資訊來更新支出記錄。
 					</DialogDescription>
@@ -282,7 +302,7 @@ export function EditExpenseDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											日期
+											{t("date")}
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -300,7 +320,7 @@ export function EditExpenseDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											RM
+											{t("rmId")}
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -317,11 +337,15 @@ export function EditExpenseDialog({
 													}
 												>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇 RM（選填）" />
+														<SelectValue
+															placeholder={t(
+																"form.selectRm",
+															)}
+														/>
 													</SelectTrigger>
 													<SelectContent>
 														<SelectItem value="none">
-															無
+															{t("form.none")}
 														</SelectItem>
 														{rmOptions.map((rm) => (
 															<SelectItem
@@ -346,7 +370,7 @@ export function EditExpenseDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											類別 *
+											{t("category")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -357,23 +381,37 @@ export function EditExpenseDialog({
 													}
 												>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇類別" />
+														<SelectValue
+															placeholder={t(
+																"form.selectCategory",
+															)}
+														/>
 													</SelectTrigger>
 													<SelectContent>
 														<SelectItem value="餐飲">
-															餐飲
+															{t(
+																"categories.餐飲",
+															)}
 														</SelectItem>
 														<SelectItem value="機票">
-															機票
+															{t(
+																"categories.機票",
+															)}
 														</SelectItem>
 														<SelectItem value="酒店">
-															酒店
+															{t(
+																"categories.酒店",
+															)}
 														</SelectItem>
 														<SelectItem value="快遞">
-															快遞
+															{t(
+																"categories.快遞",
+															)}
 														</SelectItem>
 														<SelectItem value="交通">
-															交通
+															{t(
+																"categories.交通",
+															)}
 														</SelectItem>
 													</SelectContent>
 												</Select>
@@ -390,7 +428,7 @@ export function EditExpenseDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											幣別 *
+											{t("currency")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -401,7 +439,11 @@ export function EditExpenseDialog({
 													}
 												>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇幣別" />
+														<SelectValue
+															placeholder={t(
+																"form.selectCurrency",
+															)}
+														/>
 													</SelectTrigger>
 													<SelectContent>
 														{CURRENCY_OPTIONS.map(
@@ -435,7 +477,7 @@ export function EditExpenseDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											金額 *
+											{t("amount")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -443,7 +485,9 @@ export function EditExpenseDialog({
 													type="number"
 													step="1"
 													min="0"
-													placeholder="0.00"
+													placeholder={t(
+														"form.enterAmount",
+													)}
 													{...field}
 													onChange={(e) =>
 														field.onChange(
@@ -466,7 +510,7 @@ export function EditExpenseDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											新幣匯率
+											{t("exchangeRate")}
 										</FormLabel>
 										<div className="col-span-3">
 											<div className="flex gap-2">
@@ -519,14 +563,16 @@ export function EditExpenseDialog({
 											</div>
 											{watchedCurrency === "SGD" && (
 												<p className="text-sm text-gray-600 mt-1">
-													新幣匯率固定為 1.00
+													{t("form.sgdRateFixed")}
 												</p>
 											)}
 											{exchangeRateError &&
 												watchedCurrency !== "SGD" && (
 													<p className="text-sm text-red-600 mt-1">
-														無法獲取匯率:{" "}
-														{exchangeRateError}
+														{t(
+															"form.exchangeRateError",
+														)}
+														: {exchangeRateError}
 													</p>
 												)}
 											{exchangeRateData &&
@@ -534,7 +580,9 @@ export function EditExpenseDialog({
 												watchedCurrency !== "SGD" && (
 													<p className="text-sm text-green-600 mt-1">
 														{exchangeRateData.date}{" "}
-														的新幣匯率已更新
+														{t(
+															"form.exchangeRateUpdated",
+														)}
 													</p>
 												)}
 											<FormMessage />
@@ -549,7 +597,7 @@ export function EditExpenseDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											美元匯率
+											{t("usdRate")}
 										</FormLabel>
 										<div className="col-span-3">
 											<div className="flex gap-2">
@@ -602,14 +650,14 @@ export function EditExpenseDialog({
 											</div>
 											{watchedCurrency === "USD" && (
 												<p className="text-sm text-gray-600 mt-1">
-													美元匯率固定為 1.00
+													{t("form.usdRateFixed")}
 												</p>
 											)}
 											{usdExchangeRateError &&
 												watchedCurrency !== "USD" && (
 													<p className="text-sm text-red-600 mt-1">
-														無法獲取美元匯率:{" "}
-														{usdExchangeRateError}
+														{t("form.usdRateError")}
+														: {usdExchangeRateError}
 													</p>
 												)}
 											{usdExchangeRateData &&
@@ -619,7 +667,9 @@ export function EditExpenseDialog({
 														{
 															usdExchangeRateData.date
 														}{" "}
-														的美元匯率已更新
+														{t(
+															"form.usdRateUpdated",
+														)}
 													</p>
 												)}
 											<FormMessage />
@@ -631,7 +681,7 @@ export function EditExpenseDialog({
 							{/* 新幣金額預覽 */}
 							<div className="grid grid-cols-4 items-center gap-4">
 								<FormLabel className="text-right">
-									新幣金額
+									{t("sgdAmount")}
 								</FormLabel>
 								<div className="col-span-3">
 									<Input
@@ -660,7 +710,7 @@ export function EditExpenseDialog({
 							{/* 美元金額預覽 */}
 							<div className="grid grid-cols-4 items-center gap-4">
 								<FormLabel className="text-right">
-									美元金額
+									{t("usdAmount")}
 								</FormLabel>
 								<div className="col-span-3">
 									<Input
@@ -691,12 +741,14 @@ export function EditExpenseDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-start gap-4">
 										<FormLabel className="text-right pt-2">
-											描述
+											{t("description")}
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Textarea
-													placeholder="輸入支出描述"
+													placeholder={t(
+														"form.enterDescription",
+													)}
 													{...field}
 												/>
 											</FormControl>
@@ -712,7 +764,7 @@ export function EditExpenseDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-start gap-4">
 										<FormLabel className="text-right pt-2">
-											收據
+											{t("receipts")}
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -734,7 +786,7 @@ export function EditExpenseDialog({
 								onClick={handleDelete}
 								disabled={isDeleting}
 							>
-								{isDeleting ? "刪除中..." : "刪除"}
+								{isDeleting ? t("form.deleting") : t("delete")}
 							</Button>
 							<div className="flex gap-2">
 								<Button
@@ -742,10 +794,12 @@ export function EditExpenseDialog({
 									variant="outline"
 									onClick={() => onOpenChange(false)}
 								>
-									取消
+									{t("form.cancel")}
 								</Button>
 								<Button type="submit" disabled={isLoading}>
-									{isLoading ? "更新中..." : "更新"}
+									{isLoading
+										? t("form.updating")
+										: t("form.update")}
 								</Button>
 							</div>
 						</DialogFooter>

@@ -99,13 +99,17 @@ export interface ProfitSharingRecord {
 export function createColumns(
 	onEdit: (record: ProfitSharingRecord) => void,
 	organizationSlug: string,
+	t: (key: string) => string,
 ): ColumnDef<ProfitSharingRecord>[] {
 	return [
 		// 第一行：客戶和產品資訊
 		{
 			accessorKey: "profitDate",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="分潤日期" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("columns.profitDate")}
+				/>
 			),
 			cell: ({ row }) => {
 				const date = row.getValue("profitDate") as Date;
@@ -115,7 +119,10 @@ export function createColumns(
 		{
 			accessorKey: "customerName",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="客戶名稱" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("columns.customerName")}
+				/>
 			),
 			cell: ({ row }) => {
 				const customerName = row.getValue("customerName") as string;
@@ -133,19 +140,28 @@ export function createColumns(
 		{
 			accessorKey: "customerCode",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="客戶代碼" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("columns.customerCode")}
+				/>
 			),
 		},
 		{
 			accessorKey: "productCategory",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="產品類別" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("columns.productCategory")}
+				/>
 			),
 		},
 		{
 			accessorKey: "productInfo",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="產品" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("columns.product")}
+				/>
 			),
 			cell: ({ row }) => {
 				const code = row.original.productCode;
@@ -203,7 +219,10 @@ export function createColumns(
 		{
 			accessorKey: "shareable",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="總分潤金額" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("columns.totalProfitAmount")}
+				/>
 			),
 			cell: ({ row }) => {
 				const value = row.original.shareable;
@@ -215,7 +234,10 @@ export function createColumns(
 		{
 			accessorKey: "companyProfitShareAmount",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="Company分潤" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("columns.companyProfit")}
+				/>
 			),
 			cell: ({ row }) => {
 				// const amount = row.original.companyProfitShareAmount || 0;
@@ -237,7 +259,10 @@ export function createColumns(
 		{
 			accessorKey: "rmProfitShareAmount",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="RM分潤" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("columns.rmProfit")}
+				/>
 			),
 			cell: ({ row }) => {
 				const currency = row.original.currency;
@@ -305,7 +330,9 @@ export function createColumns(
 
 						{/* 總計 */}
 						<div className="mt-2 pt-2 border-t">
-							<div className="font-medium">總計</div>
+							<div className="font-medium">
+								{t("columns.total")}
+							</div>
 							<div>
 								{formatCurrency(
 									record.rmRevenueOriginal || 0,
@@ -334,7 +361,10 @@ export function createColumns(
 		{
 			accessorKey: "finderProfitShareAmount",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="Finder分潤" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("columns.finderProfit")}
+				/>
 			),
 			cell: ({ row }) => {
 				const currency = row.original.currency;
@@ -402,7 +432,9 @@ export function createColumns(
 
 						{/* 總計 */}
 						<div className="mt-2 pt-2 border-t">
-							<div className="font-medium">總計</div>
+							<div className="font-medium">
+								{t("columns.total")}
+							</div>
 							<div>
 								{formatCurrency(
 									record.findersRevenueOriginal || 0,
@@ -440,7 +472,7 @@ export function createColumns(
 		// },
 		{
 			id: "actions",
-			header: "操作",
+			header: t("columns.actions"),
 			cell: ({ row }) => {
 				const record = row.original;
 				return (

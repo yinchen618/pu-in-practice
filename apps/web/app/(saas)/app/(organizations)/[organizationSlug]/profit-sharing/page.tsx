@@ -3,6 +3,7 @@
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
+import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ProfitSharingRecord } from "./components/columns";
@@ -13,6 +14,7 @@ import { ProfitSharingFilters } from "./components/profit-sharing-filters";
 import { ProfitStatsCards } from "./components/profit-stats-cards";
 
 export default function ProfitSharingPage() {
+	const t = useTranslations("organization.profitSharing");
 	const { activeOrganization, loaded } = useActiveOrganization();
 	const params = useParams();
 	const organizationSlug = params.organizationSlug as string;
@@ -41,10 +43,6 @@ export default function ProfitSharingPage() {
 
 			if (response.ok) {
 				const result = await response.json();
-				console.log(
-					"📊 獲取到的分潤記錄數量:",
-					result.data?.length || 0,
-				);
 				setAllData(result.data || []);
 				setFilteredData(result.data || []);
 			}
@@ -75,8 +73,11 @@ export default function ProfitSharingPage() {
 	);
 
 	const columns = useMemo(
-		() => createColumns(handleEdit, organizationSlug),
-		[handleEdit, organizationSlug],
+		() =>
+			createColumns(handleEdit, organizationSlug, (key: string) =>
+				t(key),
+			),
+		[handleEdit, organizationSlug, t],
 	);
 
 	useEffect(() => {
@@ -86,14 +87,18 @@ export default function ProfitSharingPage() {
 	}, [activeOrganization?.id, loaded, fetchData]);
 
 	if (!loaded) {
-		return <div className="container py-6">載入中...</div>;
+		return (
+			<div className="container py-6">
+				{t("loading", { ns: "organization.common" })}
+			</div>
+		);
 	}
 
 	return (
 		<div className="space-y-8 py-6">
 			<PageHeader
-				title="分潤記錄"
-				subtitle="管理所有分潤記錄"
+				title={t("title")}
+				subtitle={t("subtitle")}
 				actions={
 					activeOrganization && (
 						<CreateProfitSharingDialog

@@ -29,36 +29,40 @@ export interface ProductRecord {
 
 export function createColumns(
 	onEdit: (record: ProductRecord) => void,
+	t: (key: string) => string,
 ): ColumnDef<ProductRecord>[] {
+	const getCategoryLabel = (category: string) => {
+		switch (category) {
+			case "AQ":
+				return "AQ";
+			case "Bond":
+				return t("table.categoryBond");
+			case "DCI":
+				return "DCI";
+			case "EQ":
+				return t("table.categoryEQ");
+			case "FCN":
+				return "FCN";
+			case "Fund":
+				return t("table.categoryFund");
+			case "FX":
+				return t("table.categoryFX");
+			default:
+				return category;
+		}
+	};
+
 	return [
 		{
 			accessorKey: "category",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="類別" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.category")}
+				/>
 			),
 			cell: ({ row }) => {
 				const category = row.getValue("category") as string;
-				console.log(category);
-				const getCategoryLabel = (category: string) => {
-					switch (category) {
-						case "AQ":
-							return "AQ";
-						case "Bond":
-							return "債券";
-						case "DCI":
-							return "DCI";
-						case "EQ":
-							return "股票";
-						case "FCN":
-							return "FCN";
-						case "Fund":
-							return "基金";
-						case "FX":
-							return "外匯";
-						default:
-							return category;
-					}
-				};
 				const getCategoryStatus = (category: string) => {
 					switch (category) {
 						case "AQ":
@@ -86,19 +90,28 @@ export function createColumns(
 		{
 			accessorKey: "name",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="產品名稱" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.name")}
+				/>
 			),
 		},
 		{
 			accessorKey: "code",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="產品代碼" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.code")}
+				/>
 			),
 		},
 		{
 			accessorKey: "currency",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="幣別" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.currency")}
+				/>
 			),
 			cell: ({ row }) => {
 				const currency = row.getValue("currency") as string;
@@ -111,7 +124,10 @@ export function createColumns(
 		{
 			accessorKey: "distributionType",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="配息方式" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.distributionType")}
+				/>
 			),
 			cell: ({ row }) => {
 				const type = row.getValue("distributionType") as string;
@@ -124,7 +140,10 @@ export function createColumns(
 		{
 			accessorKey: "description",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="描述" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.description")}
+				/>
 			),
 			cell: ({ row }) => {
 				const description = row.getValue("description") as
@@ -136,7 +155,10 @@ export function createColumns(
 		{
 			accessorKey: "createdAt",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="新增日期" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.createdAt")}
+				/>
 			),
 			cell: ({ row }) => {
 				const date = row.getValue("createdAt") as string;
@@ -146,20 +168,25 @@ export function createColumns(
 		{
 			accessorKey: "status",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="狀態" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.status")}
+				/>
 			),
 			cell: ({ row }) => {
 				const status = row.getValue("status") as string;
 				return (
 					<Badge status={status === "active" ? "success" : "info"}>
-						{status === "active" ? "銷售中" : "已下架"}
+						{status === "active"
+							? t("table.statusActive")
+							: t("table.statusInactive")}
 					</Badge>
 				);
 			},
 		},
 		{
 			id: "actions",
-			header: "操作",
+			header: t("table.actions"),
 			cell: ({ row }) => {
 				const record = row.original;
 				return (

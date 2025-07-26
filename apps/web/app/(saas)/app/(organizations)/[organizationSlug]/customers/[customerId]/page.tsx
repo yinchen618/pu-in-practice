@@ -5,6 +5,7 @@ import { PageHeader } from "@saas/shared/components/PageHeader";
 import { Button } from "@ui/components/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/components/tabs";
 import { Edit2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useMemo, useState } from "react";
@@ -36,6 +37,8 @@ interface RelationshipManager {
 }
 
 export default function CustomerProfilePage() {
+	const t = useTranslations("organization.customers.details");
+	const tProfitSharing = useTranslations("organization.profitSharing");
 	const { activeOrganization } = useActiveOrganization();
 	const params = useParams();
 	const customerId = params.customerId as string;
@@ -186,7 +189,9 @@ export default function CustomerProfilePage() {
 	};
 
 	const fetchAssetSummary = async () => {
-		if (!activeOrganization?.id) return;
+		if (!activeOrganization?.id) {
+			return;
+		}
 		setIsAssetSummaryLoading(true);
 		try {
 			const response = await fetch(
@@ -218,7 +223,9 @@ export default function CustomerProfilePage() {
 	}, [activeOrganization?.id, customerId]);
 
 	useEffect(() => {
-		if (!activeOrganization?.id || !customerId) return;
+		if (!activeOrganization?.id || !customerId) {
+			return;
+		}
 		setIsProfitLoading(true);
 		fetch(
 			`/api/organizations/profit-sharing?organizationId=${activeOrganization.id}&customerId=${customerId}`,
@@ -241,7 +248,11 @@ export default function CustomerProfilePage() {
 	}, [activeOrganization?.id, customerId]);
 
 	const columns = useMemo(() => {
-		const all = createColumns(() => {}, params.organizationSlug as string);
+		const all = createColumns(
+			() => {},
+			params.organizationSlug as string,
+			(key: string) => tProfitSharing(key),
+		);
 
 		return [
 			...all.filter(
@@ -252,7 +263,7 @@ export default function CustomerProfilePage() {
 					(col as any).id !== "customerCode",
 			),
 		];
-	}, [params.organizationSlug]);
+	}, [params.organizationSlug, tProfitSharing]);
 
 	const handleEditSuccess = () => {
 		fetchCustomerData();
@@ -279,11 +290,11 @@ export default function CustomerProfilePage() {
 		<div className="container space-y-8 py-6">
 			<PageHeader
 				title={customer?.name || ""}
-				subtitle={`客戶編號: ${customer?.code || ""}`}
+				subtitle={`${t("customerCode")}: ${customer?.code || ""}`}
 				actions={
 					<Button onClick={() => setEditDialogOpen(true)}>
 						<Edit2 className="mr-2 size-4" />
-						編輯資料
+						{t("editData")}
 					</Button>
 				}
 			/>
@@ -302,10 +313,12 @@ export default function CustomerProfilePage() {
 				>
 					<TabsList>
 						<TabsTrigger value="profit-sharing">
-							分潤一覽
+							{t("profitSharing")}
 						</TabsTrigger>
-						<TabsTrigger value="accounts">銀行帳戶</TabsTrigger>
-						<TabsTrigger value="assets">資產總表</TabsTrigger>
+						<TabsTrigger value="accounts">
+							{t("bankAccounts")}
+						</TabsTrigger>
+						<TabsTrigger value="assets">{t("assets")}</TabsTrigger>
 					</TabsList>
 					<TabsContent value="profit-sharing">
 						<CustomerProfitSharingTab

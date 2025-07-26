@@ -13,6 +13,7 @@ import {
 } from "@ui/components/dialog";
 import { Form } from "@ui/components/form";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useExchangeRate } from "../../../../../../../hooks/use-exchange-rate";
@@ -38,6 +39,7 @@ export function CreateProfitSharingDialog({
 	organizationId,
 	onSuccess,
 }: CreateDialogProps) {
+	const t = useTranslations("organization.profitSharing.dialog.create");
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -295,7 +297,7 @@ export function CreateProfitSharingDialog({
 			});
 
 			if (!response.ok) {
-				let errorMessage = "新增失敗";
+				let errorMessage = t("addFailed");
 				try {
 					const responseText = await response.text();
 					console.log("API 錯誤回應:", responseText);
@@ -306,7 +308,7 @@ export function CreateProfitSharingDialog({
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					errorMessage = "新增失敗";
+					errorMessage = t("addFailedDefault");
 				}
 				throw new Error(errorMessage);
 			}
@@ -319,7 +321,9 @@ export function CreateProfitSharingDialog({
 			onSuccess?.();
 		} catch (error) {
 			console.error("新增分潤記錄失敗:", error);
-			alert(error instanceof Error ? error.message : "新增失敗");
+			alert(
+				error instanceof Error ? error.message : t("addFailedDefault"),
+			);
 		} finally {
 			setIsLoading(false);
 		}
@@ -339,15 +343,13 @@ export function CreateProfitSharingDialog({
 			<DialogTrigger asChild>
 				<Button size="sm" className="h-8">
 					<Plus className="h-4 w-4 mr-2" />
-					新增分潤
+					{t("triggerButton")}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="min-w-[90vw] max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>新增分潤記錄</DialogTitle>
-					<DialogDescription>
-						填寫分潤記錄的基本資訊和分潤比例分配。
-					</DialogDescription>
+					<DialogTitle>{t("title")}</DialogTitle>
+					<DialogDescription>{t("description")}</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
@@ -388,7 +390,7 @@ export function CreateProfitSharingDialog({
 								variant="outline"
 								onClick={() => setOpen(false)}
 							>
-								取消
+								{t("cancel")}
 							</Button>
 							<Button
 								type="submit"
@@ -399,7 +401,7 @@ export function CreateProfitSharingDialog({
 									)
 								}
 							>
-								{isLoading ? "新增中..." : "新增"}
+								{isLoading ? t("submitting") : t("submit")}
 							</Button>
 						</DialogFooter>
 					</form>

@@ -12,6 +12,7 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Calendar, Filter, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useQueryState } from "nuqs";
 import { useEffect, useMemo, useState } from "react";
 import type { ProfitSharingRecord } from "./columns";
@@ -39,6 +40,8 @@ export function ProfitSharingFilters({
 	onFilterChange,
 	onFiltersChange,
 }: ProfitSharingFiltersProps) {
+	const t = useTranslations("organization.profitSharing.filters");
+
 	// 使用 nuqs 管理 URL 參數
 	const [search, setSearch] = useQueryState("search");
 	const [productCategory, setProductCategory] =
@@ -102,10 +105,18 @@ export function ProfitSharingFilters({
 	const allFinderNames = new Set<string>();
 
 	data.forEach((item) => {
-		if (item.rm1Name) allRMNames.add(item.rm1Name);
-		if (item.rm2Name) allRMNames.add(item.rm2Name);
-		if (item.finder1Name) allFinderNames.add(item.finder1Name);
-		if (item.finder2Name) allFinderNames.add(item.finder2Name);
+		if (item.rm1Name) {
+			allRMNames.add(item.rm1Name);
+		}
+		if (item.rm2Name) {
+			allRMNames.add(item.rm2Name);
+		}
+		if (item.finder1Name) {
+			allFinderNames.add(item.finder1Name);
+		}
+		if (item.finder2Name) {
+			allFinderNames.add(item.finder2Name);
+		}
 	});
 
 	const uniqueRMNames = Array.from(allRMNames).sort();
@@ -122,18 +133,18 @@ export function ProfitSharingFilters({
 
 	// 生成月份選項
 	const monthOptions = [
-		{ value: "01", label: "1月" },
-		{ value: "02", label: "2月" },
-		{ value: "03", label: "3月" },
-		{ value: "04", label: "4月" },
-		{ value: "05", label: "5月" },
-		{ value: "06", label: "6月" },
-		{ value: "07", label: "7月" },
-		{ value: "08", label: "8月" },
-		{ value: "09", label: "9月" },
-		{ value: "10", label: "10月" },
-		{ value: "11", label: "11月" },
-		{ value: "12", label: "12月" },
+		{ value: "01", label: t("months.01") },
+		{ value: "02", label: t("months.02") },
+		{ value: "03", label: t("months.03") },
+		{ value: "04", label: t("months.04") },
+		{ value: "05", label: t("months.05") },
+		{ value: "06", label: t("months.06") },
+		{ value: "07", label: t("months.07") },
+		{ value: "08", label: t("months.08") },
+		{ value: "09", label: t("months.09") },
+		{ value: "10", label: t("months.10") },
+		{ value: "11", label: t("months.11") },
+		{ value: "12", label: t("months.12") },
 	];
 
 	const applyFilters = (
@@ -300,7 +311,7 @@ export function ProfitSharingFilters({
 						className="gap-2"
 					>
 						<Filter className="size-4" />
-						篩選器{" "}
+						{t("filterButton")}{" "}
 						{hasActiveFilters &&
 							`(${
 								Object.values(filters).filter(
@@ -319,7 +330,7 @@ export function ProfitSharingFilters({
 							onClick={clearFilters}
 						>
 							<X className="size-4 mr-1" />
-							清除篩選
+							{t("clearFilters")}
 						</Button>
 					)}
 				</div>
@@ -327,7 +338,7 @@ export function ProfitSharingFilters({
 				{/* 主要搜尋框 */}
 				<div className="flex items-center gap-2">
 					<Input
-						placeholder="搜尋產品名稱、代碼或客戶名稱..."
+						placeholder={t("searchPlaceholder")}
 						value={filters.search || ""}
 						onChange={(e) => updateFilter("search", e.target.value)}
 						className="w-64"
@@ -340,7 +351,9 @@ export function ProfitSharingFilters({
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/20">
 					{/* 產品類別篩選 */}
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">產品類別</Label>
+						<Label className="text-sm font-medium">
+							{t("productCategory")}
+						</Label>
 						<Select
 							value={filters.productCategory || ""}
 							onValueChange={(value) =>
@@ -351,10 +364,14 @@ export function ProfitSharingFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇產品類別" />
+								<SelectValue
+									placeholder={t("selectProductCategory")}
+								/>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部類別</SelectItem>
+								<SelectItem value="all">
+									{t("allCategories")}
+								</SelectItem>
 								{uniqueProductCategories.map((category) => (
 									<SelectItem key={category} value={category}>
 										{category}
@@ -366,7 +383,9 @@ export function ProfitSharingFilters({
 
 					{/* 原幣篩選 */}
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">原幣</Label>
+						<Label className="text-sm font-medium">
+							{t("currency")}
+						</Label>
 						<Select
 							value={filters.currency || ""}
 							onValueChange={(value) =>
@@ -377,10 +396,14 @@ export function ProfitSharingFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇原幣" />
+								<SelectValue
+									placeholder={t("selectCurrency")}
+								/>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部原幣</SelectItem>
+								<SelectItem value="all">
+									{t("allCurrencies")}
+								</SelectItem>
 								{uniqueCurrencies.map((currency) => (
 									<SelectItem key={currency} value={currency}>
 										{currency}
@@ -392,7 +415,9 @@ export function ProfitSharingFilters({
 
 					{/* 年份篩選 */}
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">年份</Label>
+						<Label className="text-sm font-medium">
+							{t("year")}
+						</Label>
 						<Select
 							value={filters.year || ""}
 							onValueChange={(value) =>
@@ -403,10 +428,12 @@ export function ProfitSharingFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇年份" />
+								<SelectValue placeholder={t("selectYear")} />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部年份</SelectItem>
+								<SelectItem value="all">
+									{t("allYears")}
+								</SelectItem>
 								{yearOptions.map((year) => (
 									<SelectItem
 										key={year}
@@ -421,7 +448,9 @@ export function ProfitSharingFilters({
 
 					{/* 月份篩選 */}
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">月份</Label>
+						<Label className="text-sm font-medium">
+							{t("month")}
+						</Label>
 						<Select
 							value={filters.month || ""}
 							onValueChange={(value) =>
@@ -432,10 +461,12 @@ export function ProfitSharingFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇月份" />
+								<SelectValue placeholder={t("selectMonth")} />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部月份</SelectItem>
+								<SelectItem value="all">
+									{t("allMonths")}
+								</SelectItem>
 								{monthOptions.map((month) => (
 									<SelectItem
 										key={month.value}
@@ -451,12 +482,12 @@ export function ProfitSharingFilters({
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
 							<Calendar className="size-4" />
-							日期區間
+							{t("dateRange")}
 						</Label>
 						<div className="space-y-2">
 							<Input
 								type="date"
-								placeholder="開始日期"
+								placeholder={t("dateFrom")}
 								value={filters.dateFrom || ""}
 								onChange={(e) =>
 									updateFilter("dateFrom", e.target.value)
@@ -464,7 +495,7 @@ export function ProfitSharingFilters({
 							/>
 							<Input
 								type="date"
-								placeholder="結束日期"
+								placeholder={t("dateTo")}
 								value={filters.dateTo || ""}
 								onChange={(e) =>
 									updateFilter("dateTo", e.target.value)
@@ -475,7 +506,7 @@ export function ProfitSharingFilters({
 
 					{/* RM 篩選 */}
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">RM</Label>
+						<Label className="text-sm font-medium">{t("rm")}</Label>
 						<Select
 							value={filters.rmName || ""}
 							onValueChange={(value) =>
@@ -486,10 +517,10 @@ export function ProfitSharingFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇RM" />
+								<SelectValue placeholder={t("selectRM")} />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部</SelectItem>
+								<SelectItem value="all">{t("all")}</SelectItem>
 								{uniqueRMNames.map((name) => (
 									<SelectItem key={name} value={name}>
 										{name}
@@ -500,7 +531,9 @@ export function ProfitSharingFilters({
 					</div>
 					{/* Finder 篩選 */}
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">Finder</Label>
+						<Label className="text-sm font-medium">
+							{t("finder")}
+						</Label>
 						<Select
 							value={filters.finderName || ""}
 							onValueChange={(value) =>
@@ -511,10 +544,10 @@ export function ProfitSharingFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇Finder" />
+								<SelectValue placeholder={t("selectFinder")} />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部</SelectItem>
+								<SelectItem value="all">{t("all")}</SelectItem>
 								{uniqueFinderNames.map((name) => (
 									<SelectItem key={name} value={name}>
 										{name}
@@ -531,7 +564,7 @@ export function ProfitSharingFilters({
 				<div className="flex flex-wrap gap-2">
 					{filters.search && (
 						<Badge status="info" className="gap-1">
-							搜尋: {filters.search}
+							{t("search")}: {filters.search}
 							<button
 								type="button"
 								onClick={() =>
@@ -546,7 +579,7 @@ export function ProfitSharingFilters({
 					{filters.productCategory &&
 						filters.productCategory !== "all" && (
 							<Badge status="info" className="gap-1">
-								類別: {filters.productCategory}
+								{t("category")}: {filters.productCategory}
 								<button
 									type="button"
 									onClick={() =>
@@ -563,7 +596,7 @@ export function ProfitSharingFilters({
 						)}
 					{filters.currency && (
 						<Badge status="info" className="gap-1">
-							原幣: {filters.currency}
+							{t("currency")}: {filters.currency}
 							<button
 								type="button"
 								onClick={() =>
@@ -577,7 +610,7 @@ export function ProfitSharingFilters({
 					)}
 					{filters.year && (
 						<Badge status="info" className="gap-1">
-							年份: {filters.year}年
+							{t("year")}: {filters.year}年
 							<button
 								type="button"
 								onClick={() => updateFilter("year", undefined)}
@@ -589,7 +622,7 @@ export function ProfitSharingFilters({
 					)}
 					{filters.month && (
 						<Badge status="info" className="gap-1">
-							月份:{" "}
+							{t("month")}:{" "}
 							{
 								monthOptions.find(
 									(m) => m.value === filters.month,
@@ -606,7 +639,7 @@ export function ProfitSharingFilters({
 					)}
 					{filters.dateFrom && (
 						<Badge status="info" className="gap-1">
-							開始: {filters.dateFrom}
+							{t("dateFrom")}: {filters.dateFrom}
 							<button
 								type="button"
 								onClick={() =>
@@ -620,7 +653,7 @@ export function ProfitSharingFilters({
 					)}
 					{filters.dateTo && (
 						<Badge status="info" className="gap-1">
-							結束: {filters.dateTo}
+							{t("dateTo")}: {filters.dateTo}
 							<button
 								type="button"
 								onClick={() =>
@@ -634,7 +667,7 @@ export function ProfitSharingFilters({
 					)}
 					{filters.rmName && (
 						<Badge status="info" className="gap-1">
-							RM: {filters.rmName}
+							{t("rm")}: {filters.rmName}
 							<button
 								type="button"
 								onClick={() =>
@@ -648,7 +681,7 @@ export function ProfitSharingFilters({
 					)}
 					{filters.finderName && (
 						<Badge status="info" className="gap-1">
-							Finder: {filters.finderName}
+							{t("finder")}: {filters.finderName}
 							<button
 								type="button"
 								onClick={() =>

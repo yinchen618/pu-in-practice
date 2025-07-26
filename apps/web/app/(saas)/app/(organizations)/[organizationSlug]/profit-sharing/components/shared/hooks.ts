@@ -163,11 +163,8 @@ export const useBaseData = ({ organizationId, open }: UseBaseDataProps) => {
 
 	// 載入特定客戶的銀行帳戶
 	const fetchBankAccounts = async (customerId?: string) => {
-		console.log("🔄 載入銀行帳戶:", { customerId, organizationId });
-
 		if (!customerId || !organizationId) {
 			// 如果沒有客戶ID，清空銀行帳戶列表
-			console.log("🔄 清空銀行帳戶列表 (沒有客戶ID)");
 			setBankAccounts([]);
 			setIsLoadingBankAccounts(false);
 			return;

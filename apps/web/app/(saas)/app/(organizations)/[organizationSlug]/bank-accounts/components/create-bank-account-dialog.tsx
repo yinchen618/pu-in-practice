@@ -29,10 +29,11 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CURRENCY_OPTIONS } from "../../constants";
+import { getCurrencyOptions } from "../../constants";
 
 const createBankAccountSchema = z.object({
 	customerId: z.string().optional(),
@@ -71,12 +72,15 @@ export function CreateBankAccountDialog({
 	dialogTitle = "新增銀行帳戶",
 	customerCode,
 	customerId,
-	customerName,
 }: CreateBankAccountDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [customers, setCustomers] = useState<Customer[]>([]);
 	const [isCustomersLoading, setIsCustomersLoading] = useState(false);
+	const t = useTranslations("organization.bankAccounts");
+	const tConstants = useTranslations("organization.constants");
+
+	const currencyOptions = getCurrencyOptions(tConstants);
 
 	const form = useForm<CreateBankAccountFormData>({
 		resolver: zodResolver(createBankAccountSchema),
@@ -184,17 +188,19 @@ export function CreateBankAccountDialog({
 			<DialogTrigger asChild>
 				<Button>
 					<Plus className="mr-2 size-4" />
-					{dialogTitle}
+					{t("createTitle")}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>
-						{dialogTitle}
-						{customerCode ? `（客戶編號：${customerCode}）` : ""}
+						{t("createTitle")}
+						{customerCode
+							? ` (${t("customerCode")}: ${customerCode})`
+							: ""}
 					</DialogTitle>
 					<DialogDescription>
-						填寫下方資訊來新增一個銀行帳戶。
+						{t("createDescription")}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -207,10 +213,12 @@ export function CreateBankAccountDialog({
 									render={({ field }) => (
 										<SearchableSelect<Customer>
 											field={field}
-											label="客戶"
-											placeholder="選擇客戶"
-											searchPlaceholder="搜尋客戶..."
-											emptyText="找不到客戶"
+											label={t("customer")}
+											placeholder={t("selectCustomer")}
+											searchPlaceholder={t(
+												"searchCustomer",
+											)}
+											emptyText={t("customerNotFound")}
 											options={customers}
 											getDisplayValue={(option) =>
 												option
@@ -233,10 +241,12 @@ export function CreateBankAccountDialog({
 								name="bankName"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>銀行名稱 *</FormLabel>
+										<FormLabel>{t("bankName")} *</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入銀行名稱"
+												placeholder={t(
+													"bankNamePlaceholder",
+												)}
 												{...field}
 											/>
 										</FormControl>
@@ -250,10 +260,14 @@ export function CreateBankAccountDialog({
 								name="accountNumber"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>帳號 *</FormLabel>
+										<FormLabel>
+											{t("accountNumber")} *
+										</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入帳號"
+												placeholder={t(
+													"accountNumberPlaceholder",
+												)}
 												{...field}
 											/>
 										</FormControl>
@@ -268,7 +282,7 @@ export function CreateBankAccountDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											幣別 *
+											{t("currency")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -279,10 +293,14 @@ export function CreateBankAccountDialog({
 													}
 												>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇幣別" />
+														<SelectValue
+															placeholder={t(
+																"selectCurrency",
+															)}
+														/>
 													</SelectTrigger>
 													<SelectContent>
-														{CURRENCY_OPTIONS.map(
+														{currencyOptions.map(
 															(option) => (
 																<SelectItem
 																	key={
@@ -342,10 +360,10 @@ export function CreateBankAccountDialog({
 								variant="outline"
 								onClick={() => handleOpenChange(false)}
 							>
-								取消
+								{t("cancel")}
 							</Button>
 							<Button type="submit" disabled={isLoading}>
-								{isLoading ? "新增中..." : "新增"}
+								{isLoading ? t("creating") : t("create")}
 							</Button>
 						</DialogFooter>
 					</form>

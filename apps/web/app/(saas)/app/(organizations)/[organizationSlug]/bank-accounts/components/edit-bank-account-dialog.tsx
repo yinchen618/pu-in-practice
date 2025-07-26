@@ -27,10 +27,11 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CURRENCY_OPTIONS } from "../../constants";
+import { getCurrencyOptions } from "../../constants";
 import type { BankAccountRecord } from "./columns";
 
 const editBankAccountSchema = z.object({
@@ -67,7 +68,6 @@ export function EditBankAccountDialog({
 	open,
 	onOpenChange,
 	onSuccess,
-	dialogTitle = "編輯銀行帳戶",
 	customerCode,
 	customerName,
 }: EditBankAccountDialogProps) {
@@ -75,6 +75,10 @@ export function EditBankAccountDialog({
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [customers, setCustomers] = useState<Customer[]>([]);
 	const [isCustomersLoading, setIsCustomersLoading] = useState(false);
+	const t = useTranslations("organization.bankAccounts");
+	const tConstants = useTranslations("organization.constants");
+
+	const currencyOptions = getCurrencyOptions(tConstants);
 
 	const form = useForm<EditBankAccountFormData>({
 		resolver: zodResolver(editBankAccountSchema),
@@ -177,7 +181,7 @@ export function EditBankAccountDialog({
 	};
 
 	const handleDelete = async () => {
-		if (!confirm("您確定要刪除這個銀行帳戶嗎？此操作無法復原。")) {
+		if (!confirm(t("deleteConfirm"))) {
 			return;
 		}
 
@@ -196,7 +200,7 @@ export function EditBankAccountDialog({
 
 			if (!response.ok) {
 				const error = await response.json();
-				throw new Error(error.message || "刪除失敗");
+				throw new Error(error.message || t("deleteFailed"));
 			}
 
 			onOpenChange(false);
@@ -214,17 +218,21 @@ export function EditBankAccountDialog({
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>
-						{dialogTitle}
-						{customerCode ? `（客戶編號：${customerCode}）` : ""}
+						{t("editTitle")}
+						{customerCode
+							? ` (${t("customerCode")}: ${customerCode})`
+							: ""}
 					</DialogTitle>
-					<DialogDescription>修改銀行帳戶的資訊。</DialogDescription>
+					<DialogDescription>
+						{t("editDescription")}
+					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="grid gap-4 py-4">
 							{/* 客戶欄位：根據是否有客戶資訊來決定顯示方式 */}
 							<FormItem>
-								<FormLabel>客戶</FormLabel>
+								<FormLabel>{t("customer")}</FormLabel>
 								{customerCode && customerName ? (
 									<Input
 										value={`[${customerCode}] ${customerName}`}
@@ -249,11 +257,15 @@ export function EditBankAccountDialog({
 													}
 												>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇客戶" />
+														<SelectValue
+															placeholder={t(
+																"selectCustomer",
+															)}
+														/>
 													</SelectTrigger>
 													<SelectContent>
 														<SelectItem value="none">
-															無
+															{t("none")}
 														</SelectItem>
 														{customers.map(
 															(customer) => (
@@ -289,10 +301,12 @@ export function EditBankAccountDialog({
 								name="bankName"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>銀行名稱 *</FormLabel>
+										<FormLabel>{t("bankName")} *</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入銀行名稱"
+												placeholder={t(
+													"bankNamePlaceholder",
+												)}
 												{...field}
 											/>
 										</FormControl>
@@ -321,10 +335,14 @@ export function EditBankAccountDialog({
 								name="accountNumber"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>帳號 *</FormLabel>
+										<FormLabel>
+											{t("accountNumber")} *
+										</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入帳號"
+												placeholder={t(
+													"accountNumberPlaceholder",
+												)}
 												{...field}
 											/>
 										</FormControl>
@@ -338,7 +356,7 @@ export function EditBankAccountDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											幣別 *
+											{t("currency")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -349,10 +367,14 @@ export function EditBankAccountDialog({
 													}
 												>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇幣別" />
+														<SelectValue
+															placeholder={t(
+																"selectCurrency",
+															)}
+														/>
 													</SelectTrigger>
 													<SelectContent>
-														{CURRENCY_OPTIONS.map(
+														{currencyOptions.map(
 															(option) => (
 																<SelectItem
 																	key={
@@ -382,22 +404,26 @@ export function EditBankAccountDialog({
 								name="status"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>狀態 *</FormLabel>
+										<FormLabel>{t("status")} *</FormLabel>
 										<Select
 											onValueChange={field.onChange}
 											value={field.value}
 										>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder="選擇狀態" />
+													<SelectValue
+														placeholder={t(
+															"selectStatus",
+														)}
+													/>
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
 												<SelectItem value="active">
-													使用中
+													{t("active")}
 												</SelectItem>
 												<SelectItem value="inactive">
-													已停用
+													{t("inactive")}
 												</SelectItem>
 											</SelectContent>
 										</Select>
@@ -414,7 +440,7 @@ export function EditBankAccountDialog({
 								disabled={isDeleting}
 							>
 								<Trash2 className="mr-2 size-4" />
-								{isDeleting ? "刪除中..." : "刪除"}
+								{isDeleting ? t("deleting") : t("delete")}
 							</Button>
 							<div className="flex gap-2">
 								<Button
@@ -422,10 +448,10 @@ export function EditBankAccountDialog({
 									variant="outline"
 									onClick={() => onOpenChange(false)}
 								>
-									取消
+									{t("cancel")}
 								</Button>
 								<Button type="submit" disabled={isLoading}>
-									{isLoading ? "更新中..." : "更新"}
+									{isLoading ? t("updating") : t("update")}
 								</Button>
 							</div>
 						</DialogFooter>

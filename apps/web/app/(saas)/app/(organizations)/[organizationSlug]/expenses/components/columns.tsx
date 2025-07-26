@@ -56,12 +56,16 @@ function getCategoryBadgeColor(category: string) {
 
 export function createColumns(
 	onEdit: (expenseRecord: ExpenseRecord) => void,
+	t?: (key: string) => string,
 ): ColumnDef<ExpenseRecord>[] {
 	return [
 		{
 			accessorKey: "date",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="日期" />
+				<DataTableColumnHeader
+					column={column}
+					title={t?.("date") || "日期"}
+				/>
 			),
 			cell: ({ row }) => {
 				const date = row.getValue("date") as Date;
@@ -71,7 +75,10 @@ export function createColumns(
 		{
 			accessorKey: "category",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="類別" />
+				<DataTableColumnHeader
+					column={column}
+					title={t?.("category") || "類別"}
+				/>
 			),
 			cell: ({ row }) => {
 				const category = row.getValue("category") as string;
@@ -85,7 +92,10 @@ export function createColumns(
 		{
 			accessorKey: "description",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="描述" />
+				<DataTableColumnHeader
+					column={column}
+					title={t?.("description") || "描述"}
+				/>
 			),
 			cell: ({ row }) => {
 				const description = row.getValue("description") as
@@ -107,13 +117,19 @@ export function createColumns(
 		{
 			accessorKey: "currency",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="幣別" />
+				<DataTableColumnHeader
+					column={column}
+					title={t?.("currency") || "幣別"}
+				/>
 			),
 		},
 		{
 			accessorKey: "amount",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="金額" />
+				<DataTableColumnHeader
+					column={column}
+					title={t?.("amount") || "金額"}
+				/>
 			),
 			cell: ({ row }) => {
 				const amount = row.getValue("amount") as number;
@@ -127,7 +143,10 @@ export function createColumns(
 		{
 			accessorKey: "exchangeRate",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="匯率" />
+				<DataTableColumnHeader
+					column={column}
+					title={t?.("exchangeRate") || "匯率"}
+				/>
 			),
 			cell: ({ row }) => {
 				const exchangeRate = row.getValue("exchangeRate") as number;
@@ -138,7 +157,10 @@ export function createColumns(
 		{
 			accessorKey: "sgdAmount",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="新幣金額" />
+				<DataTableColumnHeader
+					column={column}
+					title={t?.("sgdAmount") || "新幣金額"}
+				/>
 			),
 			cell: ({ row }) => {
 				const sgdAmount = row.original.sgdAmount;
@@ -151,7 +173,10 @@ export function createColumns(
 		{
 			accessorKey: "usdRate",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="美元匯率" />
+				<DataTableColumnHeader
+					column={column}
+					title={t?.("usdRate") || "美元匯率"}
+				/>
 			),
 			cell: ({ row }) => {
 				const usdRate = row.getValue("usdRate") as number;
@@ -162,7 +187,10 @@ export function createColumns(
 		{
 			accessorKey: "usdAmount",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="美元金額" />
+				<DataTableColumnHeader
+					column={column}
+					title={t?.("usdAmount") || "美元金額"}
+				/>
 			),
 			cell: ({ row }) => {
 				const usdAmount = row.original.usdAmount;
@@ -175,7 +203,10 @@ export function createColumns(
 		{
 			accessorKey: "receiptUrl",
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="收據" />
+				<DataTableColumnHeader
+					column={column}
+					title={t?.("receipt") || "收據"}
+				/>
 			),
 			cell: ({ row }) => {
 				const expenseRecord = row.original;
@@ -188,10 +219,15 @@ export function createColumns(
 
 				return totalReceipts > 0 ? (
 					<Badge status="success">
-						已上傳 {totalReceipts > 1 ? `(${totalReceipts}個)` : ""}
+						{t?.("uploaded") || "已上傳"}{" "}
+						{totalReceipts > 1
+							? `(${totalReceipts}${t?.("items") || "個"})`
+							: ""}
 					</Badge>
 				) : (
-					<Badge status="warning">未上傳</Badge>
+					<Badge status="warning">
+						{t?.("notUploaded") || "未上傳"}
+					</Badge>
 				);
 			},
 		},
@@ -207,7 +243,7 @@ export function createColumns(
 		// },
 		{
 			id: "actions",
-			header: "操作",
+			header: t?.("actions") || "操作",
 			cell: ({ row }) => {
 				const expenseRecord = row.original;
 

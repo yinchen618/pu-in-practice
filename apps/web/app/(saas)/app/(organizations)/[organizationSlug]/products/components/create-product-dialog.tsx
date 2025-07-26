@@ -29,8 +29,10 @@ import {
 } from "@ui/components/select";
 import { Textarea } from "@ui/components/textarea";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { CURRENCY_OPTIONS, DISTRIBUTION_TYPE_OPTIONS } from "../../constants";
 
@@ -45,17 +47,26 @@ const ProductCategory = z.enum([
 ]);
 const ProductStatus = z.enum(["active", "inactive"]);
 
-const createSchema = z.object({
-	category: ProductCategory,
-	name: z.string().min(1, "產品名稱是必填的"),
-	code: z.string().min(1, "產品代碼是必填的"),
-	currency: z.string().min(1, "幣別是必填的"),
-	distributionType: z.string().min(1, "配息方式是必填的"),
-	description: z.string().optional(),
-	status: ProductStatus,
-});
+const createSchema = (t: (key: string) => string) =>
+	z.object({
+		category: ProductCategory,
+		name: z.string().min(1, t("form.nameRequired")),
+		code: z.string().min(1, t("form.codeRequired")),
+		currency: z.string().min(1, t("form.currencyRequired")),
+		distributionType: z.string().min(1, t("form.distributionTypeRequired")),
+		description: z.string().optional(),
+		status: ProductStatus,
+	});
 
-type CreateFormData = z.infer<typeof createSchema>;
+type CreateFormData = {
+	category: "AQ" | "Bond" | "DCI" | "EQ" | "FCN" | "Fund" | "FX";
+	name: string;
+	code: string;
+	currency: string;
+	distributionType: string;
+	description?: string;
+	status: "active" | "inactive";
+};
 
 interface CreateDialogProps {
 	organizationId: string;
@@ -68,9 +79,12 @@ export function CreateProductDialog({
 }: CreateDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const t = useTranslations("organization.products");
+
+	const schema = createSchema(t);
 
 	const form = useForm<CreateFormData>({
-		resolver: zodResolver(createSchema),
+		resolver: zodResolver(schema),
 		defaultValues: {
 			category: "Fund",
 			name: "",
@@ -93,7 +107,7 @@ export function CreateProductDialog({
 			});
 
 			if (!response.ok) {
-				let errorMessage = "新增失敗";
+				let errorMessage = t("error.createFailed");
 				try {
 					const responseText = await response.text();
 					try {
@@ -103,10 +117,10 @@ export function CreateProductDialog({
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					errorMessage = "新增失敗";
+					errorMessage = t("error.createFailed");
 				}
 
-				if (errorMessage.includes("代碼已被使用")) {
+				if (errorMessage.includes(t("error.codeExists"))) {
 					form.setError("code", {
 						type: "server",
 						message: errorMessage,
@@ -121,7 +135,8 @@ export function CreateProductDialog({
 			setOpen(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("新增失敗:", error);
+			console.error(t("error.createFailed"), error);
+			toast.error(t("error.createFailed"));
 		} finally {
 			setIsLoading(false);
 		}
@@ -132,14 +147,14 @@ export function CreateProductDialog({
 			<DialogTrigger asChild>
 				<Button>
 					<Plus className="mr-2 size-4" />
-					新增產品
+					{t("dialog.create.trigger")}
 				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>新增產品</DialogTitle>
+					<DialogTitle>{t("dialog.create.title")}</DialogTitle>
 					<DialogDescription>
-						填寫下方資訊來新增產品。
+						{t("dialog.create.description")}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -151,7 +166,7 @@ export function CreateProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											類別 *
+											{t("form.category")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -160,7 +175,11 @@ export function CreateProductDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇類別" />
+														<SelectValue
+															placeholder={t(
+																"form.categoryPlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
@@ -168,22 +187,26 @@ export function CreateProductDialog({
 														AQ
 													</SelectItem>
 													<SelectItem value="Bond">
-														債券
+														{t(
+															"table.categoryBond",
+														)}
 													</SelectItem>
 													<SelectItem value="DCI">
 														DCI
 													</SelectItem>
 													<SelectItem value="EQ">
-														股票
+														{t("table.categoryEQ")}
 													</SelectItem>
 													<SelectItem value="FCN">
 														FCN
 													</SelectItem>
 													<SelectItem value="Fund">
-														基金
+														{t(
+															"table.categoryFund",
+														)}
 													</SelectItem>
 													<SelectItem value="FX">
-														外匯
+														{t("table.categoryFX")}
 													</SelectItem>
 												</SelectContent>
 											</Select>
@@ -198,12 +221,14 @@ export function CreateProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											產品名稱 *
+											{t("form.name")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
-													placeholder="輸入產品名稱"
+													placeholder={t(
+														"form.namePlaceholder",
+													)}
 													{...field}
 												/>
 											</FormControl>
@@ -218,12 +243,14 @@ export function CreateProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											產品代碼 *
+											{t("form.code")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
-													placeholder="輸入產品代碼"
+													placeholder={t(
+														"form.codePlaceholder",
+													)}
 													{...field}
 												/>
 											</FormControl>
@@ -238,7 +265,7 @@ export function CreateProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											幣別 *
+											{t("form.currency")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -247,7 +274,11 @@ export function CreateProductDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇幣別" />
+														<SelectValue
+															placeholder={t(
+																"form.currencyPlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
@@ -278,7 +309,7 @@ export function CreateProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											配息方式 *
+											{t("form.distributionType")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -287,7 +318,11 @@ export function CreateProductDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇配息方式" />
+														<SelectValue
+															placeholder={t(
+																"form.distributionTypePlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
@@ -318,12 +353,14 @@ export function CreateProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-start gap-4">
 										<FormLabel className="text-right mt-2">
-											描述
+											{t("form.description")}
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Textarea
-													placeholder="輸入產品描述"
+													placeholder={t(
+														"form.descriptionPlaceholder",
+													)}
 													className="min-h-[80px]"
 													{...field}
 												/>
@@ -339,7 +376,7 @@ export function CreateProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											狀態 *
+											{t("form.status")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -348,15 +385,21 @@ export function CreateProductDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇狀態" />
+														<SelectValue
+															placeholder={t(
+																"form.statusPlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
 													<SelectItem value="active">
-														銷售中
+														{t("form.statusActive")}
 													</SelectItem>
 													<SelectItem value="inactive">
-														已下架
+														{t(
+															"form.statusInactive",
+														)}
 													</SelectItem>
 												</SelectContent>
 											</Select>
@@ -368,7 +411,9 @@ export function CreateProductDialog({
 						</div>
 						<DialogFooter>
 							<Button type="submit" disabled={isLoading}>
-								{isLoading ? "新增中..." : "新增"}
+								{isLoading
+									? t("dialog.create.submitting")
+									: t("dialog.create.submit")}
 							</Button>
 						</DialogFooter>
 					</form>

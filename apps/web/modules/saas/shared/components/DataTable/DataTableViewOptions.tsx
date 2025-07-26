@@ -1,5 +1,6 @@
 "use client";
 
+import { MixerHorizontalIcon } from "@radix-ui/react-icons";
 import type { Table } from "@tanstack/react-table";
 import { Button } from "@ui/components/button";
 import {
@@ -10,7 +11,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@ui/components/dropdown-menu";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface DataTableViewOptionsProps<TData> {
 	table: Table<TData>;
@@ -19,6 +20,8 @@ interface DataTableViewOptionsProps<TData> {
 export function DataTableViewOptions<TData>({
 	table,
 }: DataTableViewOptionsProps<TData>) {
+	const t = useTranslations();
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -27,12 +30,14 @@ export function DataTableViewOptions<TData>({
 					size="sm"
 					className="ml-auto hidden h-8 lg:flex"
 				>
-					<SlidersHorizontalIcon className="mr-2 h-4 w-4" />
-					顯示欄位
+					<MixerHorizontalIcon className="mr-2 h-4 w-4" />
+					{t("common.dataTable.viewColumns")}
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[150px]">
-				<DropdownMenuLabel>切換顯示欄位</DropdownMenuLabel>
+				<DropdownMenuLabel>
+					{t("common.dataTable.toggleColumns")}
+				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				{table
 					.getAllColumns()

@@ -4,6 +4,7 @@ import { DataTableFacetedFilter } from "@saas/shared/components/DataTable/DataTa
 import { DataTableViewOptions } from "@saas/shared/components/DataTable/DataTableViewOptions";
 import type { Table } from "@tanstack/react-table";
 import { Input } from "@ui/components/input";
+import { useTranslations } from "next-intl";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
@@ -26,6 +27,7 @@ export function DataTableToolbar<TData>({
 	filterableColumns = [],
 	searchableColumns = [],
 }: DataTableToolbarProps<TData>) {
+	const t = useTranslations();
 	const isFiltered = table.getState().columnFilters.length > 0;
 
 	return (
@@ -37,7 +39,10 @@ export function DataTableToolbar<TData>({
 							table.getColumn(column.id) && (
 								<Input
 									key={column.id}
-									placeholder={`搜尋${column.title}...`}
+									placeholder={t(
+										"common.dataTable.searchPlaceholder",
+										{ column: column.title },
+									)}
 									value={
 										(table
 											.getColumn(column.id)
@@ -70,7 +75,7 @@ export function DataTableToolbar<TData>({
 						onClick={() => table.resetColumnFilters()}
 						className="text-sm text-muted-foreground"
 					>
-						重置篩選
+						{t("common.dataTable.resetFilters")}
 					</button>
 				)}
 			</div>

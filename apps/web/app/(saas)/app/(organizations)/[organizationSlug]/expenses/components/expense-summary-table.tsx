@@ -11,6 +11,7 @@ import {
 	TableRow,
 } from "@ui/components/table";
 import { Calculator, TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ExpenseRecord } from "./columns";
 
 interface ExpenseSummaryTableProps {
@@ -25,10 +26,12 @@ interface CategorySummary {
 }
 
 export function ExpenseSummaryTable({ data }: ExpenseSummaryTableProps) {
+	const t = useTranslations("organization.expenses.summary");
+
 	// 計算各類別統計
 	const categorySummaries = data.reduce(
 		(acc, expense) => {
-			const category = expense.category || "未分類";
+			const category = expense.category || t("uncategorized");
 			const sgdAmount = Number(expense.sgdAmount) || 0;
 			const usdAmount = Number(expense.usdAmount) || 0;
 
@@ -75,12 +78,12 @@ export function ExpenseSummaryTable({ data }: ExpenseSummaryTableProps) {
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2">
 						<Calculator className="size-5" />
-						支出統計
+						{t("title")}
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<p className="text-muted-foreground text-center py-8">
-						暫無支出數據
+						{t("noData")}
 					</p>
 				</CardContent>
 			</Card>
@@ -92,20 +95,22 @@ export function ExpenseSummaryTable({ data }: ExpenseSummaryTableProps) {
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
 					<Calculator className="size-5" />
-					支出統計
+					{t("title")}
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>類別</TableHead>
-							<TableHead className="text-center">筆數</TableHead>
-							<TableHead className="text-right">
-								新幣金額
+							<TableHead>{t("category")}</TableHead>
+							<TableHead className="text-center">
+								{t("count")}
 							</TableHead>
 							<TableHead className="text-right">
-								美元金額
+								{t("sgdAmount")}
+							</TableHead>
+							<TableHead className="text-right">
+								{t("usdAmount")}
 							</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -138,7 +143,7 @@ export function ExpenseSummaryTable({ data }: ExpenseSummaryTableProps) {
 						<TableRow className="border-t-2 border-primary/20 bg-muted/30">
 							<TableCell className="font-bold flex items-center gap-2">
 								<TrendingUp className="size-4" />
-								總計
+								{t("total")}
 							</TableCell>
 							<TableCell className="text-center">
 								<Badge status="info" className="font-bold">

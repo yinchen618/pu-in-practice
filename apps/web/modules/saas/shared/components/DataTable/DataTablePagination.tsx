@@ -5,6 +5,7 @@ import {
 	ChevronsLeftIcon,
 	ChevronsRightIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@ui/components/button";
 import {
@@ -22,6 +23,8 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
 	table,
 }: DataTablePaginationProps<TData>) {
+	const t = useTranslations("common.dataTable.pagination");
+
 	return (
 		<div className="flex items-center justify-between px-2">
 			<div className="flex-1 text-sm text-muted-foreground">
@@ -30,7 +33,7 @@ export function DataTablePagination<TData>({
 			</div>
 			<div className="flex items-center space-x-6 lg:space-x-8">
 				<div className="flex items-center space-x-2">
-					<p className="text-sm font-medium">每頁顯示</p>
+					<p className="text-sm font-medium">{t("rowsPerPage")}</p>
 					<Select
 						value={`${table.getState().pagination.pageSize}`}
 						onValueChange={(value) => {
@@ -57,8 +60,10 @@ export function DataTablePagination<TData>({
 					</Select>
 				</div>
 				<div className="flex w-[100px] items-center justify-center text-sm font-medium">
-					第 {table.getState().pagination.pageIndex + 1} 頁，共{" "}
-					{table.getPageCount()} 頁
+					{t("pageInfo", {
+						current: table.getState().pagination.pageIndex + 1,
+						total: table.getPageCount(),
+					})}
 				</div>
 				<div className="flex items-center space-x-2">
 					<Button
@@ -67,7 +72,7 @@ export function DataTablePagination<TData>({
 						onClick={() => table.setPageIndex(0)}
 						disabled={!table.getCanPreviousPage()}
 					>
-						<span className="sr-only">前往第一頁</span>
+						<span className="sr-only">{t("goToFirstPage")}</span>
 						<ChevronsLeftIcon className="h-4 w-4" />
 					</Button>
 					<Button
@@ -76,7 +81,7 @@ export function DataTablePagination<TData>({
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}
 					>
-						<span className="sr-only">前往上一頁</span>
+						<span className="sr-only">{t("goToPreviousPage")}</span>
 						<ChevronLeftIcon className="h-4 w-4" />
 					</Button>
 					<Button
@@ -85,7 +90,7 @@ export function DataTablePagination<TData>({
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}
 					>
-						<span className="sr-only">前往下一頁</span>
+						<span className="sr-only">{t("goToNextPage")}</span>
 						<ChevronRightIcon className="h-4 w-4" />
 					</Button>
 					<Button
@@ -96,7 +101,7 @@ export function DataTablePagination<TData>({
 						}
 						disabled={!table.getCanNextPage()}
 					>
-						<span className="sr-only">前往最後一頁</span>
+						<span className="sr-only">{t("goToLastPage")}</span>
 						<ChevronsRightIcon className="h-4 w-4" />
 					</Button>
 				</div>

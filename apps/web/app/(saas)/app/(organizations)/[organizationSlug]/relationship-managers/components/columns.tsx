@@ -21,8 +21,15 @@ export interface RMRecord {
 	updatedAt: Date;
 }
 
+interface TranslationFunctions {
+	table: (key: string) => string;
+	category: (key: string) => string;
+	statusLabels: (key: string) => string;
+}
+
 export const createColumns = (
 	onEdit: (rmRecord: RMRecord) => void,
+	t: TranslationFunctions,
 ): ColumnDef<RMRecord>[] => [
 	// {
 	// 	accessorKey: "id",
@@ -36,36 +43,39 @@ export const createColumns = (
 	{
 		accessorKey: "name",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="RM 名稱" />
+			<DataTableColumnHeader column={column} title={t.table("rmName")} />
 		),
 	},
 	{
 		accessorKey: "email",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="電子郵件" />
+			<DataTableColumnHeader column={column} title={t.table("email")} />
 		),
 	},
 	{
 		accessorKey: "phone",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="電話" />
+			<DataTableColumnHeader column={column} title={t.table("phone")} />
 		),
 	},
 	{
 		accessorKey: "category",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="RM 類別" />
+			<DataTableColumnHeader
+				column={column}
+				title={t.table("category")}
+			/>
 		),
 		cell: ({ row }) => {
 			const category = row.getValue("category") as string;
 			const getCategoryLabel = (category: string) => {
 				switch (category) {
 					case "FINDER":
-						return "FINDER";
+						return t.category("finder");
 					case "RM":
-						return "RM";
+						return t.category("rm");
 					case "BOTH":
-						return "BOTH";
+						return t.category("both");
 					default:
 						return category;
 				}
@@ -98,13 +108,15 @@ export const createColumns = (
 	{
 		accessorKey: "status",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="狀態" />
+			<DataTableColumnHeader column={column} title={t.table("status")} />
 		),
 		cell: ({ row }) => {
 			const status = row.getValue("status") as string;
 			return (
 				<Badge status={status === "active" ? "success" : "info"}>
-					{status === "active" ? "在職" : "離職"}
+					{status === "active"
+						? t.statusLabels("active")
+						: t.statusLabels("inactive")}
 				</Badge>
 			);
 		},
@@ -112,7 +124,10 @@ export const createColumns = (
 	{
 		accessorKey: "joinDate",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="入職日期" />
+			<DataTableColumnHeader
+				column={column}
+				title={t.table("joinDate")}
+			/>
 		),
 		cell: ({ row }) => {
 			const date = row.getValue("joinDate") as Date;
@@ -122,7 +137,10 @@ export const createColumns = (
 	{
 		accessorKey: "resignDate",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="離職日期" />
+			<DataTableColumnHeader
+				column={column}
+				title={t.table("resignDate")}
+			/>
 		),
 		cell: ({ row }) => {
 			const date = row.getValue("resignDate") as Date | null;
@@ -131,7 +149,7 @@ export const createColumns = (
 	},
 	{
 		id: "actions",
-		header: "操作",
+		header: t.table("actions"),
 		cell: ({ row }) => {
 			const rmRecord = row.original;
 

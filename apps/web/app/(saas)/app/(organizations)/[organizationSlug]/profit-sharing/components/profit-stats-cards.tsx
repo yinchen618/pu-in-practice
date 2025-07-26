@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/components/card";
+import { useTranslations } from "next-intl";
 import { useQueryState } from "nuqs";
 import {
 	aggregatePersonProfits,
@@ -12,6 +13,7 @@ interface ProfitStatsCardsProps {
 }
 
 export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
+	const t = useTranslations();
 	// 使用 nuqs 管理 URL 參數
 	const [rmName, setRmName] = useQueryState("rmName");
 	const [finderName, setFinderName] = useQueryState("finderName");
@@ -36,7 +38,7 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 			<Card className="text-primary">
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 					<CardTitle className="text-sm font-medium">
-						Shareable 總計
+						{t("organization.profitSharing.stats.totalShareable")}
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -72,8 +74,12 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 											</span>
 											<div className="text-right">
 												<span className="ml-2 text-xs text-muted-foreground">
-													{data.count} 筆 •{" "}
-													{percentage.toFixed(1)}%
+													{data.count}{" "}
+													{t("common.format.items")} •{" "}
+													{percentage.toFixed(1)}
+													{t(
+														"common.format.percentage",
+													)}
 												</span>
 											</div>
 										</div>
@@ -86,7 +92,9 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 					<CardTitle className="text-sm font-medium">
-						Company分潤總計
+						{t(
+							"organization.profitSharing.stats.totalCompanyProfit",
+						)}
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -117,7 +125,10 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 													setCurrency(currencyKey)
 												}
 												className="flex items-center gap-1 font-medium text-primary underline underline-offset-2 hover:bg-primary/10 rounded px-1 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
-												aria-label={`篩選 ${currencyKey} 幣別`}
+												aria-label={t(
+													"common.filter.currency",
+													{ currency: currencyKey },
+												)}
 											>
 												{/* <MousePointerClick className="size-4" /> */}
 												<span className="font-mono">
@@ -129,8 +140,12 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 											</button>
 											<div className="text-right">
 												<span className="ml-2 text-xs text-muted-foreground">
-													{data.count} 筆 •{" "}
-													{percentage.toFixed(1)}%
+													{data.count}{" "}
+													{t("common.format.items")} •{" "}
+													{percentage.toFixed(1)}
+													{t(
+														"common.format.percentage",
+													)}
 												</span>
 											</div>
 										</div>
@@ -143,7 +158,7 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 					<CardTitle className="text-sm font-medium">
-						RM分潤總計
+						{t("organization.profitSharing.stats.totalRMProfit")}
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -164,7 +179,9 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 											handlePersonClick(p.name, "rm")
 										}
 										className="flex items-center gap-1 font-medium text-primary underline underline-offset-2 hover:bg-primary/10 rounded px-1 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
-										aria-label={`篩選 ${p.name} 的分潤`}
+										aria-label={t("common.filter.profit", {
+											name: p.name,
+										})}
 									>
 										{/* <MousePointerClick className="size-4" /> */}
 										{p.name}
@@ -174,13 +191,14 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 											{formatCurrency(p.profit, "USD")}
 										</span>
 										<span className="ml-2 text-xs text-muted-foreground">
-											{p.count} 筆 •{" "}
+											{p.count} {t("common.format.items")}{" "}
+											•{" "}
 											{(
 												(p.profit /
 													(rmStats.total || 1)) *
 												100
 											).toFixed(1)}
-											%
+											{t("common.format.percentage")}
 										</span>
 									</div>
 								</div>
@@ -192,7 +210,9 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 					<CardTitle className="text-sm font-medium">
-						Finder分潤總計
+						{t(
+							"organization.profitSharing.stats.totalFinderProfit",
+						)}
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -213,7 +233,9 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 											handlePersonClick(p.name, "finder")
 										}
 										className="flex items-center gap-1 font-medium text-primary underline underline-offset-2 hover:bg-primary/10 rounded px-1 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
-										aria-label={`篩選 ${p.name} 的分潤`}
+										aria-label={t("common.filter.profit", {
+											name: p.name,
+										})}
 									>
 										{/* <MousePointerClick className="size-4" /> */}
 										{p.name}
@@ -223,13 +245,14 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 											{formatCurrency(p.profit, "USD")}
 										</span>
 										<span className="ml-2 text-xs text-muted-foreground">
-											{p.count} 筆 •{" "}
+											{p.count} {t("common.format.items")}{" "}
+											•{" "}
 											{(
 												(p.profit /
 													(finderStats.total || 1)) *
 												100
 											).toFixed(1)}
-											%
+											{t("common.format.percentage")}
 										</span>
 									</div>
 								</div>

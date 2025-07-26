@@ -75,7 +75,16 @@
 			"admin": "管理員",
 			"aiChatbot": "AI 聊天機器人",
 			"organizationSettings": "組織設置",
-			"start": "開始"
+			"start": "開始",
+			"profitSharing": "分潤",
+			"expenses": "支出",
+			"customers": "客戶",
+			"products": "產品",
+			"bankAccounts": "銀行帳戶"
+		},
+		"sidebar": {
+			"expand": "展開選單",
+			"collapse": "收合選單"
 		},
 		"userMenu": {
 			"accountSettings": "帳戶設置",
@@ -120,43 +129,7 @@
 				"linkNotSent": {
 					"message": "很抱歉，我們無法向您發送重設密碼的連結。請稍後再試。",
 					"title": "連結未發送"
-				},
-				"linkSent": {
-					"message": "我們已向您發送了一個連結以繼續。請檢查您的收件箱。",
-					"title": "連結已發送"
 				}
-			},
-			"message": "請輸入您的電子郵件地址，我們將向您發送一個連結以重設您的密碼。",
-			"submit": "發送連結",
-			"title": "忘記密碼？"
-		},
-		"login": {
-			"continueWith": "或繼續使用",
-			"createAnAccount": "新增帳戶",
-			"dontHaveAnAccount": "還沒有帳戶？",
-			"forgotPassword": "忘記密碼？",
-			"hints": {
-				"invalidCredentials": "您輸入的電子郵件或密碼無效。請再試一次。",
-				"linkSent": {
-					"message": "我們已向您發送了一個連結以繼續。請檢查您的收件箱。",
-					"title": "連結已發送"
-				}
-			},
-			"loginWithPasskey": "使用密鑰登錄",
-			"modes": {
-				"magicLink": "魔法連結",
-				"password": "密碼"
-			},
-			"submit": "登錄",
-			"subtitle": "請輸入您的憑證以登錄。",
-			"title": "歡迎回來",
-			"sendMagicLink": "發送魔法連結"
-		},
-		"resetPassword": {
-			"backToSignin": "返回登錄",
-			"hints": {
-				"error": "很抱歉，我們無法重設您的密碼。請再試一次。",
-				"success": "您的密碼已成功重設。"
 			},
 			"message": "請輸入新密碼。",
 			"newPassword": "新密碼",
@@ -195,9 +168,32 @@
 		"title": "更新日誌"
 	},
 	"common": {
+		"status": "狀態",
+		"customer": "客戶",
+		"clickToEdit": "點擊編輯",
+		"unspecifiedCustomer": "未指定客戶",
+		"currency": "幣別",
 		"confirmation": {
 			"cancel": "取消",
 			"confirm": "確認"
+		},
+		"dataTable": {
+			"searchPlaceholder": "搜尋{column}...",
+			"resetFilters": "重置篩選",
+			"selectedCount": "{count} 已選",
+			"noResults": "無符合結果",
+			"clearFilters": "清除篩選",
+			"viewColumns": "顯示欄位",
+			"toggleColumns": "切換顯示欄位",
+			"content": "內容",
+			"pagination": {
+				"rowsPerPage": "每頁顯示",
+				"pageInfo": "第 {current} 頁，共 {total} 頁",
+				"goToFirstPage": "前往第一頁",
+				"goToPreviousPage": "前往上一頁",
+				"goToNextPage": "前往下一頁",
+				"goToLastPage": "前往最後一頁"
+			}
 		},
 		"menu": {
 			"blog": "部落格",
@@ -215,6 +211,74 @@
 		"actions": {
 			"continue": "繼續",
 			"verify": "驗證"
+		},
+		"format": {
+			"items": "筆",
+			"percentage": "%"
+		},
+		"filter": {
+			"currency": "篩選 {currency} 幣別",
+			"profit": "篩選 {name} 的分潤"
+		},
+		"filters": {
+			"title": "篩選器",
+			"clearFilters": "清除篩選",
+			"searchPlaceholder": "搜尋...",
+			"dateRange": "日期區間",
+			"startDate": "開始日期",
+			"endDate": "結束日期",
+			"category": "類別",
+			"selectCategory": "選擇類別",
+			"allCategories": "全部類別",
+			"currency": "幣別",
+			"selectCurrency": "選擇幣別",
+			"allCurrencies": "全部幣別",
+			"status": "狀態",
+			"selectStatus": "選擇狀態",
+			"allStatuses": "全部",
+			"active": "在職",
+			"inactive": "離職",
+			"amountRange": "金額範圍",
+			"minAmount": "最小金額",
+			"maxAmount": "最大金額",
+			"attachmentStatus": "附件狀態",
+			"selectAttachmentStatus": "選擇附件狀態",
+			"uploaded": "已上傳",
+			"notUploaded": "未上傳",
+			"badges": {
+				"startDate": "開始日期",
+				"endDate": "結束日期",
+				"category": "類別",
+				"start": "開始",
+				"end": "結束",
+				"min": "最小",
+				"max": "最大",
+				"sgdMin": "新幣最小",
+				"sgdMax": "新幣最大",
+				"usdMin": "美元最小",
+				"usdMax": "美元最大",
+				"currency": "幣別",
+				"attachment": "附件",
+				"search": "搜尋"
+			}
+		},
+		"table": {
+			"actions": "操作",
+			"loading": "載入中...",
+			"noData": "無資料",
+			"confirmDelete": "確認刪除",
+			"deleteConfirmation": "您確定要刪除這筆資料嗎？此操作無法復原。",
+			"cancel": "取消",
+			"delete": "刪除",
+			"batchAddFailed": "批量新增失敗",
+			"dataProcessError": "處理數據時發生錯誤",
+			"previous": "上一頁",
+			"next": "下一頁",
+			"itemsPerPage": "每頁",
+			"page": "頁",
+			"of": "共",
+			"total": "總共",
+			"rows": "列"
 		}
 	},
 	"contact": {
@@ -699,7 +763,78 @@
 				"general": "一般",
 				"members": "成員",
 				"title": "組織",
-				"dangerZone": "危險區域"
+				"dangerZone": "危險區域",
+				"constants": {
+					"currency": {
+						"twd": "新台幣 (TWD)",
+						"usd": "美元 (USD)",
+						"cny": "人民幣 (CNY)",
+						"hkd": "港幣 (HKD)",
+						"jpy": "日圓 (JPY)",
+						"eur": "歐元 (EUR)",
+						"gbp": "英鎊 (GBP)",
+						"aud": "澳幣 (AUD)",
+						"sgd": "新加坡幣 (SGD)",
+						"chf": "瑞士法郎 (CHF)"
+					},
+					"distributionType": {
+						"irregular": "不固定",
+						"monthly": "每月配息",
+						"none": "無固定配息",
+						"accumulate": "每月累積",
+						"rebate": "基金管理費退佣"
+					},
+					"productCategory": {
+						"aq": "AQ",
+						"bond": "債券",
+						"dci": "DCI",
+						"eq": "股票",
+						"fcn": "FCN",
+						"fund": "基金",
+						"fx": "外匯"
+					},
+					"productStatus": {
+						"active": "銷售中",
+						"inactive": "已下架"
+					}
+				},
+				"bankAccounts": {
+					"title": "銀行帳戶",
+					"subtitle": "管理組織內的銀行帳戶資訊",
+					"customer": "客戶",
+					"bankName": "銀行名稱",
+					"accountNumber": "帳號",
+					"currency": "幣別",
+					"status": "狀態",
+					"createdDate": "建立日期",
+					"actions": "操作",
+					"unspecifiedCustomer": "未指定客戶",
+					"clickToEdit": "點擊編輯",
+					"active": "使用中",
+					"inactive": "已停用",
+					"createTitle": "新增銀行帳戶",
+					"editTitle": "編輯銀行帳戶",
+					"createDescription": "填寫下方資訊來新增一個銀行帳戶。",
+					"editDescription": "修改銀行帳戶的資訊。",
+					"customerCode": "客戶編號",
+					"selectCustomer": "選擇客戶",
+					"searchCustomer": "搜尋客戶...",
+					"customerNotFound": "找不到客戶",
+					"bankNamePlaceholder": "輸入銀行名稱",
+					"accountNumberPlaceholder": "輸入帳號",
+					"selectCurrency": "選擇幣別",
+					"selectStatus": "選擇狀態",
+					"none": "無",
+					"cancel": "取消",
+					"create": "新增",
+					"creating": "新增中...",
+					"update": "更新",
+					"updating": "更新中...",
+					"delete": "刪除",
+					"deleting": "刪除中...",
+					"deleteConfirm": "您確定要刪除這個銀行帳戶嗎？此操作無法復原。",
+					"deleteFailed": "刪除失敗"
+				}
 			}
 		},
 		"save": "保存"
@@ -826,5 +961,730 @@
 	"choosePlan": {
 		"title": "選擇您的計劃",
 		"description": "要繼續，請選擇一個計劃。"
+	},
+	"organization": {
+		"common": {
+			"loading": "載入中...",
+			"save": "儲存",
+			"cancel": "取消",
+			"edit": "編輯",
+			"delete": "刪除",
+			"create": "新增",
+			"update": "更新",
+			"confirm": "確認",
+			"search": "搜尋",
+			"filter": "篩選",
+			"none": "無"
+		},
+		"expenses": {
+			"title": "支出列表",
+			"subtitle": "管理所有支出記錄",
+			"create": "新增支出",
+			"edit": "編輯支出",
+			"delete": "刪除",
+			"category": "類別",
+			"amount": "金額",
+			"currency": "幣別",
+			"exchangeRate": "新幣匯率",
+			"usdRate": "美元匯率",
+			"sgdAmount": "新幣金額",
+			"usdAmount": "美元金額",
+			"description": "描述",
+			"date": "日期",
+			"receipts": "收據",
+			"rmId": "RM",
+			"categories": {
+				"餐飲": "餐飲",
+				"機票": "機票",
+				"酒店": "酒店",
+				"快遞": "快遞",
+				"交通": "交通"
+			},
+			"form": {
+				"categoryRequired": "類別是必填的",
+				"amountNegative": "金額不能為負數",
+				"currencyRequired": "幣別是必填的",
+				"exchangeRateNegative": "匯率不能為負數",
+				"usdRateNegative": "美元匯率不能為負數",
+				"selectCategory": "選擇類別",
+				"selectCurrency": "選擇幣別",
+				"selectRm": "選擇 RM（選填）",
+				"none": "無",
+				"enterAmount": "0.00",
+				"enterDescription": "輸入支出描述",
+				"sgdRateFixed": "新幣匯率固定為 1.00",
+				"usdRateFixed": "美元匯率固定為 1.00",
+				"exchangeRateError": "無法獲取匯率",
+				"exchangeRateUpdated": "的新幣匯率已更新",
+				"usdRateError": "無法獲取美元匯率",
+				"usdRateUpdated": "的美元匯率已更新",
+				"creating": "新增中...",
+				"updating": "更新中...",
+				"deleting": "刪除中...",
+				"cancel": "取消",
+				"save": "儲存",
+				"update": "更新",
+				"confirmDelete": "確定要刪除這筆支出記錄嗎？此操作無法復原。",
+				"updateFailed": "獲取支出數據失敗",
+				"fetchDataFailed": "獲取數據失敗",
+				"deleteFailed": "刪除支出失敗"
+			},
+			"filters": {
+				"title": "篩選器",
+				"clearFilters": "清除篩選",
+				"searchPlaceholder": "搜尋描述或類別...",
+				"dateRange": "日期區間",
+				"category": "類別",
+				"selectCategory": "選擇類別",
+				"allCategories": "全部類別",
+				"currency": "幣別",
+				"selectCurrency": "選擇幣別",
+				"allCurrencies": "全部幣別",
+				"attachmentStatus": "附件狀態",
+				"selectAttachmentStatus": "選擇附件狀態",
+				"uploaded": "已上傳",
+				"notUploaded": "未上傳",
+				"all": "全部",
+				"amountRange": "金額範圍",
+				"minAmount": "最小金額",
+				"maxAmount": "最大金額",
+				"sgdAmountRange": "新幣金額範圍",
+				"minSgdAmount": "最小新幣金額",
+				"maxSgdAmount": "最大新幣金額",
+				"usdAmountRange": "美元金額範圍",
+				"minUsdAmount": "最小美元金額",
+				"maxUsdAmount": "最大美元金額",
+				"startDate": "開始日期",
+				"endDate": "結束日期"
+			},
+			"summary": {
+				"title": "支出統計",
+				"category": "類別",
+				"count": "筆數",
+				"sgdAmount": "新幣金額",
+				"usdAmount": "美元金額",
+				"total": "總計",
+				"noData": "暫無支出數據",
+				"uncategorized": "未分類"
+			},
+			"table": {
+				"date": "日期",
+				"category": "類別",
+				"description": "描述",
+				"currency": "幣別",
+				"amount": "金額",
+				"exchangeRate": "匯率",
+				"sgdAmount": "新幣金額",
+				"usdRate": "美元匯率",
+				"usdAmount": "美元金額",
+				"receipt": "收據",
+				"actions": "操作",
+				"uploaded": "已上傳",
+				"notUploaded": "未上傳",
+				"items": "個"
+			},
+			"dialog": {
+				"create": {
+					"triggerButton": "新增支出",
+					"title": "新增支出",
+					"description": "填寫下方資訊來新增一筆支出記錄。",
+					"cancel": "取消",
+					"submit": "新增",
+					"submitting": "新增中...",
+					"createFailed": "新增失敗"
+				}
+			}
+		},
+		"customers": {
+			"title": "客戶列表",
+			"subtitle": "管理所有客戶資料",
+			"create": "新增客戶",
+			"edit": "編輯客戶",
+			"delete": "刪除",
+			"name": "姓名",
+			"code": "編號",
+			"email": "電子郵件",
+			"phone": "電話",
+			"nationality": "國籍",
+			"dateOfBirth": "出生日期",
+			"rmId": "關係經理",
+			"finderId": "Finder",
+			"dialog": {
+				"create": {
+					"trigger": "新增客戶",
+					"title": "新增客戶",
+					"description": "填寫下方資訊來新增客戶。"
+				}
+			},
+			"form": {
+				"createDescription": "填寫客戶基本資料，並指派負責的 RM 和 Finder",
+				"nameRequired": "客戶名稱是必填的",
+				"codeRequired": "客戶編號是必填的",
+				"emailInvalid": "請輸入有效的電子郵件地址",
+				"phoneRequired": "電話是必填的",
+				"nationalityRequired": "國籍是必填的",
+				"dateOfBirthRequired": "出生日期是必填的",
+				"profitShareMin": "預設分潤比例不能小於0",
+				"profitShareMax": "預設分潤比例不能大於100",
+				"enterName": "輸入客戶姓名",
+				"enterCode": "輸入客戶編號",
+				"enterEmail": "輸入電子郵件地址",
+				"enterPhone": "輸入電話號碼",
+				"selectNationality": "選擇國籍",
+				"selectRm": "選擇關係經理（選填）",
+				"selectFinder": "選擇 Finder（選填）",
+				"none": "無",
+				"creating": "新增中...",
+				"updating": "更新中...",
+				"deleting": "刪除中...",
+				"cancel": "取消",
+				"save": "儲存",
+				"update": "更新",
+				"confirmDelete": "確定要刪除這位客戶嗎？此操作無法復原。",
+				"fetchDataFailed": "獲取數據失敗",
+				"name": "客戶姓名",
+				"namePlaceholder": "輸入客戶姓名",
+				"code": "客戶編號",
+				"codePlaceholder": "輸入客戶編號",
+				"email": "電子郵件",
+				"emailPlaceholder": "輸入電子郵件地址",
+				"phone": "電話",
+				"phonePlaceholder": "輸入電話號碼",
+				"rm1": "RM 1",
+				"rm1Placeholder": "選擇 RM 1",
+				"rm2": "RM 2",
+				"rm2Placeholder": "選擇 RM 2",
+				"finder1": "Finder 1",
+				"finder1Placeholder": "選擇 Finder 1",
+				"finder2": "Finder 2",
+				"finder2Placeholder": "選擇 Finder 2",
+				"rm1ProfitShare": "RM 1 分潤比例 (%)",
+				"rm2ProfitShare": "RM 2 分潤比例 (%)",
+				"finder1ProfitShare": "Finder 1 分潤比例 (%)",
+				"finder2ProfitShare": "Finder 2 分潤比例 (%)",
+				"rmSearchPlaceholder": "搜尋 RM...",
+				"rmEmptyText": "找不到 RM",
+				"finderSearchPlaceholder": "搜尋 Finder...",
+				"finderEmptyText": "找不到 Finder",
+				"unspecified": "未指定",
+				"create": "新增"
+			},
+			"error": {
+				"createFailed": "新增客戶失敗",
+				"codeExists": "客戶編號已被使用"
+			},
+			"filters": {
+				"nationality": "國籍篩選",
+				"rmFilter": "關係經理篩選",
+				"finderFilter": "Finder篩選",
+				"allNationalities": "全部國籍",
+				"allRms": "全部關係經理",
+				"allFinders": "全部 Finder"
+			},
+			"details": {
+				"basicInfo": "基本資料",
+				"rmInfo": "關係經理資訊",
+				"balanceSummary": "餘額總覽",
+				"bankAccounts": "銀行帳戶",
+				"assets": "資產總表",
+				"profitSharing": "分潤一覽",
+				"assetTransactions": "資產交易",
+				"profitSharingTable": "分潤表格",
+				"customerCode": "客戶編號",
+				"editData": "編輯資料"
+			},
+			"editDialog": {
+				"title": "編輯客戶",
+				"description": "更新客戶基本資料，並調整負責的 RM 和 Finder",
+				"fields": {
+					"name": "客戶名稱",
+					"namePlaceholder": "輸入客戶名稱",
+					"code": "客戶編號",
+					"codePlaceholder": "輸入客戶編號",
+					"email": "電子郵件",
+					"emailPlaceholder": "輸入電子郵件",
+					"phone": "電話",
+					"phonePlaceholder": "輸入電話號碼",
+					"rm1": "負責 RM1",
+					"rm1ProfitShare": "RM1 預設分潤比例 (%)",
+					"rm2": "負責 RM2",
+					"rm2ProfitShare": "RM2 預設分潤比例 (%)",
+					"finder1": "負責 Finder1",
+					"finder1ProfitShare": "Finder1 預設分潤比例 (%)",
+					"finder2": "負責 Finder2",
+					"finder2ProfitShare": "Finder2 預設分潤比例 (%)",
+					"selectRM1": "選擇 RM1",
+					"selectRM2": "選擇 RM2",
+					"selectFinder1": "選擇 Finder1",
+					"selectFinder2": "選擇 Finder2",
+					"none": "無"
+				},
+				"actions": {
+					"cancel": "取消",
+					"update": "更新客戶",
+					"updating": "更新中...",
+					"delete": "刪除客戶",
+					"deleting": "刪除中..."
+				},
+				"validation": {
+					"nameRequired": "客戶名稱是必填的",
+					"codeRequired": "客戶編號是必填的",
+					"emailInvalid": "請輸入有效的電子郵件",
+					"profitShareMin": "預設分潤比例不能小於0",
+					"profitShareMax": "預設分潤比例不能大於100"
+				},
+				"errors": {
+					"updateFailed": "更新客戶失敗",
+					"deleteFailed": "刪除客戶失敗"
+				},
+				"deleteConfirm": "確定要刪除這個客戶嗎？此操作無法撤銷。"
+			},
+			"basicInfo": {
+				"title": "基本資料",
+				"customerCode": "客戶編號",
+				"email": "電子郵件",
+				"phone": "電話",
+				"noData": "-"
+			},
+			"table": {
+				"code": "客戶編號",
+				"name": "客戶名稱",
+				"bankAccounts": "銀行帳戶",
+				"email": "電子郵件",
+				"phone": "電話",
+				"rm1": "負責 RM1",
+				"rm2": "負責 RM2",
+				"finder1": "負責 Finder1",
+				"finder2": "負責 Finder2",
+				"actions": "操作",
+				"noBankAccounts": "無銀行帳戶",
+				"accountCount": " 個帳戶",
+				"searchPlaceholder": "搜尋客戶名稱"
+			}
+		},
+		"products": {
+			"title": "產品",
+			"subtitle": "管理產品資料",
+			"create": "新增產品",
+			"edit": "編輯產品",
+			"delete": "刪除",
+			"name": "產品名稱",
+			"category": "產品類別",
+			"description": "描述",
+			"dialog": {
+				"create": {
+					"trigger": "新增產品",
+					"title": "新增產品",
+					"description": "填寫下方資訊來新增產品。",
+					"submit": "新增",
+					"submitting": "新增中..."
+				},
+				"edit": {
+					"title": "編輯產品",
+					"description": "修改下方資訊來更新產品。",
+					"submit": "更新",
+					"submitting": "更新中...",
+					"cancel": "取消",
+					"delete": "刪除",
+					"deleting": "刪除中..."
+				}
+			},
+			"form": {
+				"category": "類別",
+				"categoryPlaceholder": "選擇類別",
+				"name": "產品名稱",
+				"namePlaceholder": "輸入產品名稱",
+				"nameRequired": "產品名稱是必填的",
+				"code": "產品代碼",
+				"codePlaceholder": "輸入產品代碼",
+				"codeRequired": "產品代碼是必填的",
+				"currency": "幣別",
+				"currencyPlaceholder": "選擇幣別",
+				"currencyRequired": "幣別是必填的",
+				"distributionType": "配息方式",
+				"distributionTypePlaceholder": "選擇配息方式",
+				"distributionTypeRequired": "配息方式是必填的",
+				"description": "描述",
+				"descriptionPlaceholder": "輸入產品描述",
+				"status": "狀態",
+				"statusPlaceholder": "選擇狀態",
+				"statusActive": "銷售中",
+				"statusInactive": "已下架"
+			},
+			"table": {
+				"category": "類別",
+				"categoryBond": "債券",
+				"categoryEQ": "股票",
+				"categoryFund": "基金",
+				"categoryFX": "外匯",
+				"name": "產品名稱",
+				"code": "產品代碼",
+				"currency": "幣別",
+				"distributionType": "配息方式",
+				"description": "描述",
+				"createdAt": "新增日期",
+				"status": "狀態",
+				"statusActive": "銷售中",
+				"statusInactive": "已下架",
+				"actions": "操作",
+				"searchPlaceholder": "搜尋產品..."
+			},
+			"error": {
+				"createFailed": "新增失敗",
+				"updateFailed": "更新失敗",
+				"deleteFailed": "刪除失敗",
+				"codeExists": "代碼已被使用"
+			}
+		},
+		"profitSharing": {
+			"title": "分潤管理",
+			"subtitle": "管理分潤配置",
+			"create": "新增分潤",
+			"edit": "編輯分潤",
+			"delete": "刪除",
+			"productName": "產品名稱",
+			"productCode": "代碼",
+			"productCategory": "類別",
+			"profitDate": "分潤日期",
+			"totalProfitAmount": "總分潤金額",
+			"companyProfit": "Company分潤",
+			"rmProfit": "RM分潤",
+			"finderProfit": "Finder分潤",
+			"bankAccount": "銀行帳戶",
+			"product": "產品",
+			"loading": "讀取中...",
+			"selectCustomer": "選擇客戶",
+			"searchCustomer": "搜尋客戶...",
+			"noCustomersFound": "找不到客戶。",
+			"selectBankAccount": "選擇銀行帳戶",
+			"searchBankAccount": "搜尋銀行帳戶...",
+			"noBankAccountsFound": "該客戶沒有銀行帳戶。",
+			"selectCustomerFirst": "請先選擇客戶",
+			"selectProduct": "選擇產品",
+			"searchProduct": "搜尋產品...",
+			"noProductsFound": "找不到產品。",
+			"selectCurrency": "選擇幣別",
+			"stats": {
+				"totalShareable": "Shareable 總計",
+				"totalCompanyProfit": "Company分潤總計",
+				"totalRMProfit": "RM分潤總計",
+				"totalFinderProfit": "Finder分潤總計"
+			},
+			"filters": {
+				"productName": "產品名稱",
+				"startDate": "起始日期",
+				"endDate": "結束日期",
+				"minProfit": "最小分潤",
+				"maxProfit": "最大分潤",
+				"searchProducts": "搜尋產品...",
+				"filterButton": "篩選器",
+				"clearFilters": "清除篩選",
+				"searchPlaceholder": "搜尋產品名稱、代碼或客戶名稱...",
+				"productCategory": "產品類別",
+				"selectProductCategory": "選擇產品類別",
+				"allCategories": "全部類別",
+				"currency": "原幣",
+				"selectCurrency": "選擇原幣",
+				"allCurrencies": "全部原幣",
+				"year": "年份",
+				"selectYear": "選擇年份",
+				"allYears": "全部年份",
+				"month": "月份",
+				"selectMonth": "選擇月份",
+				"allMonths": "全部月份",
+				"dateRange": "日期區間",
+				"dateFrom": "開始日期",
+				"dateTo": "結束日期",
+				"rm": "RM",
+				"selectRM": "選擇RM",
+				"finder": "Finder",
+				"selectFinder": "選擇Finder",
+				"all": "全部",
+				"search": "搜尋",
+				"category": "類別",
+				"months": {
+					"01": "1月",
+					"02": "2月",
+					"03": "3月",
+					"04": "4月",
+					"05": "5月",
+					"06": "6月",
+					"07": "7月",
+					"08": "8月",
+					"09": "9月",
+					"10": "10月",
+					"11": "11月",
+					"12": "12月"
+				}
+			},
+			"columns": {
+				"profitDate": "分潤日期",
+				"customerName": "客戶名稱",
+				"customerCode": "客戶代碼",
+				"productCategory": "產品類別",
+				"product": "產品",
+				"totalProfitAmount": "總分潤金額",
+				"companyProfit": "Company分潤",
+				"rmProfit": "RM分潤",
+				"finderProfit": "Finder分潤",
+				"total": "總計",
+				"actions": "操作"
+			},
+			"dialog": {
+				"create": {
+					"title": "新增分潤記錄",
+					"description": "填寫分潤記錄的基本資訊和分潤比例分配。",
+					"triggerButton": "新增分潤",
+					"cancel": "取消",
+					"submit": "新增",
+					"submitting": "新增中...",
+					"addFailed": "新增失敗",
+					"addFailedDefault": "新增失敗"
+				},
+				"edit": {
+					"title": "編輯分潤記錄",
+					"description": "修改分潤記錄的資訊和分潤比例分配。",
+					"cancel": "取消",
+					"submit": "更新",
+					"submitting": "更新中...",
+					"updateFailed": "更新失敗",
+					"delete": "刪除",
+					"deleting": "刪除中...",
+					"deleteFailed": "刪除失敗",
+					"deleteConfirm": "確定要刪除此分潤記錄嗎？此操作無法復原。"
+				}
+			},
+			"allocation": {
+				"title": "分潤比例分配",
+				"company": {
+					"title": "Company 分潤",
+					"description": "公司分潤"
+				},
+				"rm1": {
+					"title": "RM1 分潤",
+					"description": "關係經理 1"
+				},
+				"rm2": {
+					"title": "RM2 分潤",
+					"description": "關係經理 2"
+				},
+				"finder1": {
+					"title": "Finder1 分潤",
+					"description": "尋找者 1"
+				},
+				"finder2": {
+					"title": "Finder2 分潤",
+					"description": "尋找者 2"
+				},
+				"fields": {
+					"percentage": "比例 (%)",
+					"person": "人員",
+					"originalCurrency": "原幣金額",
+					"usdAmount": "美金金額"
+				},
+				"selectors": {
+					"selectRM": "選擇RM",
+					"selectFinder": "選擇Finder",
+					"searchRM": "搜尋RM...",
+					"searchFinder": "搜尋Finder...",
+					"noRMFound": "找不到RM。",
+					"noFinderFound": "找不到Finder。",
+					"loading": "載入中..."
+				},
+				"summary": {
+					"totalPercentage": "總分潤比例",
+					"validationError": "分潤比例總和必須為 100%"
+				}
+			},
+			"shareableAmount": {
+				"shareableLabel": "總分潤金額 (Shareable)",
+				"shareableDescription": "Company Revenue + Direct Trade Booking Fee × Bank Retro(%)",
+				"fxRateLabel": "FX Rate",
+				"shareableUsdLabel": "Shareable (USD)",
+				"usdRateFixed": "美元匯率固定為 1.00",
+				"exchangeRateError": "無法獲取匯率",
+				"exchangeRateUpdated": "的美元匯率已更新"
+			}
+		},
+		"relationshipManagers": {
+			"form": {
+				"name": "姓名",
+				"nameRequired": "姓名是必填的",
+				"namePlaceholder": "輸入姓名",
+				"email": "電子郵件",
+				"emailInvalid": "請輸入有效的電子郵件",
+				"emailPlaceholder": "輸入電子郵件",
+				"phone": "電話",
+				"phonePlaceholder": "輸入電話號碼",
+				"category": "RM 類別",
+				"categoryPlaceholder": "選擇 RM 類別",
+				"status": "狀態",
+				"statusPlaceholder": "選擇狀態",
+				"statusActive": "在職",
+				"statusInactive": "離職",
+				"joinDate": "入職日期",
+				"resignDate": "離職日期"
+			},
+			"dialog": {
+				"edit": {
+					"title": "編輯客戶關係經理",
+					"description": "修改客戶關係經理的資訊。",
+					"submit": "更新",
+					"submitting": "更新中..."
+				},
+				"delete": {
+					"delete": "刪除",
+					"deleting": "刪除中..."
+				},
+				"cancel": "取消",
+				"deleteConfirm": "您確定要刪除客戶關係經理「{name}」嗎？此操作無法復原。"
+			},
+			"error": {
+				"updateFailed": "更新失敗",
+				"deleteFailed": "刪除失敗"
+			},
+			"success": {
+				"update": "更新成功",
+				"delete": "刪除成功"
+			},
+			"title": "關係經理",
+			"subtitle": "管理關係經理資料",
+
+			"retry": "重試",
+			"create": "新增關係經理",
+			"edit": "編輯關係經理",
+			"delete": "刪除",
+			"name": "姓名",
+			"code": "代碼",
+			"email": "電子郵件",
+			"phone": "電話",
+			"status": "狀態",
+			"actions": "操作",
+			"active": "在職",
+			"inactive": "離職",
+			"table": {
+				"rmName": "RM 姓名",
+				"email": "電子郵件",
+				"phone": "電話",
+				"category": "RM 類別",
+				"status": "狀態",
+				"joinDate": "入職日期",
+				"resignDate": "離職日期",
+				"actions": "操作"
+			},
+			"category": {
+				"finder": "Finder",
+				"rm": "RM",
+				"both": "兩者"
+			},
+			"statusLabels": {
+				"active": "在職",
+				"inactive": "離職"
+			},
+			"categories": {
+				"RM": "關係經理",
+				"FINDER": "Finder",
+				"BOTH": "兩者"
+			},
+			"filters": {
+				"title": "篩選器",
+				"clearFilters": "清除篩選",
+				"searchPlaceholder": "搜尋 RM 名稱、電子郵件或電話...",
+				"category": "RM 類別",
+				"selectCategory": "選擇類別",
+				"all": "全部",
+				"status": {
+					"label": "狀態",
+					"active": "在職",
+					"inactive": "離職"
+				},
+				"selectStatus": "選擇狀態",
+				"joinDateRange": "入職日期區間",
+				"resignDateRange": "離職日期區間",
+				"startDate": "開始日期",
+				"endDate": "結束日期",
+				"badges": {
+					"category": "類別",
+					"joinStart": "入職開始",
+					"joinEnd": "入職結束",
+					"resignStart": "離職開始",
+					"resignEnd": "離職結束"
+				}
+			},
+			"createDialog": {
+				"trigger": "新增 RM",
+				"title": "新增客戶關係經理",
+				"description": "填寫下方資訊來新增一位客戶關係經理。",
+				"fields": {
+					"name": "姓名",
+					"nameRequired": "姓名是必填的",
+					"namePlaceholder": "輸入姓名",
+					"email": "電子郵件",
+					"emailRequired": "請輸入有效的電子郵件",
+					"emailPlaceholder": "輸入電子郵件",
+					"phone": "電話",
+					"phonePlaceholder": "輸入電話號碼",
+					"category": "RM 類別",
+					"categoryPlaceholder": "選擇 RM 類別",
+					"status": "狀態",
+					"statusPlaceholder": "選擇狀態",
+					"joinDate": "入職日期",
+					"resignDate": "離職日期"
+				},
+				"actions": {
+					"cancel": "取消",
+					"submit": "新增",
+					"submitting": "新增中..."
+				},
+				"validation": {
+					"nameRequired": "姓名是必填的",
+					"emailInvalid": "請輸入有效的電子郵件"
+				},
+				"errors": {
+					"createFailed": "新增失敗",
+					"updateFailed": "更新失敗"
+				}
+			},
+			"editDialog": {
+				"title": "編輯客戶關係經理",
+				"description": "修改客戶關係經理的資訊。",
+				"actions": {
+					"delete": "刪除",
+					"deleting": "刪除中...",
+					"cancel": "取消",
+					"update": "更新",
+					"updating": "更新中..."
+				},
+				"deleteConfirm": "您確定要刪除客戶關係經理「{name}」嗎？此操作無法復原。"
+			}
+		},
+		"settings": {
+			"title": "設定",
+			"general": {
+				"title": "一般設定",
+				"organizationName": "組織名稱",
+				"description": "描述",
+				"save": "儲存變更"
+			},
+			"dangerZone": {
+				"title": "危險區域",
+				"deleteOrganization": "刪除組織",
+				"deleteDescription": "刪除此組織及其所有相關資料。此操作無法復原。",
+				"confirmDelete": "確定要刪除此組織嗎？"
+			}
+		},
+		"start": {
+			"loading": "載入中...",
+			"totalShareable": "Shareable 總計",
+			"totalCompanyProfit": "Company分潤總計",
+			"totalRMProfit": "RM分潤總計",
+			"totalFinderProfit": "Finder分潤總計",
+			"placeholder": "在此放置您的內容..."
+		},
+		"chatbot": {
+			"title": "聊天機器人",
+			"subtitle": "AI 助手",
+			"placeholder": "輸入您的問題..."
+		}
 	}
 }

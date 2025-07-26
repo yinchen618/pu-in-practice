@@ -3,6 +3,7 @@
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import type { BankAccountRecord } from "../bank-accounts/components/columns";
 import { EditBankAccountDialog } from "../bank-accounts/components/edit-bank-account-dialog";
@@ -19,6 +20,7 @@ interface RelationshipManager {
 }
 
 export default function CustomersPage() {
+	const t = useTranslations("organization.customers");
 	const { activeOrganization, loaded } = useActiveOrganization();
 	const [data, setData] = useState<CustomerRecord[]>([]);
 	const [filteredData, setFilteredData] = useState<CustomerRecord[]>([]);
@@ -64,13 +66,13 @@ export default function CustomersPage() {
 				setFilteredData(customers);
 				setRelationshipManagers(result.relationshipManagers || []);
 			} else {
-				console.error("獲取客戶數據失敗", await response.text());
+				console.error(t("form.fetchDataFailed"), await response.text());
 				setData([]);
 				setFilteredData([]);
 				setRelationshipManagers([]);
 			}
 		} catch (error) {
-			console.error("獲取數據失敗:", error);
+			console.error(t("form.fetchDataFailed"), error);
 			setData([]);
 			setFilteredData([]);
 			setRelationshipManagers([]);
@@ -109,7 +111,7 @@ export default function CustomersPage() {
 	};
 
 	// 新增 columns，傳入編輯函數
-	const columns = createColumns(handleEdit, handleEditBankAccount);
+	const columns = createColumns(handleEdit, handleEditBankAccount, t);
 
 	useEffect(() => {
 		if (activeOrganization?.id && loaded) {
@@ -131,8 +133,8 @@ export default function CustomersPage() {
 	return (
 		<div className="container space-y-8 py-6">
 			<PageHeader
-				title="客戶列表"
-				subtitle="管理所有客戶"
+				title={t("title")}
+				subtitle={t("subtitle")}
 				actions={
 					activeOrganization && (
 						<CreateCustomerDialog
@@ -149,7 +151,7 @@ export default function CustomersPage() {
 				data={data}
 				isLoading={isLoading}
 				searchKey="name"
-				searchPlaceholder="搜尋客戶名稱"
+				searchPlaceholder={t("table.searchPlaceholder")}
 			/>
 
 			{editingCustomer && (

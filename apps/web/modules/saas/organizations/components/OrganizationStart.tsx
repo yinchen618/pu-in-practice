@@ -84,22 +84,22 @@ export default function OrganizationStart() {
 			<div className="@container">
 				<div className="grid @2xl:grid-cols-4 gap-4">
 					<StatsTile
-						title="載入中..."
+						title={t("organization.start.loading")}
 						value={0}
 						valueFormat="currency"
 					/>
 					<StatsTile
-						title="載入中..."
+						title={t("organization.start.loading")}
 						value={0}
 						valueFormat="currency"
 					/>
 					<StatsTile
-						title="載入中..."
+						title={t("organization.start.loading")}
 						value={0}
 						valueFormat="currency"
 					/>
 					<StatsTile
-						title="載入中..."
+						title={t("organization.start.loading")}
 						value={0}
 						valueFormat="currency"
 					/>
@@ -112,22 +112,22 @@ export default function OrganizationStart() {
 		<div className="@container">
 			<div className="grid @2xl:grid-cols-4 gap-4">
 				<StatsTile
-					title="Shareable 總計"
+					title={t("organization.start.totalShareable")}
 					value={stats.totalShareable}
 					valueFormat="currency"
 				/>
 				<StatsTile
-					title="Company分潤總計"
+					title={t("organization.start.totalCompanyProfit")}
 					value={stats.totalCompanyProfit}
 					valueFormat="currency"
 				/>
 				<StatsTile
-					title="RM分潤總計"
+					title={t("organization.start.totalRMProfit")}
 					value={stats.totalRMProfit}
 					valueFormat="currency"
 				/>
 				<StatsTile
-					title="Finder分潤總計"
+					title={t("organization.start.totalFinderProfit")}
 					value={stats.totalFinderProfit}
 					valueFormat="currency"
 				/>
@@ -135,7 +135,7 @@ export default function OrganizationStart() {
 
 			<Card className="mt-6">
 				<div className="flex h-64 items-center justify-center p-8 text-foreground/60">
-					Place your content here...
+					{t("organization.start.placeholder")}
 				</div>
 			</Card>
 		</div>

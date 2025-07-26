@@ -15,6 +15,7 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 import * as React from "react";
 
 import { DataTablePagination } from "@saas/shared/components/DataTable/DataTablePagination";
@@ -58,6 +59,7 @@ export function DataTable<TData, TValue>({
 	filterableColumns = [],
 	searchableColumns = [],
 }: DataTableProps<TData, TValue>) {
+	const t = useTranslations("common.dataTable");
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
@@ -146,7 +148,7 @@ export function DataTable<TData, TValue>({
 		searchableColumns.length > 0
 			? searchableColumns
 			: searchKey
-				? [{ id: searchKey, title: searchPlaceholder ?? "內容" }]
+				? [{ id: searchKey, title: searchPlaceholder ?? t("content") }]
 				: [];
 
 	return (

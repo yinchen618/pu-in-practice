@@ -12,6 +12,7 @@ import {
 } from "@ui/components/form";
 import { Input } from "@ui/components/input";
 import { cn } from "@ui/lib";
+import { useTranslations } from "next-intl";
 import type { UseFormReturn } from "react-hook-form";
 import type {
 	ProfitSharingFormData,
@@ -35,6 +36,8 @@ export function ProfitShareAllocation({
 	allFinders,
 	isLoadingRMsAndFinders,
 }: ProfitShareAllocationProps) {
+	const t = useTranslations("organization.profitSharing.allocation");
+
 	const totalPercent = calculateTotalProfitSharePercent(
 		form.watch("companyProfitSharePercent") || 0,
 		form.watch("rm1ProfitSharePercent") || 0,
@@ -48,17 +51,17 @@ export function ProfitShareAllocation({
 	return (
 		<Card className="mt-6">
 			<CardHeader>
-				<CardTitle>分潤比例分配</CardTitle>
+				<CardTitle>{t("title")}</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				{/* Company 分潤 */}
 				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
 					<div className="col-span-2">
 						<FormLabel className="text-sm font-medium">
-							Company 分潤
+							{t("company.title")}
 						</FormLabel>
 						<div className="text-xs text-gray-500 mt-1">
-							公司分潤
+							{t("company.description")}
 						</div>
 					</div>
 					<div className="col-span-1">
@@ -68,7 +71,7 @@ export function ProfitShareAllocation({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="text-xs">
-										比例 (%)
+										{t("fields.percentage")}
 									</FormLabel>
 									<FormControl>
 										<PercentageInput
@@ -86,12 +89,16 @@ export function ProfitShareAllocation({
 						/>
 					</div>
 					<div className="col-span-1">
-						<FormLabel className="text-xs">人員</FormLabel>
+						<FormLabel className="text-xs">
+							{t("fields.person")}
+						</FormLabel>
 						<div className="text-sm text-gray-500 mt-2">-</div>
 					</div>
 					<div className="col-span-2">
 						<FormItem>
-							<FormLabel className="text-xs">原幣金額</FormLabel>
+							<FormLabel className="text-xs">
+								{t("fields.originalCurrency")}
+							</FormLabel>
 							<FormControl>
 								<Input
 									type="number"
@@ -111,7 +118,9 @@ export function ProfitShareAllocation({
 					</div>
 					<div className="col-span-2">
 						<FormItem>
-							<FormLabel className="text-xs">美金金額</FormLabel>
+							<FormLabel className="text-xs">
+								{t("fields.usdAmount")}
+							</FormLabel>
 							<FormControl>
 								<Input
 									type="number"
@@ -136,10 +145,10 @@ export function ProfitShareAllocation({
 				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
 					<div className="col-span-2">
 						<FormLabel className="text-sm font-medium">
-							RM1 分潤
+							{t("rm1.title")}
 						</FormLabel>
 						<div className="text-xs text-gray-500 mt-1">
-							關係經理 1
+							{t("rm1.description")}
 						</div>
 					</div>
 					<div className="col-span-1">
@@ -149,7 +158,7 @@ export function ProfitShareAllocation({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="text-xs">
-										比例 (%)
+										{t("fields.percentage")}
 									</FormLabel>
 									<FormControl>
 										<PercentageInput
@@ -190,14 +199,14 @@ export function ProfitShareAllocation({
 									label="RM"
 									placeholder={
 										isLoadingRMsAndFinders
-											? "載入中..."
-											: "選擇RM"
+											? t("selectors.loading")
+											: t("selectors.selectRM")
 									}
-									searchPlaceholder="搜尋RM..."
+									searchPlaceholder={t("selectors.searchRM")}
 									emptyText={
 										isLoadingRMsAndFinders
-											? "載入中..."
-											: "找不到RM。"
+											? t("selectors.loading")
+											: t("selectors.noRMFound")
 									}
 									disabled={isLoadingRMsAndFinders}
 									options={allRMs}
@@ -212,7 +221,9 @@ export function ProfitShareAllocation({
 					</div>
 					<div className="col-span-2">
 						<FormItem>
-							<FormLabel className="text-xs">原幣金額</FormLabel>
+							<FormLabel className="text-xs">
+								{t("fields.originalCurrency")}
+							</FormLabel>
 							<FormControl>
 								<Input
 									type="number"
@@ -232,7 +243,9 @@ export function ProfitShareAllocation({
 					</div>
 					<div className="col-span-2">
 						<FormItem>
-							<FormLabel className="text-xs">美金金額</FormLabel>
+							<FormLabel className="text-xs">
+								{t("fields.usdAmount")}
+							</FormLabel>
 							<FormControl>
 								<Input
 									type="number"
@@ -257,10 +270,10 @@ export function ProfitShareAllocation({
 				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
 					<div className="col-span-2">
 						<FormLabel className="text-sm font-medium">
-							RM2 分潤
+							{t("rm2.title")}
 						</FormLabel>
 						<div className="text-xs text-gray-500 mt-1">
-							關係經理 2
+							{t("rm2.description")}
 						</div>
 					</div>
 					<div className="col-span-1">
@@ -270,7 +283,7 @@ export function ProfitShareAllocation({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="text-xs">
-										比例 (%)
+										{t("fields.percentage")}
 									</FormLabel>
 									<FormControl>
 										<PercentageInput
@@ -311,14 +324,14 @@ export function ProfitShareAllocation({
 									label="RM"
 									placeholder={
 										isLoadingRMsAndFinders
-											? "載入中..."
-											: "選擇RM"
+											? t("selectors.loading")
+											: t("selectors.selectRM")
 									}
-									searchPlaceholder="搜尋RM..."
+									searchPlaceholder={t("selectors.searchRM")}
 									emptyText={
 										isLoadingRMsAndFinders
-											? "載入中..."
-											: "找不到RM。"
+											? t("selectors.loading")
+											: t("selectors.noRMFound")
 									}
 									disabled={isLoadingRMsAndFinders}
 									options={allRMs}
@@ -333,7 +346,9 @@ export function ProfitShareAllocation({
 					</div>
 					<div className="col-span-2">
 						<FormItem>
-							<FormLabel className="text-xs">原幣金額</FormLabel>
+							<FormLabel className="text-xs">
+								{t("fields.originalCurrency")}
+							</FormLabel>
 							<FormControl>
 								<Input
 									type="number"
@@ -353,7 +368,9 @@ export function ProfitShareAllocation({
 					</div>
 					<div className="col-span-2">
 						<FormItem>
-							<FormLabel className="text-xs">美金金額</FormLabel>
+							<FormLabel className="text-xs">
+								{t("fields.usdAmount")}
+							</FormLabel>
 							<FormControl>
 								<Input
 									type="number"
@@ -378,10 +395,10 @@ export function ProfitShareAllocation({
 				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
 					<div className="col-span-2">
 						<FormLabel className="text-sm font-medium">
-							Finder1 分潤
+							{t("finder1.title")}
 						</FormLabel>
 						<div className="text-xs text-gray-500 mt-1">
-							尋找者 1
+							{t("finder1.description")}
 						</div>
 					</div>
 					<div className="col-span-1">
@@ -391,7 +408,7 @@ export function ProfitShareAllocation({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="text-xs">
-										比例 (%)
+										{t("fields.percentage")}
 									</FormLabel>
 									<FormControl>
 										<PercentageInput
@@ -434,14 +451,16 @@ export function ProfitShareAllocation({
 									label="Finder"
 									placeholder={
 										isLoadingRMsAndFinders
-											? "載入中..."
-											: "選擇Finder"
+											? t("selectors.loading")
+											: t("selectors.selectFinder")
 									}
-									searchPlaceholder="搜尋Finder..."
+									searchPlaceholder={t(
+										"selectors.searchFinder",
+									)}
 									emptyText={
 										isLoadingRMsAndFinders
-											? "載入中..."
-											: "找不到Finder。"
+											? t("selectors.loading")
+											: t("selectors.noFinderFound")
 									}
 									disabled={isLoadingRMsAndFinders}
 									options={allFinders}
@@ -458,7 +477,9 @@ export function ProfitShareAllocation({
 					</div>
 					<div className="col-span-2">
 						<FormItem>
-							<FormLabel className="text-xs">原幣金額</FormLabel>
+							<FormLabel className="text-xs">
+								{t("fields.originalCurrency")}
+							</FormLabel>
 							<FormControl>
 								<Input
 									type="number"
@@ -478,7 +499,9 @@ export function ProfitShareAllocation({
 					</div>
 					<div className="col-span-2">
 						<FormItem>
-							<FormLabel className="text-xs">美金金額</FormLabel>
+							<FormLabel className="text-xs">
+								{t("fields.usdAmount")}
+							</FormLabel>
 							<FormControl>
 								<Input
 									type="number"
@@ -503,10 +526,10 @@ export function ProfitShareAllocation({
 				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
 					<div className="col-span-2">
 						<FormLabel className="text-sm font-medium">
-							Finder2 分潤
+							{t("finder2.title")}
 						</FormLabel>
 						<div className="text-xs text-gray-500 mt-1">
-							尋找者 2
+							{t("finder2.description")}
 						</div>
 					</div>
 					<div className="col-span-1">
@@ -516,7 +539,7 @@ export function ProfitShareAllocation({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="text-xs">
-										比例 (%)
+										{t("fields.percentage")}
 									</FormLabel>
 									<FormControl>
 										<PercentageInput
@@ -559,14 +582,16 @@ export function ProfitShareAllocation({
 									label="Finder"
 									placeholder={
 										isLoadingRMsAndFinders
-											? "載入中..."
-											: "選擇Finder"
+											? t("selectors.loading")
+											: t("selectors.selectFinder")
 									}
-									searchPlaceholder="搜尋Finder..."
+									searchPlaceholder={t(
+										"selectors.searchFinder",
+									)}
 									emptyText={
 										isLoadingRMsAndFinders
-											? "載入中..."
-											: "找不到Finder。"
+											? t("selectors.loading")
+											: t("selectors.noFinderFound")
 									}
 									disabled={isLoadingRMsAndFinders}
 									options={allFinders}
@@ -583,7 +608,9 @@ export function ProfitShareAllocation({
 					</div>
 					<div className="col-span-2">
 						<FormItem>
-							<FormLabel className="text-xs">原幣金額</FormLabel>
+							<FormLabel className="text-xs">
+								{t("fields.originalCurrency")}
+							</FormLabel>
 							<FormControl>
 								<Input
 									type="number"
@@ -603,7 +630,9 @@ export function ProfitShareAllocation({
 					</div>
 					<div className="col-span-2">
 						<FormItem>
-							<FormLabel className="text-xs">美金金額</FormLabel>
+							<FormLabel className="text-xs">
+								{t("fields.usdAmount")}
+							</FormLabel>
 							<FormControl>
 								<Input
 									type="number"
@@ -627,7 +656,9 @@ export function ProfitShareAllocation({
 				{/* 總計驗證 */}
 				<div className="mt-4 p-3 bg-gray-50 rounded-lg">
 					<div className="flex justify-between items-center">
-						<span className="text-sm font-medium">總分潤比例:</span>
+						<span className="text-sm font-medium">
+							{t("summary.totalPercentage")}:
+						</span>
 						<span
 							className={cn(
 								"text-sm font-bold",
@@ -639,7 +670,7 @@ export function ProfitShareAllocation({
 					</div>
 					{!isValid && (
 						<div className="text-xs text-red-600 mt-1">
-							分潤比例總和必須為 100%
+							{t("summary.validationError")}
 						</div>
 					)}
 				</div>

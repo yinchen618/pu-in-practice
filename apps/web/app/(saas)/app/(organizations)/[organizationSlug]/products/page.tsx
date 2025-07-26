@@ -3,6 +3,7 @@
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createColumns } from "./components/columns";
 import type { ProductRecord } from "./components/columns";
@@ -14,6 +15,7 @@ import {
 } from "./components/product-filters";
 
 export default function ProductsPage() {
+	const t = useTranslations("organization.products");
 	const { activeOrganization, loaded } = useActiveOrganization();
 	const [allData, setAllData] = useState<ProductRecord[]>([]);
 	const [filteredData, setFilteredData] = useState<ProductRecord[]>([]);
@@ -81,7 +83,7 @@ export default function ProductsPage() {
 		setCurrentFilters(filters);
 	};
 
-	const columns = createColumns(handleEdit);
+	const columns = createColumns(handleEdit, t);
 
 	useEffect(() => {
 		if (activeOrganization?.id && loaded) {
@@ -103,8 +105,8 @@ export default function ProductsPage() {
 	return (
 		<div className="container max-w-6xl space-y-8 py-6">
 			<PageHeader
-				title="產品列表"
-				subtitle="管理所有產品資料"
+				title={t("title")}
+				subtitle={t("subtitle")}
 				actions={
 					activeOrganization && (
 						<CreateProductDialog

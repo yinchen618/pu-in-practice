@@ -3,6 +3,7 @@
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import type { ExpenseRecord } from "./components/columns";
 import { createColumns } from "./components/columns";
@@ -21,6 +22,8 @@ interface RelationshipManager {
 }
 
 export default function ExpensesPage() {
+	const t = useTranslations("organization.expenses");
+	const tTable = useTranslations("organization.expenses.table");
 	const { activeOrganization, loaded } = useActiveOrganization();
 	const [allData, setAllData] = useState<ExpenseRecord[]>([]);
 	const [filteredData, setFilteredData] = useState<ExpenseRecord[]>([]);
@@ -61,13 +64,13 @@ export default function ExpensesPage() {
 				setFilteredData(expenses);
 				setRelationshipManagers(result.relationshipManagers || []);
 			} else {
-				console.error("獲取支出數據失敗", await response.text());
+				console.error(t("form.updateFailed"), await response.text());
 				setAllData([]);
 				setFilteredData([]);
 				setRelationshipManagers([]);
 			}
 		} catch (error) {
-			console.error("獲取數據失敗:", error);
+			console.error(t("form.fetchDataFailed"), error);
 			setAllData([]);
 			setFilteredData([]);
 			setRelationshipManagers([]);
@@ -95,7 +98,7 @@ export default function ExpensesPage() {
 	};
 
 	// 新增 columns，傳入編輯函數
-	const columns = createColumns(handleEdit);
+	const columns = createColumns(handleEdit, tTable);
 
 	useEffect(() => {
 		if (activeOrganization?.id && loaded) {
@@ -117,8 +120,8 @@ export default function ExpensesPage() {
 	return (
 		<div className="container space-y-8 py-6">
 			<PageHeader
-				title="支出列表"
-				subtitle="管理所有支出記錄"
+				title={t("title")}
+				subtitle={t("subtitle")}
 				actions={
 					activeOrganization && (
 						<CreateExpenseDialog

@@ -27,22 +27,25 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import type { RMRecord } from "./columns";
 
-const editRMSchema = z.object({
-	name: z.string().min(1, "姓名是必填的"),
-	email: z.string().email("請輸入有效的電子郵件"),
-	phone: z.string().optional(),
-	status: z.enum(["active", "inactive"]),
-	category: z.enum(["FINDER", "RM", "BOTH"]),
-	joinDate: z.string(),
-	resignDate: z.string().optional(),
-});
+const editRMSchema = (t: (k: string) => string) =>
+	z.object({
+		name: z.string().min(1, t("form.nameRequired")),
+		email: z.string().email(t("form.emailInvalid")),
+		phone: z.string().optional(),
+		status: z.enum(["active", "inactive"]),
+		category: z.enum(["FINDER", "RM", "BOTH"]),
+		joinDate: z.string(),
+		resignDate: z.string().optional(),
+	});
 
-type EditRMFormData = z.infer<typeof editRMSchema>;
+type EditRMFormData = z.infer<ReturnType<typeof editRMSchema>>;
 
 interface EditRMDialogProps {
 	rmRecord: RMRecord;
@@ -59,9 +62,11 @@ export function EditRMDialog({
 }: EditRMDialogProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const t = useTranslations("organization.relationshipManagers");
 
+	const schema = editRMSchema(t);
 	const form = useForm<EditRMFormData>({
-		resolver: zodResolver(editRMSchema),
+		resolver: zodResolver(schema),
 		defaultValues: {
 			name: "",
 			email: "",
@@ -104,13 +109,10 @@ export function EditRMDialog({
 	const onSubmit = async (data: EditRMFormData) => {
 		setIsLoading(true);
 		try {
-			// 直接提交字串格式的日期，讓 API 處理轉換
 			const submitData = {
 				...data,
-				// 如果有離職日期，自動設定狀態為離職
 				status: data.resignDate ? "inactive" : data.status,
 			};
-
 			const response = await fetch(
 				`/api/organizations/relationship-managers/${rmRecord.id}`,
 				{
@@ -122,9 +124,8 @@ export function EditRMDialog({
 					body: JSON.stringify(submitData),
 				},
 			);
-
 			if (!response.ok) {
-				let errorMessage = "更新失敗";
+				let errorMessage = t("error.updateFailed");
 				try {
 					const responseText = await response.text();
 					try {
@@ -134,12 +135,10 @@ export function EditRMDialog({
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					errorMessage = "更新失敗";
+					errorMessage = t("error.updateFailed");
 				}
-
-				// 根據錯誤類型設定對應欄位錯誤
 				if (
-					errorMessage.includes("電子郵件") ||
+					errorMessage.includes(t("form.email")) ||
 					errorMessage.includes("email")
 				) {
 					form.setError("email", {
@@ -148,29 +147,24 @@ export function EditRMDialog({
 					});
 					return;
 				}
-
+				toast.error(errorMessage);
 				throw new Error(errorMessage);
 			}
-
 			onOpenChange(false);
 			onSuccess?.();
+			toast.success(t("success.update"));
 		} catch (error) {
-			console.error("更新 RM 失敗:", error);
-			// 這裡可以添加 toast 通知
+			console.error(t("error.updateFailed"), error);
+			toast.error(t("error.updateFailed"));
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	const handleDelete = async () => {
-		if (
-			!confirm(
-				`您確定要刪除客戶關係經理「${rmRecord.name}」嗎？此操作無法復原。`,
-			)
-		) {
+		if (!confirm(t("dialog.deleteConfirm", { name: rmRecord.name }))) {
 			return;
 		}
-
 		setIsDeleting(true);
 		try {
 			const response = await fetch(
@@ -183,9 +177,8 @@ export function EditRMDialog({
 					},
 				},
 			);
-
 			if (!response.ok) {
-				let errorMessage = "刪除失敗";
+				let errorMessage = t("error.deleteFailed");
 				try {
 					const responseText = await response.text();
 					try {
@@ -195,17 +188,17 @@ export function EditRMDialog({
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					errorMessage = "刪除失敗";
+					errorMessage = t("error.deleteFailed");
 				}
-
+				toast.error(errorMessage);
 				throw new Error(errorMessage);
 			}
-
 			onOpenChange(false);
 			onSuccess?.();
+			toast.success(t("success.delete"));
 		} catch (error) {
-			console.error("刪除 RM 失敗:", error);
-			// 這裡可以添加 toast 通知
+			console.error(t("error.deleteFailed"), error);
+			toast.error(t("error.deleteFailed"));
 		} finally {
 			setIsDeleting(false);
 		}
@@ -215,9 +208,9 @@ export function EditRMDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>編輯客戶關係經理</DialogTitle>
+					<DialogTitle>{t("dialog.edit.title")}</DialogTitle>
 					<DialogDescription>
-						修改客戶關係經理的資訊。
+						{t("dialog.edit.description")}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -229,12 +222,14 @@ export function EditRMDialog({
 								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											姓名 *
+											{t("form.name")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
-													placeholder="輸入姓名"
+													placeholder={t(
+														"form.namePlaceholder",
+													)}
 													{...field}
 													className={
 														fieldState.error
@@ -254,13 +249,15 @@ export function EditRMDialog({
 								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											電子郵件 *
+											{t("form.email")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
 													type="email"
-													placeholder="輸入電子郵件"
+													placeholder={t(
+														"form.emailPlaceholder",
+													)}
 													{...field}
 													className={
 														fieldState.error
@@ -280,13 +277,15 @@ export function EditRMDialog({
 								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											電話
+											{t("form.phone")}
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
 													type="tel"
-													placeholder="輸入電話號碼"
+													placeholder={t(
+														"form.phonePlaceholder",
+													)}
 													{...field}
 													value={field.value || ""}
 													className={
@@ -307,7 +306,7 @@ export function EditRMDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											狀態 *
+											{t("form.status")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -317,15 +316,21 @@ export function EditRMDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇狀態" />
+														<SelectValue
+															placeholder={t(
+																"form.statusPlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
 													<SelectItem value="active">
-														在職
+														{t("form.statusActive")}
 													</SelectItem>
 													<SelectItem value="inactive">
-														離職
+														{t(
+															"form.statusInactive",
+														)}
 													</SelectItem>
 												</SelectContent>
 											</Select>
@@ -340,7 +345,7 @@ export function EditRMDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											RM 類別 *
+											{t("form.category")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -349,7 +354,11 @@ export function EditRMDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇 RM 類別" />
+														<SelectValue
+															placeholder={t(
+																"form.categoryPlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
@@ -375,7 +384,7 @@ export function EditRMDialog({
 								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											入職日期 *
+											{t("form.joinDate")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -400,7 +409,7 @@ export function EditRMDialog({
 								render={({ field, fieldState }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											離職日期
+											{t("form.resignDate")}
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
@@ -428,7 +437,9 @@ export function EditRMDialog({
 								disabled={isDeleting}
 							>
 								<Trash2 className="mr-2 size-4" />
-								{isDeleting ? "刪除中..." : "刪除"}
+								{isDeleting
+									? t("dialog.delete.deleting")
+									: t("dialog.delete.delete")}
 							</Button>
 							<div className="flex gap-2">
 								<Button
@@ -436,10 +447,12 @@ export function EditRMDialog({
 									variant="outline"
 									onClick={() => onOpenChange(false)}
 								>
-									取消
+									{t("dialog.cancel")}
 								</Button>
 								<Button type="submit" disabled={isLoading}>
-									{isLoading ? "更新中..." : "更新"}
+									{isLoading
+										? t("dialog.edit.submitting")
+										: t("dialog.edit.submit")}
 								</Button>
 							</div>
 						</DialogFooter>

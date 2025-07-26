@@ -4,6 +4,7 @@ import { DataTable } from "@saas/shared/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Input } from "@ui/components/input";
 import { Filter } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
 interface ProfitSharingRecord {
@@ -36,6 +37,8 @@ export function ProfitSharingTable({
 	customerId,
 	organizationId,
 }: ProfitSharingTableProps) {
+	const t = useTranslations("organization.profitSharing");
+	const tCommon = useTranslations("common");
 	const [data, setData] = useState<ProfitSharingRecord[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [filters, setFilters] = useState<Filters>({
@@ -102,14 +105,14 @@ export function ProfitSharingTable({
 	}, [filteredData]);
 
 	const columns: ColumnDef<ProfitSharingRecord>[] = [
-		{ accessorKey: "productName", header: "產品名稱" },
-		{ accessorKey: "productCode", header: "代碼" },
-		{ accessorKey: "productCategory", header: "類別" },
-		{ accessorKey: "currency", header: "幣別" },
-		{ accessorKey: "productStatus", header: "狀態" },
+		{ accessorKey: "productName", header: t("productName") },
+		{ accessorKey: "productCode", header: t("productCode") },
+		{ accessorKey: "productCategory", header: t("productCategory") },
+		{ accessorKey: "currency", header: tCommon("currency") },
+		{ accessorKey: "productStatus", header: tCommon("status") },
 		{
 			accessorKey: "profitDate",
-			header: "分潤日期",
+			header: t("profitDate"),
 			cell: ({ row }) => {
 				const date = row.original.profitDate;
 				return date ? new Date(date).toLocaleDateString("zh-TW") : "-";
@@ -117,7 +120,7 @@ export function ProfitSharingTable({
 		},
 		{
 			accessorKey: "shareable",
-			header: "總分潤金額",
+			header: t("totalProfitAmount"),
 			cell: ({ row }) =>
 				Number(row.original.shareable ?? 0).toLocaleString("en-US", {
 					minimumFractionDigits: 2,
@@ -125,7 +128,7 @@ export function ProfitSharingTable({
 		},
 		{
 			accessorKey: "companyRevenue",
-			header: "Company分潤",
+			header: t("companyProfit"),
 			cell: ({ row }) =>
 				Number(row.original.companyRevenue ?? 0).toLocaleString(
 					"en-US",
@@ -134,7 +137,7 @@ export function ProfitSharingTable({
 		},
 		{
 			accessorKey: "rmRevenueOriginal",
-			header: "RM分潤",
+			header: t("rmProfit"),
 			cell: ({ row }) =>
 				Number(row.original.rmRevenueOriginal ?? 0).toLocaleString(
 					"en-US",
@@ -143,7 +146,7 @@ export function ProfitSharingTable({
 		},
 		{
 			accessorKey: "findersRevenueOriginal",
-			header: "Finder分潤",
+			header: t("finderProfit"),
 			cell: ({ row }) =>
 				Number(row.original.findersRevenueOriginal ?? 0).toLocaleString(
 					"en-US",
@@ -158,7 +161,7 @@ export function ProfitSharingTable({
 			<div className="flex flex-wrap gap-2 items-center mb-2">
 				<Filter className="size-4 text-muted-foreground" />
 				<Input
-					placeholder="產品名稱"
+					placeholder={t("filters.productName")}
 					value={filters.productName}
 					onChange={(e) =>
 						setFilters((f) => ({
@@ -170,7 +173,7 @@ export function ProfitSharingTable({
 				/>
 				<Input
 					type="date"
-					placeholder="起始日期"
+					placeholder={t("filters.startDate")}
 					value={filters.dateFrom}
 					onChange={(e) =>
 						setFilters((f) => ({ ...f, dateFrom: e.target.value }))
@@ -179,7 +182,7 @@ export function ProfitSharingTable({
 				/>
 				<Input
 					type="date"
-					placeholder="結束日期"
+					placeholder={t("filters.endDate")}
 					value={filters.dateTo}
 					onChange={(e) =>
 						setFilters((f) => ({ ...f, dateTo: e.target.value }))
@@ -188,7 +191,7 @@ export function ProfitSharingTable({
 				/>
 				<Input
 					type="number"
-					placeholder="最小分潤"
+					placeholder={t("filters.minProfit")}
 					value={filters.minShareable}
 					onChange={(e) =>
 						setFilters((f) => ({
@@ -200,7 +203,7 @@ export function ProfitSharingTable({
 				/>
 				<Input
 					type="number"
-					placeholder="最大分潤"
+					placeholder={t("filters.maxProfit")}
 					value={filters.maxShareable}
 					onChange={(e) =>
 						setFilters((f) => ({
@@ -216,8 +219,10 @@ export function ProfitSharingTable({
 				data={sortedData}
 				isLoading={isLoading}
 				searchKey="productName"
-				searchPlaceholder="搜尋產品..."
-				searchableColumns={[{ id: "productName", title: "產品名稱" }]}
+				searchPlaceholder={t("filters.searchProducts")}
+				searchableColumns={[
+					{ id: "productName", title: t("productName") },
+				]}
 			/>
 		</div>
 	);

@@ -10,6 +10,7 @@ import {
 } from "@ui/components/form";
 import { Input } from "@ui/components/input";
 import { RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { UseFormReturn } from "react-hook-form";
 import type { ProfitSharingFormData } from "../shared/types";
 
@@ -35,6 +36,8 @@ export function ShareableAmountSection({
 	onRefreshExchangeRate,
 	watchedCurrency = "USD",
 }: ShareableAmountSectionProps) {
+	const t = useTranslations("organization.profitSharing.shareableAmount");
+
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
 			<FormField
@@ -42,7 +45,7 @@ export function ShareableAmountSection({
 				name="shareable"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>總分潤金額 (Shareable)</FormLabel>
+						<FormLabel>{t("shareableLabel")}</FormLabel>
 						<FormControl>
 							<Input
 								type="number"
@@ -53,8 +56,7 @@ export function ShareableAmountSection({
 							/>
 						</FormControl>
 						<p className="text-sm text-gray-600 mt-1">
-							Company Revenue + Direct Trade Booking Fee × Bank
-							Retro(%)
+							{t("shareableDescription")}
 						</p>
 						<FormMessage />
 					</FormItem>
@@ -66,7 +68,7 @@ export function ShareableAmountSection({
 				name="fxRate"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>FX Rate *</FormLabel>
+						<FormLabel>{t("fxRateLabel")} *</FormLabel>
 						<div className="flex gap-2">
 							<FormControl>
 								<Input
@@ -109,19 +111,20 @@ export function ShareableAmountSection({
 						</div>
 						{watchedCurrency === "USD" && (
 							<p className="text-sm text-gray-600 mt-1">
-								美元匯率固定為 1.00
+								{t("usdRateFixed")}
 							</p>
 						)}
 						{exchangeRateError && watchedCurrency !== "USD" && (
 							<p className="text-sm text-red-600 mt-1">
-								無法獲取匯率: {exchangeRateError}
+								{t("exchangeRateError")}: {exchangeRateError}
 							</p>
 						)}
 						{exchangeRateData &&
 							!exchangeRateError &&
 							watchedCurrency !== "USD" && (
 								<p className="text-sm text-green-600 mt-1">
-									{exchangeRateData.date} 的美元匯率已更新
+									{exchangeRateData.date}{" "}
+									{t("exchangeRateUpdated")}
 								</p>
 							)}
 						<FormMessage />
@@ -131,7 +134,7 @@ export function ShareableAmountSection({
 
 			<div>
 				<FormLabel className="text-sm font-medium">
-					Shareable (USD)
+					{t("shareableUsdLabel")}
 				</FormLabel>
 				<Input
 					type="number"

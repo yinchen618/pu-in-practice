@@ -3,6 +3,7 @@
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { DataTable } from "@saas/shared/components/DataTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createColumns } from "./components/columns";
 import type { RMRecord } from "./components/columns";
@@ -14,6 +15,7 @@ import {
 } from "./components/rm-filters";
 
 export default function RelationshipManagersPage() {
+	const t = useTranslations("organization.relationshipManagers");
 	const { activeOrganization, loaded } = useActiveOrganization();
 	const [allData, setAllData] = useState<RMRecord[]>([]);
 	const [filteredData, setFilteredData] = useState<RMRecord[]>([]);
@@ -88,8 +90,12 @@ export default function RelationshipManagersPage() {
 		setEditingRM(null);
 	};
 
-	// 新增 columns，傳入編輯函數
-	const columns = createColumns(handleEdit);
+	// 新增 columns，傳入編輯函數和翻譯函數
+	const columns = createColumns(handleEdit, {
+		table: (key: string) => t(`table.${key}`),
+		category: (key: string) => t(`category.${key}`),
+		statusLabels: (key: string) => t(`statusLabels.${key}`),
+	});
 
 	useEffect(() => {
 		if (activeOrganization?.id && loaded) {
@@ -111,8 +117,8 @@ export default function RelationshipManagersPage() {
 	return (
 		<div className="container max-w-6xl space-y-8 py-6">
 			<PageHeader
-				title="RM 列表"
-				subtitle="管理所有客戶關係經理"
+				title={t("title")}
+				subtitle={t("subtitle")}
 				actions={
 					activeOrganization && (
 						<CreateRMDialog
@@ -126,13 +132,15 @@ export default function RelationshipManagersPage() {
 			{/* 錯誤狀態顯示 */}
 			{error && (
 				<div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-					<p className="text-red-700">錯誤: {error}</p>
+					<p className="text-red-700">
+						{t("error")}: {error}
+					</p>
 					<button
 						type="button"
 						onClick={fetchData}
 						className="mt-2 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200"
 					>
-						重試
+						{t("retry")}
 					</button>
 				</div>
 			)}

@@ -12,6 +12,7 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Activity, Calendar, Filter, Users, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { RMRecord } from "./columns";
 
@@ -36,6 +37,8 @@ export function RMFilters({
 	onFilterChange,
 	onFiltersChange,
 }: RMFiltersProps) {
+	const t = useTranslations("organization.relationshipManagers.filters");
+	const tCommon = useTranslations("common.filters");
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [filters, setFilters] = useState<RMFilters>({});
 
@@ -140,9 +143,9 @@ export function RMFilters({
 	const getStatusLabel = (status: string) => {
 		switch (status) {
 			case "active":
-				return "在職";
+				return t("status.active");
 			case "inactive":
-				return "離職";
+				return t("status.inactive");
 			default:
 				return status;
 		}
@@ -160,7 +163,7 @@ export function RMFilters({
 						className="gap-2"
 					>
 						<Filter className="size-4" />
-						篩選器{" "}
+						{t("title")}{" "}
 						{hasActiveFilters &&
 							`(${
 								Object.values(filters).filter(
@@ -179,7 +182,7 @@ export function RMFilters({
 							onClick={clearFilters}
 						>
 							<X className="size-4 mr-1" />
-							清除篩選
+							{t("clearFilters")}
 						</Button>
 					)}
 				</div>
@@ -187,7 +190,7 @@ export function RMFilters({
 				{/* 主要搜尋框 */}
 				<div className="flex items-center gap-2">
 					<Input
-						placeholder="搜尋 RM 名稱、電子郵件或電話..."
+						placeholder={t("searchPlaceholder")}
 						value={filters.search || ""}
 						onChange={(e) => updateFilter("search", e.target.value)}
 						className="w-80"
@@ -202,7 +205,7 @@ export function RMFilters({
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
 							<Users className="size-4" />
-							RM 類別
+							{t("category")}
 						</Label>
 						<Select
 							value={filters.category || ""}
@@ -214,10 +217,12 @@ export function RMFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇類別" />
+								<SelectValue
+									placeholder={t("selectCategory")}
+								/>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部</SelectItem>
+								<SelectItem value="all">{t("all")}</SelectItem>
 								<SelectItem value="FINDER">FINDER</SelectItem>
 								<SelectItem value="RM">RM</SelectItem>
 								<SelectItem value="BOTH">BOTH</SelectItem>
@@ -229,7 +234,7 @@ export function RMFilters({
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
 							<Activity className="size-4" />
-							狀態
+							{t("status.label")}
 						</Label>
 						<Select
 							value={filters.status || ""}
@@ -241,12 +246,16 @@ export function RMFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇狀態" />
+								<SelectValue placeholder={t("selectStatus")} />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部</SelectItem>
-								<SelectItem value="active">在職</SelectItem>
-								<SelectItem value="inactive">離職</SelectItem>
+								<SelectItem value="all">{t("all")}</SelectItem>
+								<SelectItem value="active">
+									{t("status.active")}
+								</SelectItem>
+								<SelectItem value="inactive">
+									{t("status.inactive")}
+								</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
@@ -255,12 +264,12 @@ export function RMFilters({
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
 							<Calendar className="size-4" />
-							入職日期區間
+							{t("joinDateRange")}
 						</Label>
 						<div className="space-y-2">
 							<Input
 								type="date"
-								placeholder="開始日期"
+								placeholder={t("startDate")}
 								value={filters.joinDateFrom || ""}
 								onChange={(e) =>
 									updateFilter("joinDateFrom", e.target.value)
@@ -268,7 +277,7 @@ export function RMFilters({
 							/>
 							<Input
 								type="date"
-								placeholder="結束日期"
+								placeholder={t("endDate")}
 								value={filters.joinDateTo || ""}
 								onChange={(e) =>
 									updateFilter("joinDateTo", e.target.value)
@@ -281,12 +290,12 @@ export function RMFilters({
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
 							<Calendar className="size-4" />
-							離職日期區間
+							{t("resignDateRange")}
 						</Label>
 						<div className="space-y-2">
 							<Input
 								type="date"
-								placeholder="開始日期"
+								placeholder={t("startDate")}
 								value={filters.resignDateFrom || ""}
 								onChange={(e) =>
 									updateFilter(
@@ -297,7 +306,7 @@ export function RMFilters({
 							/>
 							<Input
 								type="date"
-								placeholder="結束日期"
+								placeholder={t("endDate")}
 								value={filters.resignDateTo || ""}
 								onChange={(e) =>
 									updateFilter("resignDateTo", e.target.value)
@@ -313,7 +322,8 @@ export function RMFilters({
 				<div className="flex flex-wrap gap-2">
 					{filters.category && (
 						<Badge status="info" className="gap-1">
-							類別: {getCategoryLabel(filters.category)}
+							{tCommon("badges.category")}:{" "}
+							{getCategoryLabel(filters.category)}
 							<button
 								type="button"
 								onClick={() =>
@@ -327,7 +337,8 @@ export function RMFilters({
 					)}
 					{filters.status && (
 						<Badge status="info" className="gap-1">
-							狀態: {getStatusLabel(filters.status)}
+							{t("status.label")}:{" "}
+							{getStatusLabel(filters.status)}
 							<button
 								type="button"
 								onClick={() =>
@@ -341,7 +352,7 @@ export function RMFilters({
 					)}
 					{filters.joinDateFrom && (
 						<Badge status="info" className="gap-1">
-							入職開始: {filters.joinDateFrom}
+							{t("badges.joinStart")}: {filters.joinDateFrom}
 							<button
 								type="button"
 								onClick={() =>
@@ -355,7 +366,7 @@ export function RMFilters({
 					)}
 					{filters.joinDateTo && (
 						<Badge status="info" className="gap-1">
-							入職結束: {filters.joinDateTo}
+							{t("badges.joinEnd")}: {filters.joinDateTo}
 							<button
 								type="button"
 								onClick={() =>
@@ -369,7 +380,7 @@ export function RMFilters({
 					)}
 					{filters.resignDateFrom && (
 						<Badge status="info" className="gap-1">
-							離職開始: {filters.resignDateFrom}
+							{t("badges.resignStart")}: {filters.resignDateFrom}
 							<button
 								type="button"
 								onClick={() =>
@@ -383,7 +394,7 @@ export function RMFilters({
 					)}
 					{filters.resignDateTo && (
 						<Badge status="info" className="gap-1">
-							離職結束: {filters.resignDateTo}
+							{t("badges.resignEnd")}: {filters.resignDateTo}
 							<button
 								type="button"
 								onClick={() =>
@@ -397,7 +408,7 @@ export function RMFilters({
 					)}
 					{filters.search && (
 						<Badge status="info" className="gap-1">
-							搜尋: {filters.search}
+							{tCommon("badges.search")}: {filters.search}
 							<button
 								type="button"
 								onClick={() =>

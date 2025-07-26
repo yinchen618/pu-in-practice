@@ -26,6 +26,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { LanguageSwitcher } from "../../../../components/language-switcher";
 import { OrganzationSelect } from "../../organizations/components/OrganizationSelect";
 
 export function NavBar() {
@@ -53,7 +54,7 @@ export function NavBar() {
 
 	const toggleSidebar = () => {
 		setIsSidebarCollapsed((prev) => !prev);
-		// 收合時也關閉所有展開的子選單
+		// Close all expanded submenus when collapsed
 		if (!isSidebarCollapsed) {
 			setExpandedMenus([]);
 		}
@@ -77,7 +78,7 @@ export function NavBar() {
 		...(activeOrganization
 			? [
 					{
-						label: "分潤",
+						label: t("app.menu.profitSharing"),
 						href: `${basePath}/profit-sharing`,
 						icon: WalletIcon,
 						isActive: pathname.startsWith(
@@ -85,19 +86,19 @@ export function NavBar() {
 						),
 					},
 					{
-						label: "支出",
+						label: t("app.menu.expenses"),
 						href: `${basePath}/expenses`,
 						icon: ReceiptIcon,
 						isActive: pathname.startsWith(`${basePath}/expenses/`),
 					},
 					{
-						label: "客戶",
+						label: t("app.menu.customers"),
 						href: `${basePath}/customers`,
 						icon: UsersIcon,
 						isActive: pathname.startsWith(`${basePath}/customers/`),
 					},
 					{
-						label: "RM",
+						label: t("app.menu.relationshipManagers"),
 						href: `${basePath}/relationship-managers`,
 						icon: UserIcon,
 						isActive: pathname.startsWith(
@@ -105,13 +106,13 @@ export function NavBar() {
 						),
 					},
 					{
-						label: "產品",
+						label: t("app.menu.products"),
 						href: `${basePath}/products`,
 						icon: PackageIcon,
 						isActive: pathname.startsWith(`${basePath}/products/`),
 					},
 					{
-						label: "銀行帳戶",
+						label: t("app.menu.bankAccounts"),
 						href: `${basePath}/bank-accounts`,
 						icon: BuildingIcon,
 						isActive: pathname.startsWith(
@@ -189,7 +190,7 @@ export function NavBar() {
 										<ChevronRightIcon className="size-4" />
 									</span>
 
-									{/* 組織選擇器和收合按鈕同一列 */}
+									{/* Organization selector and collapse button in same row */}
 									{useSidebarLayout ? (
 										<div className="md:flex md:items-center md:justify-between md:gap-2 md:-mx-2 md:mt-2">
 											<div className="flex-1">
@@ -201,8 +202,12 @@ export function NavBar() {
 												className="flex items-center justify-center p-2 rounded-md hover:bg-muted transition-colors shrink-0"
 												title={
 													isSidebarCollapsed
-														? "展開選單"
-														: "收合選單"
+														? t(
+																"app.sidebar.expand",
+															)
+														: t(
+																"app.sidebar.collapse",
+															)
 												}
 											>
 												<PanelLeftIcon className="size-4" />
@@ -223,18 +228,19 @@ export function NavBar() {
 							},
 						)}
 					>
+						<LanguageSwitcher />
 						<UserMenu />
 					</div>
 				</div>
 
-				{/* 收合狀態下的收合按鈕 */}
+				{/* Collapse button in collapsed state */}
 				{useSidebarLayout && isSidebarCollapsed && (
 					<div className="hidden md:flex md:justify-center md:mt-4">
 						<button
 							type="button"
 							onClick={toggleSidebar}
 							className="flex items-center justify-center p-2 rounded-md hover:bg-muted transition-colors"
-							title="展開選單"
+							title={t("app.sidebar.expand")}
 						>
 							<MenuIcon className="size-4" />
 						</button>
@@ -282,7 +288,7 @@ export function NavBar() {
 					</ul>
 				)}
 
-				{/* 收合狀態下的圖示選單 */}
+				{/* Icon menu in collapsed state */}
 				{isSidebarCollapsed && useSidebarLayout && (
 					<ul className="md:mx-0 md:my-4 md:flex md:flex-col md:items-center md:gap-2 md:px-0">
 						{menuItems.map((menuItem, index) => (
@@ -315,7 +321,18 @@ export function NavBar() {
 						},
 					)}
 				>
-					<UserMenu showUserName={!isSidebarCollapsed} />
+					{!isSidebarCollapsed && (
+						<div className="flex flex-col gap-2">
+							<LanguageSwitcher />
+							<UserMenu showUserName={!isSidebarCollapsed} />
+						</div>
+					)}
+					{isSidebarCollapsed && (
+						<div className="flex flex-col gap-2 items-center">
+							<LanguageSwitcher />
+							<UserMenu showUserName={!isSidebarCollapsed} />
+						</div>
+					)}
 				</div>
 			</div>
 		</nav>

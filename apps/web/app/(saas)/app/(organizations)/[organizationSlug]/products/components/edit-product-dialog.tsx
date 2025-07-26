@@ -28,6 +28,7 @@ import {
 } from "@ui/components/select";
 import { Textarea } from "@ui/components/textarea";
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -39,17 +40,26 @@ import {
 } from "../../constants";
 import type { ProductRecord } from "./columns";
 
-const editSchema = z.object({
-	category: z.enum(["AQ", "Bond", "DCI", "EQ", "FCN", "Fund", "FX"]),
-	name: z.string().min(1, "產品名稱是必填的"),
-	code: z.string().min(1, "產品代碼是必填的"),
-	currency: z.string().min(1, "幣別是必填的"),
-	distributionType: z.string().min(1, "配息方式是必填的"),
-	description: z.string().optional(),
-	status: z.enum(["active", "inactive"]),
-});
+const editSchema = (t: (key: string) => string) =>
+	z.object({
+		category: z.enum(["AQ", "Bond", "DCI", "EQ", "FCN", "Fund", "FX"]),
+		name: z.string().min(1, t("form.nameRequired")),
+		code: z.string().min(1, t("form.codeRequired")),
+		currency: z.string().min(1, t("form.currencyRequired")),
+		distributionType: z.string().min(1, t("form.distributionTypeRequired")),
+		description: z.string().optional(),
+		status: z.enum(["active", "inactive"]),
+	});
 
-type EditFormData = z.infer<typeof editSchema>;
+type EditFormData = {
+	category: "AQ" | "Bond" | "DCI" | "EQ" | "FCN" | "Fund" | "FX";
+	name: string;
+	code: string;
+	currency: string;
+	distributionType: string;
+	description?: string;
+	status: "active" | "inactive";
+};
 
 interface EditDialogProps {
 	productRecord: ProductRecord;
@@ -66,9 +76,12 @@ export function EditProductDialog({
 }: EditDialogProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const t = useTranslations("organization.products");
+
+	const schema = editSchema(t);
 
 	const form = useForm<EditFormData>({
-		resolver: zodResolver(editSchema),
+		resolver: zodResolver(schema),
 		defaultValues: {
 			category: productRecord.category,
 			name: productRecord.name,
@@ -108,7 +121,7 @@ export function EditProductDialog({
 			);
 
 			if (!response.ok) {
-				let errorMessage = "更新失敗";
+				let errorMessage = t("error.updateFailed");
 				try {
 					const responseText = await response.text();
 					try {
@@ -118,10 +131,10 @@ export function EditProductDialog({
 						errorMessage = responseText || errorMessage;
 					}
 				} catch {
-					errorMessage = "更新失敗";
+					errorMessage = t("error.updateFailed");
 				}
 
-				if (errorMessage.includes("代碼已被使用")) {
+				if (errorMessage.includes(t("error.codeExists"))) {
 					form.setError("code", {
 						type: "server",
 						message: errorMessage,
@@ -135,7 +148,7 @@ export function EditProductDialog({
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("更新失敗:", error);
+			console.error(t("error.updateFailed"), error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -153,13 +166,13 @@ export function EditProductDialog({
 			);
 
 			if (!response.ok) {
-				throw new Error("刪除失敗");
+				throw new Error(t("error.deleteFailed"));
 			}
 
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("刪除失敗:", error);
+			console.error(t("error.deleteFailed"), error);
 		} finally {
 			setIsDeleting(false);
 		}
@@ -169,9 +182,9 @@ export function EditProductDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>編輯產品</DialogTitle>
+					<DialogTitle>{t("dialog.edit.title")}</DialogTitle>
 					<DialogDescription>
-						修改下方資訊來更新產品。
+						{t("dialog.edit.description")}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -183,7 +196,7 @@ export function EditProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											類別 *
+											{t("form.category")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -192,7 +205,11 @@ export function EditProductDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇類別" />
+														<SelectValue
+															placeholder={t(
+																"form.categoryPlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
@@ -223,12 +240,14 @@ export function EditProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											產品名稱 *
+											{t("form.name")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
-													placeholder="輸入產品名稱"
+													placeholder={t(
+														"form.namePlaceholder",
+													)}
 													{...field}
 												/>
 											</FormControl>
@@ -243,12 +262,14 @@ export function EditProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											產品代碼 *
+											{t("form.code")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Input
-													placeholder="輸入產品代碼"
+													placeholder={t(
+														"form.codePlaceholder",
+													)}
 													{...field}
 												/>
 											</FormControl>
@@ -263,7 +284,7 @@ export function EditProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											幣別 *
+											{t("form.currency")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -272,7 +293,11 @@ export function EditProductDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇幣別" />
+														<SelectValue
+															placeholder={t(
+																"form.currencyPlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
@@ -303,7 +328,7 @@ export function EditProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											配息方式 *
+											{t("form.distributionType")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -312,7 +337,11 @@ export function EditProductDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇配息方式" />
+														<SelectValue
+															placeholder={t(
+																"form.distributionTypePlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
@@ -343,12 +372,14 @@ export function EditProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-start gap-4">
 										<FormLabel className="text-right mt-2">
-											描述
+											{t("form.description")}
 										</FormLabel>
 										<div className="col-span-3">
 											<FormControl>
 												<Textarea
-													placeholder="輸入產品描述"
+													placeholder={t(
+														"form.descriptionPlaceholder",
+													)}
 													className="min-h-[80px]"
 													{...field}
 												/>
@@ -364,7 +395,7 @@ export function EditProductDialog({
 								render={({ field }) => (
 									<FormItem className="grid grid-cols-4 items-center gap-4">
 										<FormLabel className="text-right">
-											狀態 *
+											{t("form.status")} *
 										</FormLabel>
 										<div className="col-span-3">
 											<Select
@@ -373,7 +404,11 @@ export function EditProductDialog({
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="選擇狀態" />
+														<SelectValue
+															placeholder={t(
+																"form.statusPlaceholder",
+															)}
+														/>
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
@@ -407,7 +442,9 @@ export function EditProductDialog({
 								disabled={isDeleting}
 							>
 								<Trash2 className="mr-2 size-4" />
-								{isDeleting ? "刪除中..." : "刪除"}
+								{isDeleting
+									? t("dialog.edit.deleting")
+									: t("dialog.edit.delete")}
 							</Button>
 							<div className="flex gap-2">
 								<Button
@@ -415,10 +452,12 @@ export function EditProductDialog({
 									variant="outline"
 									onClick={() => onOpenChange(false)}
 								>
-									取消
+									{t("dialog.edit.cancel")}
 								</Button>
 								<Button type="submit" disabled={isLoading}>
-									{isLoading ? "更新中..." : "更新"}
+									{isLoading
+										? t("dialog.edit.submitting")
+										: t("dialog.edit.submit")}
 								</Button>
 							</div>
 						</DialogFooter>

@@ -43,6 +43,7 @@ export interface CustomerRecord {
 export const createColumns = (
 	onEdit: (customerRecord: CustomerRecord) => void,
 	_onEditBankAccount: (bankAccountRecord: BankAccountRecord) => void,
+	t: (key: string) => string,
 ): ColumnDef<CustomerRecord>[] => {
 	const params = useParams();
 	const organizationSlug = params.organizationSlug as string;
@@ -52,14 +53,20 @@ export const createColumns = (
 			accessorKey: "code",
 			size: 120,
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="客戶編號" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.code")}
+				/>
 			),
 		},
 		{
 			accessorKey: "name",
 			size: 150,
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="客戶名稱" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.name")}
+				/>
 			),
 			cell: ({ row }) => {
 				const name = row.getValue("name") as string;
@@ -78,7 +85,10 @@ export const createColumns = (
 			accessorKey: "bankAccounts",
 			size: 250,
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="銀行帳戶" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.bankAccounts")}
+				/>
 			),
 			cell: ({ row }) => {
 				const bankAccounts = row.getValue(
@@ -87,12 +97,12 @@ export const createColumns = (
 				const count = bankAccounts?.length || 0;
 
 				if (count === 0) {
-					return "無銀行帳戶";
+					return t("table.noBankAccounts");
 				}
 
 				return (
 					<div className="space-y-1">
-						<div className="text-sm font-medium">{`${count} 個帳戶`}</div>
+						<div className="text-sm font-medium">{`${count}${t("table.accountCount")}`}</div>
 						<div className="flex flex-col gap-1">
 							{bankAccounts?.map((account) => (
 								<span key={account.id} className="truncate">
@@ -108,21 +118,27 @@ export const createColumns = (
 			accessorKey: "email",
 			size: 200,
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="電子郵件" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.email")}
+				/>
 			),
 		},
 		{
 			accessorKey: "phone",
 			size: 120,
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="電話" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.phone")}
+				/>
 			),
 		},
 		{
 			accessorKey: "rm1Name",
 			size: 140,
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="負責 RM1" />
+				<DataTableColumnHeader column={column} title={t("table.rm1")} />
 			),
 			cell: ({ row }) => {
 				const rm1Name = row.getValue("rm1Name") as string | null;
@@ -147,7 +163,7 @@ export const createColumns = (
 			accessorKey: "rm2Name",
 			size: 140,
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="負責 RM2" />
+				<DataTableColumnHeader column={column} title={t("table.rm2")} />
 			),
 			cell: ({ row }) => {
 				const rm2Name = row.getValue("rm2Name") as string | null;
@@ -172,7 +188,10 @@ export const createColumns = (
 			accessorKey: "finder1Name",
 			size: 150,
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="負責 Finder1" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.finder1")}
+				/>
 			),
 			cell: ({ row }) => {
 				const finder1Name = row.getValue("finder1Name") as
@@ -199,7 +218,10 @@ export const createColumns = (
 			accessorKey: "finder2Name",
 			size: 150,
 			header: ({ column }) => (
-				<DataTableColumnHeader column={column} title="負責 Finder2" />
+				<DataTableColumnHeader
+					column={column}
+					title={t("table.finder2")}
+				/>
 			),
 			cell: ({ row }) => {
 				const finder2Name = row.getValue("finder2Name") as
@@ -225,7 +247,7 @@ export const createColumns = (
 		{
 			id: "actions",
 			size: 80,
-			header: "操作",
+			header: t("table.actions"),
 			cell: ({ row }) => {
 				const customerRecord = row.original;
 

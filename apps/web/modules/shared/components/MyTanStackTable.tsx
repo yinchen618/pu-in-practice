@@ -19,6 +19,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@ui/lib";
 import { Loader2Icon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
 	type ColumnDef,
@@ -175,6 +176,7 @@ export function MyTanStackTable<T extends { id: string }>({
 	selectedRowId,
 	defaultBatchValues = "",
 }: ITableProps<T>) {
+	const t = useTranslations("common");
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
@@ -469,7 +471,7 @@ export function MyTanStackTable<T extends { id: string }>({
 
 	const actionColumn: ExtendedColumnDef<T> = {
 		id: "actions",
-		header: "操作",
+		header: t("table.actions"),
 		width: 120,
 		cell: ({ row }) => {
 			const isEditing = editingRow === row.original.id;
@@ -582,13 +584,13 @@ export function MyTanStackTable<T extends { id: string }>({
 
 			const result = await onBatchAdd(dataList);
 			if (!result.success) {
-				setBatchAddErrors(result.errors || ["批量新增失敗"]);
+				setBatchAddErrors(result.errors || [t("table.batchAddFailed")]);
 			} else {
 				setShowBatchAddDialog(false);
 				setBatchAddContent("");
 			}
 		} catch (error) {
-			setBatchAddErrors(["處理數據時發生錯誤"]);
+			setBatchAddErrors([t("table.dataProcessError")]);
 		} finally {
 			setIsBatchAdding(false);
 		}
@@ -624,7 +626,7 @@ export function MyTanStackTable<T extends { id: string }>({
 							<div className="absolute inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
 								<div className="flex items-center gap-2">
 									<Loader2Icon className="h-6 w-6 animate-spin" />
-									<span>載入中...</span>
+									<span>{t("table.loading")}</span>
 								</div>
 							</div>
 						)}
@@ -669,7 +671,7 @@ export function MyTanStackTable<T extends { id: string }>({
 													}
 													className="h-24 text-center align-middle text-muted-foreground"
 												>
-													無資料
+													{t("table.noData")}
 												</td>
 											</tr>
 										) : (
@@ -749,7 +751,7 @@ export function MyTanStackTable<T extends { id: string }>({
 						<div className="absolute inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
 							<div className="flex items-center gap-2">
 								<Loader2Icon className="h-6 w-6 animate-spin" />
-								<span>載入中...</span>
+								<span>{t("table.loading")}</span>
 							</div>
 						</div>
 					)}
@@ -782,7 +784,7 @@ export function MyTanStackTable<T extends { id: string }>({
 											colSpan={allColumns.length}
 											className="h-24 text-center align-middle text-muted-foreground"
 										>
-											無資料
+											{t("table.noData")}
 										</td>
 									</tr>
 								) : (
@@ -873,7 +875,7 @@ export function MyTanStackTable<T extends { id: string }>({
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}
 					>
-						上一頁
+						{t("table.previous")}
 					</Button>
 					<Button
 						variant="outline"
@@ -881,7 +883,7 @@ export function MyTanStackTable<T extends { id: string }>({
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}
 					>
-						下一頁
+						{t("table.next")}
 					</Button>
 					<Select
 						value={String(table.getState().pagination.pageSize)}
@@ -898,7 +900,8 @@ export function MyTanStackTable<T extends { id: string }>({
 									key={pageSize}
 									value={String(pageSize)}
 								>
-									顯示 {pageSize} 列
+									{t("table.itemsPerPage")} {pageSize}{" "}
+									{t("table.rows")}
 								</SelectItem>
 							))}
 						</SelectContent>
@@ -906,11 +909,14 @@ export function MyTanStackTable<T extends { id: string }>({
 				</div>
 				<div className="flex items-center gap-2">
 					<span className="text-sm">
-						第 {table.getState().pagination.pageIndex + 1} 頁，共{" "}
-						{table.getPageCount()} 頁
+						{t("table.page")}{" "}
+						{table.getState().pagination.pageIndex + 1}{" "}
+						{t("table.of")} {table.getPageCount()} {t("table.page")}
 					</span>
 					<span className="text-sm text-muted-foreground">
-						（共 {table.getFilteredRowModel().rows.length} 列）
+						（{t("table.total")}{" "}
+						{table.getFilteredRowModel().rows.length}{" "}
+						{t("table.rows")}）
 					</span>
 				</div>
 			</div>
@@ -944,14 +950,16 @@ export function MyTanStackTable<T extends { id: string }>({
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>確認刪除</AlertDialogTitle>
+						<AlertDialogTitle>
+							{t("table.confirmDelete")}
+						</AlertDialogTitle>
 						<AlertDialogDescription>
-							您確定要刪除這筆資料嗎？此操作無法復原。
+							{t("table.deleteConfirmation")}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel disabled={isUpdating}>
-							取消
+							{t("table.cancel")}
 						</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={() =>
@@ -962,10 +970,10 @@ export function MyTanStackTable<T extends { id: string }>({
 							{isUpdating ? (
 								<>
 									<Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-									處理中...
+									{t("table.loading")}
 								</>
 							) : (
-								"刪除"
+								t("table.delete")
 							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>

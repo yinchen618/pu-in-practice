@@ -12,6 +12,7 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Filter, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import type { BankAccountRecord } from "./columns";
 
@@ -33,6 +34,7 @@ export function BankAccountFilters({
 	onFilterChange,
 	onFiltersChange,
 }: BankAccountFiltersProps) {
+	const t = useTranslations("organization.bankAccounts");
 	const [filters, setFilters] = useState<BankAccountFilters>({});
 	const [isExpanded, setIsExpanded] = useState(false);
 
@@ -46,8 +48,8 @@ export function BankAccountFilters({
 
 	// 狀態選項
 	const statusOptions = [
-		{ value: "active", label: "使用中" },
-		{ value: "inactive", label: "已停用" },
+		{ value: "active", label: t("filters.statusActive") },
+		{ value: "inactive", label: t("filters.statusInactive") },
 	];
 
 	// 應用篩選器
@@ -125,7 +127,7 @@ export function BankAccountFilters({
 						className="gap-2"
 					>
 						<Filter className="size-4" />
-						篩選器{" "}
+						{t("filters.title")}{" "}
 						{hasActiveFilters &&
 							`(${
 								Object.values(filters).filter(
@@ -144,7 +146,7 @@ export function BankAccountFilters({
 							onClick={clearFilters}
 						>
 							<X className="size-4 mr-1" />
-							清除篩選
+							{t("filters.clearFilters")}
 						</Button>
 					)}
 				</div>
@@ -152,7 +154,7 @@ export function BankAccountFilters({
 				{/* 主要搜尋框 */}
 				<div className="flex items-center gap-2">
 					<Input
-						placeholder="搜尋銀行名稱或帳號..."
+						placeholder={t("filters.searchPlaceholder")}
 						value={filters.search || ""}
 						onChange={(e) => updateFilter("search", e.target.value)}
 						className="w-64"
@@ -164,7 +166,9 @@ export function BankAccountFilters({
 			{isExpanded && (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-lg bg-muted/20">
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">銀行名稱</Label>
+						<Label className="text-sm font-medium">
+							{t("bankName")}
+						</Label>
 						<Select
 							value={filters.bankName || ""}
 							onValueChange={(value) =>
@@ -175,10 +179,14 @@ export function BankAccountFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇銀行" />
+								<SelectValue
+									placeholder={t("filters.selectBank")}
+								/>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部銀行</SelectItem>
+								<SelectItem value="all">
+									{t("filters.allBanks")}
+								</SelectItem>
 								{uniqueBankNames.map((bankName) => (
 									<SelectItem key={bankName} value={bankName}>
 										{bankName}
@@ -189,7 +197,9 @@ export function BankAccountFilters({
 					</div>
 
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">幣別</Label>
+						<Label className="text-sm font-medium">
+							{t("currency")}
+						</Label>
 						<Select
 							value={filters.currency || ""}
 							onValueChange={(value) =>
@@ -200,10 +210,14 @@ export function BankAccountFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇幣別" />
+								<SelectValue
+									placeholder={t("filters.selectCurrency")}
+								/>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部幣別</SelectItem>
+								<SelectItem value="all">
+									{t("filters.allCurrencies")}
+								</SelectItem>
 								{uniqueCurrencies.map((currency) => (
 									<SelectItem key={currency} value={currency}>
 										{currency}
@@ -214,7 +228,9 @@ export function BankAccountFilters({
 					</div>
 
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">狀態</Label>
+						<Label className="text-sm font-medium">
+							{t("filters.status")}
+						</Label>
 						<Select
 							value={filters.status || ""}
 							onValueChange={(value) =>
@@ -225,10 +241,14 @@ export function BankAccountFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇狀態" />
+								<SelectValue
+									placeholder={t("filters.selectStatus")}
+								/>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部狀態</SelectItem>
+								<SelectItem value="all">
+									{t("filters.allStatuses")}
+								</SelectItem>
 								{statusOptions.map((status) => (
 									<SelectItem
 										key={status.value}
@@ -248,7 +268,7 @@ export function BankAccountFilters({
 				<div className="flex flex-wrap gap-2">
 					{filters.bankName && filters.bankName !== "all" && (
 						<Badge status="info" className="gap-1">
-							銀行: {filters.bankName}
+							{t("filters.bank")}: {filters.bankName}
 							<button
 								type="button"
 								onClick={() =>
@@ -262,7 +282,7 @@ export function BankAccountFilters({
 					)}
 					{filters.currency && filters.currency !== "all" && (
 						<Badge status="info" className="gap-1">
-							幣別: {filters.currency}
+							{t("currency")}: {filters.currency}
 							<button
 								type="button"
 								onClick={() =>
@@ -276,7 +296,7 @@ export function BankAccountFilters({
 					)}
 					{filters.status && filters.status !== "all" && (
 						<Badge status="info" className="gap-1">
-							狀態:{" "}
+							{t("filters.status")}:{" "}
 							{
 								statusOptions.find(
 									(s) => s.value === filters.status,

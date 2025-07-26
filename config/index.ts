@@ -17,10 +17,6 @@ export const config = {
 				currency: "TWD",
 				label: "繁體中文",
 			},
-			de: {
-				currency: "USD",
-				label: "Deutsch",
-			},
 		},
 		// The default locale is used if no locale is provided
 		defaultLocale: "zh",

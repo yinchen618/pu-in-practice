@@ -20,6 +20,7 @@ import {
 import { Separator } from "@ui/components/separator";
 import { cn } from "@ui/lib";
 import { CheckIcon, PlusCircleIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import * as React from "react";
 
 interface DataTableFacetedFilterProps<TData, TValue> {
@@ -36,6 +37,7 @@ export function DataTableFacetedFilter<TData, TValue>({
 	title,
 	options,
 }: DataTableFacetedFilterProps<TData, TValue>) {
+	const t = useTranslations();
 	const facets = column?.getFacetedUniqueValues();
 	const selectedValues = new Set(column?.getFilterValue() as string[]);
 
@@ -67,7 +69,9 @@ export function DataTableFacetedFilter<TData, TValue>({
 										status="info"
 										className="rounded-sm px-1 font-normal"
 									>
-										{selectedValues.size} 已選
+										{t("common.dataTable.selectedCount", {
+											count: selectedValues.size,
+										})}
 									</Badge>
 								) : (
 									options
@@ -93,7 +97,9 @@ export function DataTableFacetedFilter<TData, TValue>({
 				<Command>
 					<CommandInput placeholder={title} />
 					<CommandList>
-						<CommandEmpty>無符合結果</CommandEmpty>
+						<CommandEmpty>
+							{t("common.dataTable.noResults")}
+						</CommandEmpty>
 						<CommandGroup>
 							{options.map((option) => {
 								const isSelected = selectedValues.has(
@@ -153,7 +159,7 @@ export function DataTableFacetedFilter<TData, TValue>({
 										}
 										className="justify-center text-center"
 									>
-										清除篩選
+										{t("common.dataTable.clearFilters")}
 									</CommandItem>
 								</CommandGroup>
 							</>

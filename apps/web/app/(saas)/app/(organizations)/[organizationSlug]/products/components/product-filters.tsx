@@ -12,12 +12,13 @@ import {
 	SelectValue,
 } from "@ui/components/select";
 import { Filter, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import {
-	CURRENCY_OPTIONS,
-	DISTRIBUTION_TYPE_OPTIONS,
-	PRODUCT_CATEGORIES,
-	PRODUCT_STATUSES,
+	getCurrencyOptions,
+	getDistributionTypeOptions,
+	getProductCategories,
+	getProductStatuses,
 } from "../../constants";
 import type { ProductRecord } from "./columns";
 
@@ -40,8 +41,15 @@ export function ProductFilters({
 	onFilterChange,
 	onFiltersChange,
 }: ProductFiltersProps) {
+	const t = useTranslations("organization.products");
+	const tConstants = useTranslations("organization.constants");
 	const [filters, setFilters] = useState<ProductFilters>({});
 	const [isExpanded, setIsExpanded] = useState(false);
+
+	const currencyOptions = getCurrencyOptions(tConstants);
+	const distributionTypeOptions = getDistributionTypeOptions(tConstants);
+	const productCategoryOptions = getProductCategories(tConstants);
+	const productStatusOptions = getProductStatuses(tConstants);
 
 	// 應用篩選器
 	const applyFilters = useMemo(() => {
@@ -127,7 +135,7 @@ export function ProductFilters({
 						className="gap-2"
 					>
 						<Filter className="size-4" />
-						篩選器{" "}
+						{t("filters.title")}{" "}
 						{hasActiveFilters &&
 							`(${
 								Object.values(filters).filter(
@@ -146,7 +154,7 @@ export function ProductFilters({
 							onClick={clearFilters}
 						>
 							<X className="size-4 mr-1" />
-							清除篩選
+							{t("filters.clearFilters")}
 						</Button>
 					)}
 				</div>
@@ -154,7 +162,7 @@ export function ProductFilters({
 				{/* 主要搜尋框 */}
 				<div className="flex items-center gap-2">
 					<Input
-						placeholder="搜尋產品名稱、代碼或描述..."
+						placeholder={t("filters.searchPlaceholder")}
 						value={filters.search || ""}
 						onChange={(e) => updateFilter("search", e.target.value)}
 						className="w-64"
@@ -166,7 +174,9 @@ export function ProductFilters({
 			{isExpanded && (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/20">
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">類別</Label>
+						<Label className="text-sm font-medium">
+							{tConstants("productCategory.title")}
+						</Label>
 						<Select
 							value={filters.category}
 							onValueChange={(value) =>
@@ -174,11 +184,17 @@ export function ProductFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇類別" />
+								<SelectValue
+									placeholder={tConstants(
+										"productCategory.placeholder",
+									)}
+								/>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部類別</SelectItem>
-								{PRODUCT_CATEGORIES.map((category) => (
+								<SelectItem value="all">
+									{tConstants("productCategory.all")}
+								</SelectItem>
+								{productCategoryOptions.map((category) => (
 									<SelectItem
 										key={category.value}
 										value={category.value}
@@ -191,7 +207,9 @@ export function ProductFilters({
 					</div>
 
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">幣別</Label>
+						<Label className="text-sm font-medium">
+							{tConstants("currency.title")}
+						</Label>
 						<Select
 							value={filters.currency}
 							onValueChange={(value) =>
@@ -199,11 +217,17 @@ export function ProductFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇幣別" />
+								<SelectValue
+									placeholder={tConstants(
+										"currency.placeholder",
+									)}
+								/>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部幣別</SelectItem>
-								{CURRENCY_OPTIONS.map((currency) => (
+								<SelectItem value="all">
+									{tConstants("currency.all")}
+								</SelectItem>
+								{currencyOptions.map((currency) => (
 									<SelectItem
 										key={currency.value}
 										value={currency.value}
@@ -216,7 +240,9 @@ export function ProductFilters({
 					</div>
 
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">配息方式</Label>
+						<Label className="text-sm font-medium">
+							{tConstants("distributionType.title")}
+						</Label>
 						<Select
 							value={filters.distributionType}
 							onValueChange={(value) =>
@@ -224,13 +250,17 @@ export function ProductFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇配息方式" />
+								<SelectValue
+									placeholder={tConstants(
+										"distributionType.placeholder",
+									)}
+								/>
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="all">
-									全部配息方式
+									{tConstants("distributionType.all")}
 								</SelectItem>
-								{DISTRIBUTION_TYPE_OPTIONS.map((type) => (
+								{distributionTypeOptions.map((type) => (
 									<SelectItem
 										key={type.value}
 										value={type.value}
@@ -243,7 +273,9 @@ export function ProductFilters({
 					</div>
 
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">狀態</Label>
+						<Label className="text-sm font-medium">
+							{tConstants("status.title")}
+						</Label>
 						<Select
 							value={filters.status}
 							onValueChange={(value) =>
@@ -251,11 +283,17 @@ export function ProductFilters({
 							}
 						>
 							<SelectTrigger>
-								<SelectValue placeholder="選擇狀態" />
+								<SelectValue
+									placeholder={tConstants(
+										"status.placeholder",
+									)}
+								/>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">全部狀態</SelectItem>
-								{PRODUCT_STATUSES.map((status) => (
+								<SelectItem value="all">
+									{tConstants("status.all")}
+								</SelectItem>
+								{productStatusOptions.map((status) => (
 									<SelectItem
 										key={status.value}
 										value={status.value}
@@ -278,9 +316,9 @@ export function ProductFilters({
 							className="gap-1 cursor-pointer"
 							onClick={() => updateFilter("category", "all")}
 						>
-							類別:{" "}
+							{tConstants("productCategory.title")}:{" "}
 							{
-								PRODUCT_CATEGORIES.find(
+								productCategoryOptions.find(
 									(c) => c.value === filters.category,
 								)?.label
 							}
@@ -293,9 +331,9 @@ export function ProductFilters({
 							className="gap-1 cursor-pointer"
 							onClick={() => updateFilter("currency", "all")}
 						>
-							幣別:{" "}
+							{tConstants("currency.title")}:{" "}
 							{
-								CURRENCY_OPTIONS.find(
+								currencyOptions.find(
 									(c) => c.value === filters.currency,
 								)?.label
 							}
@@ -311,9 +349,9 @@ export function ProductFilters({
 									updateFilter("distributionType", "all")
 								}
 							>
-								配息方式:{" "}
+								{tConstants("distributionType.title")}:{" "}
 								{
-									DISTRIBUTION_TYPE_OPTIONS.find(
+									distributionTypeOptions.find(
 										(d) =>
 											d.value ===
 											filters.distributionType,
@@ -328,9 +366,9 @@ export function ProductFilters({
 							className="gap-1 cursor-pointer"
 							onClick={() => updateFilter("status", "all")}
 						>
-							狀態:{" "}
+							{tConstants("status.title")}:{" "}
 							{
-								PRODUCT_STATUSES.find(
+								productStatusOptions.find(
 									(s) => s.value === filters.status,
 								)?.label
 							}
