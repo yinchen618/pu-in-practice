@@ -19,7 +19,7 @@ export const config = {
 			},
 		},
 		// The default locale is used if no locale is provided
-		defaultLocale: "zh",
+		defaultLocale: "en",
 		// The default currency is used for pricing if no currency is provided
 		defaultCurrency: "USD",
 		// The name of the cookie that is used to determine the locale

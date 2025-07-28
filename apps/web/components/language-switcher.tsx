@@ -1,6 +1,10 @@
 "use client";
-
+import { updateLocale } from "@i18n/lib/update-locale";
+import { authClient } from "@repo/auth/client";
 import { config } from "@repo/config";
+import type { Locale } from "@repo/i18n";
+import { useMutation } from "@tanstack/react-query";
+
 import { Button } from "@ui/components/button";
 import {
 	DropdownMenu,
@@ -9,41 +13,49 @@ import {
 	DropdownMenuTrigger,
 } from "@ui/components/dropdown-menu";
 import { Languages } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function LanguageSwitcher() {
-	const locale = useLocale();
+	const currentLocale = useLocale();
+	const t = useTranslations();
 	const router = useRouter();
-	const pathname = usePathname();
+	const [locale, setLocale] = useState<Locale | undefined>(
+		currentLocale as Locale,
+	);
 
-	const handleLocaleChange = (newLocale: string) => {
-		// 設置 locale cookie
-		document.cookie = `${config.i18n.localeCookieName}=${newLocale}; path=/; max-age=31536000`;
+	const updateLocaleMutation = useMutation({
+		mutationFn: async () => {
+			if (!locale) {
+				return;
+			}
 
-		// 取得目前路徑，替換語言前綴
-		const segments = pathname.split("/");
-		if (segments[1] === "en" || segments[1] === "zh") {
-			segments[1] = newLocale;
-		} else {
-			segments.splice(1, 0, newLocale);
+			await authClient.updateUser({
+				locale,
+			});
+			await updateLocale(locale);
+			router.refresh();
+		},
+	});
+
+	const saveLocale = async () => {
+		try {
+			await updateLocaleMutation.mutateAsync();
+
+			toast.success(t("settings.account.language.notifications.success"));
+		} catch {
+			toast.error(t("settings.account.language.notifications.error"));
 		}
-		const newPath = segments.join("/") || "/";
-
-		// 導向新語言的路徑
-		router.push(newPath);
 	};
-
-	const currentLocaleConfig =
-		config.i18n.locales[locale as keyof typeof config.i18n.locales];
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button variant="outline" size="sm" className="gap-2">
 					<Languages className="h-4 w-4" />
-					{currentLocaleConfig?.label || locale}
+					{config.i18n.locales[locale as keyof typeof config.i18n.locales]?.label || locale}
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
@@ -51,7 +63,10 @@ export function LanguageSwitcher() {
 					([localeKey, localeConfig]) => (
 						<DropdownMenuItem
 							key={localeKey}
-							onClick={() => handleLocaleChange(localeKey)}
+							onClick={() => {
+								setLocale(localeKey as Locale);
+								saveLocale();
+							}}
 							className={locale === localeKey ? "bg-accent" : ""}
 						>
 							{localeConfig.label}
