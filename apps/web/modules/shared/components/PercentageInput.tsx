@@ -19,18 +19,28 @@ export function PercentageInput({
 	className,
 	...props
 }: PercentageInputProps) {
+	// 確保 value 是有效的數字
+	const displayValue = value !== undefined && value !== null ? value : defaultValue;
+	
 	return (
 		<div className="relative">
 			<Input
 				type="number"
-				step="1"
+				step="0.01"
 				min="0"
 				max="100"
 				placeholder="0.00"
-				value={value || ""}
+				value={displayValue}
 				onChange={(e) => {
 					const newValue = e.target.value;
-					onChange(newValue === "" ? defaultValue : Number(newValue));
+					if (newValue === "") {
+						onChange(defaultValue);
+					} else {
+						const numValue = Number(newValue);
+						if (!isNaN(numValue)) {
+							onChange(numValue);
+						}
+					}
 				}}
 				className={cn("pr-7", className)}
 				{...props}

@@ -1515,49 +1515,53 @@
 				}
 			},
 			"allocation": {
-				"title": "Profit Sharing Allocation",
+				"title": "Profit Share Allocation",
 				"company": {
-					"title": "Company Share",
-					"description": "Company profit sharing"
+					"title": "Company",
+					"description": "Company profit share"
 				},
 				"rm1": {
-					"title": "RM1 Share",
-					"description": "Relationship Manager 1"
+					"title": "RM1",
+					"description": "First Relationship Manager"
 				},
 				"rm2": {
-					"title": "RM2 Share",
-					"description": "Relationship Manager 2"
+					"title": "RM2",
+					"description": "Second Relationship Manager"
 				},
 				"finder1": {
-					"title": "Finder1 Share",
-					"description": "Finder 1"
+					"title": "Finder1",
+					"description": "First Finder"
 				},
 				"finder2": {
-					"title": "Finder2 Share",
-					"description": "Finder 2"
+					"title": "Finder2",
+					"description": "Second Finder"
 				},
 				"fields": {
-					"percentage": "Percentage (%)",
+					"revenuePercentage": "Revenue %",
+					"feePercentage": "Fee %",
 					"person": "Person",
+					"revenueAmount": "Revenue Amount",
+					"feeAmount": "Fee Amount",
 					"originalCurrency": "Original Amount",
 					"usdAmount": "USD Amount"
 				},
 				"selectors": {
+					"loading": "Loading...",
 					"selectRM": "Select RM",
+					"searchRM": "Search RM",
+					"noRMFound": "No RM found",
 					"selectFinder": "Select Finder",
-					"searchRM": "Search RM...",
-					"searchFinder": "Search Finder...",
-					"noRMFound": "No RM found.",
-					"noFinderFound": "No Finder found.",
-					"loading": "Loading..."
+					"searchFinder": "Search Finder",
+					"noFinderFound": "No Finder found"
 				},
 				"summary": {
-					"totalPercentage": "Total Percentage",
-					"validationError": "Total percentage must equal 100%"
+					"totalRevenuePercentage": "Total Revenue Percentage",
+					"totalFeePercentage": "Total Fee Percentage",
+					"validationError": "Both Revenue and Fee percentages must equal 100%"
 				}
 			},
 			"shareableAmount": {
-				"shareableLabel": "Total Shareable Amount",
+				"shareableLabel": "Total Original Amount",
 				"shareableDescription": "Company Revenue + Direct Trade Booking Fee × Bank Retro(%)",
 				"fxRateLabel": "FX Rate",
 				"shareableUsdLabel": "Shareable (USD)",

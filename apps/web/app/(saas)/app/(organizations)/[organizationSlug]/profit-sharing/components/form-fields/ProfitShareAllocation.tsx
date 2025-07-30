@@ -38,15 +38,50 @@ export function ProfitShareAllocation({
 }: ProfitShareAllocationProps) {
 	const t = useTranslations("organization.profitSharing.allocation");
 
-	const totalPercent = calculateTotalProfitSharePercent(
-		form.watch("companyProfitSharePercent") || 0,
-		form.watch("rm1ProfitSharePercent") || 0,
-		form.watch("rm2ProfitSharePercent") || 0,
-		form.watch("finder1ProfitSharePercent") || 0,
-		form.watch("finder2ProfitSharePercent") || 0,
+	// 計算總分潤比例
+	const totalPercentages = calculateTotalProfitSharePercent(
+		form.watch("companyRevenuePercent") || 0,
+		form.watch("companyFeePercent") || 0,
+		form.watch("rm1RevenuePercent") || 0,
+		form.watch("rm1FeePercent") || 0,
+		form.watch("rm2RevenuePercent") || 0,
+		form.watch("rm2FeePercent") || 0,
+		form.watch("finder1RevenuePercent") || 0,
+		form.watch("finder1FeePercent") || 0,
+		form.watch("finder2RevenuePercent") || 0,
+		form.watch("finder2FeePercent") || 0,
 	);
 
-	const isValid = isValidProfitSharePercent(totalPercent);
+	const isValid = isValidProfitSharePercent(
+		totalPercentages.revenuePercent,
+		totalPercentages.feePercent,
+	);
+
+	// 計算每個人的分潤金額
+	const calculatePersonAmounts = (
+		revenuePercent: number,
+		feePercent: number,
+	) => {
+		const companyRevenue = form.watch("companyRevenue") || 0;
+		const directTradeBookingFee = form.watch("directTradeBookingFee") || 0;
+		const bankRetroPercent = form.watch("bankRetroPercent") || 50;
+
+		// Revenue 部分: Company Revenue × Revenue Percentage
+		const revenueAmount = (companyRevenue * revenuePercent) / 100;
+
+		// Fee 部分: Direct Trade Booking Fee × Bank Retro(%) × Fee Percentage
+		const feeAmount =
+			(directTradeBookingFee * bankRetroPercent * feePercent) / 10000;
+
+		// 總金額
+		const totalAmount = revenueAmount + feeAmount;
+
+		return {
+			revenueAmount,
+			feeAmount,
+			totalAmount,
+		};
+	};
 
 	return (
 		<Card className="mt-6">
@@ -56,7 +91,7 @@ export function ProfitShareAllocation({
 			<CardContent className="space-y-4">
 				{/* Company 分潤 */}
 				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
-					<div className="col-span-2">
+					<div className="col-span-1">
 						<FormLabel className="text-sm font-medium">
 							{t("company.title")}
 						</FormLabel>
@@ -65,19 +100,24 @@ export function ProfitShareAllocation({
 						</div>
 					</div>
 					<div className="col-span-1">
+						<FormLabel className="text-xs">
+							{t("fields.person")}
+						</FormLabel>
+						<div className="text-sm text-gray-500 mt-2">-</div>
+					</div>
+					<div className="col-span-1">
 						<FormField
 							control={form.control}
-							name="companyProfitSharePercent"
+							name="companyRevenuePercent"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="text-xs">
-										{t("fields.percentage")}
+										{t("fields.revenuePercentage")}
 									</FormLabel>
 									<FormControl>
 										<PercentageInput
-											placeholder="50.00"
-											{...field}
-											value={field.value || 0}
+											placeholder="100.00"
+											value={field.value}
 											onChange={(value) => {
 												field.onChange(value);
 											}}
@@ -89,12 +129,69 @@ export function ProfitShareAllocation({
 						/>
 					</div>
 					<div className="col-span-1">
-						<FormLabel className="text-xs">
-							{t("fields.person")}
-						</FormLabel>
-						<div className="text-sm text-gray-500 mt-2">-</div>
+						<FormField
+							control={form.control}
+							name="companyFeePercent"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-xs">
+										{t("fields.feePercentage")}
+									</FormLabel>
+									<FormControl>
+										<PercentageInput
+											placeholder="100.00"
+											value={field.value}
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 					</div>
-					<div className="col-span-2">
+					<div className="col-span-1">
+						<FormItem>
+							<FormLabel className="text-xs">
+								{t("fields.revenueAmount")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									step="1"
+									placeholder="0.00"
+									disabled
+									value={calculatePersonAmounts(
+										form.watch("companyRevenuePercent") ||
+											0,
+										form.watch("companyFeePercent") || 0,
+									).revenueAmount.toFixed(2)}
+								/>
+							</FormControl>
+						</FormItem>
+					</div>
+					<div className="col-span-1">
+						<FormItem>
+							<FormLabel className="text-xs">
+								{t("fields.feeAmount")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									step="1"
+									placeholder="0.00"
+									disabled
+									value={calculatePersonAmounts(
+										form.watch("companyRevenuePercent") ||
+											0,
+										form.watch("companyFeePercent") || 0,
+									).feeAmount.toFixed(2)}
+								/>
+							</FormControl>
+						</FormItem>
+					</div>
+					<div className="col-span-1">
 						<FormItem>
 							<FormLabel className="text-xs">
 								{t("fields.originalCurrency")}
@@ -105,18 +202,16 @@ export function ProfitShareAllocation({
 									step="1"
 									placeholder="0.00"
 									disabled
-									value={(
-										((form.watch("shareable") || 0) *
-											(form.watch(
-												"companyProfitSharePercent",
-											) || 0)) /
-										100
-									).toFixed(2)}
+									value={calculatePersonAmounts(
+										form.watch("companyRevenuePercent") ||
+											0,
+										form.watch("companyFeePercent") || 0,
+									).totalAmount.toFixed(2)}
 								/>
 							</FormControl>
 						</FormItem>
 					</div>
-					<div className="col-span-2">
+					<div className="col-span-1">
 						<FormItem>
 							<FormLabel className="text-xs">
 								{t("fields.usdAmount")}
@@ -128,11 +223,13 @@ export function ProfitShareAllocation({
 									placeholder="0.00"
 									disabled
 									value={(
-										(((form.watch("shareable") || 0) *
-											(form.watch(
-												"companyProfitSharePercent",
-											) || 0)) /
-											100) *
+										calculatePersonAmounts(
+											form.watch(
+												"companyRevenuePercent",
+											) || 0,
+											form.watch("companyFeePercent") ||
+												0,
+										).totalAmount *
 										(form.watch("fxRate") || 1)
 									).toFixed(2)}
 								/>
@@ -143,37 +240,13 @@ export function ProfitShareAllocation({
 
 				{/* RM1 分潤 */}
 				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
-					<div className="col-span-2">
+					<div className="col-span-1">
 						<FormLabel className="text-sm font-medium">
 							{t("rm1.title")}
 						</FormLabel>
 						<div className="text-xs text-gray-500 mt-1">
 							{t("rm1.description")}
 						</div>
-					</div>
-					<div className="col-span-1">
-						<FormField
-							control={form.control}
-							name="rm1ProfitSharePercent"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel className="text-xs">
-										{t("fields.percentage")}
-									</FormLabel>
-									<FormControl>
-										<PercentageInput
-											placeholder="0.00"
-											{...field}
-											value={field.value || 0}
-											onChange={(value) => {
-												field.onChange(value);
-											}}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 					</div>
 					<div className="col-span-1">
 						<FormField
@@ -219,7 +292,91 @@ export function ProfitShareAllocation({
 							)}
 						/>
 					</div>
-					<div className="col-span-2">
+					<div className="col-span-1">
+						<FormField
+							control={form.control}
+							name="rm1RevenuePercent"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-xs">
+										{t("fields.revenuePercentage")}
+									</FormLabel>
+									<FormControl>
+										<PercentageInput
+											placeholder="0.00"
+											value={field.value}
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="col-span-1">
+						<FormField
+							control={form.control}
+							name="rm1FeePercent"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-xs">
+										{t("fields.feePercentage")}
+									</FormLabel>
+									<FormControl>
+										<PercentageInput
+											placeholder="0.00"
+											value={field.value}
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="col-span-1">
+						<FormItem>
+							<FormLabel className="text-xs">
+								{t("fields.revenueAmount")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									step="1"
+									placeholder="0.00"
+									disabled
+									value={calculatePersonAmounts(
+										form.watch("rm1RevenuePercent") || 0,
+										form.watch("rm1FeePercent") || 0,
+									).revenueAmount.toFixed(2)}
+								/>
+							</FormControl>
+						</FormItem>
+					</div>
+					<div className="col-span-1">
+						<FormItem>
+							<FormLabel className="text-xs">
+								{t("fields.feeAmount")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									step="1"
+									placeholder="0.00"
+									disabled
+									value={calculatePersonAmounts(
+										form.watch("rm1RevenuePercent") || 0,
+										form.watch("rm1FeePercent") || 0,
+									).feeAmount.toFixed(2)}
+								/>
+							</FormControl>
+						</FormItem>
+					</div>
+					<div className="col-span-1">
 						<FormItem>
 							<FormLabel className="text-xs">
 								{t("fields.originalCurrency")}
@@ -230,18 +387,15 @@ export function ProfitShareAllocation({
 									step="1"
 									placeholder="0.00"
 									disabled
-									value={(
-										((form.watch("shareable") || 0) *
-											(form.watch(
-												"rm1ProfitSharePercent",
-											) || 0)) /
-										100
-									).toFixed(2)}
+									value={calculatePersonAmounts(
+										form.watch("rm1RevenuePercent") || 0,
+										form.watch("rm1FeePercent") || 0,
+									).totalAmount.toFixed(2)}
 								/>
 							</FormControl>
 						</FormItem>
 					</div>
-					<div className="col-span-2">
+					<div className="col-span-1">
 						<FormItem>
 							<FormLabel className="text-xs">
 								{t("fields.usdAmount")}
@@ -253,11 +407,11 @@ export function ProfitShareAllocation({
 									placeholder="0.00"
 									disabled
 									value={(
-										(((form.watch("shareable") || 0) *
-											(form.watch(
-												"rm1ProfitSharePercent",
-											) || 0)) /
-											100) *
+										calculatePersonAmounts(
+											form.watch("rm1RevenuePercent") ||
+												0,
+											form.watch("rm1FeePercent") || 0,
+										).totalAmount *
 										(form.watch("fxRate") || 1)
 									).toFixed(2)}
 								/>
@@ -268,37 +422,13 @@ export function ProfitShareAllocation({
 
 				{/* RM2 分潤 */}
 				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
-					<div className="col-span-2">
+					<div className="col-span-1">
 						<FormLabel className="text-sm font-medium">
 							{t("rm2.title")}
 						</FormLabel>
 						<div className="text-xs text-gray-500 mt-1">
 							{t("rm2.description")}
 						</div>
-					</div>
-					<div className="col-span-1">
-						<FormField
-							control={form.control}
-							name="rm2ProfitSharePercent"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel className="text-xs">
-										{t("fields.percentage")}
-									</FormLabel>
-									<FormControl>
-										<PercentageInput
-											placeholder="0.00"
-											{...field}
-											value={field.value || 0}
-											onChange={(value) => {
-												field.onChange(value);
-											}}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 					</div>
 					<div className="col-span-1">
 						<FormField
@@ -344,7 +474,91 @@ export function ProfitShareAllocation({
 							)}
 						/>
 					</div>
-					<div className="col-span-2">
+					<div className="col-span-1">
+						<FormField
+							control={form.control}
+							name="rm2RevenuePercent"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-xs">
+										{t("fields.revenuePercentage")}
+									</FormLabel>
+									<FormControl>
+										<PercentageInput
+											placeholder="0.00"
+											value={field.value}
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="col-span-1">
+						<FormField
+							control={form.control}
+							name="rm2FeePercent"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-xs">
+										{t("fields.feePercentage")}
+									</FormLabel>
+									<FormControl>
+										<PercentageInput
+											placeholder="0.00"
+											value={field.value}
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="col-span-1">
+						<FormItem>
+							<FormLabel className="text-xs">
+								{t("fields.revenueAmount")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									step="1"
+									placeholder="0.00"
+									disabled
+									value={calculatePersonAmounts(
+										form.watch("rm2RevenuePercent") || 0,
+										form.watch("rm2FeePercent") || 0,
+									).revenueAmount.toFixed(2)}
+								/>
+							</FormControl>
+						</FormItem>
+					</div>
+					<div className="col-span-1">
+						<FormItem>
+							<FormLabel className="text-xs">
+								{t("fields.feeAmount")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									step="1"
+									placeholder="0.00"
+									disabled
+									value={calculatePersonAmounts(
+										form.watch("rm2RevenuePercent") || 0,
+										form.watch("rm2FeePercent") || 0,
+									).feeAmount.toFixed(2)}
+								/>
+							</FormControl>
+						</FormItem>
+					</div>
+					<div className="col-span-1">
 						<FormItem>
 							<FormLabel className="text-xs">
 								{t("fields.originalCurrency")}
@@ -355,18 +569,15 @@ export function ProfitShareAllocation({
 									step="1"
 									placeholder="0.00"
 									disabled
-									value={(
-										((form.watch("shareable") || 0) *
-											(form.watch(
-												"rm2ProfitSharePercent",
-											) || 0)) /
-										100
-									).toFixed(2)}
+									value={calculatePersonAmounts(
+										form.watch("rm2RevenuePercent") || 0,
+										form.watch("rm2FeePercent") || 0,
+									).totalAmount.toFixed(2)}
 								/>
 							</FormControl>
 						</FormItem>
 					</div>
-					<div className="col-span-2">
+					<div className="col-span-1">
 						<FormItem>
 							<FormLabel className="text-xs">
 								{t("fields.usdAmount")}
@@ -378,11 +589,11 @@ export function ProfitShareAllocation({
 									placeholder="0.00"
 									disabled
 									value={(
-										(((form.watch("shareable") || 0) *
-											(form.watch(
-												"rm2ProfitSharePercent",
-											) || 0)) /
-											100) *
+										calculatePersonAmounts(
+											form.watch("rm2RevenuePercent") ||
+												0,
+											form.watch("rm2FeePercent") || 0,
+										).totalAmount *
 										(form.watch("fxRate") || 1)
 									).toFixed(2)}
 								/>
@@ -393,37 +604,13 @@ export function ProfitShareAllocation({
 
 				{/* Finder1 分潤 */}
 				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
-					<div className="col-span-2">
+					<div className="col-span-1">
 						<FormLabel className="text-sm font-medium">
 							{t("finder1.title")}
 						</FormLabel>
 						<div className="text-xs text-gray-500 mt-1">
 							{t("finder1.description")}
 						</div>
-					</div>
-					<div className="col-span-1">
-						<FormField
-							control={form.control}
-							name="finder1ProfitSharePercent"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel className="text-xs">
-										{t("fields.percentage")}
-									</FormLabel>
-									<FormControl>
-										<PercentageInput
-											placeholder="0.00"
-											{...field}
-											value={field.value || 0}
-											onChange={(value) => {
-												field.onChange(value);
-											}}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 					</div>
 					<div className="col-span-1">
 						<FormField
@@ -475,7 +662,93 @@ export function ProfitShareAllocation({
 							)}
 						/>
 					</div>
-					<div className="col-span-2">
+					<div className="col-span-1">
+						<FormField
+							control={form.control}
+							name="finder1RevenuePercent"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-xs">
+										{t("fields.revenuePercentage")}
+									</FormLabel>
+									<FormControl>
+										<PercentageInput
+											placeholder="0.00"
+											value={field.value}
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="col-span-1">
+						<FormField
+							control={form.control}
+							name="finder1FeePercent"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-xs">
+										{t("fields.feePercentage")}
+									</FormLabel>
+									<FormControl>
+										<PercentageInput
+											placeholder="0.00"
+											value={field.value}
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="col-span-1">
+						<FormItem>
+							<FormLabel className="text-xs">
+								{t("fields.revenueAmount")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									step="1"
+									placeholder="0.00"
+									disabled
+									value={calculatePersonAmounts(
+										form.watch("finder1RevenuePercent") ||
+											0,
+										form.watch("finder1FeePercent") || 0,
+									).revenueAmount.toFixed(2)}
+								/>
+							</FormControl>
+						</FormItem>
+					</div>
+					<div className="col-span-1">
+						<FormItem>
+							<FormLabel className="text-xs">
+								{t("fields.feeAmount")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									step="1"
+									placeholder="0.00"
+									disabled
+									value={calculatePersonAmounts(
+										form.watch("finder1RevenuePercent") ||
+											0,
+										form.watch("finder1FeePercent") || 0,
+									).feeAmount.toFixed(2)}
+								/>
+							</FormControl>
+						</FormItem>
+					</div>
+					<div className="col-span-1">
 						<FormItem>
 							<FormLabel className="text-xs">
 								{t("fields.originalCurrency")}
@@ -486,18 +759,16 @@ export function ProfitShareAllocation({
 									step="1"
 									placeholder="0.00"
 									disabled
-									value={(
-										((form.watch("shareable") || 0) *
-											(form.watch(
-												"finder1ProfitSharePercent",
-											) || 0)) /
-										100
-									).toFixed(2)}
+									value={calculatePersonAmounts(
+										form.watch("finder1RevenuePercent") ||
+											0,
+										form.watch("finder1FeePercent") || 0,
+									).totalAmount.toFixed(2)}
 								/>
 							</FormControl>
 						</FormItem>
 					</div>
-					<div className="col-span-2">
+					<div className="col-span-1">
 						<FormItem>
 							<FormLabel className="text-xs">
 								{t("fields.usdAmount")}
@@ -509,11 +780,13 @@ export function ProfitShareAllocation({
 									placeholder="0.00"
 									disabled
 									value={(
-										(((form.watch("shareable") || 0) *
-											(form.watch(
-												"finder1ProfitSharePercent",
-											) || 0)) /
-											100) *
+										calculatePersonAmounts(
+											form.watch(
+												"finder1RevenuePercent",
+											) || 0,
+											form.watch("finder1FeePercent") ||
+												0,
+										).totalAmount *
 										(form.watch("fxRate") || 1)
 									).toFixed(2)}
 								/>
@@ -524,37 +797,13 @@ export function ProfitShareAllocation({
 
 				{/* Finder2 分潤 */}
 				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
-					<div className="col-span-2">
+					<div className="col-span-1">
 						<FormLabel className="text-sm font-medium">
 							{t("finder2.title")}
 						</FormLabel>
 						<div className="text-xs text-gray-500 mt-1">
 							{t("finder2.description")}
 						</div>
-					</div>
-					<div className="col-span-1">
-						<FormField
-							control={form.control}
-							name="finder2ProfitSharePercent"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel className="text-xs">
-										{t("fields.percentage")}
-									</FormLabel>
-									<FormControl>
-										<PercentageInput
-											placeholder="0.00"
-											{...field}
-											value={field.value || 0}
-											onChange={(value) => {
-												field.onChange(value);
-											}}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 					</div>
 					<div className="col-span-1">
 						<FormField
@@ -606,7 +855,93 @@ export function ProfitShareAllocation({
 							)}
 						/>
 					</div>
-					<div className="col-span-2">
+					<div className="col-span-1">
+						<FormField
+							control={form.control}
+							name="finder2RevenuePercent"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-xs">
+										{t("fields.revenuePercentage")}
+									</FormLabel>
+									<FormControl>
+										<PercentageInput
+											placeholder="0.00"
+											value={field.value}
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="col-span-1">
+						<FormField
+							control={form.control}
+							name="finder2FeePercent"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-xs">
+										{t("fields.feePercentage")}
+									</FormLabel>
+									<FormControl>
+										<PercentageInput
+											placeholder="0.00"
+											value={field.value}
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="col-span-1">
+						<FormItem>
+							<FormLabel className="text-xs">
+								{t("fields.revenueAmount")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									step="1"
+									placeholder="0.00"
+									disabled
+									value={calculatePersonAmounts(
+										form.watch("finder2RevenuePercent") ||
+											0,
+										form.watch("finder2FeePercent") || 0,
+									).revenueAmount.toFixed(2)}
+								/>
+							</FormControl>
+						</FormItem>
+					</div>
+					<div className="col-span-1">
+						<FormItem>
+							<FormLabel className="text-xs">
+								{t("fields.feeAmount")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									type="number"
+									step="1"
+									placeholder="0.00"
+									disabled
+									value={calculatePersonAmounts(
+										form.watch("finder2RevenuePercent") ||
+											0,
+										form.watch("finder2FeePercent") || 0,
+									).feeAmount.toFixed(2)}
+								/>
+							</FormControl>
+						</FormItem>
+					</div>
+					<div className="col-span-1">
 						<FormItem>
 							<FormLabel className="text-xs">
 								{t("fields.originalCurrency")}
@@ -617,18 +952,16 @@ export function ProfitShareAllocation({
 									step="1"
 									placeholder="0.00"
 									disabled
-									value={(
-										((form.watch("shareable") || 0) *
-											(form.watch(
-												"finder2ProfitSharePercent",
-											) || 0)) /
-										100
-									).toFixed(2)}
+									value={calculatePersonAmounts(
+										form.watch("finder2RevenuePercent") ||
+											0,
+										form.watch("finder2FeePercent") || 0,
+									).totalAmount.toFixed(2)}
 								/>
 							</FormControl>
 						</FormItem>
 					</div>
-					<div className="col-span-2">
+					<div className="col-span-1">
 						<FormItem>
 							<FormLabel className="text-xs">
 								{t("fields.usdAmount")}
@@ -640,11 +973,13 @@ export function ProfitShareAllocation({
 									placeholder="0.00"
 									disabled
 									value={(
-										(((form.watch("shareable") || 0) *
-											(form.watch(
-												"finder2ProfitSharePercent",
-											) || 0)) /
-											100) *
+										calculatePersonAmounts(
+											form.watch(
+												"finder2RevenuePercent",
+											) || 0,
+											form.watch("finder2FeePercent") ||
+												0,
+										).totalAmount *
 										(form.watch("fxRate") || 1)
 									).toFixed(2)}
 								/>
@@ -655,17 +990,37 @@ export function ProfitShareAllocation({
 
 				{/* 總計驗證 */}
 				<div className="mt-4 p-3 bg-gray-50 rounded-lg">
-					<div className="flex justify-between items-center">
+					<div className="flex justify-between items-center mb-2">
 						<span className="text-sm font-medium">
-							{t("summary.totalPercentage")}:
+							{t("summary.totalRevenuePercentage")}:
 						</span>
 						<span
 							className={cn(
 								"text-sm font-bold",
-								isValid ? "text-green-600" : "text-red-600",
+								Math.abs(
+									totalPercentages.revenuePercent - 100,
+								) < 0.01
+									? "text-green-600"
+									: "text-red-600",
 							)}
 						>
-							{totalPercent.toFixed(2)}%
+							{totalPercentages.revenuePercent.toFixed(2)}%
+						</span>
+					</div>
+					<div className="flex justify-between items-center">
+						<span className="text-sm font-medium">
+							{t("summary.totalFeePercentage")}:
+						</span>
+						<span
+							className={cn(
+								"text-sm font-bold",
+								Math.abs(totalPercentages.feePercent - 100) <
+									0.01
+									? "text-green-600"
+									: "text-red-600",
+							)}
+						>
+							{totalPercentages.feePercent.toFixed(2)}%
 						</span>
 					</div>
 					{!isValid && (

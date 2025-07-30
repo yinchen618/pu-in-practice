@@ -1456,45 +1456,49 @@
 				}
 			},
 			"allocation": {
-				"title": "分潤比例分配",
+				"title": "分潤分配",
 				"company": {
-					"title": "Company 分潤",
+					"title": "公司",
 					"description": "公司分潤"
 				},
 				"rm1": {
-					"title": "RM1 分潤",
-					"description": "關係經理 1"
+					"title": "RM1",
+					"description": "第一位關係經理"
 				},
 				"rm2": {
-					"title": "RM2 分潤",
-					"description": "關係經理 2"
+					"title": "RM2",
+					"description": "第二位關係經理"
 				},
 				"finder1": {
-					"title": "Finder1 分潤",
-					"description": "尋找者 1"
+					"title": "Finder1",
+					"description": "第一位介紹人"
 				},
 				"finder2": {
-					"title": "Finder2 分潤",
-					"description": "尋找者 2"
+					"title": "Finder2",
+					"description": "第二位介紹人"
 				},
 				"fields": {
-					"percentage": "比例 (%)",
+					"revenuePercentage": "營收比例 %",
+					"feePercentage": "手續費比例 %",
 					"person": "人員",
+					"revenueAmount": "營收金額",
+					"feeAmount": "手續費金額",
 					"originalCurrency": "原幣金額",
-					"usdAmount": "美金金額"
+					"usdAmount": "美元金額"
 				},
 				"selectors": {
-					"selectRM": "選擇RM",
-					"selectFinder": "選擇Finder",
-					"searchRM": "搜尋RM...",
-					"searchFinder": "搜尋Finder...",
-					"noRMFound": "找不到RM。",
-					"noFinderFound": "找不到Finder。",
-					"loading": "載入中..."
+					"loading": "載入中...",
+					"selectRM": "選擇 RM",
+					"searchRM": "搜尋 RM",
+					"noRMFound": "找不到 RM",
+					"selectFinder": "選擇 Finder",
+					"searchFinder": "搜尋 Finder",
+					"noFinderFound": "找不到 Finder"
 				},
 				"summary": {
-					"totalPercentage": "總分潤比例",
-					"validationError": "分潤比例總和必須為 100%"
+					"totalRevenuePercentage": "總營收比例",
+					"totalFeePercentage": "總手續費比例",
+					"validationError": "營收比例和手續費比例都必須等於 100%"
 				}
 			},
 			"shareableAmount": {

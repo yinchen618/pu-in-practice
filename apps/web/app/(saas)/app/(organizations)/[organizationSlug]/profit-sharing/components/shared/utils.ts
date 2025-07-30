@@ -14,24 +14,47 @@ export const calculateProfitShare = (
 	return Math.round(totalAmount * (profitSharePercent / 100) * 100) / 100;
 };
 
-// 計算總分潤比例
+// 計算總分潤比例 - 改為計算兩個分開的比例總和
 export const calculateTotalProfitSharePercent = (
-	companyPercent: number,
-	rm1Percent: number,
-	rm2Percent: number,
-	finder1Percent: number,
-	finder2Percent: number,
+	companyRevenuePercent: number,
+	companyFeePercent: number,
+	rm1RevenuePercent: number,
+	rm1FeePercent: number,
+	rm2RevenuePercent: number,
+	rm2FeePercent: number,
+	finder1RevenuePercent: number,
+	finder1FeePercent: number,
+	finder2RevenuePercent: number,
+	finder2FeePercent: number,
 ) => {
-	return (
-		companyPercent +
-		rm1Percent +
-		rm2Percent +
-		finder1Percent +
-		finder2Percent
-	);
+	const totalRevenuePercent =
+		companyRevenuePercent +
+		rm1RevenuePercent +
+		rm2RevenuePercent +
+		finder1RevenuePercent +
+		finder2RevenuePercent;
+
+	const totalFeePercent =
+		companyFeePercent +
+		rm1FeePercent +
+		rm2FeePercent +
+		finder1FeePercent +
+		finder2FeePercent;
+
+	return {
+		revenuePercent: totalRevenuePercent,
+		feePercent: totalFeePercent,
+		total: totalRevenuePercent + totalFeePercent,
+	};
 };
 
-// 檢查分潤比例是否有效（總和為 100%）
-export const isValidProfitSharePercent = (total: number) => {
-	return Math.abs(total - 100) < 0.01;
+// 檢查分潤比例是否有效（每個類別的總和為 100%）
+export const isValidProfitSharePercent = (
+	revenuePercent: number,
+	feePercent: number,
+) => {
+	return (
+		Math.abs(revenuePercent - 100) < 0.01 &&
+		Math.abs(feePercent - 100) < 0.01
+	);
 };

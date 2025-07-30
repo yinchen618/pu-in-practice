@@ -43,36 +43,48 @@ export interface ProfitSharingRecord {
 	bankRetroPercent: number; // 新增 Bank Retro(%)
 	shareable: number;
 
-	// 分潤比例
+	// 分潤比例 - 保留舊欄位以支援向後相容
 	rmProfitSharePercent: number;
 	finderProfitSharePercent: number;
 	companyProfitSharePercent: number;
 
+	// 新的分潤比例欄位
+	companyRevenuePercent?: number;
+	companyFeePercent?: number;
+
 	// RM1 資訊
 	rm1Id?: string;
 	rm1Name?: string;
-	rm1ProfitSharePercent?: number;
+	rm1ProfitSharePercent?: number; // 保留舊欄位
+	rm1RevenuePercent?: number; // 新的 Revenue Percentage
+	rm1FeePercent?: number; // 新的 Fee Percentage
 	rm1RevenueOriginal?: number;
 	rm1RevenueUSD?: number;
 
 	// RM2 資訊
 	rm2Id?: string;
 	rm2Name?: string;
-	rm2ProfitSharePercent?: number;
+	rm2ProfitSharePercent?: number; // 保留舊欄位
+	rm2RevenuePercent?: number; // 新的 Revenue Percentage
+	rm2FeePercent?: number; // 新的 Fee Percentage
 	rm2RevenueOriginal?: number;
 	rm2RevenueUSD?: number;
 
 	// Finder1 資訊
 	finder1Id?: string;
 	finder1Name?: string;
-	finder1ProfitSharePercent?: number;
+	finder1ProfitSharePercent?: number; // 保留舊欄位
+	finder1RevenuePercent?: number; // 新的 Revenue Percentage
+	finder1FeePercent?: number; // 新的 Fee Percentage
 	finder1RevenueOriginal?: number;
 	finder1RevenueUSD?: number;
 
 	// Finder2 資訊
 	finder2Id?: string;
 	finder2Name?: string;
-	finder2ProfitSharePercent?: number;
+	finder2ProfitSharePercent?: number; // 保留舊欄位
+	finder2RevenuePercent?: number; // 新的 Revenue Percentage
+	finder2FeePercent?: number; // 新的 Fee Percentage
 	finder2RevenueOriginal?: number;
 	finder2RevenueUSD?: number;
 

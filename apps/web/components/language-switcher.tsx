@@ -55,7 +55,9 @@ export function LanguageSwitcher() {
 			<DropdownMenuTrigger asChild>
 				<Button variant="outline" size="sm" className="gap-2">
 					<Languages className="h-4 w-4" />
-					{config.i18n.locales[locale as keyof typeof config.i18n.locales]?.label || locale}
+					{config.i18n.locales[
+						locale as keyof typeof config.i18n.locales
+					]?.label || locale}
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">

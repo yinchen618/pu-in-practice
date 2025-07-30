@@ -22,33 +22,41 @@ export const createProfitSharingFormSchema = () => {
 		finderProfitSharePercent: z.number().min(0).max(100),
 		companyProfitSharePercent: z.number().min(0).max(100),
 
-		// RM1 資訊
+		// RM1 資訊 - 改為兩個分開的比例
 		rm1Id: z.string().optional(),
 		rm1Name: z.string().optional(),
-		rm1ProfitSharePercent: z.number().min(0).max(100).optional(),
+		rm1RevenuePercent: z.number().min(0).max(100).optional(), // Revenue Percentage
+		rm1FeePercent: z.number().min(0).max(100).optional(), // Fee Percentage
 		rm1RevenueOriginal: z.number().min(0).optional(),
 		rm1RevenueUSD: z.number().min(0).optional(),
 
-		// RM2 資訊
+		// RM2 資訊 - 改為兩個分開的比例
 		rm2Id: z.string().optional(),
 		rm2Name: z.string().optional(),
-		rm2ProfitSharePercent: z.number().min(0).max(100).optional(),
+		rm2RevenuePercent: z.number().min(0).max(100).optional(), // Revenue Percentage
+		rm2FeePercent: z.number().min(0).max(100).optional(), // Fee Percentage
 		rm2RevenueOriginal: z.number().min(0).optional(),
 		rm2RevenueUSD: z.number().min(0).optional(),
 
-		// Finder1 資訊
+		// Finder1 資訊 - 改為兩個分開的比例
 		finder1Id: z.string().optional(),
 		finder1Name: z.string().optional(),
-		finder1ProfitSharePercent: z.number().min(0).max(100).optional(),
+		finder1RevenuePercent: z.number().min(0).max(100).optional(), // Revenue Percentage
+		finder1FeePercent: z.number().min(0).max(100).optional(), // Fee Percentage
 		finder1RevenueOriginal: z.number().min(0).optional(),
 		finder1RevenueUSD: z.number().min(0).optional(),
 
-		// Finder2 資訊
+		// Finder2 資訊 - 改為兩個分開的比例
 		finder2Id: z.string().optional(),
 		finder2Name: z.string().optional(),
-		finder2ProfitSharePercent: z.number().min(0).max(100).optional(),
+		finder2RevenuePercent: z.number().min(0).max(100).optional(), // Revenue Percentage
+		finder2FeePercent: z.number().min(0).max(100).optional(), // Fee Percentage
 		finder2RevenueOriginal: z.number().min(0).optional(),
 		finder2RevenueUSD: z.number().min(0).optional(),
+
+		// Company 資訊 - 改為兩個分開的比例
+		companyRevenuePercent: z.number().min(0).max(100).optional(), // Revenue Percentage
+		companyFeePercent: z.number().min(0).max(100).optional(), // Fee Percentage
 
 		// 原幣金額
 		rmRevenueOriginal: z.number().min(0),

@@ -32,10 +32,16 @@ const CreateSchema = z.object({
 	fxRate: z.number().min(0, "FX Rate 不能為負數"),
 	bankAccountId: z.string().optional(),
 
+	// 新的分潤比例欄位
+	companyRevenuePercent: z.number().min(0).max(100).optional(),
+	companyFeePercent: z.number().min(0).max(100).optional(),
+
 	// RM1 資訊
 	rm1Id: z.string().optional(),
 	rm1Name: z.string().optional(),
 	rm1ProfitSharePercent: z.number().min(0).max(100).optional(),
+	rm1RevenuePercent: z.number().min(0).max(100).optional(),
+	rm1FeePercent: z.number().min(0).max(100).optional(),
 	rm1RevenueOriginal: z.number().min(0).optional(),
 	rm1RevenueUSD: z.number().min(0).optional(),
 
@@ -43,6 +49,8 @@ const CreateSchema = z.object({
 	rm2Id: z.string().optional(),
 	rm2Name: z.string().optional(),
 	rm2ProfitSharePercent: z.number().min(0).max(100).optional(),
+	rm2RevenuePercent: z.number().min(0).max(100).optional(),
+	rm2FeePercent: z.number().min(0).max(100).optional(),
 	rm2RevenueOriginal: z.number().min(0).optional(),
 	rm2RevenueUSD: z.number().min(0).optional(),
 
@@ -50,6 +58,8 @@ const CreateSchema = z.object({
 	finder1Id: z.string().optional(),
 	finder1Name: z.string().optional(),
 	finder1ProfitSharePercent: z.number().min(0).max(100).optional(),
+	finder1RevenuePercent: z.number().min(0).max(100).optional(),
+	finder1FeePercent: z.number().min(0).max(100).optional(),
 	finder1RevenueOriginal: z.number().min(0).optional(),
 	finder1RevenueUSD: z.number().min(0).optional(),
 
@@ -57,6 +67,8 @@ const CreateSchema = z.object({
 	finder2Id: z.string().optional(),
 	finder2Name: z.string().optional(),
 	finder2ProfitSharePercent: z.number().min(0).max(100).optional(),
+	finder2RevenuePercent: z.number().min(0).max(100).optional(),
+	finder2FeePercent: z.number().min(0).max(100).optional(),
 	finder2RevenueOriginal: z.number().min(0).optional(),
 	finder2RevenueUSD: z.number().min(0).optional(),
 
@@ -149,11 +161,25 @@ export const profitSharingRouter = new Hono()
 				rmRevenueUSD: Number(item.rmRevenueUSD || 0),
 				findersRevenueUSD: Number(item.findersRevenueUSD || 0),
 
+				// 新的分潤比例欄位
+				companyRevenuePercent: item.companyRevenuePercent
+					? Number(item.companyRevenuePercent)
+					: null,
+				companyFeePercent: item.companyFeePercent
+					? Number(item.companyFeePercent)
+					: null,
+
 				// RM1 資訊
 				rm1Id: item.rm1Id || null,
 				rm1Name: item.rm1Name || null,
 				rm1ProfitSharePercent: item.rm1ProfitSharePercent
 					? Number(item.rm1ProfitSharePercent)
+					: null,
+				rm1RevenuePercent: item.rm1RevenuePercent
+					? Number(item.rm1RevenuePercent)
+					: null,
+				rm1FeePercent: item.rm1FeePercent
+					? Number(item.rm1FeePercent)
 					: null,
 				rm1RevenueOriginal: item.rm1RevenueOriginal
 					? Number(item.rm1RevenueOriginal)
@@ -168,6 +194,12 @@ export const profitSharingRouter = new Hono()
 				rm2ProfitSharePercent: item.rm2ProfitSharePercent
 					? Number(item.rm2ProfitSharePercent)
 					: null,
+				rm2RevenuePercent: item.rm2RevenuePercent
+					? Number(item.rm2RevenuePercent)
+					: null,
+				rm2FeePercent: item.rm2FeePercent
+					? Number(item.rm2FeePercent)
+					: null,
 				rm2RevenueOriginal: item.rm2RevenueOriginal
 					? Number(item.rm2RevenueOriginal)
 					: null,
@@ -181,6 +213,12 @@ export const profitSharingRouter = new Hono()
 				finder1ProfitSharePercent: item.finder1ProfitSharePercent
 					? Number(item.finder1ProfitSharePercent)
 					: null,
+				finder1RevenuePercent: item.finder1RevenuePercent
+					? Number(item.finder1RevenuePercent)
+					: null,
+				finder1FeePercent: item.finder1FeePercent
+					? Number(item.finder1FeePercent)
+					: null,
 				finder1RevenueOriginal: item.finder1RevenueOriginal
 					? Number(item.finder1RevenueOriginal)
 					: null,
@@ -193,6 +231,12 @@ export const profitSharingRouter = new Hono()
 				finder2Name: item.finder2Name || null,
 				finder2ProfitSharePercent: item.finder2ProfitSharePercent
 					? Number(item.finder2ProfitSharePercent)
+					: null,
+				finder2RevenuePercent: item.finder2RevenuePercent
+					? Number(item.finder2RevenuePercent)
+					: null,
+				finder2FeePercent: item.finder2FeePercent
+					? Number(item.finder2FeePercent)
 					: null,
 				finder2RevenueOriginal: item.finder2RevenueOriginal
 					? Number(item.finder2RevenueOriginal)

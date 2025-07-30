@@ -83,24 +83,36 @@ export function EditProfitSharingDialog({
 			rmRevenueUSD: 0,
 			findersRevenueUSD: 0,
 			profitDate: new Date().toISOString().split("T")[0],
+
+			// 新的分潤比例欄位
+			companyRevenuePercent: 50,
+			companyFeePercent: 50,
+
 			rm1Id: undefined,
 			rm1Name: undefined,
-			rm1ProfitSharePercent: undefined,
+			rm1RevenuePercent: 0,
+			rm1FeePercent: 0,
 			rm1RevenueOriginal: 0,
 			rm1RevenueUSD: 0,
+
 			rm2Id: undefined,
 			rm2Name: undefined,
-			rm2ProfitSharePercent: undefined,
+			rm2RevenuePercent: 0,
+			rm2FeePercent: 0,
 			rm2RevenueOriginal: 0,
 			rm2RevenueUSD: 0,
+
 			finder1Id: undefined,
 			finder1Name: undefined,
-			finder1ProfitSharePercent: undefined,
+			finder1RevenuePercent: 0,
+			finder1FeePercent: 0,
 			finder1RevenueOriginal: 0,
 			finder1RevenueUSD: 0,
+
 			finder2Id: undefined,
 			finder2Name: undefined,
-			finder2ProfitSharePercent: undefined,
+			finder2RevenuePercent: 0,
+			finder2FeePercent: 0,
 			finder2RevenueOriginal: 0,
 			finder2RevenueUSD: 0,
 		},
@@ -197,32 +209,40 @@ export function EditProfitSharingDialog({
 				customerId: record.customerId,
 				productId: record.productId,
 				bankAccountId: record.bankAccountId || "",
+
+				// 新的分潤比例欄位 - 使用資料庫中的實際值
+				companyRevenuePercent: record.companyRevenuePercent ?? 100,
+				companyFeePercent: record.companyFeePercent ?? 100,
+
 				// RM1 資訊
 				rm1Id: record.rm1Id || undefined,
 				rm1Name: record.rm1Name || undefined,
-				rm1ProfitSharePercent:
-					record.rm1ProfitSharePercent || undefined,
+				rm1RevenuePercent: record.rm1RevenuePercent ?? 0,
+				rm1FeePercent: record.rm1FeePercent ?? 0,
 				rm1RevenueOriginal: record.rm1RevenueOriginal || 0,
 				rm1RevenueUSD: record.rm1RevenueUSD || 0,
+
 				// RM2 資訊
 				rm2Id: record.rm2Id || undefined,
 				rm2Name: record.rm2Name || undefined,
-				rm2ProfitSharePercent:
-					record.rm2ProfitSharePercent || undefined,
+				rm2RevenuePercent: record.rm2RevenuePercent ?? 0,
+				rm2FeePercent: record.rm2FeePercent ?? 0,
 				rm2RevenueOriginal: record.rm2RevenueOriginal || 0,
 				rm2RevenueUSD: record.rm2RevenueUSD || 0,
+
 				// Finder1 資訊
 				finder1Id: record.finder1Id || undefined,
 				finder1Name: record.finder1Name || undefined,
-				finder1ProfitSharePercent:
-					record.finder1ProfitSharePercent || undefined,
+				finder1RevenuePercent: record.finder1RevenuePercent ?? 0,
+				finder1FeePercent: record.finder1FeePercent ?? 0,
 				finder1RevenueOriginal: record.finder1RevenueOriginal || 0,
 				finder1RevenueUSD: record.finder1RevenueUSD || 0,
+
 				// Finder2 資訊
 				finder2Id: record.finder2Id || undefined,
 				finder2Name: record.finder2Name || undefined,
-				finder2ProfitSharePercent:
-					record.finder2ProfitSharePercent || undefined,
+				finder2RevenuePercent: record.finder2RevenuePercent ?? 0,
+				finder2FeePercent: record.finder2FeePercent ?? 0,
 				finder2RevenueOriginal: record.finder2RevenueOriginal || 0,
 				finder2RevenueUSD: record.finder2RevenueUSD || 0,
 			});
@@ -274,101 +294,6 @@ export function EditProfitSharingDialog({
 		form.watch("companyRevenue"),
 		form.watch("directTradeBookingFee"),
 		form.watch("bankRetroPercent"),
-	]);
-
-	// 監聽分潤比例的變化，即時更新各方的分潤金額
-	useEffect(() => {
-		const shareable = form.watch("shareable");
-		const companyProfitSharePercent =
-			form.watch("companyProfitSharePercent") || 0;
-		const rmProfitSharePercent = form.watch("rmProfitSharePercent") || 0;
-		const finderProfitSharePercent =
-			form.watch("finderProfitSharePercent") || 0;
-		const fxRate = form.watch("fxRate") || 1;
-
-		// 計算各方分潤金額
-		const rmRevenue = (shareable * rmProfitSharePercent) / 100;
-		const findersRevenue = (shareable * finderProfitSharePercent) / 100;
-		const companyRevenue = (shareable * companyProfitSharePercent) / 100;
-
-		// 更新原幣分潤金額
-		form.setValue("rmRevenueOriginal", Math.round(rmRevenue * 100) / 100);
-		form.setValue(
-			"findersRevenueOriginal",
-			Math.round(findersRevenue * 100) / 100,
-		);
-		form.setValue(
-			"companyRevenueOriginal",
-			Math.round(companyRevenue * 100) / 100,
-		);
-
-		// 更新美金分潤金額
-		form.setValue(
-			"rmRevenueUSD",
-			Math.round(rmRevenue * fxRate * 100) / 100,
-		);
-		form.setValue(
-			"findersRevenueUSD",
-			Math.round(findersRevenue * fxRate * 100) / 100,
-		);
-
-		// 更新個別 RM 和 Finder 的分潤金額
-		const rm1ProfitSharePercent = form.watch("rm1ProfitSharePercent") || 0;
-		const rm2ProfitSharePercent = form.watch("rm2ProfitSharePercent") || 0;
-		const finder1ProfitSharePercent =
-			form.watch("finder1ProfitSharePercent") || 0;
-		const finder2ProfitSharePercent =
-			form.watch("finder2ProfitSharePercent") || 0;
-
-		// 計算並更新 RM1 的分潤金額
-		const rm1Revenue = (rmRevenue * rm1ProfitSharePercent) / 100;
-		form.setValue("rm1RevenueOriginal", Math.round(rm1Revenue * 100) / 100);
-		form.setValue(
-			"rm1RevenueUSD",
-			Math.round(rm1Revenue * fxRate * 100) / 100,
-		);
-
-		// 計算並更新 RM2 的分潤金額
-		const rm2Revenue = (rmRevenue * rm2ProfitSharePercent) / 100;
-		form.setValue("rm2RevenueOriginal", Math.round(rm2Revenue * 100) / 100);
-		form.setValue(
-			"rm2RevenueUSD",
-			Math.round(rm2Revenue * fxRate * 100) / 100,
-		);
-
-		// 計算並更新 Finder1 的分潤金額
-		const finder1Revenue =
-			(findersRevenue * finder1ProfitSharePercent) / 100;
-		form.setValue(
-			"finder1RevenueOriginal",
-			Math.round(finder1Revenue * 100) / 100,
-		);
-		form.setValue(
-			"finder1RevenueUSD",
-			Math.round(finder1Revenue * fxRate * 100) / 100,
-		);
-
-		// 計算並更新 Finder2 的分潤金額
-		const finder2Revenue =
-			(findersRevenue * finder2ProfitSharePercent) / 100;
-		form.setValue(
-			"finder2RevenueOriginal",
-			Math.round(finder2Revenue * 100) / 100,
-		);
-		form.setValue(
-			"finder2RevenueUSD",
-			Math.round(finder2Revenue * fxRate * 100) / 100,
-		);
-	}, [
-		form.watch("shareable"),
-		form.watch("companyProfitSharePercent"),
-		form.watch("rmProfitSharePercent"),
-		form.watch("finderProfitSharePercent"),
-		form.watch("fxRate"),
-		form.watch("rm1ProfitSharePercent"),
-		form.watch("rm2ProfitSharePercent"),
-		form.watch("finder1ProfitSharePercent"),
-		form.watch("finder2ProfitSharePercent"),
 	]);
 
 	// 當選擇客戶時，設定對應的RM信息並載入銀行帳戶
@@ -473,12 +398,22 @@ export function EditProfitSharingDialog({
 	};
 
 	// 計算總分潤比例
-	const totalProfitSharePercent = calculateTotalProfitSharePercent(
-		form.watch("companyProfitSharePercent") || 0,
-		form.watch("rm1ProfitSharePercent") || 0,
-		form.watch("rm2ProfitSharePercent") || 0,
-		form.watch("finder1ProfitSharePercent") || 0,
-		form.watch("finder2ProfitSharePercent") || 0,
+	const totalPercentages = calculateTotalProfitSharePercent(
+		form.watch("companyRevenuePercent") || 0,
+		form.watch("companyFeePercent") || 0,
+		form.watch("rm1RevenuePercent") || 0,
+		form.watch("rm1FeePercent") || 0,
+		form.watch("rm2RevenuePercent") || 0,
+		form.watch("rm2FeePercent") || 0,
+		form.watch("finder1RevenuePercent") || 0,
+		form.watch("finder1FeePercent") || 0,
+		form.watch("finder2RevenuePercent") || 0,
+		form.watch("finder2FeePercent") || 0,
+	);
+
+	const isValid = isValidProfitSharePercent(
+		totalPercentages.revenuePercent,
+		totalPercentages.feePercent,
 	);
 
 	return (
@@ -541,13 +476,7 @@ export function EditProfitSharingDialog({
 							</Button>
 							<Button
 								type="submit"
-								disabled={
-									isLoading ||
-									isDeleting ||
-									!isValidProfitSharePercent(
-										totalProfitSharePercent,
-									)
-								}
+								disabled={isLoading || isDeleting || !isValid}
 							>
 								{isLoading ? t("submitting") : t("submit")}
 							</Button>
