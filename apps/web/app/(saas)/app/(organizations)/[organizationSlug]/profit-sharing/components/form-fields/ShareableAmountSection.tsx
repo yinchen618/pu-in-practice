@@ -39,7 +39,7 @@ export function ShareableAmountSection({
 	const t = useTranslations("organization.profitSharing.shareableAmount");
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+		<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/20 rounded-lg">
 			<FormField
 				control={form.control}
 				name="shareable"
@@ -55,7 +55,7 @@ export function ShareableAmountSection({
 								value={field.value || ""}
 							/>
 						</FormControl>
-						<p className="text-sm text-gray-600 mt-1">
+						<p className="text-sm text-muted-foreground mt-1">
 							{t("shareableDescription")}
 						</p>
 						<FormMessage />

@@ -187,6 +187,9 @@
 			"viewColumns": "顯示欄位",
 			"toggleColumns": "切換顯示欄位",
 			"content": "內容",
+			"download": "下載",
+			"downloadCSV": "下載 CSV",
+			"downloadExcel": "下載 Excel",
 			"pagination": {
 				"rowsPerPage": "每頁顯示",
 				"pageInfo": "第 {current} 頁，共 {total} 頁",
@@ -1661,7 +1664,12 @@
 					"updating": "更新中..."
 				},
 				"deleteConfirm": "您確定要刪除客戶關係經理「{name}」嗎？此操作無法復原。"
-			}
+			},
+			"basicInfo": "基本資訊",
+			"editData": "編輯資料",
+			"profitSharing": "分潤內容",
+			"expenses": "支出項目",
+			"customerCount": "客戶數量"
 		},
 		"settings": {
 			"title": "設定",

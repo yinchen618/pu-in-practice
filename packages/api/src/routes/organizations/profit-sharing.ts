@@ -309,7 +309,12 @@ export const profitSharingRouter = new Hono()
 
 			await verifyOrganizationMembership(data.organizationId, user.id);
 
-			const result = await createProfitSharing(data);
+			// 修正：保證 shareable 一定是 number
+			const result = await createProfitSharing({
+				...data,
+				shareable:
+					typeof data.shareable === "number" ? data.shareable : 0,
+			});
 
 			return c.json({ data: result }, 201);
 		},

@@ -116,7 +116,7 @@ export function EditBankAccountDialog({
 				setCustomers(result.customers || []);
 			}
 		} catch (error) {
-			console.error("獲取客戶列表失敗:", error);
+			console.error("Failed to fetch customers:", error);
 		} finally {
 			setIsCustomersLoading(false);
 		}
@@ -132,7 +132,7 @@ export function EditBankAccountDialog({
 				status: bankAccountRecord.status,
 			});
 
-			console.log("customerCode", customerCode);
+			// console.log("customerCode", customerCode);
 			// 只有在沒有指定客戶資訊時才需要載入客戶列表
 			if (!customerCode && !customerName) {
 				fetchCustomers();
@@ -167,13 +167,13 @@ export function EditBankAccountDialog({
 
 			if (!response.ok) {
 				const error = await response.json();
-				throw new Error(error.message || "更新失敗");
+				throw new Error(error.message || t("updateFailed"));
 			}
 
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("更新銀行帳戶失敗:", error);
+			console.error("Failed to update bank account:", error);
 			// 這裡可以添加 toast 通知
 		} finally {
 			setIsLoading(false);
@@ -206,7 +206,7 @@ export function EditBankAccountDialog({
 			onOpenChange(false);
 			onSuccess?.();
 		} catch (error) {
-			console.error("刪除銀行帳戶失敗:", error);
+			console.error("Failed to delete bank account:", error);
 			// 這裡可以添加 toast 通知
 		} finally {
 			setIsDeleting(false);
@@ -319,10 +319,10 @@ export function EditBankAccountDialog({
 								name="accountName"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>帳戶名稱 *</FormLabel>
+										<FormLabel>{t("accountName")} *</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="輸入帳戶名稱"
+												placeholder={t("accountNamePlaceholder")}
 												{...field}
 											/>
 										</FormControl>

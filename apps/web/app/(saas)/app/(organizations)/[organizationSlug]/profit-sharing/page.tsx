@@ -122,6 +122,8 @@ export default function ProfitSharingPage() {
 				data={filteredData}
 				isLoading={isLoading}
 				searchableColumns={[]} // 禁用內建搜尋，使用自定義篩選器
+				showDownloadOptions={true}
+				filename="profit-sharing-data"
 			/>
 
 			{editingRecord && activeOrganization && (

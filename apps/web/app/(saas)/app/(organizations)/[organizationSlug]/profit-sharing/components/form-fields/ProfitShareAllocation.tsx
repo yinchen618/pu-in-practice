@@ -90,12 +90,12 @@ export function ProfitShareAllocation({
 			</CardHeader>
 			<CardContent className="space-y-4">
 				{/* Company 分潤 */}
-				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
+				<div className="grid grid-cols-8 gap-4 items-end border-b border-border pb-4">
 					<div className="col-span-1">
 						<FormLabel className="text-sm font-medium">
 							{t("company.title")}
 						</FormLabel>
-						<div className="text-xs text-gray-500 mt-1">
+						<div className="text-xs text-muted-foreground mt-1">
 							{t("company.description")}
 						</div>
 					</div>
@@ -103,7 +103,9 @@ export function ProfitShareAllocation({
 						<FormLabel className="text-xs">
 							{t("fields.person")}
 						</FormLabel>
-						<div className="text-sm text-gray-500 mt-2">-</div>
+						<div className="text-sm text-muted-foreground mt-2">
+							-
+						</div>
 					</div>
 					<div className="col-span-1">
 						<FormField
@@ -239,12 +241,12 @@ export function ProfitShareAllocation({
 				</div>
 
 				{/* RM1 分潤 */}
-				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
+				<div className="grid grid-cols-8 gap-4 items-end border-b border-border pb-4">
 					<div className="col-span-1">
 						<FormLabel className="text-sm font-medium">
 							{t("rm1.title")}
 						</FormLabel>
-						<div className="text-xs text-gray-500 mt-1">
+						<div className="text-xs text-muted-foreground mt-1">
 							{t("rm1.description")}
 						</div>
 					</div>
@@ -421,12 +423,12 @@ export function ProfitShareAllocation({
 				</div>
 
 				{/* RM2 分潤 */}
-				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
+				<div className="grid grid-cols-8 gap-4 items-end border-b border-border pb-4">
 					<div className="col-span-1">
 						<FormLabel className="text-sm font-medium">
 							{t("rm2.title")}
 						</FormLabel>
-						<div className="text-xs text-gray-500 mt-1">
+						<div className="text-xs text-muted-foreground mt-1">
 							{t("rm2.description")}
 						</div>
 					</div>
@@ -603,12 +605,12 @@ export function ProfitShareAllocation({
 				</div>
 
 				{/* Finder1 分潤 */}
-				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
+				<div className="grid grid-cols-8 gap-4 items-end border-b border-border pb-4">
 					<div className="col-span-1">
 						<FormLabel className="text-sm font-medium">
 							{t("finder1.title")}
 						</FormLabel>
-						<div className="text-xs text-gray-500 mt-1">
+						<div className="text-xs text-muted-foreground mt-1">
 							{t("finder1.description")}
 						</div>
 					</div>
@@ -796,12 +798,12 @@ export function ProfitShareAllocation({
 				</div>
 
 				{/* Finder2 分潤 */}
-				<div className="grid grid-cols-8 gap-4 items-end border-b pb-4">
+				<div className="grid grid-cols-8 gap-4 items-end border-b border-border pb-4">
 					<div className="col-span-1">
 						<FormLabel className="text-sm font-medium">
 							{t("finder2.title")}
 						</FormLabel>
-						<div className="text-xs text-gray-500 mt-1">
+						<div className="text-xs text-muted-foreground mt-1">
 							{t("finder2.description")}
 						</div>
 					</div>
@@ -989,7 +991,7 @@ export function ProfitShareAllocation({
 				</div>
 
 				{/* 總計驗證 */}
-				<div className="mt-4 p-3 bg-gray-50 rounded-lg">
+				<div className="mt-4 p-3 bg-muted/20 rounded-lg">
 					<div className="flex justify-between items-center mb-2">
 						<span className="text-sm font-medium">
 							{t("summary.totalRevenuePercentage")}:

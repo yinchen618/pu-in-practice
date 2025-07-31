@@ -94,8 +94,8 @@ export default function BankAccountsPage() {
 		return (
 			<div className="container max-w-6xl space-y-8 py-6">
 				<div className="animate-pulse">
-					<div className="h-8 bg-gray-200 rounded w-1/4 mb-2" />
-					<div className="h-4 bg-gray-200 rounded w-1/2" />
+					<div className="h-8 bg-muted rounded w-1/4 mb-2" />
+					<div className="h-4 bg-muted rounded w-1/2" />
 				</div>
 			</div>
 		);
@@ -128,6 +128,8 @@ export default function BankAccountsPage() {
 				data={filteredData}
 				isLoading={isLoading}
 				searchableColumns={[]} // 禁用內建搜尋，使用自定義篩選器
+				showDownloadOptions={true}
+				filename="bank-accounts-data"
 			/>
 
 			{editingBankAccount && (

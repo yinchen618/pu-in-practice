@@ -223,6 +223,9 @@
 			"viewColumns": "View Columns",
 			"toggleColumns": "Toggle Columns",
 			"content": "Content",
+			"download": "Download",
+			"downloadCSV": "Download CSV",
+			"downloadExcel": "Download Excel",
 			"pagination": {
 				"rowsPerPage": "Rows per page",
 				"pageInfo": "Page {current} of {total}",
@@ -1675,7 +1678,12 @@
 					"updating": "Updating..."
 				},
 				"deleteConfirm": "Are you sure you want to delete relationship manager \"{name}\"? This action cannot be undone."
-			}
+			},
+			"basicInfo": "Basic Information",
+			"editData": "Edit Data",
+			"profitSharing": "Profit Sharing",
+			"expenses": "Expenses",
+			"customerCount": "Customer Count"
 		},
 		"settings": {
 			"title": "Settings",
@@ -1708,6 +1716,13 @@
 		"bankAccounts": {
 			"title": "Bank Accounts",
 			"subtitle": "Manage bank account information within the organization",
+			"editTitle": "Edit Bank Account",
+			"editDescription": "Modify the bank account information.",
+			"update": "Update",
+			"none": "None",
+			"selectStatus": "Select status",
+			"deleting": "Deleting...",
+			"deleteConfirm": "Are you sure you want to delete this bank account? This action cannot be undone.",
 			"customer": "Customer",
 			"bankName": "Bank Name",
 			"accountNumber": "Account Number",

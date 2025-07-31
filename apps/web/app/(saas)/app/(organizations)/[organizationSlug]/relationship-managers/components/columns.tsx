@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@ui/components/badge";
 import { Button } from "@ui/components/button";
 import { Edit2 } from "lucide-react";
+import Link from "next/link";
 
 export interface RMRecord {
 	id: string;
@@ -30,6 +31,7 @@ interface TranslationFunctions {
 export const createColumns = (
 	onEdit: (rmRecord: RMRecord) => void,
 	t: TranslationFunctions,
+	organizationSlug?: string,
 ): ColumnDef<RMRecord>[] => [
 	// {
 	// 	accessorKey: "id",
@@ -45,6 +47,23 @@ export const createColumns = (
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title={t.table("rmName")} />
 		),
+		cell: ({ row }) => {
+			const rmRecord = row.original;
+			const name = row.getValue("name") as string;
+
+			if (organizationSlug) {
+				return (
+					<Link
+						href={`/app/${organizationSlug}/relationship-managers/${rmRecord.id}`}
+						className="text-primary hover:underline"
+					>
+						{name}
+					</Link>
+				);
+			}
+
+			return <div>{name}</div>;
+		},
 	},
 	{
 		accessorKey: "email",

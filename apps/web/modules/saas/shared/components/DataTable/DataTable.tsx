@@ -45,6 +45,8 @@ interface DataTableProps<TData, TValue> {
 		title: string;
 	}[];
 	isLoading?: boolean;
+	filename?: string;
+	showDownloadOptions?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -53,6 +55,8 @@ export function DataTable<TData, TValue>({
 	isLoading,
 	filterableColumns = [],
 	searchableColumns = [],
+	filename,
+	showDownloadOptions = false,
 }: DataTableProps<TData, TValue>) {
 	const t = useTranslations("common.dataTable");
 	const [rowSelection, setRowSelection] = React.useState({});
@@ -127,8 +131,11 @@ export function DataTable<TData, TValue>({
 
 			<DataTableToolbar
 				table={table}
+				data={data}
+				filename={filename}
 				filterableColumns={filterableColumns}
 				searchableColumns={searchableColumns}
+				showDownloadOptions={showDownloadOptions}
 			/>
 			<div className="rounded-md border">
 				<Table>

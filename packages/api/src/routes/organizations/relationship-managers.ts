@@ -2,6 +2,7 @@ import {
 	createRelationshipManager,
 	db,
 	deleteRelationshipManager,
+	getRelationshipManagerById,
 	getRelationshipManagersByOrganizationId,
 	updateRelationshipManager,
 } from "@repo/database";
@@ -35,6 +36,104 @@ const UpdateRMSchema = z.object({
 
 export const relationshipManagersRouter = new Hono()
 	.use(authMiddleware)
+	.get(
+		"/relationship-managers/:id",
+		describeRoute({
+			tags: ["RelationshipManagers"],
+			summary: "Get relationship manager by ID",
+			description: "Get a specific relationship manager by their ID",
+			responses: {
+				200: {
+					description: "Relationship manager",
+					content: {
+						"application/json": {
+							schema: {
+								type: "object",
+								properties: {
+									relationshipManager: {
+										type: "object",
+										properties: {
+											id: { type: "string" },
+											name: { type: "string" },
+											email: { type: "string" },
+											phone: {
+												type: "string",
+												nullable: true,
+											},
+											status: { type: "string" },
+											category: { type: "string" },
+											customerCount: {
+												type: "number",
+											},
+											joinDate: {
+												type: "string",
+												format: "date-time",
+											},
+											resignDate: {
+												type: "string",
+												format: "date-time",
+												nullable: true,
+											},
+											organizationId: {
+												type: "string",
+											},
+											createdAt: {
+												type: "string",
+												format: "date-time",
+											},
+											updatedAt: {
+												type: "string",
+												format: "date-time",
+											},
+										},
+										required: [
+											"id",
+											"name",
+											"email",
+											"status",
+											"category",
+											"customerCount",
+											"joinDate",
+											"organizationId",
+											"createdAt",
+											"updatedAt",
+										],
+									},
+								},
+								required: ["relationshipManager"],
+							},
+						},
+					},
+				},
+			},
+		}),
+		validator("param", z.object({ id: z.string() })),
+		validator("query", z.object({ organizationId: z.string() })),
+		async (c) => {
+			const { id } = c.req.valid("param");
+			const { organizationId } = c.req.valid("query");
+			const user = c.get("user");
+
+			await verifyOrganizationMembership(organizationId, user.id);
+
+			const relationshipManager = await getRelationshipManagerById(id);
+
+			if (!relationshipManager) {
+				throw new HTTPException(404, {
+					message: "找不到該客戶關係經理",
+				});
+			}
+
+			// 驗證 RM 是否屬於該組織
+			if (relationshipManager.organizationId !== organizationId) {
+				throw new HTTPException(403, {
+					message: "無權限訪問該客戶關係經理",
+				});
+			}
+
+			return c.json({ relationshipManager });
+		},
+	)
 	.get(
 		"/relationship-managers",
 		describeRoute({
