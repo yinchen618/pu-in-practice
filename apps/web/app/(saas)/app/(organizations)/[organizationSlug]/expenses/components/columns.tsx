@@ -64,7 +64,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title={t?.("date") || "日期"}
+					title={t?.("table.date") || "日期"}
 				/>
 			),
 			cell: ({ row }) => {
@@ -77,7 +77,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title={t?.("category") || "類別"}
+					title={t?.("table.category") || "類別"}
 				/>
 			),
 			cell: ({ row }) => {
@@ -94,7 +94,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title={t?.("description") || "描述"}
+					title={t?.("table.description") || "描述"}
 				/>
 			),
 			cell: ({ row }) => {
@@ -119,7 +119,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title={t?.("currency") || "幣別"}
+					title={t?.("table.currency") || "幣別"}
 				/>
 			),
 		},
@@ -128,7 +128,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title={t?.("amount") || "金額"}
+					title={t?.("table.amount") || "金額"}
 				/>
 			),
 			cell: ({ row }) => {
@@ -145,7 +145,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title={t?.("exchangeRate") || "匯率"}
+					title={t?.("table.exchangeRate") || "匯率"}
 				/>
 			),
 			cell: ({ row }) => {
@@ -159,7 +159,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title={t?.("sgdAmount") || "新幣金額"}
+					title={t?.("table.sgdAmount") || "新幣金額"}
 				/>
 			),
 			cell: ({ row }) => {
@@ -175,7 +175,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title={t?.("usdRate") || "美元匯率"}
+					title={t?.("table.usdRate") || "美元匯率"}
 				/>
 			),
 			cell: ({ row }) => {
@@ -189,7 +189,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title={t?.("usdAmount") || "美元金額"}
+					title={t?.("table.usdAmount") || "美元金額"}
 				/>
 			),
 			cell: ({ row }) => {
@@ -205,7 +205,7 @@ export function createColumns(
 			header: ({ column }) => (
 				<DataTableColumnHeader
 					column={column}
-					title={t?.("receipt") || "收據"}
+					title={t?.("table.receipt") || "收據"}
 				/>
 			),
 			cell: ({ row }) => {
@@ -219,14 +219,14 @@ export function createColumns(
 
 				return totalReceipts > 0 ? (
 					<Badge status="success">
-						{t?.("uploaded") || "已上傳"}{" "}
+						{t?.("table.uploaded") || "已上傳"}{" "}
 						{totalReceipts > 1
-							? `(${totalReceipts}${t?.("items") || "個"})`
+							? `(${totalReceipts}${t?.("table.items") || "個"})`
 							: ""}
 					</Badge>
 				) : (
 					<Badge status="warning">
-						{t?.("notUploaded") || "未上傳"}
+						{t?.("table.notUploaded") || "未上傳"}
 					</Badge>
 				);
 			},
@@ -243,7 +243,7 @@ export function createColumns(
 		// },
 		{
 			id: "actions",
-			header: t?.("actions") || "操作",
+			header: t?.("table.actions") || "操作",
 			cell: ({ row }) => {
 				const expenseRecord = row.original;
 

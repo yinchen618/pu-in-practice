@@ -75,3 +75,10 @@ export async function deleteRelationshipManager(id: string) {
 		},
 	});
 }
+
+export async function getRelationshipManagersByIds(ids: string[]) {
+	return await db.relationshipManager.findMany({
+		where: { id: { in: ids } },
+		select: { id: true, name: true },
+	});
+}

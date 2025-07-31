@@ -27,6 +27,7 @@ export interface ExpenseFilters {
 	usdAmountMin?: number;
 	usdAmountMax?: number;
 	currency?: string;
+	rmId?: string;
 	hasReceipt?: boolean | null;
 	description?: string;
 }
@@ -53,6 +54,14 @@ export function ExpenseFilters({
 	);
 	const uniqueCurrencies = Array.from(
 		new Set(data.map((item) => item.currency).filter(Boolean)),
+	);
+	const uniqueRms = Array.from(
+		new Set(
+			data
+				.map((item) => item.rm)
+				.filter(Boolean)
+				.map((rm) => ({ id: rm!.id, name: rm!.name })),
+		),
 	);
 
 	const applyFilters = (newFilters: ExpenseFilters) => {
@@ -124,6 +133,21 @@ export function ExpenseFilters({
 			filteredData = filteredData.filter(
 				(item) => item.currency === newFilters.currency,
 			);
+		}
+
+		// RM 篩選
+		if (newFilters.rmId) {
+			if (newFilters.rmId === "none") {
+				// 篩選沒有 RM 的記錄
+				filteredData = filteredData.filter(
+					(item) => !item.rmId || item.rmId === null,
+				);
+			} else {
+				// 篩選特定 RM 的記錄
+				filteredData = filteredData.filter(
+					(item) => item.rmId === newFilters.rmId,
+				);
+			}
 		}
 
 		// 附件篩選
@@ -211,7 +235,7 @@ export function ExpenseFilters({
 
 			{/* 展開的篩選器 */}
 			{isExpanded && (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/20">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 p-4 border rounded-lg bg-muted/20">
 					{/* 日期區間 */}
 					<div className="space-y-2">
 						<Label className="text-sm font-medium flex items-center gap-1">
@@ -238,7 +262,7 @@ export function ExpenseFilters({
 						</div>
 					</div>
 
-					{/* 類別、幣別、附件狀態 */}
+					{/* 類別、幣別、RM、附件狀態 */}
 					<div className="space-y-4">
 						{/* 類別 */}
 						<div className="space-y-2">
@@ -306,51 +330,6 @@ export function ExpenseFilters({
 											{currency}
 										</SelectItem>
 									))}
-								</SelectContent>
-							</Select>
-						</div>
-
-						{/* 附件狀態 */}
-						<div className="space-y-2">
-							<Label className="text-sm font-medium flex items-center gap-1">
-								<Paperclip className="size-4" />
-								{t("attachmentStatus")}
-							</Label>
-							<Select
-								value={
-									filters.hasReceipt === null ||
-									filters.hasReceipt === undefined
-										? "all"
-										: filters.hasReceipt.toString()
-								}
-								onValueChange={(value) => {
-									if (value === "all") {
-										updateFilter("hasReceipt", null);
-									} else {
-										updateFilter(
-											"hasReceipt",
-											value === "true",
-										);
-									}
-								}}
-							>
-								<SelectTrigger>
-									<SelectValue
-										placeholder={t(
-											"selectAttachmentStatus",
-										)}
-									/>
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">
-										{t("all")}
-									</SelectItem>
-									<SelectItem value="true">
-										{t("uploaded")}
-									</SelectItem>
-									<SelectItem value="false">
-										{t("notUploaded")}
-									</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -467,6 +446,86 @@ export function ExpenseFilters({
 									);
 								}}
 							/>
+						</div>
+					</div>
+
+					<div className="space-y-2">
+						{/* RM */}
+						<div className="space-y-2">
+							<Label className="text-sm font-medium">
+								{t("rm")}
+							</Label>
+							<Select
+								value={filters.rmId || ""}
+								onValueChange={(value) =>
+									updateFilter(
+										"rmId",
+										value === "all" ? undefined : value,
+									)
+								}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder={t("selectRm")} />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">
+										{t("allRms")}
+									</SelectItem>
+									<SelectItem value="none">
+										{t("noRm")}
+									</SelectItem>
+									{uniqueRms.map((rm) => (
+										<SelectItem key={rm.id} value={rm.id}>
+											{rm.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						{/* 附件狀態 */}
+						<div className="space-y-2">
+							<Label className="text-sm font-medium flex items-center gap-1">
+								<Paperclip className="size-4" />
+								{t("attachmentStatus")}
+							</Label>
+							<Select
+								value={
+									filters.hasReceipt === null ||
+									filters.hasReceipt === undefined
+										? "all"
+										: filters.hasReceipt.toString()
+								}
+								onValueChange={(value) => {
+									if (value === "all") {
+										updateFilter("hasReceipt", null);
+									} else {
+										updateFilter(
+											"hasReceipt",
+											value === "true",
+										);
+									}
+								}}
+							>
+								<SelectTrigger>
+									<SelectValue
+										placeholder={t(
+											"selectAttachmentStatus",
+										)}
+									/>
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">
+										{t("all")}
+									</SelectItem>
+									<SelectItem value="true">
+										{t("uploaded")}
+									</SelectItem>
+									<SelectItem value="false">
+										{t("notUploaded")}
+									</SelectItem>
+								</SelectContent>
+							</Select>
 						</div>
 					</div>
 				</div>
@@ -609,6 +668,22 @@ export function ExpenseFilters({
 								onClick={() =>
 									updateFilter("currency", undefined)
 								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.rmId && (
+						<Badge status="info" className="gap-1">
+							{t("rm")}:{" "}
+							{filters.rmId === "none"
+								? t("noRm")
+								: uniqueRms.find((rm) => rm.id === filters.rmId)
+										?.name || filters.rmId}
+							<button
+								type="button"
+								onClick={() => updateFilter("rmId", undefined)}
 								className="ml-1 hover:bg-destructive/20 rounded-full"
 							>
 								<X className="size-3" />

@@ -1076,6 +1076,10 @@
 				"currency": "Currency",
 				"selectCurrency": "Select Currency",
 				"allCurrencies": "All Currencies",
+				"rm": "Relationship Manager",
+				"selectRm": "Select Relationship Manager",
+				"allRms": "All Relationship Managers",
+				"noRm": "No Relationship Manager",
 				"attachmentStatus": "Attachment Status",
 				"selectAttachmentStatus": "Select Attachment Status",
 				"uploaded": "Uploaded",
@@ -1576,7 +1580,6 @@
 		"relationshipManagers": {
 			"title": "RM List",
 			"subtitle": "Manage all relationship managers",
-			"error": "Error",
 			"retry": "Retry",
 			"create": "Add RM",
 			"edit": "Edit RM",
@@ -1589,6 +1592,46 @@
 			"actions": "Actions",
 			"active": "Active",
 			"inactive": "Inactive",
+			"form": {
+				"name": "Name",
+				"nameRequired": "Name is required",
+				"namePlaceholder": "Enter name",
+				"email": "Email",
+				"emailInvalid": "Please enter a valid email",
+				"emailPlaceholder": "Enter email",
+				"phone": "Phone",
+				"phonePlaceholder": "Enter phone number",
+				"category": "RM Category",
+				"categoryPlaceholder": "Select RM category",
+				"status": "Status",
+				"statusPlaceholder": "Select status",
+				"statusActive": "Active",
+				"statusInactive": "Inactive",
+				"joinDate": "Join Date",
+				"resignDate": "Resign Date"
+			},
+			"dialog": {
+				"edit": {
+					"title": "Edit Relationship Manager",
+					"description": "Modify the relationship manager's information.",
+					"submit": "Update",
+					"submitting": "Updating..."
+				},
+				"delete": {
+					"delete": "Delete",
+					"deleting": "Deleting..."
+				},
+				"cancel": "Cancel",
+				"deleteConfirm": "Are you sure you want to delete relationship manager \"{name}\"? This action cannot be undone."
+			},
+			"error": {
+				"updateFailed": "Update failed",
+				"deleteFailed": "Delete failed"
+			},
+			"success": {
+				"update": "Update successful",
+				"delete": "Delete successful"
+			},
 			"table": {
 				"rmName": "RM Name",
 				"email": "Email",
@@ -1603,6 +1646,11 @@
 				"finder": "FINDER",
 				"rm": "RM",
 				"both": "BOTH"
+			},
+			"categories": {
+				"RM": "RM",
+				"FINDER": "FINDER",
+				"BOTH": "BOTH"
 			},
 			"statusLabels": {
 				"active": "Active",
