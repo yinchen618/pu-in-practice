@@ -43,14 +43,18 @@ export function TimeSeriesAnalysisPanel({
 	const fetchEventDetails = async (eventId: string) => {
 		setIsLoading(true);
 		try {
-			const response = await fetch(`/api/casestudy/events/${eventId}`, {
-				credentials: "include",
-				headers: { "Content-Type": "application/json" },
-			});
+			const response = await fetch(
+				`https://python.yinchen.tw/api/case-study/events/${eventId}`,
+				{
+					headers: { "Content-Type": "application/json" },
+				},
+			);
 
 			if (response.ok) {
 				const result = await response.json();
-				setEventDetails(result.data);
+				if (result.success && result.data) {
+					setEventDetails(result.data);
+				}
 			}
 		} catch (error) {
 			console.error("獲取事件詳情失敗:", error);

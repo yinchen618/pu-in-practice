@@ -4,6 +4,7 @@ from core.database import init_database
 from routes.ammeters import ammeters_router
 from routes.pu_learning import router as pu_learning_router
 from routes.testbed import router as testbed_router
+from routes.casestudy import router as casestudy_router
 from ai_api import router as ai_router
 import asyncio
 import argparse
@@ -30,6 +31,8 @@ app.include_router(ai_router)
 app.include_router(pu_learning_router)
 # 包含 Testbed 路由
 app.include_router(testbed_router)
+# 包含 Case Study 路由
+app.include_router(casestudy_router)
 
 # 導入並包含完整的 coding 應用程式
 import sys

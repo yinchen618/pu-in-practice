@@ -56,7 +56,7 @@ export function AnomalyCandidatesPanel({
 			try {
 				const currentPage = resetPage ? 1 : page;
 				const params = new URLSearchParams({
-					organizationId,
+					organization_id: organizationId,
 					page: currentPage.toString(),
 					limit: "20",
 				});
@@ -66,29 +66,32 @@ export function AnomalyCandidatesPanel({
 					params.append("status", filters.status);
 				}
 				if (filters.meterId) {
-					params.append("meterId", filters.meterId);
+					params.append("meter_id", filters.meterId);
 				}
 				if (searchTerm) {
 					params.append("search", searchTerm);
 				}
 				if (filters.dateFrom) {
-					params.append("dateFrom", filters.dateFrom);
+					params.append("date_from", filters.dateFrom);
 				}
 				if (filters.dateTo) {
-					params.append("dateTo", filters.dateTo);
+					params.append("date_to", filters.dateTo);
 				}
 
 				const response = await fetch(
-					`/api/casestudy/events?${params}`,
+					`https://python.yinchen.tw/api/case-study/events?${params}`,
 					{
-						credentials: "include",
 						headers: { "Content-Type": "application/json" },
 					},
 				);
 
 				if (response.ok) {
 					const result = await response.json();
-					const newEvents = result.data.events || [];
+					const eventsData =
+						result.success && result.data
+							? result.data
+							: { events: [] };
+					const newEvents = eventsData.events || [];
 
 					if (resetPage) {
 						setEvents(newEvents);
@@ -121,17 +124,18 @@ export function AnomalyCandidatesPanel({
 
 		try {
 			const response = await fetch(
-				`/api/casestudy/stats?organizationId=${organizationId}`,
+				`https://python.yinchen.tw/api/case-study/stats?organization_id=${organizationId}`,
 				{
-					credentials: "include",
 					headers: { "Content-Type": "application/json" },
 				},
 			);
 
 			if (response.ok) {
 				const result = await response.json();
-				setStats(result.data);
-				onStatsUpdate?.(result.data);
+				if (result.success && result.data) {
+					setStats(result.data);
+					onStatsUpdate?.(result.data);
+				}
 			}
 		} catch (error) {
 			console.error("獲取統計資訊失敗:", error);

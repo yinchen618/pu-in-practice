@@ -78,12 +78,11 @@ export interface MeterData {
 
 // API 客戶端
 class TestbedAPIClient {
-	private baseUrl = "/api";
+	private baseUrl = "https://python.yinchen.tw";
 
 	async getTestbedOverview(): Promise<TestbedOverview> {
-		const response = await fetch(`${this.baseUrl}/testbed/overview`, {
+		const response = await fetch(`${this.baseUrl}/api/testbed/overview`, {
 			method: "GET",
-			credentials: "include",
 			headers: {
 				"Content-Type": "application/json",
 			},
@@ -95,8 +94,12 @@ class TestbedAPIClient {
 			);
 		}
 
-		// Hono API 直接返回數據對象，不包裝在 {success, data} 格式中
-		return await response.json();
+		// Python API 返回 {success: true, data: {...}} 格式
+		const result = await response.json();
+		if (result.success && result.data) {
+			return result.data;
+		}
+		throw new Error("Invalid API response format");
 	}
 
 	async getMeterData(
@@ -113,10 +116,9 @@ class TestbedAPIClient {
 		});
 
 		const response = await fetch(
-			`${this.baseUrl}/testbed/meter-data?${params}`,
+			`${this.baseUrl}/api/testbed/meter-data?${params}`,
 			{
 				method: "GET",
-				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -127,8 +129,12 @@ class TestbedAPIClient {
 			throw new Error(`Failed to fetch meter data: ${response.status}`);
 		}
 
-		// Hono API 直接返回數據對象，不包裝在 {success, data} 格式中
-		return await response.json();
+		// Python API 返回 {success: true, data: {...}} 格式
+		const result = await response.json();
+		if (result.success && result.data) {
+			return result.data;
+		}
+		throw new Error("Invalid API response format");
 	}
 }
 
@@ -175,20 +181,26 @@ const getAmmeterHistoryData = async (
 		end_date: endDate,
 	});
 
-	const response = await fetch(`/api/testbed/ammeter-history?${params}`, {
-		method: "GET",
-		credentials: "include",
-		headers: {
-			"Content-Type": "application/json",
+	const response = await fetch(
+		`https://python.yinchen.tw/api/testbed/ammeter-history?${params}`,
+		{
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
 		},
-	});
+	);
 
 	if (!response.ok) {
 		throw new Error(`Failed to fetch ammeter history: ${response.status}`);
 	}
 
-	// Hono API 直接返回數據對象，不包裝在 {success, data} 格式中
-	return await response.json();
+	// Python API 返回 {success: true, data: {...}} 格式
+	const result = await response.json();
+	if (result.success && result.data) {
+		return result.data;
+	}
+	throw new Error("Invalid API response format");
 };
 
 // API 調用函數

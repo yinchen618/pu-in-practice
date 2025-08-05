@@ -53,16 +53,17 @@ export function ReviewDecisionPanel({
 
 		try {
 			const response = await fetch(
-				`/api/casestudy/labels?organizationId=${organizationId}`,
+				`https://python.yinchen.tw/api/case-study/labels?organization_id=${organizationId}`,
 				{
-					credentials: "include",
 					headers: { "Content-Type": "application/json" },
 				},
 			);
 
 			if (response.ok) {
 				const result = await response.json();
-				setAvailableLabels(result.data || []);
+				if (result.success && result.data) {
+					setAvailableLabels(result.data || []);
+				}
 			}
 		} catch (error) {
 			console.error("獲取標籤列表失敗:", error);
@@ -128,10 +129,9 @@ export function ReviewDecisionPanel({
 			};
 
 			const response = await fetch(
-				`/api/casestudy/events/${selectedEvent.id}/review`,
+				`https://python.yinchen.tw/api/case-study/events/${selectedEvent.id}/review`,
 				{
 					method: "PUT",
-					credentials: "include",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(reviewData),
 				},
