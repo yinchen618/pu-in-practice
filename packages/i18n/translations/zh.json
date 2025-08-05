@@ -222,7 +222,8 @@
 		},
 		"filter": {
 			"currency": "篩選 {currency} 幣別",
-			"profit": "篩選 {name} 的分潤"
+			"profit": "篩選 {name} 的分潤",
+			"customer": "篩選 {name} 客戶"
 		},
 		"filters": {
 			"title": "篩選器",
@@ -1407,6 +1408,8 @@
 				"selectRM": "選擇RM",
 				"finder": "Finder",
 				"selectFinder": "選擇Finder",
+				"customer": "客戶",
+				"selectCustomer": "選擇客戶",
 				"all": "全部",
 				"search": "搜尋",
 				"category": "類別",

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@ui/components/card";
 import { useTranslations } from "next-intl";
 import { useQueryState } from "nuqs";
 import {
+	aggregateCustomerProfits,
 	aggregatePersonProfits,
 	calculateProfitStats,
 	formatCurrency,
@@ -17,10 +18,12 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 	// 使用 nuqs 管理 URL 參數
 	const [rmName, setRmName] = useQueryState("rmName");
 	const [finderName, setFinderName] = useQueryState("finderName");
+	const [customerName, setCustomerName] = useQueryState("customerName");
 	const [currency, setCurrency] = useQueryState("currency");
 
 	// 使用抽象化的統計函式
 	const stats = calculateProfitStats(data);
+	const customerStats = aggregateCustomerProfits(data);
 	const rmStats = aggregatePersonProfits(data, "rm");
 	const finderStats = aggregatePersonProfits(data, "finder");
 
@@ -31,6 +34,11 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 		} else {
 			setFinderName(name);
 		}
+	};
+
+	// 處理客戶點擊
+	const handleCustomerClick = (name: string) => {
+		setCustomerName(name);
 	};
 
 	return (
@@ -130,7 +138,6 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 													{ currency: currencyKey },
 												)}
 											>
-												{/* <MousePointerClick className="size-4" /> */}
 												<span className="font-mono">
 													{formatCurrency(
 														data.amount,
@@ -151,6 +158,57 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 										</div>
 									);
 								})}
+						</div>
+					)}
+					{/* 各客戶分潤明細列表 */}
+					{customerStats.customers.length > 0 && (
+						<div className="mt-4 space-y-1.5">
+							{customerStats.customers.map((customer) => (
+								<div
+									key={customer.name}
+									className="flex items-center justify-between text-sm"
+								>
+									<button
+										type="button"
+										onClick={() =>
+											handleCustomerClick(customer.name)
+										}
+										className="flex items-center gap-1 font-medium text-primary underline underline-offset-2 hover:bg-primary/10 rounded px-1 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
+										aria-label={t(
+											"common.filter.customer",
+											{
+												name: customer.name,
+											},
+										)}
+									>
+										{customer.name}
+										{customer.code && (
+											<span className="text-xs text-muted-foreground">
+												({customer.code})
+											</span>
+										)}
+									</button>
+									<div className="text-right">
+										<span className="font-mono">
+											{formatCurrency(
+												customer.profit,
+												"USD",
+											)}
+										</span>
+										<span className="ml-2 text-xs text-muted-foreground">
+											{customer.count}{" "}
+											{t("common.format.items")} •{" "}
+											{(
+												(customer.profit /
+													(customerStats.total ||
+														1)) *
+												100
+											).toFixed(1)}
+											{t("common.format.percentage")}
+										</span>
+									</div>
+								</div>
+							))}
 						</div>
 					)}
 				</CardContent>
@@ -183,7 +241,6 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 											name: p.name,
 										})}
 									>
-										{/* <MousePointerClick className="size-4" /> */}
 										{p.name}
 									</button>
 									<div className="text-right">
@@ -237,7 +294,6 @@ export function ProfitStatsCards({ data }: ProfitStatsCardsProps) {
 											name: p.name,
 										})}
 									>
-										{/* <MousePointerClick className="size-4" /> */}
 										{p.name}
 									</button>
 									<div className="text-right">

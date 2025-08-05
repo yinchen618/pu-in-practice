@@ -26,6 +26,7 @@ export interface ProfitSharingFilters {
 	month?: string;
 	rmName?: string;
 	finderName?: string;
+	customerName?: string;
 	currency?: string;
 }
 
@@ -53,6 +54,7 @@ export function ProfitSharingFilters({
 	const [currency, setCurrency] = useQueryState("currency");
 	const [rmName, setRmName] = useQueryState("rmName");
 	const [finderName, setFinderName] = useQueryState("finderName");
+	const [customerName, setCustomerName] = useQueryState("customerName");
 
 	const [isExpanded, setIsExpanded] = useState(false);
 
@@ -68,6 +70,7 @@ export function ProfitSharingFilters({
 			currency: currency || undefined,
 			rmName: rmName || undefined,
 			finderName: finderName || undefined,
+			customerName: customerName || undefined,
 		}),
 		[
 			search,
@@ -79,6 +82,7 @@ export function ProfitSharingFilters({
 			currency,
 			rmName,
 			finderName,
+			customerName,
 		],
 	);
 
@@ -100,9 +104,10 @@ export function ProfitSharingFilters({
 		new Set(data.map((item) => item.productCategory).filter(Boolean)),
 	);
 
-	// 從資料中提取所有 RM 和 Finder 名稱
+	// 從資料中提取所有 RM、Finder 和客戶名稱
 	const allRMNames = new Set<string>();
 	const allFinderNames = new Set<string>();
+	const allCustomerNames = new Set<string>();
 
 	data.forEach((item) => {
 		if (item.rm1Name) {
@@ -117,10 +122,14 @@ export function ProfitSharingFilters({
 		if (item.finder2Name) {
 			allFinderNames.add(item.finder2Name);
 		}
+		if (item.customerName) {
+			allCustomerNames.add(item.customerName);
+		}
 	});
 
 	const uniqueRMNames = Array.from(allRMNames).sort();
 	const uniqueFinderNames = Array.from(allFinderNames).sort();
+	const uniqueCustomerNames = Array.from(allCustomerNames).sort();
 
 	// 從資料中提取所有原幣
 	const uniqueCurrencies = Array.from(
@@ -151,6 +160,7 @@ export function ProfitSharingFilters({
 		newFilters: ProfitSharingFilters & {
 			rmName?: string;
 			finderName?: string;
+			customerName?: string;
 		},
 	) => {
 		onFiltersChange?.(newFilters);
@@ -211,6 +221,13 @@ export function ProfitSharingFilters({
 			);
 		}
 
+		// 客戶篩選
+		if (newFilters.customerName) {
+			filteredData = filteredData.filter(
+				(item) => item.customerName === newFilters.customerName,
+			);
+		}
+
 		// 原幣篩選
 		if (newFilters.currency) {
 			filteredData = filteredData.filter(
@@ -243,7 +260,11 @@ export function ProfitSharingFilters({
 	}, [filters, data]);
 
 	const updateFilter = (
-		key: keyof ProfitSharingFilters | "rmName" | "finderName",
+		key:
+			| keyof ProfitSharingFilters
+			| "rmName"
+			| "finderName"
+			| "customerName",
 		value: any,
 	) => {
 		// 更新對應的 URL 參數
@@ -275,6 +296,9 @@ export function ProfitSharingFilters({
 			case "finderName":
 				setFinderName(value || null);
 				break;
+			case "customerName":
+				setCustomerName(value || null);
+				break;
 		}
 	};
 
@@ -289,6 +313,7 @@ export function ProfitSharingFilters({
 		setCurrency(null);
 		setRmName(null);
 		setFinderName(null);
+		setCustomerName(null);
 	};
 
 	const hasActiveFilters = Object.values(filters).some(
@@ -556,6 +581,36 @@ export function ProfitSharingFilters({
 							</SelectContent>
 						</Select>
 					</div>
+
+					{/* 客戶篩選 */}
+					<div className="space-y-2">
+						<Label className="text-sm font-medium">
+							{t("customer")}
+						</Label>
+						<Select
+							value={filters.customerName || ""}
+							onValueChange={(value) =>
+								updateFilter(
+									"customerName",
+									value === "all" ? undefined : value,
+								)
+							}
+						>
+							<SelectTrigger>
+								<SelectValue
+									placeholder={t("selectCustomer")}
+								/>
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">{t("all")}</SelectItem>
+								{uniqueCustomerNames.map((name) => (
+									<SelectItem key={name} value={name}>
+										{name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 				</div>
 			)}
 
@@ -686,6 +741,20 @@ export function ProfitSharingFilters({
 								type="button"
 								onClick={() =>
 									updateFilter("finderName", undefined)
+								}
+								className="ml-1 hover:bg-destructive/20 rounded-full"
+							>
+								<X className="size-3" />
+							</button>
+						</Badge>
+					)}
+					{filters.customerName && (
+						<Badge status="info" className="gap-1">
+							{t("customer")}: {filters.customerName}
+							<button
+								type="button"
+								onClick={() =>
+									updateFilter("customerName", undefined)
 								}
 								className="ml-1 hover:bg-destructive/20 rounded-full"
 							>

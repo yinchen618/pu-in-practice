@@ -258,7 +258,8 @@
 		},
 		"filter": {
 			"currency": "Filter {currency} currency",
-			"profit": "Filter {name}'s profit"
+			"profit": "Filter {name}'s profit",
+			"customer": "Filter {name} customer"
 		},
 		"filters": {
 			"title": "Filters",
@@ -1466,6 +1467,8 @@
 				"selectRM": "Select RM",
 				"finder": "Finder",
 				"selectFinder": "Select Finder",
+				"customer": "Customer",
+				"selectCustomer": "Select Customer",
 				"all": "All",
 				"search": "Search",
 				"category": "Category",

@@ -21,10 +21,8 @@ export function aggregatePersonProfits(
 
 	for (const record of data) {
 		if (personType === "rm") {
-			if (record.rm1Name && record.rm1ProfitSharePercent) {
-				const profit =
-					(record.rmRevenueUSD || 0) *
-					(record.rm1ProfitSharePercent / 100);
+			if (record.rm1Name && record.rm1RevenueUSD) {
+				const profit = record.rm1RevenueUSD || 0;
 
 				personMap[record.rm1Name] = personMap[record.rm1Name]
 					? {
@@ -36,10 +34,8 @@ export function aggregatePersonProfits(
 				total += profit;
 			}
 
-			if (record.rm2Name && record.rm2ProfitSharePercent) {
-				const profit =
-					(record.rmRevenueUSD || 0) *
-					(record.rm2ProfitSharePercent / 100);
+			if (record.rm2Name && record.rm2RevenueUSD) {
+				const profit = record.rm2RevenueUSD || 0;
 
 				personMap[record.rm2Name] = personMap[record.rm2Name]
 					? {
@@ -51,10 +47,8 @@ export function aggregatePersonProfits(
 				total += profit;
 			}
 		} else if (personType === "finder") {
-			if (record.finder1Name && record.finder1ProfitSharePercent) {
-				const profit =
-					(record.findersRevenueUSD || 0) *
-					(record.finder1ProfitSharePercent / 100);
+			if (record.finder1Name && record.finder1RevenueUSD) {
+				const profit = record.finder1RevenueUSD || 0;
 
 				personMap[record.finder1Name] = personMap[record.finder1Name]
 					? {
@@ -67,10 +61,8 @@ export function aggregatePersonProfits(
 				total += profit;
 			}
 
-			if (record.finder2Name && record.finder2ProfitSharePercent) {
-				const profit =
-					(record.findersRevenueUSD || 0) *
-					(record.finder2ProfitSharePercent / 100);
+			if (record.finder2Name && record.finder2RevenueUSD) {
+				const profit = record.finder2RevenueUSD || 0;
 
 				personMap[record.finder2Name] = personMap[record.finder2Name]
 					? {
@@ -90,6 +82,37 @@ export function aggregatePersonProfits(
 	);
 
 	return { persons, total };
+}
+
+// 統計所有客戶的分潤金額與佔比
+export function aggregateCustomerProfits(data: ProfitSharingRecord[]) {
+	const customerMap: Record<
+		string,
+		{ name: string; profit: number; count: number; code: string }
+	> = {};
+	let total = 0;
+
+	for (const record of data) {
+		const customerName = record.customerName || "未知客戶";
+		const customerCode = record.customerCode || "";
+		const profit = record.companyRevenueOriginal || 0;
+
+		customerMap[customerName] = customerMap[customerName]
+			? {
+					name: customerName,
+					profit: customerMap[customerName].profit + profit,
+					count: customerMap[customerName].count + 1,
+					code: customerCode,
+				}
+			: { name: customerName, profit, count: 1, code: customerCode };
+		total += profit;
+	}
+
+	const customers = Object.values(customerMap).sort(
+		(a, b) => b.profit - a.profit,
+	);
+
+	return { customers, total };
 }
 
 // 計算所有統計數據
@@ -126,7 +149,8 @@ export function calculateProfitStats(data: ProfitSharingRecord[]) {
 		stats.totalRMProfit += record.rmRevenueUSD || 0;
 
 		// Finder分潤總計（美金）
-		stats.totalFinderProfit += record.findersRevenueUSD || 0;
+		stats.totalFinderProfit +=
+			(record.finder1RevenueUSD || 0) + (record.finder2RevenueUSD || 0);
 
 		// 統計各幣別的 Company 分潤
 		const currency = record.currency || "USD";
@@ -170,6 +194,13 @@ export interface PersonProfit {
 	count: number;
 }
 
+export interface CustomerProfit {
+	name: string;
+	profit: number;
+	count: number;
+	code: string;
+}
+
 export interface CurrencyStats {
 	amount: number;
 	count: number;
@@ -187,5 +218,10 @@ export interface ProfitStats {
 
 export interface PersonStats {
 	persons: PersonProfit[];
+	total: number;
+}
+
+export interface CustomerStats {
+	customers: CustomerProfit[];
 	total: number;
 }
