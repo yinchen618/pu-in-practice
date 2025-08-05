@@ -82,6 +82,20 @@ export interface Customer {
 	id: string;
 	name: string;
 	code: string;
+	// RM 相關資訊
+	rm1Id?: string | null;
+	rm1Name?: string | null;
+	rm1ProfitShare?: number | null;
+	rm2Id?: string | null;
+	rm2Name?: string | null;
+	rm2ProfitShare?: number | null;
+	// Finder 相關資訊
+	finder1Id?: string | null;
+	finder1Name?: string | null;
+	finder1ProfitShare?: number | null;
+	finder2Id?: string | null;
+	finder2Name?: string | null;
+	finder2ProfitShare?: number | null;
 }
 
 export interface RelationshipManager {

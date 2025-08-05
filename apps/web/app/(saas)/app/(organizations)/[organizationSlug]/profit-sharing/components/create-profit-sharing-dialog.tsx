@@ -190,10 +190,134 @@ export function CreateProfitSharingDialog({
 			if (selectedCustomer) {
 				fetchBankAccounts(customerId);
 				fetchRMsAndFinders(selectedCustomer);
+
+				// 設定客戶的預設 RM 和 Finder 資訊
+				console.log("🔄 設定客戶預設資訊:", selectedCustomer);
+
+				// 設定 RM1 資訊
+				if (selectedCustomer.rm1Id && selectedCustomer.rm1Name) {
+					form.setValue("rm1Id", selectedCustomer.rm1Id);
+					form.setValue("rm1Name", selectedCustomer.rm1Name);
+					// 如果分潤比例是 null，設為 0
+					const rm1Percent = selectedCustomer.rm1ProfitShare ?? 0;
+					form.setValue("rm1RevenuePercent", rm1Percent);
+					form.setValue("rm1FeePercent", rm1Percent);
+				} else {
+					// 如果沒有設定 RM1，清空並設為 0
+					form.setValue("rm1Id", undefined);
+					form.setValue("rm1Name", undefined);
+					form.setValue("rm1RevenuePercent", 0);
+					form.setValue("rm1FeePercent", 0);
+				}
+
+				// 設定 RM2 資訊
+				if (selectedCustomer.rm2Id && selectedCustomer.rm2Name) {
+					form.setValue("rm2Id", selectedCustomer.rm2Id);
+					form.setValue("rm2Name", selectedCustomer.rm2Name);
+					// 如果分潤比例是 null，設為 0
+					const rm2Percent = selectedCustomer.rm2ProfitShare ?? 0;
+					form.setValue("rm2RevenuePercent", rm2Percent);
+					form.setValue("rm2FeePercent", rm2Percent);
+				} else {
+					// 如果沒有設定 RM2，清空並設為 0
+					form.setValue("rm2Id", undefined);
+					form.setValue("rm2Name", undefined);
+					form.setValue("rm2RevenuePercent", 0);
+					form.setValue("rm2FeePercent", 0);
+				}
+
+				// 設定 Finder1 資訊
+				if (
+					selectedCustomer.finder1Id &&
+					selectedCustomer.finder1Name
+				) {
+					form.setValue("finder1Id", selectedCustomer.finder1Id);
+					form.setValue("finder1Name", selectedCustomer.finder1Name);
+					// 如果分潤比例是 null，設為 0
+					const finder1Percent =
+						selectedCustomer.finder1ProfitShare ?? 0;
+					form.setValue("finder1RevenuePercent", finder1Percent);
+					form.setValue("finder1FeePercent", finder1Percent);
+				} else {
+					// 如果沒有設定 Finder1，清空並設為 0
+					form.setValue("finder1Id", undefined);
+					form.setValue("finder1Name", undefined);
+					form.setValue("finder1RevenuePercent", 0);
+					form.setValue("finder1FeePercent", 0);
+				}
+
+				// 設定 Finder2 資訊
+				if (
+					selectedCustomer.finder2Id &&
+					selectedCustomer.finder2Name
+				) {
+					form.setValue("finder2Id", selectedCustomer.finder2Id);
+					form.setValue("finder2Name", selectedCustomer.finder2Name);
+					// 如果分潤比例是 null，設為 0
+					const finder2Percent =
+						selectedCustomer.finder2ProfitShare ?? 0;
+					form.setValue("finder2RevenuePercent", finder2Percent);
+					form.setValue("finder2FeePercent", finder2Percent);
+				} else {
+					// 如果沒有設定 Finder2，清空並設為 0
+					form.setValue("finder2Id", undefined);
+					form.setValue("finder2Name", undefined);
+					form.setValue("finder2RevenuePercent", 0);
+					form.setValue("finder2FeePercent", 0);
+				}
+
+				// 計算 Company 的分潤百分比 (100% - 所有 RM 和 Finder 的總和)
+				const totalRMAndFinderPercent =
+					(selectedCustomer.rm1ProfitShare ?? 0) +
+					(selectedCustomer.rm2ProfitShare ?? 0) +
+					(selectedCustomer.finder1ProfitShare ?? 0) +
+					(selectedCustomer.finder2ProfitShare ?? 0);
+
+				const companyPercent = Math.max(
+					0,
+					100 - totalRMAndFinderPercent,
+				);
+
+				form.setValue("companyRevenuePercent", companyPercent);
+				form.setValue("companyFeePercent", companyPercent);
+
+				console.log(
+					"分潤百分比:",
+					selectedCustomer.rm1ProfitShare,
+					selectedCustomer.rm2ProfitShare,
+					selectedCustomer.finder1ProfitShare,
+					selectedCustomer.finder2ProfitShare,
+					companyPercent,
+				);
 			}
 		} else {
-			// 如果沒有選擇客戶，清空銀行帳戶
+			// 如果沒有選擇客戶，清空銀行帳戶和 RM/Finder 資訊
 			fetchBankAccounts();
+
+			// 清空 RM 和 Finder 資訊
+			form.setValue("rm1Id", undefined);
+			form.setValue("rm1Name", undefined);
+			form.setValue("rm1RevenuePercent", 0);
+			form.setValue("rm1FeePercent", 0);
+
+			form.setValue("rm2Id", undefined);
+			form.setValue("rm2Name", undefined);
+			form.setValue("rm2RevenuePercent", 0);
+			form.setValue("rm2FeePercent", 0);
+
+			form.setValue("finder1Id", undefined);
+			form.setValue("finder1Name", undefined);
+			form.setValue("finder1RevenuePercent", 0);
+			form.setValue("finder1FeePercent", 0);
+
+			form.setValue("finder2Id", undefined);
+			form.setValue("finder2Name", undefined);
+			form.setValue("finder2RevenuePercent", 0);
+			form.setValue("finder2FeePercent", 0);
+
+			// 重置 Company 分潤為預設值
+			form.setValue("companyRevenuePercent", 100);
+			form.setValue("companyFeePercent", 100);
 		}
 	}, [form.watch("customerId"), customers]);
 
