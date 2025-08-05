@@ -1,0 +1,18 @@
+[
+  {
+    "config_name": "高學習率 + 低隱藏層",
+    "params": {
+      "distribution": "two_moons",
+      "dims": 2,
+      "n_p": 50,
+      "n_u": 300,
+      "prior": 0.3,
+      "activation": "relu",
+      "n_epochs": 100,
+      "learning_rate": 0.1,
+      "hidden_dim": 10,
+      "weight_decay": 0.0
+    },
+    "boundary_analysis": {
+      "smoothness": 0.9987440684161853,
+      "oscillations": 

@@ -1,0 +1,151 @@
+# Backend Architecture Rules for Smart Meter Testbed
+
+## 📋 **Architecture Principles**
+
+### **Single Source of Truth**
+- 每個功能模組只能有一個主要實現檔案
+- 避免重複的 API 端點和服務邏輯
+- 使用統一的資料模型和介面
+
+### **Module Hierarchy**
+```
+backend/
+├── core/                    # 核心模組
+│   ├── database.py         # 資料庫管理（單一檔案）
+│   ├── config.py           # 配置管理
+│   └── exceptions.py       # 自訂例外
+├── services/               # 業務邏輯服務
+│   ├── testbed_service.py  # Testbed 核心服務（主要）
+│   ├── ammeter_service.py  # 電表服務（整合）
+│   └── ai_service.py       # AI 學習服務
+├── routes/                 # API 路由
+│   ├── testbed.py         # Testbed API（單一端點）
+│   ├── ammeters.py        # 電表 API（整合）
+│   └── ai.py              # AI API
+├── models/                 # 資料模型
+│   ├── testbed.py         # Testbed 相關模型
+│   ├── ammeter.py         # 電表相關模型
+│   └── base.py            # 基礎模型
+└── main.py                # 主程式（單一入口）
+```
+
+### **File Naming Convention**
+- **Services**: `{功能}_service.py` - 業務邏輯實現
+- **Routes**: `{功能}.py` - API 端點定義  
+- **Models**: `{功能}.py` - 資料模型
+- **Core**: 基礎設施和共用功能
+
+## 🚫 **Prohibited Patterns**
+
+### **重複檔案 (DELETE)**
+- ❌ `ammeter_api.py` - 整合到 `services/ammeter_service.py`
+- ❌ `ammeters_api.py` - 整合到 `services/ammeter_service.py` 
+- ❌ `routes/ammeter.py` - 整合到 `routes/ammeters.py`
+- ❌ `main_unified.py` - 使用統一的 `main.py`
+- ❌ 多個 start script - 使用單一啟動檔案
+
+### **API 重複 (CONSOLIDATE)**
+- 每個資源只能有一個 API 端點集合
+- 使用版本控制而非重複檔案
+- 統一錯誤處理和回應格式
+
+### **函數重複 (EXTRACT)**
+- 重複的 API 請求邏輯 → 提取到 `services/`
+- 重複的資料解析邏輯 → 提取到 `models/`
+- 重複的資料庫操作 → 整合到 `core/database.py`
+
+## ✅ **Required Patterns**
+
+### **Service Layer Pattern**
+```python
+# services/testbed_service.py
+class TestbedService:
+    """Testbed 核心業務邏輯（單例）"""
+    
+    def __init__(self):
+        self.db = DatabaseManager()
+        self.ammeter_service = AmmeterService()
+    
+    async def get_overview(self) -> TestbedOverview:
+        """獲取概覽（整合所有資料源）"""
+        
+    async def get_units(self) -> List[TestbedUnit]:
+        """獲取住宅單位（去重和標準化）"""
+```
+
+### **Unified API Response**
+```python
+# All APIs must use consistent response format
+class APIResponse(BaseModel):
+    success: bool
+    data: Optional[Any] = None
+    message: Optional[str] = None
+    error: Optional[str] = None
+```
+
+### **Database Abstraction**
+```python
+# core/database.py - Single database manager
+class DatabaseManager:
+    """統一的資料庫管理器"""
+    
+    async def get_ammeter_data(self, device_id: str) -> AmmeterData:
+        """統一的電表資料查詢"""
+    
+    async def save_ammeter_log(self, log_data: dict) -> None:
+        """統一的日誌記錄"""
+```
+
+## 🔄 **Integration Rules**
+
+### **Data Flow Hierarchy**
+```
+Frontend (apps/phd) 
+    ↓ API calls
+packages/api/src/routes/testbed.ts (Hono middleware)
+    ↓ Proxy to Python
+backend/routes/testbed.py (FastAPI routes)
+    ↓ Business logic
+backend/services/testbed_service.py (Core service)
+    ↓ Data access
+backend/core/database.py (Database layer)
+```
+
+### **Import Rules**
+- Routes 只能 import Services
+- Services 只能 import Core 和 Models
+- Core 模組不能 import Services 或 Routes
+- 禁止循環 import
+
+### **Error Handling**
+- 統一的例外處理機制
+- API 層：HTTP 例外轉換
+- Service 層：業務邏輯例外
+- Core 層：基礎設施例外
+
+## 📝 **Migration Tasks**
+
+### **Phase 1: Consolidation**
+1. 刪除重複的 API 檔案
+2. 整合電表服務邏輯
+3. 統一資料模型
+
+### **Phase 2: Refactoring**
+1. 實現 Service Layer Pattern
+2. 統一錯誤處理
+3. 標準化 API 回應格式
+
+### **Phase 3: Testing**
+1. 端到端測試資料流程
+2. API 整合測試
+3. 前端功能驗證
+
+## 🎯 **Success Criteria**
+
+- ✅ 零重複檔案
+- ✅ 清晰的模組邊界
+- ✅ 統一的資料流程
+- ✅ 完整的功能測試
+- ✅ 前端正常運作
+
+Remember: **One Feature, One File, One Responsibility**

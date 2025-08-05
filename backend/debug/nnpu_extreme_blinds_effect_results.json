@@ -1,0 +1,167 @@
+[
+  {
+    "config_name": "極低隱藏層_高學習率",
+    "params": {
+      "distribution": "two_moons",
+      "dims": 2,
+      "n_p": 50,
+      "n_u": 300,
+      "prior": 0.3,
+      "activation": "relu",
+      "n_epochs": 100,
+      "learning_rate": 0.3,
+      "hidden_dim": 5,
+      "weight_decay": 0.1
+    },
+    "boundary_analysis": {
+      "smoothness": 0.9996956587401573,
+      "oscillations": 1,
+      "y_variance": 0.00030443391164302876,
+      "y_mean_diff": 0.04576376004947434,
+      "y_range": 2.2424242424242427,
+      "large_jumps": 0,
+      "distance_variance": 4.0228401470465584e-05,
+      "direction_changes": 0,
+      "blinds_score": 1,
+      "blinds_effect": true,
+      "boundary_points": 50
+    },
+    "metrics": {
+      "estimated_prior": 0.3661823872607547,
+      "error_rate": 0.104
+    },
+    "has_blinds_effect": true
+  },
+  {
+    "config_name": "極不平衡數據_高學習率",
+    "params": {
+      "distribution": "two_moons",
+      "dims": 2,
+      "n_p": 5,
+      "n_u": 500,
+      "prior": 0.1,
+      "activation": "relu",
+      "n_epochs": 100,
+      "learning_rate": 0.2,
+      "hidden_dim": 100,
+      "weight_decay": 0.1
+    },
+    "boundary_analysis": {
+      "smoothness": 0.9983535706935583,
+      "oscillations": 11,
+      "y_variance": 0.001649144506287363,
+      "y_mean_diff": 0.03710575139146568,
+      "y_range": 1.2727272727272727,
+      "large_jumps": 2,
+      "distance_variance": 0.00016326157129546481,
+      "direction_changes": 1,
+      "blinds_score": 1,
+      "blinds_effect": true,
+      "boundary_points": 50
+    },
+    "metrics": {
+      "estimated_prior": 0.4672109253790909,
+      "error_rate": 0.1
+    },
+    "has_blinds_effect": true
+  },
+  {
+    "config_name": "高維度_低樣本_高學習率",
+    "params": {
+      "distribution": "complex",
+      "dims": 15,
+      "n_p": 10,
+      "n_u": 100,
+      "prior": 0.3,
+      "activation": "relu",
+      "n_epochs": 100,
+      "learning_rate": 0.3,
+      "hidden_dim": 50,
+      "weight_decay": 0.1
+    },
+    "boundary_analysis": {
+      "smoothness": 0.9913660842210684,
+      "oscillations": 2,
+      "y_variance": 0.008709109496836774,
+      "y_mean_diff": 0.11480380358553435,
+      "y_range": 1.9999335608882582,
+      "large_jumps": 0,
+      "distance_variance": 0.0003248145611230446,
+      "direction_changes": 0,
+      "blinds_score": 1,
+      "blinds_effect": true,
+      "boundary_points": 20
+    },
+    "metrics": {
+      "estimated_prior": 0.1,
+      "error_rate": 0.3
+    },
+    "has_blinds_effect": true
+  },
+  {
+    "config_name": "極高學習率_tanh激活",
+    "params": {
+      "distribution": "two_moons",
+      "dims": 2,
+      "n_p": 50,
+      "n_u": 300,
+      "prior": 0.3,
+      "activation": "tanh",
+      "n_epochs": 100,
+      "learning_rate": 0.4,
+      "hidden_dim": 100,
+      "weight_decay": 0.1
+    },
+    "boundary_analysis": {
+      "smoothness": 0.7696113074204947,
+      "oscillations": 31,
+      "y_variance": 0.2993572084481176,
+      "y_mean_diff": 0.20841063698206552,
+      "y_range": 1.7272727272727273,
+      "large_jumps": 6,
+      "distance_variance": 0.22982778998987524,
+      "direction_changes": 3,
+      "blinds_score": 4,
+      "blinds_effect": true,
+      "boundary_points": 50
+    },
+    "metrics": {
+      "estimated_prior": 0.38246006565988294,
+      "error_rate": 0.133
+    },
+    "has_blinds_effect": true
+  },
+  {
+    "config_name": "極高學習率_softsign激活",
+    "params": {
+      "distribution": "two_moons",
+      "dims": 2,
+      "n_p": 50,
+      "n_u": 300,
+      "prior": 0.3,
+      "activation": "softsign",
+      "n_epochs": 100,
+      "learning_rate": 0.4,
+      "hidden_dim": 100,
+      "weight_decay": 0.1
+    },
+    "boundary_analysis": {
+      "smoothness": 0.860342131144898,
+      "oscillations": 3,
+      "y_variance": 0.16232829219842204,
+      "y_mean_diff": 0.10636982065553494,
+      "y_range": 2.606060606060606,
+      "large_jumps": 7,
+      "distance_variance": 0.1345750686169238,
+      "direction_changes": 1,
+      "blinds_score": 3,
+      "blinds_effect": true,
+      "boundary_points": 50
+    },
+    "metrics": {
+      "estimated_prior": 0.4251068578126559,
+      "error_rate": 0.3
+    },
+    "has_blinds_effect": true
+  }
+]

@@ -1,0 +1,162 @@
+[
+  {
+    "config_name": "two_moons_高權重衰減",
+    "params": {
+      "distribution": "two_moons",
+      "dims": 2,
+      "n_p": 50,
+      "n_u": 300,
+      "prior": 0.3,
+      "activation": "relu",
+      "n_epochs": 100,
+      "learning_rate": 0.05,
+      "hidden_dim": 100,
+      "weight_decay": 0.1
+    },
+    "boundary_analysis": {
+      "smoothness": 0.9024200503965771,
+      "oscillations": 7,
+      "y_variance": 0.10813140683270552,
+      "y_mean_diff": 0.16326530612244897,
+      "y_range": 2.9393939393939394,
+      "large_jumps": 4,
+      "distance_variance": 0.07062796533543035,
+      "blinds_score": 1,
+      "blinds_effect": false,
+      "boundary_points": 50
+    },
+    "metrics": {
+      "estimated_prior": 0.2861416185528556,
+      "error_rate": 0.033
+    },
+    "has_blinds_effect": false
+  },
+  {
+    "config_name": "先驗0.2_高權重衰減",
+    "params": {
+      "distribution": "two_moons",
+      "dims": 2,
+      "n_p": 50,
+      "n_u": 300,
+      "prior": 0.2,
+      "activation": "relu",
+      "n_epochs": 100,
+      "learning_rate": 0.05,
+      "hidden_dim": 100,
+      "weight_decay": 0.1
+    },
+    "boundary_analysis": {
+      "smoothness": 0.9972052050005777,
+      "oscillations": 5,
+      "y_variance": 0.0028026277694976343,
+      "y_mean_diff": 0.05071119356833643,
+      "y_range": 1.878787878787879,
+      "large_jumps": 0,
+      "distance_variance": 0.00041878215407179393,
+      "blinds_score": 0,
+      "blinds_effect": false,
+      "boundary_points": 50
+    },
+    "metrics": {
+      "estimated_prior": 0.20860229715996842,
+      "error_rate": 0.046000000000000006
+    },
+    "has_blinds_effect": false
+  },
+  {
+    "config_name": "極高學習率_高權重衰減",
+    "params": {
+      "distribution": "two_moons",
+      "dims": 2,
+      "n_p": 50,
+      "n_u": 300,
+      "prior": 0.3,
+      "activation": "relu",
+      "n_epochs": 100,
+      "learning_rate": 0.2,
+      "hidden_dim": 100,
+      "weight_decay": 0.1
+    },
+    "boundary_analysis": {
+      "smoothness": 0.9980616596819488,
+      "oscillations": 11,
+      "y_variance": 0.0019421047780443501,
+      "y_mean_diff": 0.04576376004947435,
+      "y_range": 2.0606060606060606,
+      "large_jumps": 0,
+      "distance_variance": 0.00036604056100902253,
+      "blinds_score": 1,
+      "blinds_effect": false,
+      "boundary_points": 50
+    },
+    "metrics": {
+      "estimated_prior": 0.4296588030185493,
+      "error_rate": 0.3
+    },
+    "has_blinds_effect": false
+  },
+  {
+    "config_name": "低隱藏層_高權重衰減",
+    "params": {
+      "distribution": "two_moons",
+      "dims": 2,
+      "n_p": 50,
+      "n_u": 300,
+      "prior": 0.3,
+      "activation": "relu",
+      "n_epochs": 100,
+      "learning_rate": 0.05,
+      "hidden_dim": 20,
+      "weight_decay": 0.1
+    },
+    "boundary_analysis": {
+      "smoothness": 0.9990806600448207,
+      "oscillations": 1,
+      "y_variance": 0.0009201859188607141,
+      "y_mean_diff": 0.05009276437847866,
+      "y_range": 2.4545454545454546,
+      "large_jumps": 0,
+      "distance_variance": 0.00011173767798868316,
+      "blinds_score": 1,
+      "blinds_effect": false,
+      "boundary_points": 50
+    },
+    "metrics": {
+      "estimated_prior": 0.4477542489169676,
+      "error_rate": 0.095
+    },
+    "has_blinds_effect": false
+  },
+  {
+    "config_name": "tanh激活_高權重衰減",
+    "params": {
+      "distribution": "two_moons",
+      "dims": 2,
+      "n_p": 50,
+      "n_u": 300,
+      "prior": 0.3,
+      "activation": "tanh",
+      "n_epochs": 100,
+      "learning_rate": 0.05,
+      "hidden_dim": 100,
+      "weight_decay": 0.1
+    },
+    "boundary_analysis": {
+      "smoothness": 0.9997705798479634,
+      "oscillations": 0,
+      "y_variance": 0.00022947279772087578,
+      "y_mean_diff": 0.04514533085961658,
+      "y_range": 2.2121212121212124,
+      "large_jumps": 0,
+      "distance_variance": 3.7418762765947226e-05,
+      "blinds_score": 1,
+      "blinds_effect": false,
+      "boundary_points": 50
+    },
+    "metrics": {
+      "estimated_prior": 0.3493562673842145,
+      "error_rate": 0.135
+    },
+    "has_blinds_effect": false
+  }
+]

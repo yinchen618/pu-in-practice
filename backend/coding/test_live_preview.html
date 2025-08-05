@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Preview 測試</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        .feature h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        .status {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(76, 175, 80, 0.2);
+            border-radius: 8px;
+            border: 1px solid #4CAF50;
+        }
+        .timestamp {
+            text-align: center;
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Live Preview 測試成功！</h1>
+        
+        <div class="status">
+            ✅ 檔案透過 HTTP 伺服器直接存取成功
+        </div>
+        
+        <div class="feature">
+            <h3>🚀 新功能特色</h3>
+            <p>現在你可以透過 <code>http://localhost:8000/live-preview/{sessionId}/檔案路徑</code> 直接存取工作區中的檔案，實現真正的即時預覽！</p>
+        </div>
+        
+        <div class="feature">
+            <h3>📁 支援的檔案類型</h3>
+            <ul>
+                <li>HTML 檔案 (.html, .htm)</li>
+                <li>CSS 樣式表 (.css)</li>
+                <li>JavaScript 檔案 (.js)</li>
+                <li>圖片檔案 (.jpg, .jpeg, .png, .gif, .svg)</li>
+                <li>字體檔案 (.woff, .woff2, .ttf)</li>
+                <li>多媒體檔案 (.mp4, .webm, .mp3, .wav)</li>
+            </ul>
+        </div>
+        
+        <div class="feature">
+            <h3>🔒 安全性保障</h3>
+            <p>所有檔案存取都經過路徑安全性檢查，防止路徑遍歷攻擊，確保只能存取指定 session 目錄內的檔案。</p>
+        </div>
+        
+        <div class="timestamp">
+            載入時間: <span id="timestamp"></span>
+        </div>
+    </div>
+
+    <script>
+        // 顯示當前時間
+        document.getElementById('timestamp').textContent = new Date().toLocaleString('zh-TW');
+        
+        // 添加一些互動效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const features = document.querySelectorAll('.feature');
+            features.forEach((feature, index) => {
+                setTimeout(() => {
+                    feature.style.opacity = '0';
+                    feature.style.transform = 'translateY(20px)';
+                    feature.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        feature.style.opacity = '1';
+                        feature.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html> 

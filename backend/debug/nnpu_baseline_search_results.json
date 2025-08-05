@@ -1,0 +1,145 @@
+[
+  {
+    "config": {
+      "learning_rate": 0.005,
+      "weight_decay": 0.0001,
+      "epochs": 200,
+      "hidden_size": 64
+    },
+    "error_rate": 0.005999999999999999,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9591105570488556,
+    "success": true
+  },
+  {
+    "config": {
+      "learning_rate": 0.003,
+      "weight_decay": 0.001,
+      "epochs": 200,
+      "hidden_size": 128
+    },
+    "error_rate": 0.007,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9585105570488557,
+    "success": true
+  },
+  {
+    "config": {
+      "learning_rate": 0.01,
+      "weight_decay": 0.005,
+      "epochs": 100,
+      "hidden_size": 64
+    },
+    "error_rate": 0.013999999999999999,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9543105570488557,
+    "success": true
+  },
+  {
+    "config": {
+      "learning_rate": 0.005,
+      "weight_decay": 0.001,
+      "epochs": 150,
+      "hidden_size": 128
+    },
+    "error_rate": 0.015,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9537105570488555,
+    "success": true
+  },
+  {
+    "config": {
+      "learning_rate": 0.005,
+      "weight_decay": 0.0001,
+      "epochs": 150,
+      "hidden_size": 64
+    },
+    "error_rate": 0.016999999999999998,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9525105570488557,
+    "success": true
+  },
+  {
+    "config": {
+      "learning_rate": 0.01,
+      "weight_decay": 0.001,
+      "epochs": 100,
+      "hidden_size": 64
+    },
+    "error_rate": 0.025,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9477105570488555,
+    "success": true
+  },
+  {
+    "config": {
+      "learning_rate": 0.01,
+      "weight_decay": 0.0001,
+      "epochs": 100,
+      "hidden_size": 128
+    },
+    "error_rate": 0.027999999999999997,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9459105570488555,
+    "success": true
+  },
+  {
+    "config": {
+      "learning_rate": 0.005,
+      "weight_decay": 0.005,
+      "epochs": 150,
+      "hidden_size": 64
+    },
+    "error_rate": 0.033,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9429105570488556,
+    "success": true
+  },
+  {
+    "config": {
+      "learning_rate": 0.01,
+      "weight_decay": 0.0001,
+      "epochs": 100,
+      "hidden_size": 64
+    },
+    "error_rate": 0.036,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9411105570488556,
+    "success": true
+  },
+  {
+    "config": {
+      "learning_rate": 0.01,
+      "weight_decay": 0.0002,
+      "epochs": 75,
+      "hidden_size": 64
+    },
+    "error_rate": 0.05499999999999999,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9297105570488557,
+    "success": true
+  },
+  {
+    "config": {
+      "learning_rate": 0.01,
+      "weight_decay": 0.0001,
+      "epochs": 50,
+      "hidden_size": 64
+    },
+    "error_rate": 0.08399999999999999,
+    "estimated_prior": 0.2807895078320618,
+    "prior_error": 0.019210492167938187,
+    "composite_score": 0.9123105570488557,
+    "success": true
+  }
+]

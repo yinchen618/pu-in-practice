@@ -1,0 +1,103 @@
+/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_params" has conflict with protected namespace "model_".
+
+You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
+  warnings.warn(
+/Users/yinchenchen/Documents/_code/supa-tw4_2-infowin/backend/main.py:44: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [21454]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+啟動 AI 學習平台後端服務...
+主機: 0.0.0.0
+端口: 8000
+Cron 任務: 停用
+PostgreSQL 資料表已建立
+Cron 任務已停用
+INFO:     127.0.0.1:50862 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50865 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50872 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50885 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50896 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:50904 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:50914 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-10&end_date=2025-07-17 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:50921 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-10&end_date=2025-07-17 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:50931 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50944 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50944 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50944 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50961 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50984 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50986 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51031 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51035 - "HEAD / HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51045 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51073 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51073 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51076 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51080 - "GET /api/testbed/meter-data?unit_id=402A8FB0254B&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51080 - "GET /api/testbed/meter-data?unit_id=402A8FB0254B&meter_type=appliance&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51080 - "GET /api/testbed/meter-data?unit_id=402A8FB0254B&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51084 - "GET /api/testbed/meter-data?unit_id=402A8FB028E7&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51186 - "GET /api/testbed/overview HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51186 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51221 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51227 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51227 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51231 - "GET /api/testbed/meter-data?unit_id=402A8FB0254B&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51477 - "GET /api/testbed/overview HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51477 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51477 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51477 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51522 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51522 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51522 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51522 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51524 - "GET /api/testbed/meter-data?unit_id=402A8FB0254B&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51646 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51661 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51661 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51661 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51696 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51699 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51927 - "GET /api/testbed/overview HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:51931 - "GET /api/testbed/overview HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52043 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52043 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52058 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52058 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52058 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52058 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52373 - "GET /api/testbed/meter-data?unit_id=402A8FB028E7&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52380 - "GET /api/testbed/meter-data?unit_id=402A8FB007F2&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52389 - "GET /api/testbed/meter-data?unit_id=402A8FB044EE&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52396 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52401 - "GET /api/testbed/meter-data?unit_id=402A8FB01BFF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52633 - "GET /api/testbed/overview HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52633 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52633 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52677 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52677 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52677 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52677 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52677 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52677 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52677 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-09&end_date=2025-07-16 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:55511 - "GET /api/testbed/overview HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:55511 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55517 - "GET /api/testbed/units HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:55517 - "GET /api/testbed/meter-data?unit_id=TW-001&meter_type=main&start_date=2025-07-10&end_date=2025-07-17 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:55789 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55789 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-10&end_date=2025-07-17 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:55813 - "GET /api/testbed/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55813 - "GET /api/testbed/units HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55813 - "GET /api/testbed/meter-data?unit_id=402A8FB03FBF&meter_type=main&start_date=2025-07-10&end_date=2025-07-17 HTTP/1.1" 500 Internal Server Error
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [21454]
