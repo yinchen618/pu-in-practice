@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Environment files
+.env*
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Config files that should not be formatted strictly
+*.config.js
+*.config.ts
+*.config.mjs
+*.config.cjs
+next.config.*
+tailwind.config.*
+postcss.config.*
+
+# Generated files
+*.tsbuildinfo
+next-env.d.ts
+components.json
+
+# Test coverage
+coverage/
+
+# Documentation that doesn't need strict formatting
+README.md
+CHANGELOG.md 
