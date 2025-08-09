@@ -10,6 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from services.anomaly_service import anomaly_service
 from core.database import db_manager
 from sqlalchemy import text
+from services.data_loader import data_loader
 
 router = APIRouter(prefix="/api/v1", tags=["Case Study Anomaly Detection"])
 
@@ -94,6 +95,76 @@ async def get_anomaly_event_detail(event_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to retrieve anomaly event details: {str(e)}")
+
+@router.get("/events/{event_id}/window")
+async def get_event_data_window(event_id: str, minutes: int = Query(10, ge=1, le=24*60)):
+    """Fetch surrounding raw timeseries data for an event within ±minutes window.
+    Returns timestamps and values arrays for charting.
+    """
+    try:
+        # 1) Load event basic info (meterId and timestamp)
+        async with db_manager.get_session() as session:
+            query = text(
+                """
+                SELECT "meterId" AS meter_id, "eventTimestamp" AS event_ts
+                FROM anomaly_event
+                WHERE id = :event_id
+                """
+            )
+            res = await session.execute(query, {"event_id": event_id})
+            row = res.fetchone()
+            if not row:
+                raise HTTPException(status_code=404, detail="Anomaly event not found")
+
+        meter_id = row.meter_id
+        event_time = row.event_ts
+
+        # 2) Compute window
+        from datetime import timedelta
+        delta = timedelta(minutes=minutes)
+        start_dt = event_time - delta
+        end_dt = event_time + delta
+
+        # 3) Load raw data in window and filter by meter
+        raw_df = await data_loader.get_raw_dataframe(start_datetime=start_dt, end_datetime=end_dt)
+        if raw_df.empty:
+            return {
+                "success": True,
+                "data": {
+                    "eventId": event_id,
+                    "meterId": meter_id,
+                    "eventTimestamp": event_time.isoformat(),
+                    "dataWindow": {"timestamps": [], "values": []},
+                },
+                "message": "No raw data in the specified window"
+            }
+
+        # Ensure datetime type and filter by device
+        import pandas as pd
+        df = raw_df.copy()
+        if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+        df = df[(df['deviceNumber'] == meter_id) & (df['timestamp'] >= start_dt) & (df['timestamp'] <= end_dt)]
+        df = df.sort_values('timestamp')
+
+        timestamps = df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').tolist() if len(df) else []
+        values = df['power'].astype(float).tolist() if len(df) else []
+
+        return {
+            "success": True,
+            "data": {
+                "eventId": event_id,
+                "meterId": meter_id,
+                "eventTimestamp": event_time.isoformat(),
+                "dataWindow": {"timestamps": timestamps, "values": values},
+            },
+            "message": f"Fetched ±{minutes} minutes window"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch event window: {str(e)}")
 
 @router.post("/events", response_model=AnomalyEventResponse)
 async def create_anomaly_event(

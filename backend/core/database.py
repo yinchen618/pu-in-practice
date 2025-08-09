@@ -10,7 +10,15 @@ import uuid
 # PostgreSQL 連線字串
 DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql+asyncpg://postgres:Info4467@supa.clkvfvz5fxb3.ap-northeast-3.rds.amazonaws.com:5432/supa"
 
-engine = create_async_engine(DATABASE_URL, echo=False)
+# Enable pre-ping and connection recycling to avoid "connection was closed" errors
+# pool_pre_ping checks connection liveness before using a connection from the pool
+# pool_recycle ensures connections are refreshed periodically (in seconds)
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=False,
+    pool_pre_ping=True,
+    pool_recycle=1800,  # recycle connections every 30 minutes
+)
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 Base = declarative_base()
 

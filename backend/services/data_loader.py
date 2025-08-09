@@ -115,7 +115,9 @@ class DataLoaderService:
     async def get_raw_dataframe(self, 
                               start_date: Optional[date] = None,
                               end_date: Optional[date] = None,
-                              force_reload: bool = False) -> pd.DataFrame:
+                              force_reload: bool = False,
+                              start_datetime: Optional[datetime] = None,
+                              end_datetime: Optional[datetime] = None) -> pd.DataFrame:
         """
         Get raw data DataFrame with optional date filtering
         Args:
@@ -148,17 +150,21 @@ class DataLoaderService:
         if df.empty:
             return df
 
-        # Apply date filtering if specified
-        if start_date or end_date:
+        # Apply date/time filtering if specified
+        if start_date or end_date or start_datetime or end_datetime:
             df = df.copy()  # Don't modify the cached data
             
-            if start_date:
-                start_datetime = datetime.combine(start_date, datetime.min.time())
+            if start_datetime is not None:
                 df = df[df['timestamp'] >= start_datetime]
-            
-            if end_date:
-                end_datetime = datetime.combine(end_date, datetime.max.time())
+            elif start_date:
+                _start_dt = datetime.combine(start_date, datetime.min.time())
+                df = df[df['timestamp'] >= _start_dt]
+
+            if end_datetime is not None:
                 df = df[df['timestamp'] <= end_datetime]
+            elif end_date:
+                _end_dt = datetime.combine(end_date, datetime.max.time())
+                df = df[df['timestamp'] <= _end_dt]
             
             logger.info(f"Applied date filter: {start_date} to {end_date}, "
                        f"filtered to {len(df)} records")

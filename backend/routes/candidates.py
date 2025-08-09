@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Any
 import logging
 import uuid
 import asyncio
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 
 from services.data_loader import data_loader
 from services.anomaly_rules import anomaly_rules
@@ -23,6 +23,9 @@ class CandidateCalculationRequest(BaseModel):
     # Top-level filter
     start_date: date
     end_date: date
+    # Optional precise datetime window (prioritized over date if provided)
+    start_datetime: Optional[datetime] = None
+    end_datetime: Optional[datetime] = None
     
     # Value-based rules
     z_score_threshold: Optional[float] = 3.0
@@ -45,6 +48,7 @@ class CandidateCalculationResponse(BaseModel):
     message: str
     parameters_used: Dict[str, Any]
     processing_details: Optional[Dict[str, Any]] = None
+    stats: Optional[Dict[str, Any]] = None
 
 class CandidateGenerationRequest(CandidateCalculationRequest):
     """Same parameters as calculation but for actual generation"""
@@ -77,10 +81,23 @@ async def calculate_candidate_events(request: CandidateCalculationRequest):
     try:
         logger.info(f"Calculating candidate event count with parameters: {request.dict()}")
         
-        # Get raw data with date filtering
+        # Normalize optional datetimes to UTC-naive for consistent comparison
+        def to_utc_naive(dt: Optional[datetime]) -> Optional[datetime]:
+            if dt is None:
+                return None
+            if dt.tzinfo is not None:
+                return dt.astimezone(timezone.utc).replace(tzinfo=None)
+            return dt
+
+        start_dt = to_utc_naive(request.start_datetime)
+        end_dt = to_utc_naive(request.end_datetime)
+
+        # Get raw data with date/time filtering
         raw_df = await data_loader.get_raw_dataframe(
-            start_date=request.start_date,
-            end_date=request.end_date
+            start_date=request.start_date if start_dt is None else None,
+            end_date=request.end_date if end_dt is None else None,
+            start_datetime=start_dt,
+            end_datetime=end_dt,
         )
         
         if raw_df.empty:
@@ -106,6 +123,9 @@ async def calculate_candidate_events(request: CandidateCalculationRequest):
         candidate_count = await anomaly_rules.calculate_candidate_count_enhanced(
             raw_df, detection_params
         )
+
+        # Collect richer statistics for display
+        stats = await anomaly_rules.calculate_candidate_stats_enhanced(raw_df, detection_params)
         
         # Prepare processing details
         processing_details = {
@@ -131,7 +151,8 @@ async def calculate_candidate_events(request: CandidateCalculationRequest):
             candidate_count=candidate_count,
             message=f"Estimated {candidate_count} candidate events will be generated",
             parameters_used=detection_params,
-            processing_details=processing_details
+            processing_details=processing_details,
+            stats=stats
         )
         
     except Exception as e:

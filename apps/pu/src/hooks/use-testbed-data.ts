@@ -76,6 +76,13 @@ export interface MeterData {
 	meterType?: "main" | "appliance" | "both";
 }
 
+export interface ResidentialUnitItem {
+	id: string;
+	roomNumber: string;
+	building: string; // 15學舍 or 85學舍
+	hasAppliance: boolean;
+}
+
 // API 客戶端
 class TestbedAPIClient {
 	private baseUrl = "https://python.yinchen.tw";
@@ -168,17 +175,45 @@ export function useTestbedData() {
 		overviewLoading,
 	};
 }
+
+export const fetchResidentialUnits = async (
+	buildingCode: "a" | "b",
+): Promise<ResidentialUnitItem[]> => {
+	// 後端期望 15/85 作為 building 參數
+	const building = buildingCode === "a" ? "15" : "85";
+	const res = await fetch(
+		`https://python.yinchen.tw/api/testbed/units?building=${building}`,
+		{ headers: { "Content-Type": "application/json" } },
+	);
+	if (!res.ok) {
+		throw new Error("Failed to fetch units");
+	}
+	const json = await res.json();
+	const items = (json?.data || []) as any[];
+	return items.map((u) => ({
+		id: u.id,
+		roomNumber: u.roomNumber,
+		building: u.building,
+		hasAppliance: Array.isArray(u.meterTypes)
+			? u.meterTypes.includes("appliance")
+			: false,
+	}));
+};
 const getAmmeterHistoryData = async (
 	building: string,
 	electricMeterNumber: string,
 	startDate: string,
 	endDate: string,
+	startDateTime?: string,
+	endDateTime?: string,
 ): Promise<MeterData> => {
 	const params = new URLSearchParams({
 		building: building,
 		meter_number: electricMeterNumber,
 		start_date: startDate,
 		end_date: endDate,
+		...(startDateTime ? { start_datetime: startDateTime } : {}),
+		...(endDateTime ? { end_datetime: endDateTime } : {}),
 	});
 
 	const response = await fetch(
@@ -210,6 +245,8 @@ export const fetchMeterData = async (
 	meterType: string,
 	startDate: string,
 	endDate: string,
+	startDateTime?: string,
+	endDateTime?: string,
 ): Promise<MeterData> => {
 	// 根據 building 和 unit 構建電表號碼
 	const mainMeterName = `${unit}`;
@@ -219,20 +256,36 @@ export const fetchMeterData = async (
 	// 這裡可以根據實際需求調整
 
 	if (meterType === "both") {
-		const [mainData, applianceData] = await Promise.all([
-			getAmmeterHistoryData(building, mainMeterName, startDate, endDate),
-			getAmmeterHistoryData(
+		const mainData = await getAmmeterHistoryData(
+			building,
+			mainMeterName,
+			startDate,
+			endDate,
+			startDateTime,
+			endDateTime,
+		);
+		let applianceData: MeterData | null = null;
+		try {
+			applianceData = await getAmmeterHistoryData(
 				building,
 				applianceMeterName,
 				startDate,
 				endDate,
-			),
-		]);
+				startDateTime,
+				endDateTime,
+			);
+		} catch {
+			applianceData = null; // 某些房間沒有 appliance，忽略即可
+		}
 
 		return {
 			...mainData,
-			applianceTimeSeries: applianceData.timeSeries,
-			applianceStatistics: applianceData.statistics,
+			...(applianceData
+				? {
+						applianceTimeSeries: applianceData.timeSeries,
+						applianceStatistics: applianceData.statistics,
+					}
+				: {}),
 			meterType: "both" as const,
 		};
 	}
@@ -244,6 +297,8 @@ export const fetchMeterData = async (
 		targetMeterName,
 		startDate,
 		endDate,
+		startDateTime,
+		endDateTime,
 	);
 	return {
 		...data,

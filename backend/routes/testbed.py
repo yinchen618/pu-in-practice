@@ -123,9 +123,18 @@ async def get_ammeter_historical_data(
     meter_number: Optional[str] = Query(None, description="Meter number (e.g., 102)"),
     electric_meter_number: Optional[str] = Query(None, description="Full electric meter number"),
     start_date: str = Query(..., description="Analysis start date (YYYY-MM-DD)"),
-    end_date: str = Query(..., description="Analysis end date (YYYY-MM-DD)")
+    end_date: str = Query(..., description="Analysis end date (YYYY-MM-DD)"),
+    start_datetime: Optional[str] = Query(None, description="Optional start datetime (ISO 8601, UTC preferred)"),
+    end_datetime: Optional[str] = Query(None, description="Optional end datetime (ISO 8601, UTC preferred)")
 ):
-    """Retrieve historical smart meter data for energy consumption analysis"""
+    """
+    Retrieve historical smart meter data for energy consumption analysis.
+
+    Supports two filtering modes:
+    1) Date-only mode (default): use `start_date` and `end_date` (YYYY-MM-DD) to fetch whole-day data.
+    2) Datetime mode (optional): if both `start_datetime` and `end_datetime` (ISO 8601) are provided,
+       the service will use them for precise time-range filtering (UTC recommended).
+    """
     try:
         # 處理不同的參數格式
         if electric_meter_number:
@@ -160,13 +169,30 @@ async def get_ammeter_historical_data(
         print(f"  End Date: {end_date}")
         
         meter_data = await testbed_service.get_ammeter_history_data(
-            target_meter_number, start_date, end_date
+            target_meter_number,
+            start_date=start_date,
+            end_date=end_date,
+            start_datetime=start_datetime,
+            end_datetime=end_datetime,
         )
         
+        # Build informative message about effective filters
+        if start_datetime and end_datetime:
+            filter_msg = (
+                f"Filtered by datetime range: {start_datetime} ~ {end_datetime}"
+            )
+        else:
+            filter_msg = (
+                f"Filtered by date range: {start_date} ~ {end_date}"
+            )
+
         return SmartMeterDataResponse(
             success=True,
             data=meter_data.dict(),
-            message=f"Successfully retrieved historical data for smart meter {target_meter_number}"
+            message=(
+                f"Successfully retrieved historical data for smart meter {target_meter_number}. "
+                + filter_msg
+            )
         )
     except Exception as e:
         print(f"[ERROR] API Error: {str(e)}")

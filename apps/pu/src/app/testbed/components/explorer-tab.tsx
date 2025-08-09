@@ -1,41 +1,61 @@
+"use client";
 import type { MeterData } from "@/hooks/use-testbed-data";
 import { fetchMeterData } from "@/hooks/use-testbed-data";
-import { useEffect, useState } from "react";
+import { useQueryState } from "nuqs";
+import { useMemo, useState } from "react";
 import { DataStatistics } from "./data-statistics";
 import { ExplorerControls } from "./explorer-controls";
 import { SimpleTimeChart } from "./simple-time-chart";
 
 export function ExplorerTab() {
-	// 所有狀態在這裡管理
-	const [selectedBuilding, setSelectedBuilding] = useState<string>("a");
-	const [selectedUnit, setSelectedUnit] = useState<string>("");
-	const [selectedMeter, setSelectedMeter] = useState<string>("main");
-	const [startDate, setStartDate] = useState<string>("");
-	const [endDate, setEndDate] = useState<string>("");
+	// 預設時間範圍（過去7天），以台北時間的當下計算，再轉成 UTC ISO 存入狀態
+	const defaultEndIso = useMemo(() => {
+		const now = new Date();
+		// 取現在的 UTC epoch，等效於台北現在 - 8h
+		return now.toISOString();
+	}, []);
+	const defaultStartIso = useMemo(() => {
+		const now = new Date();
+		now.setDate(now.getDate() - 7);
+		return now.toISOString();
+	}, []);
+
+	// 與網址列同步的狀態（nuqs）
+	const [selectedBuilding, setSelectedBuilding] = useQueryState("building", {
+		defaultValue: "a",
+		shallow: false,
+	});
+	const [selectedUnit, setSelectedUnit] = useQueryState("unit", {
+		defaultValue: "",
+		shallow: false,
+	});
+	const [selectedMeter, setSelectedMeter] = useQueryState("meter", {
+		defaultValue: "main",
+		shallow: false,
+	});
+	const [startDateTime, setStartDateTime] = useQueryState("start", {
+		defaultValue: defaultStartIso,
+		shallow: false,
+	});
+	const [endDateTime, setEndDateTime] = useQueryState("end", {
+		defaultValue: defaultEndIso,
+		shallow: false,
+	});
 	const [meterData, setMeterData] = useState<MeterData | null>(null);
 	const [chartLoading, setChartLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	// Set default date range (last 7 days)
-	useEffect(() => {
-		const today = new Date();
-		const lastWeek = new Date(today);
-		lastWeek.setDate(today.getDate() - 7);
-
-		const formatDate = (date: Date) => date.toISOString().split("T")[0];
-		setEndDate(formatDate(today));
-		setStartDate(formatDate(lastWeek));
-	}, []);
+	// 無需額外 useEffect，預設值由 nuqs defaultValue 提供
 
 	// 載入電表資料
 	const loadMeterData = async (
 		building: string,
 		unit: string,
 		meter: string,
-		start: string,
-		end: string,
+		startIso: string,
+		endIso: string,
 	) => {
-		if (!unit || !start || !end) {
+		if (!unit || !startIso || !endIso) {
 			return;
 		}
 
@@ -43,12 +63,17 @@ export function ExplorerTab() {
 		setError(null);
 
 		try {
+			// 後端：日期為必填保留相容；同時傳 datetime（UTC ISO）供精準裁切
+			const start = new Date(startIso).toISOString().split("T")[0];
+			const end = new Date(endIso).toISOString().split("T")[0];
 			const data = await fetchMeterData(
 				building,
 				unit,
 				meter,
 				start,
 				end,
+				startIso,
+				endIso,
 			);
 			setMeterData(data);
 		} catch (err) {
@@ -65,16 +90,16 @@ export function ExplorerTab() {
 				{/* Control Panel */}
 				<div className="lg:col-span-1">
 					<ExplorerControls
-						selectedBuilding={selectedBuilding}
-						setSelectedBuilding={setSelectedBuilding}
-						selectedUnit={selectedUnit}
-						setSelectedUnit={setSelectedUnit}
-						selectedMeter={selectedMeter}
-						setSelectedMeter={setSelectedMeter}
-						startDate={startDate}
-						setStartDate={setStartDate}
-						endDate={endDate}
-						setEndDate={setEndDate}
+						selectedBuilding={selectedBuilding || "a"}
+						setSelectedBuilding={(v) => setSelectedBuilding(v)}
+						selectedUnit={selectedUnit || ""}
+						setSelectedUnit={(v) => setSelectedUnit(v)}
+						selectedMeter={selectedMeter || "main"}
+						setSelectedMeter={(v) => setSelectedMeter(v)}
+						startDateTime={startDateTime || defaultStartIso}
+						setStartDateTime={(v) => setStartDateTime(v)}
+						endDateTime={endDateTime || defaultEndIso}
+						setEndDateTime={(v) => setEndDateTime(v)}
 						onLoadData={loadMeterData}
 					/>
 				</div>
@@ -86,8 +111,8 @@ export function ExplorerTab() {
 						error={error}
 						meterData={meterData}
 						selectedMeter={selectedMeter}
-						startDate={startDate}
-						endDate={endDate}
+						startDate={startDateTime}
+						endDate={endDateTime}
 					/>
 
 					{/* Statistics */}

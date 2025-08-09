@@ -46,6 +46,9 @@ interface FilterParams {
 	// Top-level filter
 	startDate: Date;
 	endDate: Date;
+	// Time (Taiwan timezone, default 00:00)
+	startTime: string; // HH:MM
+	endTime: string; // HH:MM
 
 	// Value-based rules
 	zScoreThreshold: number;
@@ -68,6 +71,9 @@ export function DataExplorationPhase() {
 	const AnomalyLabelingSystemAny = AnomalyLabelingSystem as any;
 	const [viewMode, setViewMode] = useState<ViewMode>("overview");
 	const [candidateCount, setCandidateCount] = useState(0);
+	const [candidateStats, setCandidateStats] = useState<any | null>(null);
+	const [lastCalculatedParams, setLastCalculatedParams] =
+		useState<FilterParams | null>(null);
 	const [isCalculating, setIsCalculating] = useState(false);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [isInitialized, setIsInitialized] = useState(false);
@@ -88,6 +94,8 @@ export function DataExplorationPhase() {
 		// Default date range: last 3 days for better performance with real data
 		startDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
 		endDate: new Date(),
+		startTime: "00:00",
+		endTime: "00:00",
 
 		// Value-based rules
 		zScoreThreshold: 3.0,
@@ -104,6 +112,51 @@ export function DataExplorationPhase() {
 		peerAggWindow: 5,
 		peerExceedPercentage: 150,
 	});
+
+	// Device label map (deviceNumber -> room/electricMeterName)
+	const [meterLabelMap, setMeterLabelMap] = useState<Record<string, string>>(
+		{},
+	);
+
+	useEffect(() => {
+		async function loadAmmeterMap() {
+			try {
+				const res = await fetch("http://localhost:8000/api/ammeters", {
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				});
+				if (!res.ok) return;
+				const json = await res.json();
+				if (json?.success && Array.isArray(json.data)) {
+					const map: Record<string, string> = {};
+					for (const item of json.data) {
+						const info = item?.deviceInfo;
+						if (info?.deviceNumber && info?.electricMeterName) {
+							map[info.deviceNumber] =
+								info.electricMeterName as string;
+						}
+					}
+					setMeterLabelMap(map);
+				}
+			} catch {
+				// ignore mapping errors
+			}
+		}
+
+		loadAmmeterMap();
+	}, []);
+
+	function pad2(n: number): string {
+		return n < 10 ? `0${n}` : `${n}`;
+	}
+
+	function formatTaipeiISO(dateObj: Date, hhmm: string): string {
+		const y = dateObj.getFullYear();
+		const m = pad2(dateObj.getMonth() + 1);
+		const d = pad2(dateObj.getDate());
+		const time = hhmm && /^\d{2}:\d{2}$/.test(hhmm) ? hhmm : "00:00";
+		return `${y}-${m}-${d}T${time}:00+08:00`;
+	}
 
 	// initialization
 	useEffect(() => {
@@ -151,6 +204,14 @@ export function DataExplorationPhase() {
 						end_date: filterParams.endDate
 							.toISOString()
 							.split("T")[0],
+						start_datetime: formatTaipeiISO(
+							filterParams.startDate,
+							filterParams.startTime,
+						),
+						end_datetime: formatTaipeiISO(
+							filterParams.endDate,
+							filterParams.endTime,
+						),
 						z_score_threshold: filterParams.zScoreThreshold,
 						spike_percentage: filterParams.spikePercentage,
 						min_event_duration_minutes:
@@ -168,9 +229,15 @@ export function DataExplorationPhase() {
 			if (response.ok) {
 				const data = await response.json();
 				setCandidateCount(data.candidate_count || 0);
+				setCandidateStats(
+					data.stats || data.processing_details || null,
+				);
+				setLastCalculatedParams({ ...filterParams });
 			} else {
 				console.error("Failed to calculate candidates");
 				setCandidateCount(0);
+				setCandidateStats(null);
+				setLastCalculatedParams(null);
 			}
 		} catch (error) {
 			console.error("Error calculating candidates:", error);
@@ -222,6 +289,10 @@ export function DataExplorationPhase() {
 				const neg = json?.data?.negativeLabelCount ?? 0;
 				setLabeledPositive(pos);
 				setLabeledNormal(neg);
+				// 更新當前資料集的候選數量（若後端有提供）
+				if (typeof json?.data?.candidateCount === "number") {
+					setCandidateCount(json.data.candidateCount);
+				}
 				if (params) {
 					const parsed: FilterParams = {
 						startDate: new Date(params.start_date),
@@ -256,6 +327,14 @@ export function DataExplorationPhase() {
 			filtering_parameters: {
 				start_date: filterParams.startDate.toISOString().split("T")[0],
 				end_date: filterParams.endDate.toISOString().split("T")[0],
+				start_datetime: formatTaipeiISO(
+					filterParams.startDate,
+					filterParams.startTime,
+				),
+				end_datetime: formatTaipeiISO(
+					filterParams.endDate,
+					filterParams.endTime,
+				),
 				z_score_threshold: filterParams.zScoreThreshold,
 				spike_percentage: filterParams.spikePercentage,
 				min_event_duration_minutes: filterParams.minEventDuration,
@@ -339,6 +418,14 @@ export function DataExplorationPhase() {
 						.toISOString()
 						.split("T")[0],
 					end_date: filterParams.endDate.toISOString().split("T")[0],
+					start_datetime: formatTaipeiISO(
+						filterParams.startDate,
+						filterParams.startTime,
+					),
+					end_datetime: formatTaipeiISO(
+						filterParams.endDate,
+						filterParams.endTime,
+					),
 					z_score_threshold: filterParams.zScoreThreshold,
 					spike_percentage: filterParams.spikePercentage,
 					min_event_duration_minutes: filterParams.minEventDuration,
@@ -351,7 +438,7 @@ export function DataExplorationPhase() {
 			};
 
 			const response = await fetch(
-				`http://localhost:8000/api/v1/experiment-runs/${selectedRunId}/candidates/generate`,
+				`http://localhost:8000/api/v1/experiment-runs/${selectedRunId}/candidates/generate?allow_overwrite=true`,
 				{
 					method: "POST",
 					headers: {
@@ -518,6 +605,31 @@ export function DataExplorationPhase() {
 	})();
 	return (
 		<div className="space-y-6">
+			{/* Top Tabs for Stage 1 / Stage 2 */}
+			<div className="flex items-center gap-2 border-b">
+				<button
+					type="button"
+					onClick={() => setViewMode("overview")}
+					className={`px-4 py-2 -mb-px border-b-2 ${
+						viewMode === "overview"
+							? "border-blue-600 text-blue-700"
+							: "border-transparent text-gray-600 hover:text-gray-800"
+					}`}
+				>
+					Stage 1
+				</button>
+				<button
+					type="button"
+					onClick={() => setViewMode("labeling")}
+					className={`px-4 py-2 -mb-px border-b-2 ${
+						viewMode === "labeling"
+							? "border-purple-600 text-purple-700"
+							: "border-transparent text-gray-600 hover:text-gray-800"
+					}`}
+				>
+					Stage 2
+				</button>
+			</div>
 			{viewMode === "overview" ? (
 				<>
 					{/* Page Header */}
@@ -699,7 +811,7 @@ export function DataExplorationPhase() {
 									</Alert>
 								)}
 							</div>
-							{/* Top-Level Date Range Filter */}
+							{/* Top-Level Date/Time Range Filter */}
 							<div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
 								<h4 className="font-semibold text-blue-800 mb-3 flex items-center">
 									<Calendar className="h-4 w-4 mr-2" />
@@ -710,7 +822,7 @@ export function DataExplorationPhase() {
 									computational scope and enable focused
 									analysis
 								</p>
-								<div className="grid md:grid-cols-2 gap-4">
+								<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 									<div className="space-y-2">
 										<Label className="text-sm font-medium text-blue-800">
 											Start Date
@@ -733,6 +845,22 @@ export function DataExplorationPhase() {
 									</div>
 									<div className="space-y-2">
 										<Label className="text-sm font-medium text-blue-800">
+											Start Time (TW)
+										</Label>
+										<input
+											type="time"
+											value={filterParams.startTime}
+											onChange={(e) =>
+												updateFilterParam(
+													"startTime",
+													e.target.value,
+												)
+											}
+											className="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+										/>
+									</div>
+									<div className="space-y-2">
+										<Label className="text-sm font-medium text-blue-800">
 											End Date
 										</Label>
 										<input
@@ -746,6 +874,22 @@ export function DataExplorationPhase() {
 												updateFilterParam(
 													"endDate",
 													new Date(e.target.value),
+												)
+											}
+											className="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+										/>
+									</div>
+									<div className="space-y-2">
+										<Label className="text-sm font-medium text-blue-800">
+											End Time (TW)
+										</Label>
+										<input
+											type="time"
+											value={filterParams.endTime}
+											onChange={(e) =>
+												updateFilterParam(
+													"endTime",
+													e.target.value,
 												)
 											}
 											className="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -777,7 +921,7 @@ export function DataExplorationPhase() {
 												{filterParams.zScoreThreshold}
 											</Label>
 											<Slider
-												min={2.0}
+												min={0}
 												max={5.0}
 												step={0.1}
 												value={[
@@ -804,7 +948,7 @@ export function DataExplorationPhase() {
 												of baseline
 											</Label>
 											<Slider
-												min={150}
+												min={0}
 												max={500}
 												step={25}
 												value={[
@@ -842,7 +986,7 @@ export function DataExplorationPhase() {
 												minutes
 											</Label>
 											<Slider
-												min={15}
+												min={0}
 												max={120}
 												step={15}
 												value={[
@@ -910,7 +1054,7 @@ export function DataExplorationPhase() {
 											{filterParams.maxTimeGap} minutes
 										</Label>
 										<Slider
-											min={30}
+											min={0}
 											max={180}
 											step={15}
 											value={[filterParams.maxTimeGap]}
@@ -947,7 +1091,7 @@ export function DataExplorationPhase() {
 												minutes
 											</Label>
 											<Slider
-												min={5}
+												min={0}
 												max={60}
 												step={5}
 												value={[
@@ -975,7 +1119,7 @@ export function DataExplorationPhase() {
 												% above peer average
 											</Label>
 											<Slider
-												min={120}
+												min={0}
 												max={300}
 												step={10}
 												value={[
@@ -1026,6 +1170,276 @@ export function DataExplorationPhase() {
 												candidate events from the
 												specified data range.
 											</p>
+											{/* 搜尋條件（使用最近一次計算的參數快照） */}
+											{lastCalculatedParams &&
+												!isCalculating && (
+													<div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm text-green-900">
+														<div className="space-y-1 p-3 rounded-md bg-green-50 border border-green-200">
+															<div className="font-medium">
+																Search
+																Conditions
+															</div>
+															<div>
+																Time (TW):{" "}
+																{
+																	lastCalculatedParams.startTime
+																}{" "}
+																-{" "}
+																{
+																	lastCalculatedParams.endTime
+																}
+															</div>
+															<div>
+																Date:{" "}
+																{lastCalculatedParams.startDate.toLocaleDateString()}{" "}
+																-{" "}
+																{lastCalculatedParams.endDate.toLocaleDateString()}
+															</div>
+															<div>
+																Z-Score:{" "}
+																{
+																	lastCalculatedParams.zScoreThreshold
+																}
+															</div>
+															<div>
+																Spike:{" "}
+																{
+																	lastCalculatedParams.spikePercentage
+																}
+																%
+															</div>
+															<div>
+																Min duration:{" "}
+																{
+																	lastCalculatedParams.minEventDuration
+																}{" "}
+																minutes
+															</div>
+															<div>
+																Weekend/Holiday:{" "}
+																{lastCalculatedParams.weekendHolidayDetection
+																	? "Enabled"
+																	: "Disabled"}
+															</div>
+															<div>
+																Max time gap:{" "}
+																{
+																	lastCalculatedParams.maxTimeGap
+																}{" "}
+																minutes
+															</div>
+															<div>
+																Peer window:{" "}
+																{
+																	lastCalculatedParams.peerAggWindow
+																}{" "}
+																minutes
+															</div>
+															<div>
+																Peer exceed:{" "}
+																{
+																	lastCalculatedParams.peerExceedPercentage
+																}
+																%
+															</div>
+														</div>
+													</div>
+												)}
+											{candidateStats &&
+												!isCalculating && (
+													<div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-green-900">
+														<div className="space-y-1 p-3 rounded-md bg-green-50 border border-green-200">
+															<div className="font-medium">
+																Data Overview
+															</div>
+															<div>
+																Total records:{" "}
+																{candidateStats.total_records?.toLocaleString?.() ??
+																	candidateStats
+																		.data_range
+																		?.total_records ??
+																	"-"}
+															</div>
+															<div>
+																Devices:{" "}
+																{candidateStats.unique_devices ??
+																	"-"}
+															</div>
+															{typeof candidateStats.insufficient_data_devices ===
+																"number" && (
+																<div>
+																	Devices
+																	skipped
+																	(insufficient
+																	data):{" "}
+																	{
+																		candidateStats.insufficient_data_devices
+																	}
+																</div>
+															)}
+															{candidateStats
+																.time_range
+																?.start && (
+																<div>
+																	Range:{" "}
+																	{new Date(
+																		candidateStats
+																			.time_range
+																			.start,
+																	).toLocaleString()}{" "}
+																	-{" "}
+																	{new Date(
+																		candidateStats
+																			.time_range
+																			.end,
+																	).toLocaleString()}
+																</div>
+															)}
+															{Array.isArray(
+																candidateStats.records_by_date,
+															) &&
+																candidateStats
+																	.records_by_date
+																	.length >
+																	0 && (
+																	<div className="pt-2">
+																		<div className="font-medium mb-1">
+																			Records
+																			by
+																			Day
+																		</div>
+																		<ul className="list-disc list-inside max-h-40 overflow-auto">
+																			{candidateStats.records_by_date.map(
+																				(
+																					r: any,
+																				) => (
+																					<li
+																						key={
+																							r.date
+																						}
+																					>
+																						{
+																							r.date
+																						}
+																						:{" "}
+																						{
+																							r.count
+																						}
+																					</li>
+																				),
+																			)}
+																		</ul>
+																	</div>
+																)}
+														</div>
+														<div className="space-y-1 p-3 rounded-md bg-green-50 border border-green-200">
+															<div className="font-medium">
+																Rule
+																Contributions
+															</div>
+															<div>
+																Z-Score:{" "}
+																{candidateStats
+																	.per_rule
+																	?.zscore_estimate ??
+																	"-"}
+															</div>
+															<div>
+																Spike:{" "}
+																{candidateStats
+																	.per_rule
+																	?.spike_estimate ??
+																	"-"}
+															</div>
+															<div>
+																Time:{" "}
+																{candidateStats
+																	.per_rule
+																	?.time_estimate ??
+																	"-"}
+															</div>
+															<div>
+																Gap:{" "}
+																{candidateStats
+																	.per_rule
+																	?.gap_estimate ??
+																	"-"}
+															</div>
+															<div>
+																Peer:{" "}
+																{candidateStats
+																	.per_rule
+																	?.peer_estimate ??
+																	"-"}
+															</div>
+														</div>
+														<div className="space-y-1 p-3 rounded-md bg-green-50 border border-green-200">
+															<div className="font-medium">
+																Estimation
+																Summary
+															</div>
+															<div>
+																Before overlap:{" "}
+																{candidateStats.total_estimated_before_overlap ??
+																	"-"}
+															</div>
+															<div>
+																Overlap factor:{" "}
+																{candidateStats.overlap_reduction_factor ??
+																	"-"}
+															</div>
+															<div>
+																Adjusted total:{" "}
+																{candidateStats.overlap_adjusted_total ??
+																	"-"}
+															</div>
+														</div>
+														{Array.isArray(
+															candidateStats.top_devices_by_estimated_anomalies,
+														) &&
+															candidateStats
+																.top_devices_by_estimated_anomalies
+																.length > 0 && (
+																<div className="md:col-span-3 p-3 rounded-md bg-green-50 border border-green-200">
+																	<div className="font-medium mb-1">
+																		Top
+																		devices
+																		by
+																		estimated
+																		anomalies
+																	</div>
+																	<ul className="list-disc list-inside">
+																		{candidateStats.top_devices_by_estimated_anomalies.map(
+																			(
+																				d: any,
+																			) => (
+																				<li
+																					key={
+																						d.deviceNumber
+																					}
+																				>
+																					Device{" "}
+																					{
+																						d.deviceNumber
+																					}
+																					{meterLabelMap[
+																						d
+																							.deviceNumber
+																					]
+																						? ` (${meterLabelMap[d.deviceNumber]})`
+																						: ""}
+																					:{" "}
+																					{
+																						d.estimated_anomalies
+																					}
+																				</li>
+																			),
+																		)}
+																	</ul>
+																</div>
+															)}
+													</div>
+												)}
 											{/* 手動計算按鈕 */}
 											<div className="mt-3">
 												<Button
@@ -1127,20 +1541,50 @@ export function DataExplorationPhase() {
 					{/* Stage 2: Manual Labeling Interface */}
 					<Card className="border-purple-200">
 						<CardHeader>
-							<CardTitle className="flex items-center justify-between">
+							<CardTitle className="flex items-center justify-between gap-3">
 								<div className="flex items-center text-xl text-purple-800">
 									<Users className="h-5 w-5 mr-2" />
 									Stage 2: Expert Manual Verification &
 									Labeling
 								</div>
-								<Button
-									variant="outline"
-									onClick={() => setViewMode("overview")}
-									className="flex items-center gap-2"
-								>
-									<ArrowRight className="h-4 w-4 rotate-180" />
-									Back to Overview
-								</Button>
+								<div className="flex items-center gap-3">
+									<div className="w-72">
+										<Select
+											value={selectedRunId ?? ""}
+											onValueChange={(val) =>
+												setSelectedRunId(val || null)
+											}
+										>
+											<SelectTrigger>
+												<SelectValue
+													placeholder={
+														isLoadingRuns
+															? "Loading datasets..."
+															: "Select dataset"
+													}
+												/>
+											</SelectTrigger>
+											<SelectContent>
+												{experimentRuns.map((r) => (
+													<SelectItem
+														key={r.id}
+														value={r.id}
+													>
+														{r.name} ({r.status})
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</div>
+									<Button
+										variant="outline"
+										onClick={() => setViewMode("overview")}
+										className="flex items-center gap-2"
+									>
+										<ArrowRight className="h-4 w-4 rotate-180" />
+										Back to Overview
+									</Button>
+								</div>
 							</CardTitle>
 							<div className="bg-purple-50 p-4 rounded-lg mt-4">
 								<p className="text-purple-700">

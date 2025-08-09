@@ -296,16 +296,24 @@ class TestbedService:
             return None
     
     async def get_ammeter_history_data(
-        self, 
-        electric_meter_number: str, 
-        start_date: str, 
-        end_date: str
+        self,
+        electric_meter_number: str,
+        start_date: str,
+        end_date: str,
+        start_datetime: Optional[str] = None,
+        end_datetime: Optional[str] = None,
     ) -> MeterHistoryData:
         """獲取電表歷史數據"""
         try:
-            # 解析日期
-            start_datetime = datetime.fromisoformat(start_date)
-            end_datetime = datetime.fromisoformat(end_date) + timedelta(days=1)
+            # 解析日期或日期時間
+            if start_datetime and end_datetime:
+                # 若提供 datetime，優先使用，允許任意精度
+                start_dt = datetime.fromisoformat(start_datetime)
+                end_dt = datetime.fromisoformat(end_datetime)
+            else:
+                # 僅提供日期時，取整天區間 [00:00, 23:59:59.999]
+                start_dt = datetime.fromisoformat(start_date)
+                end_dt = datetime.fromisoformat(end_date) + timedelta(days=1)
             
             # 根據電表號找到對應的設備
             print(f"electric_meter_number: {electric_meter_number}")
@@ -319,8 +327,8 @@ class TestbedService:
             # 從資料庫獲取歷史數據
             historical_logs = await db_manager.get_ammeter_history(
                 device_number=device_number,
-                start_date=start_datetime,
-                end_date=end_datetime,
+                start_date=start_dt,
+                end_date=end_dt,
                 limit=10000  # 設定合理的限制
             )
             

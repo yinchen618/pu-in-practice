@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,9 +26,11 @@ export default function RootLayout({
 				<link rel="icon" href="/favicon.png" sizes="32x32" />
 			</head>
 			<body className={inter.className}>
-				<Navbar />
-				<main>{children}</main>
-				<Footer />
+				<NuqsAdapter>
+					<Navbar />
+					<main>{children}</main>
+					<Footer />
+				</NuqsAdapter>
 			</body>
 		</html>
 	);

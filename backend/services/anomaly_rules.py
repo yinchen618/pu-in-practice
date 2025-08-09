@@ -73,6 +73,118 @@ class AnomalyRulesService:
         logger.info(f"Estimated total candidates: {total_candidates}")
         return total_candidates
 
+    async def calculate_candidate_stats_enhanced(self, df: pd.DataFrame, params: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Enhanced statistics for candidate calculation, including per-rule contributions
+        and device-level summaries. Returns a dict with breakdown details.
+        """
+        if df.empty:
+            return {
+                'total_records': 0,
+                'unique_devices': 0,
+                'insufficient_data_devices': 0,
+                'per_rule': {
+                    'zscore_estimate': 0,
+                    'spike_estimate': 0,
+                    'time_estimate': 0,
+                    'gap_estimate': 0,
+                    'peer_estimate': 0,
+                },
+                'total_estimated_before_overlap': 0,
+                'overlap_reduction_factor': 0.7,
+                'overlap_adjusted_total': 0,
+                'top_devices_by_estimated_anomalies': [],
+            }
+
+        detection_params = {**self.default_params, **params}
+
+        per_rule_totals = {
+            'zscore_estimate': 0,
+            'spike_estimate': 0,
+            'time_estimate': 0,
+            'gap_estimate': 0,
+            'peer_estimate': 0,
+        }
+
+        device_estimates: List[Dict[str, Any]] = []
+        insufficient_devices = 0
+
+        # Ensure required columns
+        required_columns = ['timestamp', 'power', 'deviceNumber']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise ValueError(f"缺少必要欄位: {missing_columns}")
+
+        # Ensure timestamp is datetime
+        if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
+            df = df.copy()
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+
+        # Build records by date histogram
+        try:
+            date_counts_series = df['timestamp'].dt.date.value_counts().sort_index()
+            records_by_date = [
+                {'date': d.isoformat(), 'count': int(c)} for d, c in date_counts_series.items()
+            ]
+        except Exception:
+            records_by_date = []
+
+        for device in df['deviceNumber'].unique():
+            device_df = df[df['deviceNumber'] == device].sort_values('timestamp')
+            if len(device_df) < detection_params.get('min_data_points', 48):
+                insufficient_devices += 1
+                continue
+
+            z_est = self._estimate_zscore_anomalies(device_df, detection_params)
+            sp_est = self._estimate_spike_anomalies(device_df, detection_params)
+            tm_est = self._estimate_time_anomalies(device_df, detection_params)
+            gp_est = self._estimate_gap_anomalies(device_df, detection_params)
+            pr_est = self._estimate_peer_anomalies(device_df, detection_params)
+
+            per_rule_totals['zscore_estimate'] += z_est
+            per_rule_totals['spike_estimate'] += sp_est
+            per_rule_totals['time_estimate'] += tm_est
+            per_rule_totals['gap_estimate'] += gp_est
+            per_rule_totals['peer_estimate'] += pr_est
+
+            device_estimates.append({
+                'deviceNumber': device,
+                'estimated_anomalies': int(z_est + sp_est + tm_est + gp_est + pr_est)
+            })
+
+        total_before_overlap = int(sum(v for v in per_rule_totals.values()))
+        overlap_factor = 0.7
+        overlap_adjusted_total = int(total_before_overlap * overlap_factor)
+
+        # Build top devices list
+        top_devices = sorted(device_estimates, key=lambda x: x['estimated_anomalies'], reverse=True)[:5]
+
+        # Per-device records distribution
+        per_device_counts = df.groupby('deviceNumber').size()
+        device_records_summary = {
+            'avg_records_per_device': float(per_device_counts.mean()) if len(per_device_counts) else 0.0,
+            'median_records_per_device': float(per_device_counts.median()) if len(per_device_counts) else 0.0,
+            'min_records_per_device': int(per_device_counts.min()) if len(per_device_counts) else 0,
+            'max_records_per_device': int(per_device_counts.max()) if len(per_device_counts) else 0,
+        }
+
+        return {
+            'total_records': int(len(df)),
+            'unique_devices': int(df['deviceNumber'].nunique()),
+            'insufficient_data_devices': int(insufficient_devices),
+            'per_rule': {k: int(v) for k, v in per_rule_totals.items()},
+            'total_estimated_before_overlap': total_before_overlap,
+            'overlap_reduction_factor': overlap_factor,
+            'overlap_adjusted_total': overlap_adjusted_total,
+            'top_devices_by_estimated_anomalies': top_devices,
+            'device_records_summary': device_records_summary,
+            'time_range': {
+                'start': df['timestamp'].min().isoformat(),
+                'end': df['timestamp'].max().isoformat(),
+            },
+            'records_by_date': records_by_date,
+        }
+
     def get_candidate_events(self, df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
         """
         主要的候選事件檢測函數

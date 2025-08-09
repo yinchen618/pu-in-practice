@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Any
 import logging
 import uuid
 import asyncio
-from datetime import datetime, date
+from datetime import datetime, date, timezone, time as dt_time
 import json
 
 from services.data_loader import data_loader
@@ -45,6 +45,9 @@ class FilteringParameters(BaseModel):
     # Top-level filter
     start_date: date
     end_date: date
+    # Optional precise datetime window (prioritized over date if provided)
+    start_datetime: Optional[datetime] = None
+    end_datetime: Optional[datetime] = None
     
     # Value-based rules
     z_score_threshold: Optional[float] = 3.0
@@ -397,11 +400,82 @@ async def save_experiment_parameters(run_id: str, request: CandidateGenerationRe
         logger.error(f"Failed to save experiment parameters: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to save experiment parameters: {str(e)}")
 
+@router.post("/{run_id}/candidates/calculate")
+async def calculate_candidates_for_experiment(
+    run_id: str,
+    request: CandidateGenerationRequest,
+):
+    """
+    為特定實驗批次計算候選事件數量（僅計算，不寫入資料庫）。
+    與規範一致的別名端點，行為同 /api/v1/candidates/calculate。
+    """
+    try:
+        # 確認實驗批次存在（不更動資料）
+        async with db_manager.get_async_session() as session:
+            check_query = text("SELECT 1 FROM experiment_run WHERE id = :run_id")
+            exists = await session.execute(check_query, {"run_id": run_id})
+            if not exists.first():
+                raise HTTPException(status_code=404, detail="Experiment run not found")
+
+        fp = request.filtering_parameters
+        # Normalize optional datetime to UTC-naive
+        def to_utc_naive(dt: Optional[datetime]) -> Optional[datetime]:
+            if dt is None:
+                return None
+            if dt.tzinfo is not None:
+                return dt.astimezone(timezone.utc).replace(tzinfo=None)
+            return dt
+
+        start_dt = to_utc_naive(fp.start_datetime)
+        end_dt = to_utc_naive(fp.end_datetime)
+
+        raw_df = await data_loader.get_raw_dataframe(
+            start_date=fp.start_date if start_dt is None else None,
+            end_date=fp.end_date if end_dt is None else None,
+            start_datetime=start_dt,
+            end_datetime=end_dt,
+        )
+        if raw_df.empty:
+            return {
+                "success": True,
+                "candidate_count": 0,
+                "message": "No data available for the specified date range",
+                "parameters_used": fp.dict(),
+            }
+
+        detection_params = {
+            "z_score_threshold": fp.z_score_threshold,
+            "spike_percentage": fp.spike_percentage,
+            "min_event_duration_minutes": fp.min_event_duration_minutes,
+            "detect_holiday_pattern": fp.detect_holiday_pattern,
+            "max_time_gap_minutes": fp.max_time_gap_minutes,
+            "peer_agg_window_minutes": fp.peer_agg_window_minutes,
+            "peer_exceed_percentage": fp.peer_exceed_percentage,
+        }
+
+        count = await anomaly_rules.calculate_candidate_count_enhanced(raw_df, detection_params)
+        # collect stats for better UI display
+        stats = await anomaly_rules.calculate_candidate_stats_enhanced(raw_df, detection_params)
+        count_int = int(count or 0)
+        return {
+            "success": True,
+            "candidate_count": count_int,
+            "message": f"Estimated {count_int} candidate events will be generated",
+            "parameters_used": detection_params,
+            "stats": stats,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to calculate candidates for experiment {run_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Calculation failed: {str(e)}")
+
 @router.post("/{run_id}/candidates/generate")
 async def generate_candidates_for_experiment(
     run_id: str,
     request: CandidateGenerationRequest,
-    background_tasks: BackgroundTasks
+    background_tasks: BackgroundTasks,
+    allow_overwrite: bool = Query(False, description="允許在 LABELING 狀態下重新生成並覆蓋舊資料"),
 ):
     """
     為特定實驗批次生成候選事件（Stage 1 → Stage 2）
@@ -418,12 +492,19 @@ async def generate_candidates_for_experiment(
             if not row:
                 raise HTTPException(status_code=404, detail="Experiment run not found")
             
-            # 允許在 CONFIGURING 或 LABELING 狀態重新生成（覆蓋舊資料）
-            if row.status not in ("CONFIGURING", "LABELING"):
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Cannot generate candidates for experiment in status: {row.status}"
-                )
+            # 預設僅允許在 CONFIGURING 生成；若 allow_overwrite=true，允許在 LABELING 覆蓋
+            if not allow_overwrite:
+                if row.status != "CONFIGURING":
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Cannot generate candidates unless status is CONFIGURING (current: {row.status})",
+                    )
+            else:
+                if row.status not in ("CONFIGURING", "LABELING"):
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Cannot generate candidates for experiment in status: {row.status}",
+                    )
         
         # 生成任務 ID
         task_id = str(uuid.uuid4())
@@ -507,9 +588,35 @@ async def _generate_candidates_background(task_id: str, run_id: str, filtering_p
 
         logger.info(f"[Generate] filtering_params: {filtering_params}")
         # 獲取原始數據
+        # If precise datetime provided inside filtering_params, prioritize
+        start_dt = filtering_params.get('start_datetime')
+        end_dt = filtering_params.get('end_datetime')
+        if isinstance(start_dt, str):
+            try:
+                start_dt = datetime.fromisoformat(start_dt)
+            except Exception:
+                start_dt = None
+        if isinstance(end_dt, str):
+            try:
+                end_dt = datetime.fromisoformat(end_dt)
+            except Exception:
+                end_dt = None
+
+        def to_utc_naive(dt: Optional[datetime]) -> Optional[datetime]:
+            if dt is None:
+                return None
+            if dt.tzinfo is not None:
+                return dt.astimezone(timezone.utc).replace(tzinfo=None)
+            return dt
+
+        start_dt_naive = to_utc_naive(start_dt)
+        end_dt_naive = to_utc_naive(end_dt)
+
         raw_df = await data_loader.get_raw_dataframe(
-            start_date=start_d,
-            end_date=end_d,
+            start_date=start_d if start_dt_naive is None else None,
+            end_date=end_d if end_dt_naive is None else None,
+            start_datetime=start_dt_naive,
+            end_datetime=end_dt_naive,
         )
         
         if raw_df.empty:
@@ -570,40 +677,56 @@ async def _generate_candidates_background(task_id: str, run_id: str, filtering_p
             await session.execute(text('DELETE FROM anomaly_event WHERE "experimentRunId" = :run_id'), {"run_id": run_id})
             await session.commit()
 
-        # 儲存候選事件到資料庫
+        # 批次準備候選事件資料，並以 executemany 方式批量寫入
         saved_count = 0
-        
+        batch_rows: List[Dict[str, Any]] = []
         for _, event in candidate_events_df.iterrows():
             try:
-                # 建立數據窗口（模擬相關時間點的數據）
                 event_time = event['timestamp']
                 device_data = raw_df[
                     (raw_df['deviceNumber'] == event['deviceNumber']) &
-                    (abs((raw_df['timestamp'] - event_time).dt.total_seconds()) <= 3600)  # ±1小時
+                    (abs((raw_df['timestamp'] - event_time).dt.total_seconds()) <= 3600)
                 ].sort_values('timestamp')
-                
+
                 data_window = {
                     'timestamps': device_data['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').tolist(),
-                    'values': device_data['power'].tolist()
+                    'values': device_data['power'].tolist(),
                 }
-                
-                # 儲存到資料庫，關聯到實驗批次
-                await anomaly_service.create_anomaly_event(
-                    event_id=f"EXP_{run_id[:8]}_{event['deviceNumber']}_{event_time.strftime('%Y%m%d_%H%M%S')}",
-                    meter_id=event['deviceNumber'],
-                    event_timestamp=event_time,
-                    detection_rule=event['detection_rule'],
-                    score=float(event['score']),
-                    data_window=data_window,
-                    organization_id="default-org",  # 案例研究使用預設組織
-                    experiment_run_id=run_id  # 關聯到實驗批次
-                )
-                
-                saved_count += 1
-                
+
+                batch_rows.append({
+                    "id": str(uuid.uuid4()),
+                    "eventId": f"EXP_{run_id[:8]}_{event['deviceNumber']}_{event_time.strftime('%Y%m%d_%H%M%S')}",
+                    "meterId": event['deviceNumber'],
+                    "eventTimestamp": event_time,
+                    "detectionRule": event['detection_rule'],
+                    "score": float(event['score']),
+                    "dataWindow": json.dumps(data_window),
+                    "experimentRunId": run_id,
+                })
             except Exception as e:
-                logger.warning(f"儲存事件失敗: {e}")
+                logger.warning(f"準備事件資料失敗: {e}")
                 continue
+
+        if batch_rows:
+            async with db_manager.get_async_session() as session:
+                insert_query = text(
+                    """
+                    INSERT INTO anomaly_event (
+                        id, "eventId", "meterId", "eventTimestamp", "detectionRule", score,
+                        "dataWindow", "experimentRunId", "createdAt", "updatedAt"
+                    ) VALUES (
+                        :id, :eventId, :meterId, :eventTimestamp, :detectionRule, :score,
+                        :dataWindow, :experimentRunId, NOW(), NOW()
+                    )
+                    ON CONFLICT ("eventId") DO NOTHING
+                    """
+                )
+                result = await session.execute(insert_query, batch_rows)
+                await session.commit()
+                try:
+                    saved_count = int(result.rowcount or 0)
+                except Exception:
+                    saved_count = len(batch_rows)
         
         # 任務完成
         running_tasks[task_id]['status'] = 'completed'
