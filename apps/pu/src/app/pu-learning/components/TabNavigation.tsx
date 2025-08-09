@@ -21,25 +21,25 @@ const tabs: {
 		key: "demo",
 		label: "Demo",
 		icon: FlaskConical,
-		href: "/pu-learning?tab=demo",
+		href: "/pu-learning?tab=demo#top",
 	},
 	{
 		key: "theory",
 		label: "Theoretical Background",
 		icon: BookOpen,
-		href: "/pu-learning?tab=theory",
+		href: "/pu-learning?tab=theory#top",
 	},
 	{
 		key: "applications",
 		label: "Practical Applications",
 		icon: Lightbulb,
-		href: "/pu-learning?tab=applications",
+		href: "/pu-learning?tab=applications#top",
 	},
 	{
 		key: "references",
 		label: "References",
 		icon: Users,
-		href: "/pu-learning?tab=references",
+		href: "/pu-learning?tab=references#top",
 	},
 ];
 

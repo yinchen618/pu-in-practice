@@ -21,13 +21,13 @@ const tabs: {
 		key: "overview",
 		label: "Testbed Overview",
 		icon: FlaskConical,
-		href: "/testbed?tab=overview",
+		href: "/testbed?tab=overview#top",
 	},
 	{
 		key: "explorer",
 		label: "Live Data Explorer",
 		icon: TrendingUp,
-		href: "/testbed?tab=explorer",
+		href: "/testbed?tab=explorer#top",
 	},
 ];
 

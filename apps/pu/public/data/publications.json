@@ -1,0 +1,37 @@
+{
+	"publications": [
+		{
+			"key": "wseas_2022",
+			"title": "Design and Implementation of an IoT Gateway for Zigbee and WiFi",
+			"venue": "WSEAS Transactions on Communications",
+			"year": 2022,
+			"used_in_project": true,
+			"pdf_url": null,
+			"scholar_url": null,
+			"citations": null,
+			"citations_last_verified": null
+		},
+		{
+			"key": "icact_2009",
+			"title": "Integrated Wireless Access Point Architecture for Wireless Sensor Networks",
+			"venue": "ICACT",
+			"year": 2009,
+			"used_in_project": true,
+			"pdf_url": null,
+			"scholar_url": null,
+			"citations": null,
+			"citations_last_verified": null
+		},
+		{
+			"key": "wasn_2009",
+			"title": "Wireless Sensor Network within an Open-Source Agent Framework",
+			"venue": "WASN",
+			"year": 2009,
+			"used_in_project": "partial",
+			"pdf_url": null,
+			"scholar_url": null,
+			"citations": null,
+			"citations_last_verified": null
+		}
+	]
+}

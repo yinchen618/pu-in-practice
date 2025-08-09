@@ -284,7 +284,10 @@ export default function PULearningPageContent() {
 	};
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+		<div
+			className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100"
+			id="top"
+		>
 			{/* C1: TabNavigation */}
 			<TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 

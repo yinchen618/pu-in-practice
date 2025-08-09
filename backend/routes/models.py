@@ -44,8 +44,26 @@ class TaskStatusResponse(BaseModel):
     result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
 
+class TrainAndPredictRequest(BaseModel):
+    experiment_run_id: str
+    model_params: Dict[str, Any]
+    prediction_start_date: str
+    prediction_end_date: str
+
+class JobStatusResponse(BaseModel):
+    status: str
+    progress: float
+    model_id: Optional[str] = None
+    error: Optional[str] = None
+    message: Optional[str] = None
+
+class PredictOnlyRequest(BaseModel):
+    prediction_start_date: str
+    prediction_end_date: str
+
 # 全域訓練任務追蹤
 training_tasks: Dict[str, Dict[str, Any]] = {}
+job_tasks: Dict[str, Dict[str, Any]] = {}
 
 @router.post("/train", response_model=ModelTrainingResponse)
 async def train_model(
@@ -109,6 +127,214 @@ async def train_model(
     except Exception as e:
         logger.error(f"啟動模型訓練失敗: {e}")
         raise HTTPException(status_code=500, detail=f"啟動訓練失敗: {str(e)}")
+
+
+@router.post("/train-and-predict")
+async def train_and_predict(request: TrainAndPredictRequest, background_tasks: BackgroundTasks):
+    """
+    單一入口：以 ExperimentRun 標註批次為訓練集，訓練 PU 模型，並在指定 ammeter_log 區間做預測。
+    - 訓練樣本來源 = ExperimentRun（Stage 2 標註）
+    - 預測資料 = ammeter_log 指定區間
+    """
+    try:
+        job_id = str(uuid.uuid4())
+        job_tasks[job_id] = {
+            'status': 'QUEUED',
+            'progress': 0.0,
+            'message': 'Queued',
+            'result': None,
+            'error': None,
+        }
+
+        background_tasks.add_task(_train_and_predict_bg, job_id, request.dict())
+        return {"job_id": job_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/jobs/{job_id}")
+async def get_job_status(job_id: str):
+    task = job_tasks.get(job_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return {
+        'status': task['status'],
+        'progress': task.get('progress', 0.0),
+        'model_id': task.get('model_id'),
+        'error': task.get('error'),
+        'message': task.get('message'),
+    }
+
+
+@router.get("/{model_id}/results")
+async def get_model_results(model_id: str):
+    # 回傳簡化結果與 artifacts
+    from core.database import db_manager
+    from sqlalchemy import text
+    async with db_manager.get_session() as session:
+        q = text("SELECT * FROM trained_model WHERE id = :id")
+        r = await session.execute(q, {"id": model_id})
+        row = r.first()
+        if not row:
+            raise HTTPException(status_code=404, detail="Model not found")
+        return {
+            'meta': {
+                'model_id': row.id,
+                'model_name': row.modelName,
+                'model_type': row.modelType,
+                'created_at': row.createdAt.isoformat(),
+                'updated_at': row.updatedAt.isoformat(),
+            },
+            'metrics': {
+                'precision': float(row.precision),
+                'recall': float(row.recall),
+                'f1': float(row.f1Score),
+            },
+            'artifacts': {
+                'model_path': row.modelPath,
+            },
+        }
+
+
+@router.post("/{model_id}/predict")
+async def predict_only(model_id: str, request: PredictOnlyRequest, background_tasks: BackgroundTasks):
+    try:
+        job_id = str(uuid.uuid4())
+        job_tasks[job_id] = {
+            'status': 'QUEUED',
+            'progress': 0.0,
+            'message': 'Queued',
+            'result': None,
+            'error': None,
+        }
+        background_tasks.add_task(_predict_only_bg, job_id, model_id, request.dict())
+        return {"job_id": job_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def _train_and_predict_bg(job_id: str, payload: Dict[str, Any]):
+    try:
+        job_tasks[job_id]['status'] = 'RUNNING'
+        job_tasks[job_id]['progress'] = 0.05
+        job_tasks[job_id]['message'] = 'Preparing training data'
+
+        run_id = payload['experiment_run_id']
+        params = payload['model_params']
+        start_date = payload['prediction_start_date']
+        end_date = payload['prediction_end_date']
+
+        # 1) 準備訓練資料
+        X, y, summary = await training_service.prepare_training_data_for_experiment_run(run_id)
+
+        from sklearn.preprocessing import StandardScaler
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        labeled_mask = y != 0
+        X_labeled = X_scaled[labeled_mask]
+        y_binary = (y[labeled_mask] == 1).astype(int)
+
+        job_tasks[job_id]['progress'] = 0.25
+        job_tasks[job_id]['message'] = 'Training model'
+
+        # 2) 訓練（沿用現有簡化 uPU/nnPU）
+        model_type = (params.get('model_type') or 'nnPU').lower()
+        if model_type == 'upu':
+            model, metrics = await training_service._train_upu_model(X_scaled, y, X_labeled, y_binary, params)
+        else:
+            model, metrics = await training_service._train_nnpu_model(X_scaled, y, X_labeled, y_binary, params)
+
+        # 3) 儲存模型
+        import joblib, os
+        from datetime import datetime
+        artifacts_dir = os.path.join(os.path.dirname(__file__), '..', 'trained_models')
+        os.makedirs(artifacts_dir, exist_ok=True)
+        model_path = os.path.abspath(os.path.join(artifacts_dir, f"pu_model_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.joblib"))
+        joblib.dump({'model': model, 'scaler': scaler, 'data_summary': summary, 'training_params': params}, model_path)
+
+        # 4) 記錄到 trained_model 表
+        model_id = await training_service._save_model_to_database(
+            model_name=params.get('model_name', 'pu_model'),
+            model_type=params.get('model_type', 'nnPU'),
+            model_path=model_path,
+            metrics=metrics,
+            data_summary=summary,
+            organization_id=params.get('organization_id', 'default-org')
+        )
+
+        job_tasks[job_id]['progress'] = 0.6
+        job_tasks[job_id]['message'] = 'Predicting on timerange'
+
+        # 5) 洩漏防護：排除訓練事件時間窗
+        from sqlalchemy import text
+        from core.database import db_manager
+        exclude_windows: list = []
+        async with db_manager.get_session() as session:
+            q = text('''
+                SELECT "meterId" as meter_id, MIN("eventTimestamp") as min_ts, MAX("eventTimestamp") as max_ts
+                FROM anomaly_event
+                WHERE "experimentRunId" = :rid
+                GROUP BY "meterId"
+            ''')
+            res = await session.execute(q, {"rid": run_id})
+            for row in res:
+                exclude_windows.append((row.meter_id, row.min_ts, row.max_ts))
+
+        # 6) 預測
+        pred = await training_service.predict_on_timerange(model_path, start_date, end_date, exclude_windows)
+
+        job_tasks[job_id]['status'] = 'SUCCEEDED'
+        job_tasks[job_id]['progress'] = 1.0
+        job_tasks[job_id]['message'] = 'Completed'
+        job_tasks[job_id]['result'] = {
+            'model_id': model_id,
+            'predictions_topk': pred['predictions']
+        }
+        job_tasks[job_id]['model_id'] = model_id
+    except Exception as e:
+        job_tasks[job_id]['status'] = 'FAILED'
+        job_tasks[job_id]['error'] = str(e)
+        job_tasks[job_id]['message'] = 'Failed'
+        job_tasks[job_id]['progress'] = 0.0
+
+
+async def _predict_only_bg(job_id: str, model_id: str, payload: Dict[str, Any]):
+    try:
+        job_tasks[job_id]['status'] = 'RUNNING'
+        job_tasks[job_id]['progress'] = 0.1
+        job_tasks[job_id]['message'] = 'Loading model'
+
+        # 取得模型 artifact 路徑
+        from core.database import db_manager
+        from sqlalchemy import text
+        async with db_manager.get_session() as session:
+            q = text("SELECT \"modelPath\" FROM trained_model WHERE id = :id")
+            r = await session.execute(q, {"id": model_id})
+            row = r.first()
+            if not row:
+                raise ValueError("Model not found")
+            model_path = row.modelPath
+
+        job_tasks[job_id]['progress'] = 0.4
+        job_tasks[job_id]['message'] = 'Predicting'
+
+        pred = await training_service.predict_on_timerange(
+            model_path,
+            payload['prediction_start_date'],
+            payload['prediction_end_date'],
+            exclude_windows=None,
+        )
+
+        job_tasks[job_id]['status'] = 'SUCCEEDED'
+        job_tasks[job_id]['progress'] = 1.0
+        job_tasks[job_id]['message'] = 'Completed'
+        job_tasks[job_id]['result'] = {'predictions_topk': pred['predictions']}
+    except Exception as e:
+        job_tasks[job_id]['status'] = 'FAILED'
+        job_tasks[job_id]['error'] = str(e)
+        job_tasks[job_id]['message'] = 'Failed'
+        job_tasks[job_id]['progress'] = 0.0
 
 @router.get("/train/{task_id}/status", response_model=TaskStatusResponse)
 async def get_training_status(task_id: str):

@@ -604,7 +604,7 @@ export function DataExplorationPhase() {
 		return diffs;
 	})();
 	return (
-		<div className="space-y-6">
+		<div className="space-y-6" id="stage-1">
 			{/* Top Tabs for Stage 1 / Stage 2 */}
 			<div className="flex items-center gap-2 border-b">
 				<button
@@ -1539,83 +1539,93 @@ export function DataExplorationPhase() {
 			) : (
 				<>
 					{/* Stage 2: Manual Labeling Interface */}
-					<Card className="border-purple-200">
-						<CardHeader>
-							<CardTitle className="flex items-center justify-between gap-3">
-								<div className="flex items-center text-xl text-purple-800">
-									<Users className="h-5 w-5 mr-2" />
-									Stage 2: Expert Manual Verification &
-									Labeling
-								</div>
-								<div className="flex items-center gap-3">
-									<div className="w-72">
-										<Select
-											value={selectedRunId ?? ""}
-											onValueChange={(val) =>
-												setSelectedRunId(val || null)
-											}
-										>
-											<SelectTrigger>
-												<SelectValue
-													placeholder={
-														isLoadingRuns
-															? "Loading datasets..."
-															: "Select dataset"
-													}
-												/>
-											</SelectTrigger>
-											<SelectContent>
-												{experimentRuns.map((r) => (
-													<SelectItem
-														key={r.id}
-														value={r.id}
-													>
-														{r.name} ({r.status})
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
+					<div id="stage-2">
+						<Card className="border-purple-200">
+							<CardHeader>
+								<CardTitle className="flex items-center justify-between gap-3">
+									<div className="flex items-center text-xl text-purple-800">
+										<Users className="h-5 w-5 mr-2" />
+										Stage 2: Expert Manual Verification &
+										Labeling
 									</div>
-									<Button
-										variant="outline"
-										onClick={() => setViewMode("overview")}
-										className="flex items-center gap-2"
-									>
-										<ArrowRight className="h-4 w-4 rotate-180" />
-										Back to Overview
-									</Button>
+									<div className="flex items-center gap-3">
+										<div className="w-72">
+											<Select
+												value={selectedRunId ?? ""}
+												onValueChange={(val) =>
+													setSelectedRunId(
+														val || null,
+													)
+												}
+											>
+												<SelectTrigger>
+													<SelectValue
+														placeholder={
+															isLoadingRuns
+																? "Loading datasets..."
+																: "Select dataset"
+														}
+													/>
+												</SelectTrigger>
+												<SelectContent>
+													{experimentRuns.map((r) => (
+														<SelectItem
+															key={r.id}
+															value={r.id}
+														>
+															{r.name} ({r.status}
+															)
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</div>
+										<Button
+											variant="outline"
+											onClick={() =>
+												setViewMode("overview")
+											}
+											className="flex items-center gap-2"
+										>
+											<ArrowRight className="h-4 w-4 rotate-180" />
+											Back to Overview
+										</Button>
+									</div>
+								</CardTitle>
+								<div className="bg-purple-50 p-4 rounded-lg mt-4">
+									<p className="text-purple-700">
+										<strong>Task:</strong> Please review and
+										label the following{" "}
+										{candidateCount.toLocaleString()}{" "}
+										candidate events. Your expert
+										annotations will create high-quality
+										positive samples for training the PU
+										Learning model.
+									</p>
 								</div>
-							</CardTitle>
-							<div className="bg-purple-50 p-4 rounded-lg mt-4">
-								<p className="text-purple-700">
-									<strong>Task:</strong> Please review and
-									label the following{" "}
-									{candidateCount.toLocaleString()} candidate
-									events. Your expert annotations will create
-									high-quality positive samples for training
-									the PU Learning model.
-								</p>
-							</div>
-						</CardHeader>
-						<CardContent>
-							{/* Labeling Interface */}
-							<div className="space-y-4">
-								{/* Integrated Labeling System */}
-								<AnomalyLabelingSystemAny
-									candidateCount={candidateCount}
-									filterParams={filterParams}
-									experimentRunId={selectedRunId ?? undefined}
-									onLabelingProgress={(
-										positive: number,
-										normal: number,
-									) => {
-										setLabeledPositive(positive);
-										setLabeledNormal(normal);
-									}}
-								/>
-							</div>
-						</CardContent>
-					</Card>
+							</CardHeader>
+							<CardContent>
+								{/* Labeling Interface */}
+								<div className="space-y-4">
+									{/* Integrated Labeling System */}
+									<AnomalyLabelingSystemAny
+										candidateCount={candidateCount}
+										filterParams={filterParams}
+										experimentRunId={
+											selectedRunId ?? undefined
+										}
+										onLabelingProgress={(
+											positive: number,
+											normal: number,
+										) => {
+											setLabeledPositive(positive);
+											setLabeledNormal(normal);
+										}}
+									/>
+								</div>
+							</CardContent>
+						</Card>
+					</div>
 
 					{/* Completion Summary */}
 					<Card className="bg-green-50 border-green-200">

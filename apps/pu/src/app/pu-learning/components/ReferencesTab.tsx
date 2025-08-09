@@ -6,9 +6,14 @@ import React from "react";
 export default function ReferencesTab() {
 	return (
 		<div className="max-w-4xl mx-auto space-y-6">
-			<h2 className="text-3xl font-bold text-slate-900 mb-6">
-				References & Resources
+			<h2 className="text-3xl font-bold text-slate-900 mb-2">
+				References
 			</h2>
+			<p className="text-slate-700 mb-6">
+				Core references from Sugiyama Lab underpinning this work. Each
+				method is either implemented directly in the Demo or applied to
+				real testbed data in the Case Study.
+			</p>
 
 			<div className="space-y-4">
 				<Card>
@@ -25,6 +30,10 @@ export default function ReferencesTab() {
 								Analysis of learning from positive and unlabeled
 								data. <em>ICML 2015</em>
 							</p>
+							<p className="text-xs text-slate-600">
+								[Implemented: Yes – Where used: Demo (uPU risk),
+								Case Study Stage 3]
+							</p>
 						</div>
 						<div>
 							<h5 className="font-medium">
@@ -34,6 +43,10 @@ export default function ReferencesTab() {
 							<p className="text-sm text-slate-600">
 								Positive-unlabeled learning with non-negative
 								risk estimator. <em>NIPS 2017</em>
+							</p>
+							<p className="text-xs text-slate-600">
+								[Implemented: Yes – Where used: Demo (nnPU),
+								Case Study Stage 3]
 							</p>
 						</div>
 						<div>
@@ -45,6 +58,10 @@ export default function ReferencesTab() {
 								Theoretical comparisons of positive-unlabeled
 								learning against positive-negative learning.{" "}
 								<em>NIPS 2016</em>
+							</p>
+							<p className="text-xs text-slate-600">
+								[Implemented: Yes – Where used: Comparative
+								analysis in Case Study]
 							</p>
 						</div>
 					</CardContent>

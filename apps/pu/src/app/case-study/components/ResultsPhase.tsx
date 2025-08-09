@@ -68,7 +68,7 @@ export function ResultsPhase() {
 	};
 
 	return (
-		<div className="space-y-8">
+		<div className="space-y-8" id="backtest">
 			{/* 互動式儀表板 - 三欄式佈局 */}
 			<div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 				{/* 左欄：互動模型表現圖表 (40% 寬度) */}

@@ -1,6 +1,7 @@
 "use client";
 import type { MeterData } from "@/hooks/use-testbed-data";
 import { fetchMeterData } from "@/hooks/use-testbed-data";
+import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useMemo, useState } from "react";
 import { DataStatistics } from "./data-statistics";
@@ -94,23 +95,31 @@ export function ExplorerTab() {
 	// 計算圖表顯示的有效起訖時間
 	const effectiveStart = startDateTime || defaultStartIso;
 	const effectiveEnd = (() => {
-		if (!effectiveStart) return defaultEndIso;
+		if (!effectiveStart) {
+			return defaultEndIso;
+		}
 		const start = new Date(effectiveStart);
 		const add = (ms: number) =>
 			new Date(start.getTime() + ms).toISOString();
 		switch (rangeMode) {
-			case "6h":
+			case "6h": {
 				return add(6 * 60 * 60 * 1000);
-			case "12h":
+			}
+			case "12h": {
 				return add(12 * 60 * 60 * 1000);
-			case "1d":
+			}
+			case "1d": {
 				return add(24 * 60 * 60 * 1000);
-			case "3d":
+			}
+			case "3d": {
 				return add(3 * 24 * 60 * 60 * 1000);
-			case "1w":
+			}
+			case "1w": {
 				return add(7 * 24 * 60 * 60 * 1000);
-			default:
+			}
+			default: {
 				return endDateTime || add(24 * 60 * 60 * 1000);
+			}
 		}
 	})();
 
@@ -149,6 +158,16 @@ export function ExplorerTab() {
 
 					{/* Statistics */}
 					{meterData && <DataStatistics meterData={meterData} />}
+
+					{/* Sidebar/Action */}
+					<div className="pt-4">
+						<Link
+							className="text-sm text-blue-700 hover:underline"
+							href="/case-study?tab=data-exploration"
+						>
+							Open this event in labeling view →
+						</Link>
+					</div>
 				</div>
 			</div>
 		</div>

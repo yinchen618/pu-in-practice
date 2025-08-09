@@ -10,7 +10,6 @@ import {
 	Code,
 	Code2,
 	Cpu,
-	Database,
 	Download,
 	Github,
 	Globe,
@@ -23,10 +22,90 @@ import {
 	Zap,
 } from "lucide-react";
 import Link from "next/link";
+import React from "react";
 
 export default function AboutPage() {
+	function PublicationsList() {
+		const [items, setItems] = React.useState<any[]>([]);
+		React.useEffect(() => {
+			fetch("/data/publications.json")
+				.then((r) => r.json())
+				.then((j) => setItems(j.publications || []))
+				.catch(() => setItems([]));
+		}, []);
+		return (
+			<div className="space-y-4">
+				{items.map((p) => {
+					const verified =
+						typeof p.citations === "number" &&
+						p.citations_last_verified;
+					return (
+						<div
+							key={p.key}
+							className="border-l-4 border-slate-600 pl-4"
+						>
+							<p className="text-slate-700 leading-relaxed mb-1">
+								<strong>{p.title}</strong>. <em>{p.venue}</em>,{" "}
+								{p.year}.
+							</p>
+							<div className="flex flex-wrap items-center gap-2 text-xs">
+								<span
+									className={`px-2 py-0.5 rounded ${p.used_in_project === true ? "bg-green-100 text-green-800" : p.used_in_project === "partial" ? "bg-yellow-100 text-yellow-800" : "bg-slate-100 text-slate-700"}`}
+								>
+									{p.used_in_project === true
+										? "Used in this project"
+										: p.used_in_project === "partial"
+											? "Partial"
+											: "Reference"}
+								</span>
+								<span
+									className={`px-2 py-0.5 rounded ${verified ? "bg-slate-100 text-slate-800" : "bg-slate-200 text-slate-600"}`}
+								>
+									Citations:{" "}
+									{verified ? p.citations : "updating…"}
+									{verified && (
+										<span className="ml-1 text-slate-500">
+											(verified{" "}
+											{String(
+												p.citations_last_verified,
+											).slice(0, 10)}
+											)
+										</span>
+									)}
+								</span>
+								{p.pdf_url && (
+									<a
+										href={p.pdf_url}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-blue-700 hover:underline"
+									>
+										[PDF]
+									</a>
+								)}
+								{p.scholar_url && (
+									<a
+										href={p.scholar_url}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-blue-700 hover:underline"
+									>
+										[Google Scholar]
+									</a>
+								)}
+							</div>
+						</div>
+					);
+				})}
+			</div>
+		);
+	}
+
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+		<div
+			className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100"
+			id="top"
+		>
 			<div className="container mx-auto px-4 py-12">
 				{/* Hero Section */}
 				<div className="text-center mb-16">
@@ -34,21 +113,80 @@ export default function AboutPage() {
 						<GraduationCap className="h-12 w-12" />
 					</div>
 					<h1 className="text-4xl md:text-5xl font-bold mb-4 text-slate-800">
-						Yin-Chen Chen
+						Yin‑Chen Chen — PhD Candidate in Machine Learning & IoT
+						Systems
 					</h1>
-					<h2 className="text-xl md:text-2xl text-slate-600 mb-6 font-medium">
-						PhD Candidate in Machine Learning & IoT Systems
-					</h2>
-					<p className="text-lg text-slate-600 max-w-4xl mx-auto leading-relaxed mb-8">
-						Researcher & System Architect specializing in
-						real-world, weakly-supervised learning applications. I
-						am passionate about bridging state-of-the-art machine
-						learning theory with real-world complex systems. My
-						objective is to leverage a unique 95-unit smart
-						residential testbed to develop and validate novel
-						methodologies in weakly supervised and robust learning
-						under conditions of imperfect information.
-					</p>
+					<div className="text-lg text-slate-700 max-w-4xl mx-auto leading-relaxed mb-6 space-y-2">
+						<ul className="space-y-2">
+							<li>
+								Built and operate a 95‑unit smart residential
+								testbed to study Positive‑Unlabeled (PU)
+								learning at scale
+								<a
+									className="ml-2 text-blue-700 hover:underline"
+									href="/testbed?tab=overview#top"
+								>
+									↗ Testbed Overview
+								</a>
+							</li>
+							<li>
+								Reproduced uPU/nnPU and validated debugging
+								insights on real, non‑stationary data
+								<a
+									className="ml-2 text-blue-700 hover:underline"
+									href="/pu-learning?tab=demo#top"
+								>
+									↗ PU Demo
+								</a>
+								<a
+									className="ml-2 text-blue-700 hover:underline"
+									href="/case-study#stage-3"
+								>
+									↗ Case Study – Stage‑3
+								</a>
+							</li>
+							<li>
+								Seeking to extend class‑prior estimation and
+								non‑negative risk training for dynamic,
+								label‑shifted environments
+								<a
+									className="ml-2 text-blue-700 hover:underline"
+									href="/pu-learning?tab=theory#top"
+								>
+									↗ PU Theory
+								</a>
+								<a
+									className="ml-2 text-blue-700 hover:underline"
+									href="/case-study#backtest"
+								>
+									↗ Backtest
+								</a>
+							</li>
+						</ul>
+					</div>
+					<div className="text-sm text-slate-600 mb-8">
+						Fast path:
+						<a
+							className="ml-2 text-blue-700 hover:underline"
+							href="/pu-learning?tab=demo#top"
+						>
+							Demo
+						</a>
+						<span className="mx-2">→</span>
+						<a
+							className="text-blue-700 hover:underline"
+							href="/case-study#stage-2"
+						>
+							Labeling
+						</a>
+						<span className="mx-2">→</span>
+						<a
+							className="text-blue-700 hover:underline"
+							href="/case-study#stage-3"
+						>
+							Training
+						</a>
+					</div>
 					<div className="flex flex-wrap justify-center gap-4 text-sm text-slate-500 mb-8">
 						<div className="flex items-center gap-2">
 							<MapPin className="h-4 w-4" />
@@ -76,112 +214,33 @@ export default function AboutPage() {
 					</div>
 				</div>
 
-				{/* Publications Section - MOVED TO TOP */}
-				<div className="mb-16">
+				{/* Publications Section with safe citations */}
+				<div className="mb-16" id="publications">
 					<h2 className="text-3xl font-bold text-center mb-8 text-slate-800">
-						Publications
+						Selected Publications
 					</h2>
 					<div className="max-w-4xl mx-auto">
 						<Card className="border-slate-200">
 							<CardContent className="pt-6">
-								{/* Note about name variation */}
 								<div className="mb-4">
 									<p className="text-slate-600 italic text-sm">
 										Note: Earlier publications were
-										published under the name Ying-Chen Chen.
+										published under the name Ying‑Chen Chen.
 									</p>
 									<hr className="border-slate-300 mt-3" />
 								</div>
-								<div className="space-y-4">
-									{/* 2022 Journal Paper - FIRST */}
-									<div className="border-l-4 border-slate-600 pl-4">
-										<p className="text-slate-700 leading-relaxed mb-2">
-											Ray-I Chang,{" "}
-											<strong>Ying-Chen Chen</strong>,
-											Chi-Cheng Chuang, and Chia-Hui Wang.
-											"Design and Implementation of an IoT
-											Gateway for Zigbee and Wifi."{" "}
-											<em>
-												WSEAS Transactions on
-												Communications
-											</em>
-											, Vol. 21, pp. 225-229, 2022.
-										</p>
-										<div className="flex items-center gap-2">
-											<Link
-												href="https://scholar.google.com.tw/citations?view_op=view_citation&hl=en&user=YiqWyHkAAAAJ&cstart=20&pagesize=80&sortby=pubdate&citation_for_view=YiqWyHkAAAAJ:SPgoriM2DtkC"
-												target="_blank"
-												rel="noopener noreferrer"
-												className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
-											>
-												<Database className="h-3 w-3" />
-												Cited by 1 on Google Scholar
-											</Link>
-										</div>
-									</div>
-
-									{/* 2009 Conference Paper - SECOND */}
-									<div className="border-l-4 border-slate-600 pl-4">
-										<p className="text-slate-700 leading-relaxed mb-2">
-											<strong>Ying-Chen Chen</strong>,
-											Chi-Cheng Chuang, Ray-I Chang,
-											Jia-Shian Lin, and Te-Chih Wang.
-											"Integrated Wireless Access Point
-											Architecture for Wireless Sensor
-											Networks."{" "}
-											<em>
-												Proceedings of the 11th
-												International Conference on
-												Advanced Communication
-												Technology (ICACT)
-											</em>
-											, Republic of Korea, 2009.
-										</p>
-										<div className="flex items-center gap-2">
-											<Link
-												href="https://scholar.google.com.tw/citations?view_op=view_citation&hl=en&user=YiqWyHkAAAAJ&cstart=200&pagesize=100&sortby=pubdate&citation_for_view=YiqWyHkAAAAJ:_kc_bZDykSQC"
-												target="_blank"
-												rel="noopener noreferrer"
-												className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
-											>
-												<Database className="h-3 w-3" />
-												Cited by 15 on Google Scholar
-											</Link>
-										</div>
-									</div>
-
-									{/* 2009 Conference Paper - THIRD */}
-									<div className="border-l-4 border-slate-600 pl-4">
-										<p className="text-slate-700 leading-relaxed mb-2">
-											<strong>Ying-Chen Chen</strong>,
-											Chi-Cheng Chuang, and Ray-I Chang.
-											"Wireless Sensor Network within an
-											Open-Source Agent Framework."{" "}
-											<em>
-												Workshop on Wireless, Ad Hoc,
-												and Sensor Networks
-											</em>
-											, Taiwan, Republic of China, 2009.
-										</p>
-									</div>
-
-									{/* 2009 Conference Paper - FOURTH */}
-									<div className="border-l-4 border-slate-600 pl-4">
-										<p className="text-slate-700 leading-relaxed">
-											Jia-Shian Lin, Chi-Cheng Chuang,
-											Ray-I Chang,{" "}
-											<strong>Ying-Chen Chen</strong>, and
-											Te-Chih Wang. "A Priority-based
-											Pattern Matching Location Algorithm
-											for Wireless Sensor Networks."{" "}
-											<em>
-												Proceedings of the 11th
-												International Conference on
-												Advanced Communication
-												Technology (ICACT)
-											</em>
-											, Republic of Korea, 2009.
-										</p>
+								<div className="space-y-6">
+									<PublicationsList />
+									<div className="text-sm text-slate-600">
+										Earlier works are available in the full
+										CV.{" "}
+										<a
+											className="text-blue-700 hover:underline"
+											href="/CV_YinChen_Chen_U-Tokyo_PhD_2026.pdf"
+											id="cv"
+										>
+											Open CV PDF
+										</a>
 									</div>
 								</div>
 							</CardContent>

@@ -61,11 +61,17 @@ function TrafficLight({
 
 	if (type === "prior") {
 		const diff = Math.abs(value - 0.3); // 假設真實先驗為0.3
-		if (diff <= thresholds.green) light = "🟢";
-		else if (diff <= thresholds.yellow) light = "🟡";
+		if (diff <= thresholds.green) {
+			light = "🟢";
+		} else if (diff <= thresholds.yellow) {
+			light = "🟡";
+		}
 	} else if (type === "error") {
-		if (value <= thresholds.green) light = "🟢";
-		else if (value <= thresholds.yellow) light = "🟡";
+		if (value <= thresholds.green) {
+			light = "🟢";
+		} else if (value <= thresholds.yellow) {
+			light = "🟡";
+		}
 	}
 
 	return <span className="ml-2">{light}</span>;
@@ -142,17 +148,15 @@ export default function DemoTab({
 			{/* C2: 專案標題與摘要 */}
 			<div className="text-center space-y-4">
 				<h1 className="text-4xl font-bold text-slate-900">
-					Interactive PU Learning in Practice
+					Demo – Interactive PU Learning in Practice
 				</h1>
-				<h3 className="text-xl text-slate-600">
-					An Application for Prof. Sugiyama's Lab
-				</h3>
 				<p className="text-lg text-slate-700 max-w-3xl mx-auto">
-					This project demonstrates the practical implementation and
-					comparison of
-					<strong> uPU</strong> and <strong>nnPU</strong> algorithms,
-					showcasing key insights from debugging real-world challenges
-					in positive-unlabeled learning scenarios.
+					This interactive sandbox replicates Positive-Unlabeled
+					learning scenarios, implementing both uPU and nnPU
+					algorithms. It allows direct experimentation with
+					class-prior estimation methods, model complexity,
+					regularization, and feature dimensionality—mirroring the
+					configurations used later on real testbed data.
 				</p>
 			</div>
 
@@ -182,7 +186,11 @@ export default function DemoTab({
 									) : (
 										<ChevronRight className="h-4 w-4" />
 									)}
-									<span>1. Experiment Setup</span>
+									<span>
+										1. Experiment Setup – Control the
+										synthetic data distribution and labeling
+										scenario
+									</span>
 								</button>
 								{experimentOpen && (
 									<div className="pl-6 space-y-4 pt-2">
@@ -214,7 +222,10 @@ export default function DemoTab({
 									) : (
 										<ChevronRight className="h-4 w-4" />
 									)}
-									<span>2. Model Configuration</span>
+									<span>
+										2. Model Configuration – Tune PU
+										algorithm parameters
+									</span>
 								</button>
 								{modelOpen && (
 									<div className="pl-6 space-y-4 pt-1">
@@ -264,6 +275,15 @@ export default function DemoTab({
 									onTrain={handleTrain}
 									error={error}
 								/>
+								<div className="pt-2">
+									<a
+										href="/case-study?tab=model-training"
+										className="text-sm text-blue-700 hover:underline"
+									>
+										Use this configuration on real testbed
+										data →
+									</a>
+								</div>
 							</div>
 						</CardContent>
 					</Card>
@@ -493,9 +513,8 @@ export default function DemoTab({
 
 			{/* C5: 署名 */}
 			<div className="text-center py-8">
-				<p className="text-lg text-slate-600 italic">
-					Developed and presented by Yin-Chen, Chen for the
-					Sugiyama-Sato Lab application.
+				<p className="text-lg text-slate-600 font-semibold">
+					Key Insights from Debugging – Replicated in Real Testbed
 				</p>
 			</div>
 		</div>

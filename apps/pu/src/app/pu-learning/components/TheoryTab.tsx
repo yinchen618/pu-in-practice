@@ -6,9 +6,15 @@ import {} from "@/components/ui/card";
 export default function TheoryTab() {
 	return (
 		<div className="max-w-4xl mx-auto space-y-6">
-			<h2 className="text-3xl font-bold text-slate-900 mb-6">
+			<h2 className="text-3xl font-bold text-slate-900 mb-2">
 				Theoretical Background
 			</h2>
+			<p className="text-slate-700 mb-6">
+				PU learning reformulates binary classification using only
+				positive and unlabeled data. This section summarizes two key
+				algorithms from Sugiyama Lab: unbiased PU learning (uPU) and
+				non-negative PU learning (nnPU).
+			</p>
 
 			<div className="p-6 bg-blue-50 rounded-lg">
 				<h4 className="font-semibold text-blue-900 mb-2">
@@ -19,11 +25,9 @@ export default function TheoryTab() {
 					Gang Niu, Masashi Sugiyama
 				</p>
 				<p className="text-sm text-blue-700 mb-3">
-					Introduced the concept of unbiased PU learning by
-					reformulating the classification risk to avoid the need for
-					class-prior estimation. However, can suffer from overfitting
-					when using complex models due to the risk potentially
-					becoming negative.
+					Reformulates classification risk to avoid needing labeled
+					negatives, using class-prior π for risk estimation. Prone to
+					overfitting with complex models.
 				</p>
 				<div className="text-xs">
 					<a
@@ -47,17 +51,15 @@ export default function TheoryTab() {
 
 			<div className="p-6 bg-green-50 rounded-lg">
 				<h4 className="font-semibold text-green-900 mb-2">
-					[2] Non-negative PU Learning (NIPS 2017)
+					[2] Non-negative PU Learning (NeurIPS 2017)
 				</h4>
 				<p className="text-sm text-green-800 mb-3">
 					<strong>Authors:</strong> Ryuichi Kiryo, Gang Niu, Marthinus
 					Christoffel du Plessis, Masashi Sugiyama
 				</p>
 				<p className="text-sm text-green-700 mb-3">
-					Addressed the overfitting issue in uPU by constraining the
-					risk to be non-negative. This prevents the algorithm from
-					overfitting to complex models and provides more stable
-					training dynamics.
+					Constrains risk to be non-negative, preventing overfitting
+					and stabilizing training.
 				</p>
 				<div className="text-xs">
 					<a
@@ -127,6 +129,22 @@ export default function TheoryTab() {
 						for gradient-based optimization
 					</li>
 				</ul>
+			</div>
+
+			<div className="p-6 bg-slate-50 rounded-lg">
+				<h4 className="font-semibold text-slate-900 mb-2">In System</h4>
+				<p className="text-sm text-slate-700 mb-3">
+					Risk estimators here are implemented exactly in our training
+					pipeline. nnPU’s non-negative constraint is applied before
+					gradient updates.
+				</p>
+				<h4 className="font-semibold text-slate-900 mb-2">
+					Failure Modes
+				</h4>
+				<p className="text-sm text-slate-700">
+					Prior misestimation, high unlabeled contamination, risk &lt;
+					0 in uPU.
+				</p>
 			</div>
 		</div>
 	);

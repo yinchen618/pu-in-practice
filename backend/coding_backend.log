@@ -1244,3 +1244,48 @@ RuntimeError: unable to perform operation on <TCPTransport closed=True reading=F
 2025-08-09 15:21:50,601 - INFO - Applied date filter: None to None, filtered to 0 records
 2025-08-09 15:21:51,624 - INFO - Applied date filter: None to None, filtered to 3834 records
 2025-08-09 15:21:53,721 - INFO - Applied date filter: None to None, filtered to 12308 records
+2025-08-09 22:14:14,230 - INFO - Loading real smart meter data from database...
+2025-08-09 22:14:38,614 - INFO - Loaded 13875 real smart meter records from 77 devices
+2025-08-09 22:14:38,615 - INFO - Date range: 2025-08-09 08:24:13.938344 to 2025-08-09 14:13:05.707502
+2025-08-09 22:14:38,662 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:38,928 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:39,006 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:39,008 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:39,278 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:39,544 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:39,814 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:40,083 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:40,345 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:40,701 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:40,977 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:41,246 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:41,514 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:41,784 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:42,065 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:42,345 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:42,608 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:44,376 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:47,012 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:47,018 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:47,332 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:49,151 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:50,692 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:54,560 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:56,101 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:59,725 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:14:59,736 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:15:02,068 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:15:03,772 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 22:15:09,538 - INFO - Applied date filter: None to None, filtered to 0 records
+2025-08-09 23:40:02,360 - INFO - Loading real smart meter data from database...
+2025-08-09 23:40:02,362 - ERROR - Fatal error on SSL protocol
+protocol: <uvloop.loop.SSLProtocol object at 0x71d4a78ad900>
+transport: <TCPTransport closed=True reading=False 0x71d46004c640>
+Traceback (most recent call last):
+  File "uvloop/sslproto.pyx", line 669, in uvloop.loop.SSLProtocol._write_appdata
+  File "uvloop/sslproto.pyx", line 699, in uvloop.loop.SSLProtocol._process_outgoing
+  File "uvloop/handles/stream.pyx", line 678, in uvloop.loop.UVStream.write
+  File "uvloop/handles/handle.pyx", line 159, in uvloop.loop.UVHandle._ensure_alive
+RuntimeError: unable to perform operation on <TCPTransport closed=True reading=False 0x71d46004c640>; the handler is closed
+2025-08-09 23:40:02,363 - ERROR - Failed to load real data from database: Task <Task pending name='Task-504' coro=<DataLoaderService._load_real_data_async() running at /home/infowin/Git-projects/pu-in-practice/backend/services/data_loader.py:69> cb=[run_until_complete.<locals>.done_cb()]> got Future <Future pending cb=[Protocol._on_waiter_completed()]> attached to a different loop
+2025-08-09 23:40:02,364 - WARNING - No real data found in database

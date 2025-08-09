@@ -144,6 +144,73 @@ class TrainingService:
         except Exception as e:
             logger.error(f"數據準備失敗: {e}")
             raise
+
+    async def prepare_training_data_for_experiment_run(self, experiment_run_id: str) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+        """根據指定的 experiment_run 載入標註事件作為訓練集，轉成 PU 格式並抽取特徵。"""
+        logger.info(f"準備實驗批次 {experiment_run_id} 的訓練數據...")
+        try:
+            from core.database import db_manager
+            from sqlalchemy import text
+
+            async with db_manager.get_session() as session:
+                query = """
+                SELECT 
+                    ae.id, ae."meterId" AS meterId, ae."eventTimestamp" AS eventTimestamp, ae.score, ae."dataWindow" AS dataWindow,
+                    ae.status, NULL::text AS label_name
+                FROM anomaly_event ae
+                WHERE ae."experimentRunId" = :run_id
+                ORDER BY ae."eventTimestamp"
+                """
+                result = await session.execute(text(query), {"run_id": experiment_run_id})
+                rows = result.fetchall()
+
+            if not rows:
+                raise ValueError("No labeled events found for the specified experiment run")
+
+            events_data: List[Dict[str, Any]] = []
+            import json as _json
+            for row in rows:
+                data_window = row.dataWindow
+                if isinstance(data_window, str):
+                    try:
+                        data_window = _json.loads(data_window)
+                    except Exception:
+                        data_window = None
+
+                events_data.append({
+                    'id': row.id,
+                    'meterId': row.meterId,
+                    'eventTimestamp': row.eventTimestamp,
+                    'score': row.score,
+                    'dataWindow': data_window,
+                    'status': row.status,
+                    'label_name': None,
+                })
+
+            df = pd.DataFrame(events_data)
+            X, feature_names = self._extract_features(df)
+            y = self._convert_labels_to_pu_format(df)
+
+            summary = {
+                'total_samples': len(df),
+                'positive_samples': int(np.sum(y == 1)),
+                'reliable_negative_samples': int(np.sum(y == -1)),
+                'unlabeled_samples': int(np.sum(y == 0)),
+                'feature_count': X.shape[1],
+                'feature_names': feature_names,
+                'data_time_range': {
+                    'start': df['eventTimestamp'].min().isoformat(),
+                    'end': df['eventTimestamp'].max().isoformat()
+                },
+                'meters_involved': int(df['meterId'].nunique()),
+                'preparation_time': datetime.utcnow().isoformat()
+            }
+
+            logger.info(f"實驗批次數據準備完成: {summary}")
+            return X, y, summary
+        except Exception as e:
+            logger.error(f"prepare_training_data_for_experiment_run 失敗: {e}")
+            raise
     
     def _extract_features(self, df: pd.DataFrame) -> Tuple[np.ndarray, List[str]]:
         """從異常事件中提取特徵"""
@@ -437,6 +504,142 @@ class TrainingService:
             
         except Exception as e:
             logger.error(f"nnPU 模型訓練失敗: {e}")
+            raise
+
+    async def predict_on_timerange(
+        self,
+        model_artifact_path: str,
+        start_date_iso: str,
+        end_date_iso: str,
+        exclude_windows: Optional[List[Tuple[str, datetime, datetime]]] = None,
+        window_minutes: int = 30,
+        gap_minutes: int = 5,
+    ) -> Dict[str, Any]:
+        """
+        使用保存的模型在 ammeter_log 指定區間進行批次預測。
+        exclude_windows: list of (meterId, start_ts, end_ts) to guard leakage.
+        """
+        try:
+            import json as _json
+            from .data_loader import data_loader
+
+            # Parse date or datetime ISO strings
+            def _parse_iso(s: str) -> datetime:
+                try:
+                    return datetime.fromisoformat(s)
+                except Exception:
+                    # If a pure date is provided, assume full-day bounds
+                    from datetime import time as dtime
+                    d = datetime.fromisoformat(s + "T00:00:00").date()
+                    return datetime.combine(d, dtime.min)
+
+            start_dt = _parse_iso(start_date_iso)
+            end_dt = _parse_iso(end_date_iso)
+
+            df = await data_loader.get_raw_dataframe(start_datetime=start_dt, end_datetime=end_dt)
+            if df.empty:
+                return {"predictions": [], "total": 0}
+
+            # 聚合為固定視窗，避免不規則時間戳造成問題
+            # 使用 30 分鐘視窗，按 device 分組
+            df = df.copy()
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df.set_index('timestamp', inplace=True)
+
+            window_feats: List[Dict[str, Any]] = []
+            for device, g in df.groupby('deviceNumber'):
+                # 以固定頻率重採樣，避免太稀疏
+                rg = g.resample(f"{gap_minutes}T").mean().dropna(how='all')
+                # 以 30 分鐘為窗，使用右閉區間標記窗起點
+                rolling = rg['power'].rolling(f"{window_minutes}T")
+                feat_df = pd.DataFrame({
+                    'window_mean': rolling.mean(),
+                    'window_std': rolling.std(),
+                    'window_max': rolling.max(),
+                    'window_min': rolling.min(),
+                    'window_median': rolling.median(),
+                    'window_length': rolling.count(),
+                }).dropna()
+                feat_df['deviceNumber'] = device
+                feat_df['hour'] = feat_df.index.hour
+                feat_df['weekday'] = feat_df.index.weekday
+                feat_df['day'] = feat_df.index.day
+                feat_df['month'] = feat_df.index.month
+
+                # 轉回記錄
+                for idx, row in feat_df.iterrows():
+                    window_start = idx - pd.Timedelta(minutes=window_minutes)
+                    window_feats.append({
+                        'meterId': device,
+                        'window_start': window_start.to_pydatetime(),
+                        'features': [
+                            # 順序需與訓練時對齊：anomaly_score(無,補0) + time + window stats
+                            0.0,
+                            row['hour'], row['weekday'], row['day'], row['month'],
+                            row['window_mean'], row['window_std'], row['window_max'],
+                            row['window_min'], row['window_median'], row['window_length']
+                        ]
+                    })
+
+            if not window_feats:
+                return {"predictions": [], "total": 0}
+
+            # 洩漏防護：排除與訓練事件重疊之窗
+            if exclude_windows:
+                def overlap(meter: str, ws: datetime) -> bool:
+                    for mid, s, e in exclude_windows:
+                        if meter == mid and s <= ws <= e:
+                            return True
+                    return False
+                window_feats = [w for w in window_feats if not overlap(w['meterId'], w['window_start'])]
+
+            # 載入模型
+            model_data = joblib.load(model_artifact_path)
+            model = model_data['model']
+            scaler = model_data['scaler']
+
+            X_pred = np.array([w['features'] for w in window_feats])
+            # 尺度化：與訓練時特徵維度一致（這裡使用相同的欄位順序）
+            # 若特徵數不一致，嘗試對齊長度
+            try:
+                X_pred_scaled = scaler.transform(X_pred)
+            except Exception:
+                # 退而求其次：用訓練特徵長度裁切或補零
+                train_dim = scaler.mean_.shape[0]
+                if X_pred.shape[1] > train_dim:
+                    X_pred = X_pred[:, :train_dim]
+                elif X_pred.shape[1] < train_dim:
+                    pad = np.zeros((X_pred.shape[0], train_dim - X_pred.shape[1]))
+                    X_pred = np.hstack([X_pred, pad])
+                X_pred_scaled = scaler.transform(X_pred)
+
+            # 預測分數
+            if hasattr(model, 'predict_proba'):
+                scores = model.predict_proba(X_pred_scaled)[:, 1]
+            else:
+                # 兼容 linear model
+                raw = model.decision_function(X_pred_scaled)
+                scores = 1 / (1 + np.exp(-raw))
+
+            predictions = [
+                {
+                    'meter_id': w['meterId'],
+                    'window_start_ts': w['window_start'].isoformat(),
+                    'score': float(s),
+                    'y_hat': 1 if s >= 0.5 else 0,
+                }
+                for w, s in zip(window_feats, scores)
+            ]
+
+            # 取 Top-K（100）
+            predictions_sorted = sorted(predictions, key=lambda x: x['score'], reverse=True)[:100]
+
+            return {
+                'predictions': predictions_sorted,
+                'total': len(predictions),
+            }
+        except Exception as e:
+            logger.error(f"predict_on_timerange 失敗: {e}")
             raise
     
     async def _save_model_to_database(
