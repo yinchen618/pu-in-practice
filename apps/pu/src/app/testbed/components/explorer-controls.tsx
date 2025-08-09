@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +25,9 @@ interface ExplorerControlsProps {
 	startDateTime: string;
 	setStartDateTime: (value: string) => void;
 	endDateTime: string;
-	setEndDateTime: (value: string) => void;
+	setEndDateTime: (value: string | null) => void;
+	rangeMode: "6h" | "12h" | "1d" | "3d" | "1w" | "custom";
+	setRangeMode: (mode: "6h" | "12h" | "1d" | "3d" | "1w" | "custom") => void;
 	onLoadData: (
 		building: string,
 		unit: string,
@@ -45,8 +48,25 @@ export function ExplorerControls({
 	setStartDateTime,
 	endDateTime,
 	setEndDateTime,
+	rangeMode,
+	setRangeMode,
 	onLoadData,
 }: ExplorerControlsProps) {
+	function computeEndFromStart(
+		startIsoUtc: string,
+		mode: "6h" | "12h" | "1d" | "3d" | "1w",
+	): string {
+		const start = new Date(startIsoUtc);
+		const msMap: Record<typeof mode, number> = {
+			"6h": 6 * 60 * 60 * 1000,
+			"12h": 12 * 60 * 60 * 1000,
+			"1d": 24 * 60 * 60 * 1000,
+			"3d": 3 * 24 * 60 * 60 * 1000,
+			"1w": 7 * 24 * 60 * 60 * 1000,
+		} as const;
+		const end = new Date(start.getTime() + msMap[mode]);
+		return end.toISOString();
+	}
 	// 大樓選項
 	const buildingOptions = [
 		{ value: "a", label: "Building A" },
@@ -113,20 +133,24 @@ export function ExplorerControls({
 
 	// 載入資料
 	const handleLoadData = () => {
-		if (selectedUnit && startDateTime && endDateTime) {
+		if (selectedUnit && startDateTime) {
+			const effectiveEnd =
+				rangeMode !== "custom"
+					? computeEndFromStart(startDateTime, rangeMode)
+					: endDateTime || computeEndFromStart(startDateTime, "1d");
 			onLoadData(
 				selectedBuilding,
 				selectedUnit,
 				selectedMeter,
 				startDateTime,
-				endDateTime,
+				effectiveEnd,
 			);
 		}
 	};
 
 	// 當參數變更時自動載入資料
 	useEffect(() => {
-		if (selectedUnit && selectedMeter && startDateTime && endDateTime) {
+		if (selectedUnit && selectedMeter && startDateTime) {
 			handleLoadData();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -136,6 +160,7 @@ export function ExplorerControls({
 		selectedMeter,
 		startDateTime,
 		endDateTime,
+		rangeMode,
 	]);
 
 	// Helpers: 使用 Asia/Taipei 與 input[type=datetime-local] 互轉
@@ -285,6 +310,48 @@ export function ExplorerControls({
 							)
 						}
 					/>
+					{/* 快速區間按鈕 */}
+					<div className="flex flex-wrap gap-2 pt-2">
+						{(
+							[
+								{ key: "6h", label: "6hr" },
+								{ key: "12h", label: "12hr" },
+								{ key: "1d", label: "1day" },
+								{ key: "3d", label: "3day" },
+								{ key: "1w", label: "1week" },
+							] as const
+						).map(({ key, label }) => (
+							<Button
+								key={key}
+								variant="outline"
+								size="sm"
+								onClick={() => {
+									setRangeMode(key);
+									// 非 custom 模式不在 URL 寫入 end
+									setEndDateTime(null);
+								}}
+								className={
+									rangeMode === key
+										? "bg-slate-900 text-white"
+										: ""
+								}
+							>
+								{label}
+							</Button>
+						))}
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setRangeMode("custom")}
+							className={
+								rangeMode === "custom"
+									? "bg-slate-900 text-white"
+									: ""
+							}
+						>
+							custom
+						</Button>
+					</div>
 				</div>
 				<div className="space-y-2">
 					<Label htmlFor="end-datetime">Analysis End DateTime</Label>
@@ -295,6 +362,7 @@ export function ExplorerControls({
 						onChange={(e) =>
 							setEndDateTime(taipeiLocalToUtcIso(e.target.value))
 						}
+						disabled={rangeMode !== "custom"}
 					/>
 				</div>
 

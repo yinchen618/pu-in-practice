@@ -37,10 +37,18 @@ export function ExplorerTab() {
 		defaultValue: defaultStartIso,
 		shallow: false,
 	});
-	const [endDateTime, setEndDateTime] = useQueryState("end", {
-		defaultValue: defaultEndIso,
+	// end 允許為空（非 custom 模式不寫入 URL）
+	const [endDateTime, setEndDateTime] = useQueryState<string | null>("end", {
 		shallow: false,
 	});
+	// 快速區間：用 URL range 參數保存；custom 時不寫入 URL
+	const [rangeParam, setRangeParam] = useQueryState<string | null>("range", {
+		shallow: false,
+	});
+	type RangeMode = "6h" | "12h" | "1d" | "3d" | "1w" | "custom";
+	const rangeMode: RangeMode = (rangeParam as RangeMode) || "custom";
+	const setRangeMode = (mode: RangeMode) =>
+		setRangeParam(mode === "custom" ? null : mode);
 	const [meterData, setMeterData] = useState<MeterData | null>(null);
 	const [chartLoading, setChartLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -83,6 +91,28 @@ export function ExplorerTab() {
 			setChartLoading(false);
 		}
 	};
+	// 計算圖表顯示的有效起訖時間
+	const effectiveStart = startDateTime || defaultStartIso;
+	const effectiveEnd = (() => {
+		if (!effectiveStart) return defaultEndIso;
+		const start = new Date(effectiveStart);
+		const add = (ms: number) =>
+			new Date(start.getTime() + ms).toISOString();
+		switch (rangeMode) {
+			case "6h":
+				return add(6 * 60 * 60 * 1000);
+			case "12h":
+				return add(12 * 60 * 60 * 1000);
+			case "1d":
+				return add(24 * 60 * 60 * 1000);
+			case "3d":
+				return add(3 * 24 * 60 * 60 * 1000);
+			case "1w":
+				return add(7 * 24 * 60 * 60 * 1000);
+			default:
+				return endDateTime || add(24 * 60 * 60 * 1000);
+		}
+	})();
 
 	return (
 		<div className="space-y-6">
@@ -98,8 +128,10 @@ export function ExplorerTab() {
 						setSelectedMeter={(v) => setSelectedMeter(v)}
 						startDateTime={startDateTime || defaultStartIso}
 						setStartDateTime={(v) => setStartDateTime(v)}
-						endDateTime={endDateTime || defaultEndIso}
+						endDateTime={endDateTime || ""}
 						setEndDateTime={(v) => setEndDateTime(v)}
+						rangeMode={rangeMode}
+						setRangeMode={setRangeMode}
 						onLoadData={loadMeterData}
 					/>
 				</div>
@@ -111,8 +143,8 @@ export function ExplorerTab() {
 						error={error}
 						meterData={meterData}
 						selectedMeter={selectedMeter}
-						startDate={startDateTime}
-						endDate={endDateTime}
+						startDate={effectiveStart}
+						endDate={effectiveEnd}
 					/>
 
 					{/* Statistics */}
