@@ -5,6 +5,9 @@ import { describeRoute } from "hono-openapi";
 import { validator } from "hono-openapi/zod";
 import { nanoid } from "nanoid";
 import { z } from "zod";
+import { anomalyEventsRouter } from "./anomaly-events";
+import { anomalyLabelsRouter } from "./anomaly-labels";
+import { anomalyStatsRouter } from "./anomaly-stats";
 import { assetSummaryRouter } from "./asset-summary";
 import { assetTransactionsRouter } from "./asset-transactions";
 import { bankAccountsRouter } from "./bank-accounts";
@@ -16,6 +19,9 @@ import { relationshipManagersRouter } from "./relationship-managers";
 
 export const organizationsRouter = new Hono()
 	.basePath("/organizations")
+	.route("/", anomalyEventsRouter)
+	.route("/", anomalyLabelsRouter)
+	.route("/", anomalyStatsRouter)
 	.route("/", assetTransactionsRouter)
 	.route("/", bankAccountsRouter)
 	.route("/", customersRouter)

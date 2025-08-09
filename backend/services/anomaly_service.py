@@ -26,7 +26,7 @@ class AnomalyEventModel(BaseModel):
     reviewerId: Optional[str] = None
     reviewTimestamp: Optional[datetime] = None
     justificationNotes: Optional[str] = None
-    organizationId: str
+    organizationId: Optional[str] = None  # 案例研究中可為 None
     createdAt: datetime
     updatedAt: datetime
 
@@ -34,7 +34,7 @@ class AnomalyLabelModel(BaseModel):
     id: str
     name: str
     description: Optional[str] = None
-    organizationId: str
+    organizationId: Optional[str] = None  # 案例研究中可為 None
     createdAt: datetime
     updatedAt: datetime
 
@@ -60,7 +60,8 @@ class AnomalyService:
     
     async def get_anomaly_events(
         self,
-        organization_id: str,
+        organization_id: Optional[str] = None,
+        experiment_run_id: Optional[str] = None,
         status: Optional[str] = None,
         meter_id: Optional[str] = None,
         search: Optional[str] = None,
@@ -72,30 +73,38 @@ class AnomalyService:
         """獲取異常事件列表（分頁）"""
         
         # 構建 WHERE 條件
-        where_conditions = ["organization_id = :organization_id"]
-        params = {"organization_id": organization_id}
+        where_conditions = []
+        params = {}
+        
+        # 案例研究資料表不含 organizationId 欄位，略過此條件
+        
+        # 實驗批次篩選
+        if experiment_run_id:
+            where_conditions.append('"experimentRunId" = :experiment_run_id')
+            params["experiment_run_id"] = experiment_run_id
         
         if status:
             where_conditions.append("status = :status")
             params["status"] = status
             
         if meter_id:
-            where_conditions.append("meter_id = :meter_id")
+            where_conditions.append('"meterId" = :meter_id')
             params["meter_id"] = meter_id
             
         if search:
-            where_conditions.append("(detection_rule ILIKE :search OR justification_notes ILIKE :search)")
+            where_conditions.append('("detectionRule" ILIKE :search OR "justificationNotes" ILIKE :search)')
             params["search"] = f"%{search}%"
             
         if date_from:
-            where_conditions.append("event_timestamp >= :date_from")
+            where_conditions.append('"eventTimestamp" >= :date_from')
             params["date_from"] = date_from
             
         if date_to:
-            where_conditions.append("event_timestamp <= :date_to")
+            where_conditions.append('"eventTimestamp" <= :date_to')
             params["date_to"] = date_to
         
-        where_clause = " AND ".join(where_conditions)
+        # 構建 WHERE 子句，如果沒有條件則不添加 WHERE
+        where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
         
         # 計算總記錄數
         count_query = f"""
@@ -108,12 +117,12 @@ class AnomalyService:
         offset = (page - 1) * limit
         data_query = f"""
             SELECT 
-                id, event_id, meter_id, event_timestamp, detection_rule, score,
-                status, reviewer_id, review_timestamp, justification_notes,
-                organization_id, created_at, updated_at
+                id, "eventId", "meterId", "eventTimestamp", "detectionRule", score,
+                status, "reviewerId", "reviewTimestamp", "justificationNotes",
+                "createdAt", "updatedAt"
             FROM anomaly_event
             WHERE {where_clause}
-            ORDER BY event_timestamp DESC
+            ORDER BY "eventTimestamp" DESC
             LIMIT :limit OFFSET :offset
         """
         
@@ -155,9 +164,9 @@ class AnomalyService:
         if event:
             event_data = dict(event._mapping)
             # 如果 dataWindow 是 JSON 字符串，解析它
-            if isinstance(event_data.get('data_window'), str):
+            if isinstance(event_data.get('dataWindow'), str):
                 try:
-                    event_data['data_window'] = json.loads(event_data['data_window'])
+                    event_data['dataWindow'] = json.loads(event_data['dataWindow'])
                 except:
                     pass
             return event_data
@@ -171,7 +180,8 @@ class AnomalyService:
         detection_rule: str,
         score: float,
         data_window: Dict[str, Any],
-        organization_id: str
+        organization_id: Optional[str] = None,  # 保留參數以維持相容，但不入庫
+        experiment_run_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """創建新的異常事件"""
         
@@ -181,8 +191,8 @@ class AnomalyService:
         
         query = """
             INSERT INTO anomaly_event 
-            (id, event_id, meter_id, event_timestamp, detection_rule, score, data_window, organization_id, created_at, updated_at)
-            VALUES (:id, :event_id, :meter_id, :event_timestamp, :detection_rule, :score, :data_window, :organization_id, NOW(), NOW())
+            (id, "eventId", "meterId", "eventTimestamp", "detectionRule", score, "dataWindow", "experimentRunId", "createdAt", "updatedAt")
+            VALUES (:id, :event_id, :meter_id, :event_timestamp, :detection_rule, :score, :data_window, :experiment_run_id, NOW(), NOW())
             RETURNING *
         """
         
@@ -194,7 +204,7 @@ class AnomalyService:
             "detection_rule": detection_rule,
             "score": score,
             "data_window": json.dumps(data_window),
-            "organization_id": organization_id
+            "experiment_run_id": experiment_run_id
         }
         
         async with db_manager.get_session() as session:
@@ -215,8 +225,8 @@ class AnomalyService:
         
         query = """
             UPDATE anomaly_event
-            SET status = :status, reviewer_id = :reviewer_id, review_timestamp = NOW(), 
-                justification_notes = :justification_notes, updated_at = NOW()
+            SET status = :status, "reviewerId" = :reviewer_id, "reviewTimestamp" = NOW(), 
+                "justificationNotes" = :justification_notes, "updatedAt" = NOW()
             WHERE id = :event_id
             RETURNING *
         """
@@ -253,10 +263,25 @@ class AnomalyService:
         
         return deleted is not None
     
-    async def get_anomaly_stats(self, organization_id: str) -> AnomalyStatsModel:
+    async def get_anomaly_stats(self, organization_id: Optional[str] = None, experiment_run_id: Optional[str] = None) -> AnomalyStatsModel:
         """獲取異常事件統計資訊"""
         
-        query = """
+        # 構建查詢，支援按 experiment_run_id（以及相容的 organization_id）過濾
+        where_clauses = []
+        params = {}
+
+        if organization_id:
+            # 注意：案例研究資料表可能沒有 organizationId 欄位；若不存在可忽略此條件
+            where_clauses.append('"organizationId" = :organization_id')
+            params["organization_id"] = organization_id
+
+        if experiment_run_id:
+            where_clauses.append('"experimentRunId" = :experiment_run_id')
+            params["experiment_run_id"] = experiment_run_id
+
+        where_sql = (" WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
+
+        query = f"""
             SELECT 
                 COUNT(*) as total_events,
                 COUNT(CASE WHEN status = 'UNREVIEWED' THEN 1 END) as unreviewed_count,
@@ -264,13 +289,13 @@ class AnomalyService:
                 COUNT(CASE WHEN status = 'REJECTED_NORMAL' THEN 1 END) as rejected_count,
                 COALESCE(AVG(score), 0) as avg_score,
                 COALESCE(MAX(score), 0) as max_score,
-                COUNT(DISTINCT meter_id) as unique_meters
+                COUNT(DISTINCT "meterId") as unique_meters
             FROM anomaly_event
-            WHERE organization_id = :organization_id
+            {where_sql}
         """
         
         async with db_manager.get_session() as session:
-            result = await session.execute(text(query), {"organization_id": organization_id})
+            result = await session.execute(text(query), params)
             stats = result.first()
         
         if stats:
@@ -295,18 +320,28 @@ class AnomalyService:
             uniqueMeters=0
         )
     
-    async def get_anomaly_labels(self, organization_id: str) -> List[Dict[str, Any]]:
+    async def get_anomaly_labels(self, organization_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """獲取組織的異常標籤列表"""
         
-        query = """
-            SELECT *
-            FROM anomaly_label
-            WHERE organization_id = :organization_id
-            ORDER BY name
-        """
+        # 根據是否有 organization_id 決定查詢條件
+        if organization_id:
+            query = """
+                SELECT *
+                FROM anomaly_label
+                WHERE "organizationId" = :organization_id
+                ORDER BY name
+            """
+            params = {"organization_id": organization_id}
+        else:
+            query = """
+                SELECT *
+                FROM anomaly_label
+                ORDER BY name
+            """
+            params = {}
         
         async with db_manager.get_session() as session:
-            result = await session.execute(text(query), {"organization_id": organization_id})
+            result = await session.execute(text(query), params)
             labels = [dict(row._mapping) for row in result]
         
         return labels
@@ -314,19 +349,27 @@ class AnomalyService:
     async def create_anomaly_label(
         self,
         name: str,
-        organization_id: str,
+        organization_id: Optional[str] = None,
         description: Optional[str] = None
     ) -> Dict[str, Any]:
         """創建新的異常標籤"""
         
         # 檢查名稱是否重複
-        check_query = """
-            SELECT id FROM anomaly_label
-            WHERE organization_id = :organization_id AND name = :name
-        """
+        if organization_id:
+            check_query = """
+                SELECT id FROM anomaly_label
+                WHERE "organizationId" = :organization_id AND name = :name
+            """
+            check_params = {"organization_id": organization_id, "name": name}
+        else:
+            check_query = """
+                SELECT id FROM anomaly_label
+                WHERE name = :name
+            """
+            check_params = {"name": name}
         
         async with db_manager.get_session() as session:
-            existing = await session.execute(text(check_query), {"organization_id": organization_id, "name": name})
+            existing = await session.execute(text(check_query), check_params)
             if existing.first():
                 raise ValueError("Label name already exists")
             
@@ -335,7 +378,7 @@ class AnomalyService:
             new_id = str(uuid.uuid4())
             
             create_query = """
-                INSERT INTO anomaly_label (id, name, description, organization_id, created_at, updated_at)
+                INSERT INTO anomaly_label (id, name, description, "organizationId", "createdAt", "updatedAt")
                 VALUES (:id, :name, :description, :organization_id, NOW(), NOW())
                 RETURNING *
             """
@@ -376,7 +419,7 @@ class AnomalyService:
         if not update_fields:
             raise ValueError("No fields to update")
         
-        update_fields.append("updated_at = NOW()")
+        update_fields.append('"updatedAt" = NOW()')
         
         query = f"""
             UPDATE anomaly_label
@@ -412,17 +455,24 @@ class AnomalyService:
     
     async def check_label_name_exists(
         self,
-        organization_id: str,
         name: str,
+        organization_id: Optional[str] = None,
         exclude_id: Optional[str] = None
     ) -> bool:
         """檢查標籤名稱是否已存在"""
         
-        query = """
-            SELECT id FROM anomaly_label
-            WHERE organization_id = :organization_id AND name = :name
-        """
-        params = {"organization_id": organization_id, "name": name}
+        if organization_id:
+            query = """
+                SELECT id FROM anomaly_label
+                WHERE "organizationId" = :organization_id AND name = :name
+            """
+            params = {"organization_id": organization_id, "name": name}
+        else:
+            query = """
+                SELECT id FROM anomaly_label
+                WHERE name = :name
+            """
+            params = {"name": name}
         
         if exclude_id:
             query += " AND id != :exclude_id"

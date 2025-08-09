@@ -118,9 +118,11 @@ export const AmmeterScalarFieldEnumSchema = z.enum(['id','electricMeterNumber','
 
 export const Ammeter_logScalarFieldEnumSchema = z.enum(['id','deviceNumber','action','factory','device','voltage','currents','power','battery','switchState','networkState','lastUpdated','requestData','responseData','statusCode','success','errorMessage','responseTime','ipAddress','userAgent','userId','organizationId','createdAt']);
 
-export const Anomaly_eventScalarFieldEnumSchema = z.enum(['id','eventId','meterId','eventTimestamp','detectionRule','score','dataWindow','status','reviewerId','reviewTimestamp','justificationNotes','organizationId','createdAt','updatedAt']);
+export const ExperimentRunScalarFieldEnumSchema = z.enum(['id','name','description','filteringParameters','status','candidateCount','positiveLabelCount','negativeLabelCount','createdAt','updatedAt']);
 
-export const Anomaly_labelScalarFieldEnumSchema = z.enum(['id','name','description','organizationId','createdAt','updatedAt']);
+export const Anomaly_eventScalarFieldEnumSchema = z.enum(['id','eventId','meterId','eventTimestamp','detectionRule','score','dataWindow','status','reviewerId','reviewTimestamp','justificationNotes','experimentRunId','createdAt','updatedAt']);
+
+export const Anomaly_labelScalarFieldEnumSchema = z.enum(['id','name','description','createdAt','updatedAt']);
 
 export const Borrow_godScalarFieldEnumSchema = z.enum(['id','godNameId','applyName','startDate','endDate','typeId','organizationId','createdAt','updatedAt']);
 
@@ -148,6 +150,8 @@ export const Servicing2ScalarFieldEnumSchema = z.enum(['id','familyId','organiza
 
 export const TempleScalarFieldEnumSchema = z.enum(['id','name','address','phone','email','description','organizationId','createdAt','updatedAt']);
 
+export const TrainedModelScalarFieldEnumSchema = z.enum(['id','modelName','modelType','modelPath','precision','recall','f1Score','trainingDataSummary','experimentRunId','createdAt','updatedAt']);
+
 export const SortOrderSchema = z.enum(['asc','desc']);
 
 export const JsonNullValueInputSchema = z.enum(['JsonNull',]).transform((value) => (value === 'JsonNull' ? Prisma.JsonNull : value));
@@ -167,6 +171,10 @@ export type PurchaseTypeType = `${z.infer<typeof PurchaseTypeSchema>}`
 export const AnomalyEventStatusSchema = z.enum(['UNREVIEWED','CONFIRMED_POSITIVE','REJECTED_NORMAL']);
 
 export type AnomalyEventStatusType = `${z.infer<typeof AnomalyEventStatusSchema>}`
+
+export const ExperimentRunStatusSchema = z.enum(['CONFIGURING','LABELING','COMPLETED']);
+
+export type ExperimentRunStatusType = `${z.infer<typeof ExperimentRunStatusSchema>}`
 
 /////////////////////////////////////////
 // MODELS
@@ -618,6 +626,28 @@ export const ammeter_logSchema = z.object({
 export type ammeter_log = z.infer<typeof ammeter_logSchema>
 
 /////////////////////////////////////////
+// EXPERIMENT RUN SCHEMA
+/////////////////////////////////////////
+
+export const ExperimentRunSchema = z.object({
+  status: ExperimentRunStatusSchema,
+  id: z.string().cuid(),
+  name: z.string(),
+  description: z.string().nullable(),
+  /**
+   * [Object]
+   */
+  filteringParameters: z.record(z.any()).nullable(),
+  candidateCount: z.number().int().nullable(),
+  positiveLabelCount: z.number().int().nullable(),
+  negativeLabelCount: z.number().int().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type ExperimentRun = z.infer<typeof ExperimentRunSchema>
+
+/////////////////////////////////////////
 // ANOMALY EVENT SCHEMA
 /////////////////////////////////////////
 
@@ -633,7 +663,7 @@ export const anomaly_eventSchema = z.object({
   reviewerId: z.string().nullable(),
   reviewTimestamp: z.coerce.date().nullable(),
   justificationNotes: z.string().nullable(),
-  organizationId: z.string(),
+  experimentRunId: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })
@@ -648,7 +678,6 @@ export const anomaly_labelSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().nullable(),
-  organizationId: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })
@@ -928,6 +957,29 @@ export const templeSchema = z.object({
 export type temple = z.infer<typeof templeSchema>
 
 /////////////////////////////////////////
+// TRAINED MODEL SCHEMA
+/////////////////////////////////////////
+
+export const TrainedModelSchema = z.object({
+  id: z.string().cuid(),
+  modelName: z.string(),
+  modelType: z.string(),
+  modelPath: z.string(),
+  precision: z.number(),
+  recall: z.number(),
+  f1Score: z.number(),
+  /**
+   * [Object]
+   */
+  trainingDataSummary: z.record(z.any()),
+  experimentRunId: z.string().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type TrainedModel = z.infer<typeof TrainedModelSchema>
+
+/////////////////////////////////////////
 // SELECT & INCLUDE
 /////////////////////////////////////////
 
@@ -1113,8 +1165,6 @@ export const TwoFactorSelectSchema: z.ZodType<Prisma.TwoFactorSelect> = z.object
 
 export const OrganizationIncludeSchema: z.ZodType<Prisma.OrganizationInclude> = z.object({
   aiChats: z.union([z.boolean(),z.lazy(() => AiChatFindManyArgsSchema)]).optional(),
-  anomaly_event: z.union([z.boolean(),z.lazy(() => anomaly_eventFindManyArgsSchema)]).optional(),
-  anomaly_label: z.union([z.boolean(),z.lazy(() => anomaly_labelFindManyArgsSchema)]).optional(),
   bankAccounts: z.union([z.boolean(),z.lazy(() => BankAccountFindManyArgsSchema)]).optional(),
   borrow_god: z.union([z.boolean(),z.lazy(() => borrow_godFindManyArgsSchema)]).optional(),
   buddhist: z.union([z.boolean(),z.lazy(() => buddhistFindManyArgsSchema)]).optional(),
@@ -1150,8 +1200,6 @@ export const OrganizationCountOutputTypeArgsSchema: z.ZodType<Prisma.Organizatio
 
 export const OrganizationCountOutputTypeSelectSchema: z.ZodType<Prisma.OrganizationCountOutputTypeSelect> = z.object({
   aiChats: z.boolean().optional(),
-  anomaly_event: z.boolean().optional(),
-  anomaly_label: z.boolean().optional(),
   bankAccounts: z.boolean().optional(),
   borrow_god: z.boolean().optional(),
   buddhist: z.boolean().optional(),
@@ -1184,8 +1232,6 @@ export const OrganizationSelectSchema: z.ZodType<Prisma.OrganizationSelect> = z.
   metadata: z.boolean().optional(),
   paymentsCustomerId: z.boolean().optional(),
   aiChats: z.union([z.boolean(),z.lazy(() => AiChatFindManyArgsSchema)]).optional(),
-  anomaly_event: z.union([z.boolean(),z.lazy(() => anomaly_eventFindManyArgsSchema)]).optional(),
-  anomaly_label: z.union([z.boolean(),z.lazy(() => anomaly_labelFindManyArgsSchema)]).optional(),
   bankAccounts: z.union([z.boolean(),z.lazy(() => BankAccountFindManyArgsSchema)]).optional(),
   borrow_god: z.union([z.boolean(),z.lazy(() => borrow_godFindManyArgsSchema)]).optional(),
   buddhist: z.union([z.boolean(),z.lazy(() => buddhistFindManyArgsSchema)]).optional(),
@@ -1685,11 +1731,49 @@ export const ammeter_logSelectSchema: z.ZodType<Prisma.ammeter_logSelect> = z.ob
   createdAt: z.boolean().optional(),
 }).strict()
 
+// EXPERIMENT RUN
+//------------------------------------------------------
+
+export const ExperimentRunIncludeSchema: z.ZodType<Prisma.ExperimentRunInclude> = z.object({
+  anomalyEvents: z.union([z.boolean(),z.lazy(() => anomaly_eventFindManyArgsSchema)]).optional(),
+  trainedModel: z.union([z.boolean(),z.lazy(() => TrainedModelArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => ExperimentRunCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+export const ExperimentRunArgsSchema: z.ZodType<Prisma.ExperimentRunDefaultArgs> = z.object({
+  select: z.lazy(() => ExperimentRunSelectSchema).optional(),
+  include: z.lazy(() => ExperimentRunIncludeSchema).optional(),
+}).strict();
+
+export const ExperimentRunCountOutputTypeArgsSchema: z.ZodType<Prisma.ExperimentRunCountOutputTypeDefaultArgs> = z.object({
+  select: z.lazy(() => ExperimentRunCountOutputTypeSelectSchema).nullish(),
+}).strict();
+
+export const ExperimentRunCountOutputTypeSelectSchema: z.ZodType<Prisma.ExperimentRunCountOutputTypeSelect> = z.object({
+  anomalyEvents: z.boolean().optional(),
+}).strict();
+
+export const ExperimentRunSelectSchema: z.ZodType<Prisma.ExperimentRunSelect> = z.object({
+  id: z.boolean().optional(),
+  name: z.boolean().optional(),
+  description: z.boolean().optional(),
+  filteringParameters: z.boolean().optional(),
+  status: z.boolean().optional(),
+  candidateCount: z.boolean().optional(),
+  positiveLabelCount: z.boolean().optional(),
+  negativeLabelCount: z.boolean().optional(),
+  createdAt: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  anomalyEvents: z.union([z.boolean(),z.lazy(() => anomaly_eventFindManyArgsSchema)]).optional(),
+  trainedModel: z.union([z.boolean(),z.lazy(() => TrainedModelArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => ExperimentRunCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
 // ANOMALY EVENT
 //------------------------------------------------------
 
 export const anomaly_eventIncludeSchema: z.ZodType<Prisma.anomaly_eventInclude> = z.object({
-  organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
+  experimentRun: z.union([z.boolean(),z.lazy(() => ExperimentRunArgsSchema)]).optional(),
   event_label_link: z.union([z.boolean(),z.lazy(() => event_label_linkFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => Anomaly_eventCountOutputTypeArgsSchema)]).optional(),
 }).strict()
@@ -1719,10 +1803,10 @@ export const anomaly_eventSelectSchema: z.ZodType<Prisma.anomaly_eventSelect> = 
   reviewerId: z.boolean().optional(),
   reviewTimestamp: z.boolean().optional(),
   justificationNotes: z.boolean().optional(),
-  organizationId: z.boolean().optional(),
+  experimentRunId: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
-  organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
+  experimentRun: z.union([z.boolean(),z.lazy(() => ExperimentRunArgsSchema)]).optional(),
   event_label_link: z.union([z.boolean(),z.lazy(() => event_label_linkFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => Anomaly_eventCountOutputTypeArgsSchema)]).optional(),
 }).strict()
@@ -1731,7 +1815,6 @@ export const anomaly_eventSelectSchema: z.ZodType<Prisma.anomaly_eventSelect> = 
 //------------------------------------------------------
 
 export const anomaly_labelIncludeSchema: z.ZodType<Prisma.anomaly_labelInclude> = z.object({
-  organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
   event_label_link: z.union([z.boolean(),z.lazy(() => event_label_linkFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => Anomaly_labelCountOutputTypeArgsSchema)]).optional(),
 }).strict()
@@ -1753,10 +1836,8 @@ export const anomaly_labelSelectSchema: z.ZodType<Prisma.anomaly_labelSelect> = 
   id: z.boolean().optional(),
   name: z.boolean().optional(),
   description: z.boolean().optional(),
-  organizationId: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
-  organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
   event_label_link: z.union([z.boolean(),z.lazy(() => event_label_linkFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => Anomaly_labelCountOutputTypeArgsSchema)]).optional(),
 }).strict()
@@ -2219,6 +2300,33 @@ export const templeSelectSchema: z.ZodType<Prisma.templeSelect> = z.object({
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
+}).strict()
+
+// TRAINED MODEL
+//------------------------------------------------------
+
+export const TrainedModelIncludeSchema: z.ZodType<Prisma.TrainedModelInclude> = z.object({
+  experimentRun: z.union([z.boolean(),z.lazy(() => ExperimentRunArgsSchema)]).optional(),
+}).strict()
+
+export const TrainedModelArgsSchema: z.ZodType<Prisma.TrainedModelDefaultArgs> = z.object({
+  select: z.lazy(() => TrainedModelSelectSchema).optional(),
+  include: z.lazy(() => TrainedModelIncludeSchema).optional(),
+}).strict();
+
+export const TrainedModelSelectSchema: z.ZodType<Prisma.TrainedModelSelect> = z.object({
+  id: z.boolean().optional(),
+  modelName: z.boolean().optional(),
+  modelType: z.boolean().optional(),
+  modelPath: z.boolean().optional(),
+  precision: z.boolean().optional(),
+  recall: z.boolean().optional(),
+  f1Score: z.boolean().optional(),
+  trainingDataSummary: z.boolean().optional(),
+  experimentRunId: z.boolean().optional(),
+  createdAt: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  experimentRun: z.union([z.boolean(),z.lazy(() => ExperimentRunArgsSchema)]).optional(),
 }).strict()
 
 
@@ -2790,8 +2898,6 @@ export const OrganizationWhereInputSchema: z.ZodType<Prisma.OrganizationWhereInp
   metadata: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatListRelationFilterSchema).optional(),
-  anomaly_event: z.lazy(() => Anomaly_eventListRelationFilterSchema).optional(),
-  anomaly_label: z.lazy(() => Anomaly_labelListRelationFilterSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountListRelationFilterSchema).optional(),
   borrow_god: z.lazy(() => Borrow_godListRelationFilterSchema).optional(),
   buddhist: z.lazy(() => BuddhistListRelationFilterSchema).optional(),
@@ -2824,8 +2930,6 @@ export const OrganizationOrderByWithRelationInputSchema: z.ZodType<Prisma.Organi
   metadata: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   paymentsCustomerId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   aiChats: z.lazy(() => AiChatOrderByRelationAggregateInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventOrderByRelationAggregateInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelOrderByRelationAggregateInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountOrderByRelationAggregateInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godOrderByRelationAggregateInputSchema).optional(),
   buddhist: z.lazy(() => buddhistOrderByRelationAggregateInputSchema).optional(),
@@ -2873,8 +2977,6 @@ export const OrganizationWhereUniqueInputSchema: z.ZodType<Prisma.OrganizationWh
   metadata: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatListRelationFilterSchema).optional(),
-  anomaly_event: z.lazy(() => Anomaly_eventListRelationFilterSchema).optional(),
-  anomaly_label: z.lazy(() => Anomaly_labelListRelationFilterSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountListRelationFilterSchema).optional(),
   borrow_god: z.lazy(() => Borrow_godListRelationFilterSchema).optional(),
   buddhist: z.lazy(() => BuddhistListRelationFilterSchema).optional(),
@@ -4475,6 +4577,94 @@ export const ammeter_logScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.a
   createdAt: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
 }).strict();
 
+export const ExperimentRunWhereInputSchema: z.ZodType<Prisma.ExperimentRunWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => ExperimentRunWhereInputSchema),z.lazy(() => ExperimentRunWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ExperimentRunWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ExperimentRunWhereInputSchema),z.lazy(() => ExperimentRunWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  filteringParameters: z.lazy(() => JsonNullableFilterSchema).optional(),
+  status: z.union([ z.lazy(() => EnumExperimentRunStatusFilterSchema),z.lazy(() => ExperimentRunStatusSchema) ]).optional(),
+  candidateCount: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  anomalyEvents: z.lazy(() => Anomaly_eventListRelationFilterSchema).optional(),
+  trainedModel: z.union([ z.lazy(() => TrainedModelNullableScalarRelationFilterSchema),z.lazy(() => TrainedModelWhereInputSchema) ]).optional().nullable(),
+}).strict();
+
+export const ExperimentRunOrderByWithRelationInputSchema: z.ZodType<Prisma.ExperimentRunOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  filteringParameters: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  candidateCount: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  positiveLabelCount: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  negativeLabelCount: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  anomalyEvents: z.lazy(() => anomaly_eventOrderByRelationAggregateInputSchema).optional(),
+  trainedModel: z.lazy(() => TrainedModelOrderByWithRelationInputSchema).optional()
+}).strict();
+
+export const ExperimentRunWhereUniqueInputSchema: z.ZodType<Prisma.ExperimentRunWhereUniqueInput> = z.object({
+  id: z.string().cuid()
+})
+.and(z.object({
+  id: z.string().cuid().optional(),
+  AND: z.union([ z.lazy(() => ExperimentRunWhereInputSchema),z.lazy(() => ExperimentRunWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ExperimentRunWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ExperimentRunWhereInputSchema),z.lazy(() => ExperimentRunWhereInputSchema).array() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  filteringParameters: z.lazy(() => JsonNullableFilterSchema).optional(),
+  status: z.union([ z.lazy(() => EnumExperimentRunStatusFilterSchema),z.lazy(() => ExperimentRunStatusSchema) ]).optional(),
+  candidateCount: z.union([ z.lazy(() => IntNullableFilterSchema),z.number().int() ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.lazy(() => IntNullableFilterSchema),z.number().int() ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.lazy(() => IntNullableFilterSchema),z.number().int() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  anomalyEvents: z.lazy(() => Anomaly_eventListRelationFilterSchema).optional(),
+  trainedModel: z.union([ z.lazy(() => TrainedModelNullableScalarRelationFilterSchema),z.lazy(() => TrainedModelWhereInputSchema) ]).optional().nullable(),
+}).strict());
+
+export const ExperimentRunOrderByWithAggregationInputSchema: z.ZodType<Prisma.ExperimentRunOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  filteringParameters: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  candidateCount: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  positiveLabelCount: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  negativeLabelCount: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => ExperimentRunCountOrderByAggregateInputSchema).optional(),
+  _avg: z.lazy(() => ExperimentRunAvgOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => ExperimentRunMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => ExperimentRunMinOrderByAggregateInputSchema).optional(),
+  _sum: z.lazy(() => ExperimentRunSumOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const ExperimentRunScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.ExperimentRunScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => ExperimentRunScalarWhereWithAggregatesInputSchema),z.lazy(() => ExperimentRunScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ExperimentRunScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ExperimentRunScalarWhereWithAggregatesInputSchema),z.lazy(() => ExperimentRunScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  filteringParameters: z.lazy(() => JsonNullableWithAggregatesFilterSchema).optional(),
+  status: z.union([ z.lazy(() => EnumExperimentRunStatusWithAggregatesFilterSchema),z.lazy(() => ExperimentRunStatusSchema) ]).optional(),
+  candidateCount: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema),z.number() ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema),z.number() ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema),z.number() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
 export const anomaly_eventWhereInputSchema: z.ZodType<Prisma.anomaly_eventWhereInput> = z.object({
   AND: z.union([ z.lazy(() => anomaly_eventWhereInputSchema),z.lazy(() => anomaly_eventWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => anomaly_eventWhereInputSchema).array().optional(),
@@ -4490,10 +4680,10 @@ export const anomaly_eventWhereInputSchema: z.ZodType<Prisma.anomaly_eventWhereI
   reviewerId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   reviewTimestamp: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   justificationNotes: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  experimentRunId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  organization: z.union([ z.lazy(() => OrganizationScalarRelationFilterSchema),z.lazy(() => OrganizationWhereInputSchema) ]).optional(),
+  experimentRun: z.union([ z.lazy(() => ExperimentRunNullableScalarRelationFilterSchema),z.lazy(() => ExperimentRunWhereInputSchema) ]).optional().nullable(),
   event_label_link: z.lazy(() => Event_label_linkListRelationFilterSchema).optional()
 }).strict();
 
@@ -4509,10 +4699,10 @@ export const anomaly_eventOrderByWithRelationInputSchema: z.ZodType<Prisma.anoma
   reviewerId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   reviewTimestamp: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   justificationNotes: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  organizationId: z.lazy(() => SortOrderSchema).optional(),
+  experimentRunId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
-  organization: z.lazy(() => OrganizationOrderByWithRelationInputSchema).optional(),
+  experimentRun: z.lazy(() => ExperimentRunOrderByWithRelationInputSchema).optional(),
   event_label_link: z.lazy(() => event_label_linkOrderByRelationAggregateInputSchema).optional()
 }).strict();
 
@@ -4543,10 +4733,10 @@ export const anomaly_eventWhereUniqueInputSchema: z.ZodType<Prisma.anomaly_event
   reviewerId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   reviewTimestamp: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   justificationNotes: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  experimentRunId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  organization: z.union([ z.lazy(() => OrganizationScalarRelationFilterSchema),z.lazy(() => OrganizationWhereInputSchema) ]).optional(),
+  experimentRun: z.union([ z.lazy(() => ExperimentRunNullableScalarRelationFilterSchema),z.lazy(() => ExperimentRunWhereInputSchema) ]).optional().nullable(),
   event_label_link: z.lazy(() => Event_label_linkListRelationFilterSchema).optional()
 }).strict());
 
@@ -4562,7 +4752,7 @@ export const anomaly_eventOrderByWithAggregationInputSchema: z.ZodType<Prisma.an
   reviewerId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   reviewTimestamp: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   justificationNotes: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  organizationId: z.lazy(() => SortOrderSchema).optional(),
+  experimentRunId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
   _count: z.lazy(() => anomaly_eventCountOrderByAggregateInputSchema).optional(),
@@ -4587,7 +4777,7 @@ export const anomaly_eventScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma
   reviewerId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   reviewTimestamp: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
   justificationNotes: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
-  organizationId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  experimentRunId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
 }).strict();
@@ -4599,10 +4789,8 @@ export const anomaly_labelWhereInputSchema: z.ZodType<Prisma.anomaly_labelWhereI
   id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  organization: z.union([ z.lazy(() => OrganizationScalarRelationFilterSchema),z.lazy(() => OrganizationWhereInputSchema) ]).optional(),
   event_label_link: z.lazy(() => Event_label_linkListRelationFilterSchema).optional()
 }).strict();
 
@@ -4610,37 +4798,32 @@ export const anomaly_labelOrderByWithRelationInputSchema: z.ZodType<Prisma.anoma
   id: z.lazy(() => SortOrderSchema).optional(),
   name: z.lazy(() => SortOrderSchema).optional(),
   description: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  organizationId: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
-  organization: z.lazy(() => OrganizationOrderByWithRelationInputSchema).optional(),
   event_label_link: z.lazy(() => event_label_linkOrderByRelationAggregateInputSchema).optional()
 }).strict();
 
 export const anomaly_labelWhereUniqueInputSchema: z.ZodType<Prisma.anomaly_labelWhereUniqueInput> = z.union([
   z.object({
     id: z.string(),
-    organizationId_name: z.lazy(() => anomaly_labelOrganizationIdNameCompoundUniqueInputSchema)
+    name: z.string()
   }),
   z.object({
     id: z.string(),
   }),
   z.object({
-    organizationId_name: z.lazy(() => anomaly_labelOrganizationIdNameCompoundUniqueInputSchema),
+    name: z.string(),
   }),
 ])
 .and(z.object({
   id: z.string().optional(),
-  organizationId_name: z.lazy(() => anomaly_labelOrganizationIdNameCompoundUniqueInputSchema).optional(),
+  name: z.string().optional(),
   AND: z.union([ z.lazy(() => anomaly_labelWhereInputSchema),z.lazy(() => anomaly_labelWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => anomaly_labelWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => anomaly_labelWhereInputSchema),z.lazy(() => anomaly_labelWhereInputSchema).array() ]).optional(),
-  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  organization: z.union([ z.lazy(() => OrganizationScalarRelationFilterSchema),z.lazy(() => OrganizationWhereInputSchema) ]).optional(),
   event_label_link: z.lazy(() => Event_label_linkListRelationFilterSchema).optional()
 }).strict());
 
@@ -4648,7 +4831,6 @@ export const anomaly_labelOrderByWithAggregationInputSchema: z.ZodType<Prisma.an
   id: z.lazy(() => SortOrderSchema).optional(),
   name: z.lazy(() => SortOrderSchema).optional(),
   description: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  organizationId: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
   _count: z.lazy(() => anomaly_labelCountOrderByAggregateInputSchema).optional(),
@@ -4663,7 +4845,6 @@ export const anomaly_labelScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma
   id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
   name: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
   description: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
-  organizationId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
 }).strict();
@@ -5996,6 +6177,121 @@ export const templeScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.temple
   updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
 }).strict();
 
+export const TrainedModelWhereInputSchema: z.ZodType<Prisma.TrainedModelWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => TrainedModelWhereInputSchema),z.lazy(() => TrainedModelWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => TrainedModelWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => TrainedModelWhereInputSchema),z.lazy(() => TrainedModelWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  modelName: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  modelType: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  modelPath: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  precision: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
+  recall: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
+  f1Score: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
+  trainingDataSummary: z.lazy(() => JsonFilterSchema).optional(),
+  experimentRunId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  experimentRun: z.union([ z.lazy(() => ExperimentRunNullableScalarRelationFilterSchema),z.lazy(() => ExperimentRunWhereInputSchema) ]).optional().nullable(),
+}).strict();
+
+export const TrainedModelOrderByWithRelationInputSchema: z.ZodType<Prisma.TrainedModelOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  modelName: z.lazy(() => SortOrderSchema).optional(),
+  modelType: z.lazy(() => SortOrderSchema).optional(),
+  modelPath: z.lazy(() => SortOrderSchema).optional(),
+  precision: z.lazy(() => SortOrderSchema).optional(),
+  recall: z.lazy(() => SortOrderSchema).optional(),
+  f1Score: z.lazy(() => SortOrderSchema).optional(),
+  trainingDataSummary: z.lazy(() => SortOrderSchema).optional(),
+  experimentRunId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  experimentRun: z.lazy(() => ExperimentRunOrderByWithRelationInputSchema).optional()
+}).strict();
+
+export const TrainedModelWhereUniqueInputSchema: z.ZodType<Prisma.TrainedModelWhereUniqueInput> = z.union([
+  z.object({
+    id: z.string().cuid(),
+    modelName: z.string(),
+    experimentRunId: z.string()
+  }),
+  z.object({
+    id: z.string().cuid(),
+    modelName: z.string(),
+  }),
+  z.object({
+    id: z.string().cuid(),
+    experimentRunId: z.string(),
+  }),
+  z.object({
+    id: z.string().cuid(),
+  }),
+  z.object({
+    modelName: z.string(),
+    experimentRunId: z.string(),
+  }),
+  z.object({
+    modelName: z.string(),
+  }),
+  z.object({
+    experimentRunId: z.string(),
+  }),
+])
+.and(z.object({
+  id: z.string().cuid().optional(),
+  modelName: z.string().optional(),
+  experimentRunId: z.string().optional(),
+  AND: z.union([ z.lazy(() => TrainedModelWhereInputSchema),z.lazy(() => TrainedModelWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => TrainedModelWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => TrainedModelWhereInputSchema),z.lazy(() => TrainedModelWhereInputSchema).array() ]).optional(),
+  modelType: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  modelPath: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  precision: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
+  recall: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
+  f1Score: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
+  trainingDataSummary: z.lazy(() => JsonFilterSchema).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  experimentRun: z.union([ z.lazy(() => ExperimentRunNullableScalarRelationFilterSchema),z.lazy(() => ExperimentRunWhereInputSchema) ]).optional().nullable(),
+}).strict());
+
+export const TrainedModelOrderByWithAggregationInputSchema: z.ZodType<Prisma.TrainedModelOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  modelName: z.lazy(() => SortOrderSchema).optional(),
+  modelType: z.lazy(() => SortOrderSchema).optional(),
+  modelPath: z.lazy(() => SortOrderSchema).optional(),
+  precision: z.lazy(() => SortOrderSchema).optional(),
+  recall: z.lazy(() => SortOrderSchema).optional(),
+  f1Score: z.lazy(() => SortOrderSchema).optional(),
+  trainingDataSummary: z.lazy(() => SortOrderSchema).optional(),
+  experimentRunId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => TrainedModelCountOrderByAggregateInputSchema).optional(),
+  _avg: z.lazy(() => TrainedModelAvgOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => TrainedModelMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => TrainedModelMinOrderByAggregateInputSchema).optional(),
+  _sum: z.lazy(() => TrainedModelSumOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const TrainedModelScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.TrainedModelScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => TrainedModelScalarWhereWithAggregatesInputSchema),z.lazy(() => TrainedModelScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => TrainedModelScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => TrainedModelScalarWhereWithAggregatesInputSchema),z.lazy(() => TrainedModelScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  modelName: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  modelType: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  modelPath: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  precision: z.union([ z.lazy(() => FloatWithAggregatesFilterSchema),z.number() ]).optional(),
+  recall: z.union([ z.lazy(() => FloatWithAggregatesFilterSchema),z.number() ]).optional(),
+  f1Score: z.union([ z.lazy(() => FloatWithAggregatesFilterSchema),z.number() ]).optional(),
+  trainingDataSummary: z.lazy(() => JsonWithAggregatesFilterSchema).optional(),
+  experimentRunId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
 export const UserCreateInputSchema: z.ZodType<Prisma.UserCreateInput> = z.object({
   id: z.string().cuid().optional(),
   name: z.string(),
@@ -6579,8 +6875,6 @@ export const OrganizationCreateInputSchema: z.ZodType<Prisma.OrganizationCreateI
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -6613,8 +6907,6 @@ export const OrganizationUncheckedCreateInputSchema: z.ZodType<Prisma.Organizati
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -6647,8 +6939,6 @@ export const OrganizationUpdateInputSchema: z.ZodType<Prisma.OrganizationUpdateI
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -6681,8 +6971,6 @@ export const OrganizationUncheckedUpdateInputSchema: z.ZodType<Prisma.Organizati
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -8390,6 +8678,105 @@ export const ammeter_logUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ammeter
   createdAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
+export const ExperimentRunCreateInputSchema: z.ZodType<Prisma.ExperimentRunCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  candidateCount: z.number().int().optional().nullable(),
+  positiveLabelCount: z.number().int().optional().nullable(),
+  negativeLabelCount: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  anomalyEvents: z.lazy(() => anomaly_eventCreateNestedManyWithoutExperimentRunInputSchema).optional(),
+  trainedModel: z.lazy(() => TrainedModelCreateNestedOneWithoutExperimentRunInputSchema).optional()
+}).strict();
+
+export const ExperimentRunUncheckedCreateInputSchema: z.ZodType<Prisma.ExperimentRunUncheckedCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  candidateCount: z.number().int().optional().nullable(),
+  positiveLabelCount: z.number().int().optional().nullable(),
+  negativeLabelCount: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  anomalyEvents: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutExperimentRunInputSchema).optional(),
+  trainedModel: z.lazy(() => TrainedModelUncheckedCreateNestedOneWithoutExperimentRunInputSchema).optional()
+}).strict();
+
+export const ExperimentRunUpdateInputSchema: z.ZodType<Prisma.ExperimentRunUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => EnumExperimentRunStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  anomalyEvents: z.lazy(() => anomaly_eventUpdateManyWithoutExperimentRunNestedInputSchema).optional(),
+  trainedModel: z.lazy(() => TrainedModelUpdateOneWithoutExperimentRunNestedInputSchema).optional()
+}).strict();
+
+export const ExperimentRunUncheckedUpdateInputSchema: z.ZodType<Prisma.ExperimentRunUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => EnumExperimentRunStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  anomalyEvents: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutExperimentRunNestedInputSchema).optional(),
+  trainedModel: z.lazy(() => TrainedModelUncheckedUpdateOneWithoutExperimentRunNestedInputSchema).optional()
+}).strict();
+
+export const ExperimentRunCreateManyInputSchema: z.ZodType<Prisma.ExperimentRunCreateManyInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  candidateCount: z.number().int().optional().nullable(),
+  positiveLabelCount: z.number().int().optional().nullable(),
+  negativeLabelCount: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const ExperimentRunUpdateManyMutationInputSchema: z.ZodType<Prisma.ExperimentRunUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => EnumExperimentRunStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const ExperimentRunUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ExperimentRunUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => EnumExperimentRunStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
 export const anomaly_eventCreateInputSchema: z.ZodType<Prisma.anomaly_eventCreateInput> = z.object({
   id: z.string(),
   eventId: z.string(),
@@ -8404,7 +8791,7 @@ export const anomaly_eventCreateInputSchema: z.ZodType<Prisma.anomaly_eventCreat
   justificationNotes: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date(),
-  organization: z.lazy(() => OrganizationCreateNestedOneWithoutAnomaly_eventInputSchema),
+  experimentRun: z.lazy(() => ExperimentRunCreateNestedOneWithoutAnomalyEventsInputSchema).optional(),
   event_label_link: z.lazy(() => event_label_linkCreateNestedManyWithoutAnomaly_eventInputSchema).optional()
 }).strict();
 
@@ -8420,7 +8807,7 @@ export const anomaly_eventUncheckedCreateInputSchema: z.ZodType<Prisma.anomaly_e
   reviewerId: z.string().optional().nullable(),
   reviewTimestamp: z.coerce.date().optional().nullable(),
   justificationNotes: z.string().optional().nullable(),
-  organizationId: z.string(),
+  experimentRunId: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date(),
   event_label_link: z.lazy(() => event_label_linkUncheckedCreateNestedManyWithoutAnomaly_eventInputSchema).optional()
@@ -8440,7 +8827,7 @@ export const anomaly_eventUpdateInputSchema: z.ZodType<Prisma.anomaly_eventUpdat
   justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutAnomaly_eventNestedInputSchema).optional(),
+  experimentRun: z.lazy(() => ExperimentRunUpdateOneWithoutAnomalyEventsNestedInputSchema).optional(),
   event_label_link: z.lazy(() => event_label_linkUpdateManyWithoutAnomaly_eventNestedInputSchema).optional()
 }).strict();
 
@@ -8456,7 +8843,7 @@ export const anomaly_eventUncheckedUpdateInputSchema: z.ZodType<Prisma.anomaly_e
   reviewerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   reviewTimestamp: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  experimentRunId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   event_label_link: z.lazy(() => event_label_linkUncheckedUpdateManyWithoutAnomaly_eventNestedInputSchema).optional()
@@ -8474,7 +8861,7 @@ export const anomaly_eventCreateManyInputSchema: z.ZodType<Prisma.anomaly_eventC
   reviewerId: z.string().optional().nullable(),
   reviewTimestamp: z.coerce.date().optional().nullable(),
   justificationNotes: z.string().optional().nullable(),
-  organizationId: z.string(),
+  experimentRunId: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date()
 }).strict();
@@ -8507,7 +8894,7 @@ export const anomaly_eventUncheckedUpdateManyInputSchema: z.ZodType<Prisma.anoma
   reviewerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   reviewTimestamp: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  experimentRunId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -8518,7 +8905,6 @@ export const anomaly_labelCreateInputSchema: z.ZodType<Prisma.anomaly_labelCreat
   description: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date(),
-  organization: z.lazy(() => OrganizationCreateNestedOneWithoutAnomaly_labelInputSchema),
   event_label_link: z.lazy(() => event_label_linkCreateNestedManyWithoutAnomaly_labelInputSchema).optional()
 }).strict();
 
@@ -8526,7 +8912,6 @@ export const anomaly_labelUncheckedCreateInputSchema: z.ZodType<Prisma.anomaly_l
   id: z.string(),
   name: z.string(),
   description: z.string().optional().nullable(),
-  organizationId: z.string(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date(),
   event_label_link: z.lazy(() => event_label_linkUncheckedCreateNestedManyWithoutAnomaly_labelInputSchema).optional()
@@ -8538,7 +8923,6 @@ export const anomaly_labelUpdateInputSchema: z.ZodType<Prisma.anomaly_labelUpdat
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutAnomaly_labelNestedInputSchema).optional(),
   event_label_link: z.lazy(() => event_label_linkUpdateManyWithoutAnomaly_labelNestedInputSchema).optional()
 }).strict();
 
@@ -8546,7 +8930,6 @@ export const anomaly_labelUncheckedUpdateInputSchema: z.ZodType<Prisma.anomaly_l
   id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   event_label_link: z.lazy(() => event_label_linkUncheckedUpdateManyWithoutAnomaly_labelNestedInputSchema).optional()
@@ -8556,7 +8939,6 @@ export const anomaly_labelCreateManyInputSchema: z.ZodType<Prisma.anomaly_labelC
   id: z.string(),
   name: z.string(),
   description: z.string().optional().nullable(),
-  organizationId: z.string(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date()
 }).strict();
@@ -8573,7 +8955,6 @@ export const anomaly_labelUncheckedUpdateManyInputSchema: z.ZodType<Prisma.anoma
   id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -9952,6 +10333,103 @@ export const templeUncheckedUpdateManyInputSchema: z.ZodType<Prisma.templeUnchec
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
+export const TrainedModelCreateInputSchema: z.ZodType<Prisma.TrainedModelCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  modelName: z.string(),
+  modelType: z.string(),
+  modelPath: z.string(),
+  precision: z.number(),
+  recall: z.number(),
+  f1Score: z.number(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  experimentRun: z.lazy(() => ExperimentRunCreateNestedOneWithoutTrainedModelInputSchema).optional()
+}).strict();
+
+export const TrainedModelUncheckedCreateInputSchema: z.ZodType<Prisma.TrainedModelUncheckedCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  modelName: z.string(),
+  modelType: z.string(),
+  modelPath: z.string(),
+  precision: z.number(),
+  recall: z.number(),
+  f1Score: z.number(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]),
+  experimentRunId: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const TrainedModelUpdateInputSchema: z.ZodType<Prisma.TrainedModelUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelPath: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  precision: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  recall: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  f1Score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  experimentRun: z.lazy(() => ExperimentRunUpdateOneWithoutTrainedModelNestedInputSchema).optional()
+}).strict();
+
+export const TrainedModelUncheckedUpdateInputSchema: z.ZodType<Prisma.TrainedModelUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelPath: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  precision: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  recall: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  f1Score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  experimentRunId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const TrainedModelCreateManyInputSchema: z.ZodType<Prisma.TrainedModelCreateManyInput> = z.object({
+  id: z.string().cuid().optional(),
+  modelName: z.string(),
+  modelType: z.string(),
+  modelPath: z.string(),
+  precision: z.number(),
+  recall: z.number(),
+  f1Score: z.number(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]),
+  experimentRunId: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const TrainedModelUpdateManyMutationInputSchema: z.ZodType<Prisma.TrainedModelUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelPath: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  precision: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  recall: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  f1Score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const TrainedModelUncheckedUpdateManyInputSchema: z.ZodType<Prisma.TrainedModelUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelPath: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  precision: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  recall: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  f1Score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  experimentRunId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
 export const StringFilterSchema: z.ZodType<Prisma.StringFilter> = z.object({
   equals: z.string().optional(),
   in: z.string().array().optional(),
@@ -10453,18 +10931,6 @@ export const TwoFactorMinOrderByAggregateInputSchema: z.ZodType<Prisma.TwoFactor
   userId: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
-export const Anomaly_eventListRelationFilterSchema: z.ZodType<Prisma.Anomaly_eventListRelationFilter> = z.object({
-  every: z.lazy(() => anomaly_eventWhereInputSchema).optional(),
-  some: z.lazy(() => anomaly_eventWhereInputSchema).optional(),
-  none: z.lazy(() => anomaly_eventWhereInputSchema).optional()
-}).strict();
-
-export const Anomaly_labelListRelationFilterSchema: z.ZodType<Prisma.Anomaly_labelListRelationFilter> = z.object({
-  every: z.lazy(() => anomaly_labelWhereInputSchema).optional(),
-  some: z.lazy(() => anomaly_labelWhereInputSchema).optional(),
-  none: z.lazy(() => anomaly_labelWhereInputSchema).optional()
-}).strict();
-
 export const BankAccountListRelationFilterSchema: z.ZodType<Prisma.BankAccountListRelationFilter> = z.object({
   every: z.lazy(() => BankAccountWhereInputSchema).optional(),
   some: z.lazy(() => BankAccountWhereInputSchema).optional(),
@@ -10571,14 +11037,6 @@ export const TempleListRelationFilterSchema: z.ZodType<Prisma.TempleListRelation
   every: z.lazy(() => templeWhereInputSchema).optional(),
   some: z.lazy(() => templeWhereInputSchema).optional(),
   none: z.lazy(() => templeWhereInputSchema).optional()
-}).strict();
-
-export const anomaly_eventOrderByRelationAggregateInputSchema: z.ZodType<Prisma.anomaly_eventOrderByRelationAggregateInput> = z.object({
-  _count: z.lazy(() => SortOrderSchema).optional()
-}).strict();
-
-export const anomaly_labelOrderByRelationAggregateInputSchema: z.ZodType<Prisma.anomaly_labelOrderByRelationAggregateInput> = z.object({
-  _count: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const BankAccountOrderByRelationAggregateInputSchema: z.ZodType<Prisma.BankAccountOrderByRelationAggregateInput> = z.object({
@@ -11798,6 +12256,124 @@ export const ammeter_logSumOrderByAggregateInputSchema: z.ZodType<Prisma.ammeter
   responseTime: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
+export const JsonNullableFilterSchema: z.ZodType<Prisma.JsonNullableFilter> = z.object({
+  equals: InputJsonValueSchema.optional(),
+  path: z.string().array().optional(),
+  mode: z.lazy(() => QueryModeSchema).optional(),
+  string_contains: z.string().optional(),
+  string_starts_with: z.string().optional(),
+  string_ends_with: z.string().optional(),
+  array_starts_with: InputJsonValueSchema.optional().nullable(),
+  array_ends_with: InputJsonValueSchema.optional().nullable(),
+  array_contains: InputJsonValueSchema.optional().nullable(),
+  lt: InputJsonValueSchema.optional(),
+  lte: InputJsonValueSchema.optional(),
+  gt: InputJsonValueSchema.optional(),
+  gte: InputJsonValueSchema.optional(),
+  not: InputJsonValueSchema.optional()
+}).strict();
+
+export const EnumExperimentRunStatusFilterSchema: z.ZodType<Prisma.EnumExperimentRunStatusFilter> = z.object({
+  equals: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  in: z.lazy(() => ExperimentRunStatusSchema).array().optional(),
+  notIn: z.lazy(() => ExperimentRunStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => NestedEnumExperimentRunStatusFilterSchema) ]).optional(),
+}).strict();
+
+export const Anomaly_eventListRelationFilterSchema: z.ZodType<Prisma.Anomaly_eventListRelationFilter> = z.object({
+  every: z.lazy(() => anomaly_eventWhereInputSchema).optional(),
+  some: z.lazy(() => anomaly_eventWhereInputSchema).optional(),
+  none: z.lazy(() => anomaly_eventWhereInputSchema).optional()
+}).strict();
+
+export const TrainedModelNullableScalarRelationFilterSchema: z.ZodType<Prisma.TrainedModelNullableScalarRelationFilter> = z.object({
+  is: z.lazy(() => TrainedModelWhereInputSchema).optional().nullable(),
+  isNot: z.lazy(() => TrainedModelWhereInputSchema).optional().nullable()
+}).strict();
+
+export const anomaly_eventOrderByRelationAggregateInputSchema: z.ZodType<Prisma.anomaly_eventOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const ExperimentRunCountOrderByAggregateInputSchema: z.ZodType<Prisma.ExperimentRunCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  filteringParameters: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  candidateCount: z.lazy(() => SortOrderSchema).optional(),
+  positiveLabelCount: z.lazy(() => SortOrderSchema).optional(),
+  negativeLabelCount: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const ExperimentRunAvgOrderByAggregateInputSchema: z.ZodType<Prisma.ExperimentRunAvgOrderByAggregateInput> = z.object({
+  candidateCount: z.lazy(() => SortOrderSchema).optional(),
+  positiveLabelCount: z.lazy(() => SortOrderSchema).optional(),
+  negativeLabelCount: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const ExperimentRunMaxOrderByAggregateInputSchema: z.ZodType<Prisma.ExperimentRunMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  candidateCount: z.lazy(() => SortOrderSchema).optional(),
+  positiveLabelCount: z.lazy(() => SortOrderSchema).optional(),
+  negativeLabelCount: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const ExperimentRunMinOrderByAggregateInputSchema: z.ZodType<Prisma.ExperimentRunMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  candidateCount: z.lazy(() => SortOrderSchema).optional(),
+  positiveLabelCount: z.lazy(() => SortOrderSchema).optional(),
+  negativeLabelCount: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const ExperimentRunSumOrderByAggregateInputSchema: z.ZodType<Prisma.ExperimentRunSumOrderByAggregateInput> = z.object({
+  candidateCount: z.lazy(() => SortOrderSchema).optional(),
+  positiveLabelCount: z.lazy(() => SortOrderSchema).optional(),
+  negativeLabelCount: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const JsonNullableWithAggregatesFilterSchema: z.ZodType<Prisma.JsonNullableWithAggregatesFilter> = z.object({
+  equals: InputJsonValueSchema.optional(),
+  path: z.string().array().optional(),
+  mode: z.lazy(() => QueryModeSchema).optional(),
+  string_contains: z.string().optional(),
+  string_starts_with: z.string().optional(),
+  string_ends_with: z.string().optional(),
+  array_starts_with: InputJsonValueSchema.optional().nullable(),
+  array_ends_with: InputJsonValueSchema.optional().nullable(),
+  array_contains: InputJsonValueSchema.optional().nullable(),
+  lt: InputJsonValueSchema.optional(),
+  lte: InputJsonValueSchema.optional(),
+  gt: InputJsonValueSchema.optional(),
+  gte: InputJsonValueSchema.optional(),
+  not: InputJsonValueSchema.optional(),
+  _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
+  _min: z.lazy(() => NestedJsonNullableFilterSchema).optional(),
+  _max: z.lazy(() => NestedJsonNullableFilterSchema).optional()
+}).strict();
+
+export const EnumExperimentRunStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumExperimentRunStatusWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  in: z.lazy(() => ExperimentRunStatusSchema).array().optional(),
+  notIn: z.lazy(() => ExperimentRunStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => NestedEnumExperimentRunStatusWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumExperimentRunStatusFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumExperimentRunStatusFilterSchema).optional()
+}).strict();
+
 export const FloatFilterSchema: z.ZodType<Prisma.FloatFilter> = z.object({
   equals: z.number().optional(),
   in: z.number().array().optional(),
@@ -11814,6 +12390,11 @@ export const EnumAnomalyEventStatusFilterSchema: z.ZodType<Prisma.EnumAnomalyEve
   in: z.lazy(() => AnomalyEventStatusSchema).array().optional(),
   notIn: z.lazy(() => AnomalyEventStatusSchema).array().optional(),
   not: z.union([ z.lazy(() => AnomalyEventStatusSchema),z.lazy(() => NestedEnumAnomalyEventStatusFilterSchema) ]).optional(),
+}).strict();
+
+export const ExperimentRunNullableScalarRelationFilterSchema: z.ZodType<Prisma.ExperimentRunNullableScalarRelationFilter> = z.object({
+  is: z.lazy(() => ExperimentRunWhereInputSchema).optional().nullable(),
+  isNot: z.lazy(() => ExperimentRunWhereInputSchema).optional().nullable()
 }).strict();
 
 export const Event_label_linkListRelationFilterSchema: z.ZodType<Prisma.Event_label_linkListRelationFilter> = z.object({
@@ -11838,7 +12419,7 @@ export const anomaly_eventCountOrderByAggregateInputSchema: z.ZodType<Prisma.ano
   reviewerId: z.lazy(() => SortOrderSchema).optional(),
   reviewTimestamp: z.lazy(() => SortOrderSchema).optional(),
   justificationNotes: z.lazy(() => SortOrderSchema).optional(),
-  organizationId: z.lazy(() => SortOrderSchema).optional(),
+  experimentRunId: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional()
 }).strict();
@@ -11858,7 +12439,7 @@ export const anomaly_eventMaxOrderByAggregateInputSchema: z.ZodType<Prisma.anoma
   reviewerId: z.lazy(() => SortOrderSchema).optional(),
   reviewTimestamp: z.lazy(() => SortOrderSchema).optional(),
   justificationNotes: z.lazy(() => SortOrderSchema).optional(),
-  organizationId: z.lazy(() => SortOrderSchema).optional(),
+  experimentRunId: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional()
 }).strict();
@@ -11874,7 +12455,7 @@ export const anomaly_eventMinOrderByAggregateInputSchema: z.ZodType<Prisma.anoma
   reviewerId: z.lazy(() => SortOrderSchema).optional(),
   reviewTimestamp: z.lazy(() => SortOrderSchema).optional(),
   justificationNotes: z.lazy(() => SortOrderSchema).optional(),
-  organizationId: z.lazy(() => SortOrderSchema).optional(),
+  experimentRunId: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional()
 }).strict();
@@ -11909,16 +12490,10 @@ export const EnumAnomalyEventStatusWithAggregatesFilterSchema: z.ZodType<Prisma.
   _max: z.lazy(() => NestedEnumAnomalyEventStatusFilterSchema).optional()
 }).strict();
 
-export const anomaly_labelOrganizationIdNameCompoundUniqueInputSchema: z.ZodType<Prisma.anomaly_labelOrganizationIdNameCompoundUniqueInput> = z.object({
-  organizationId: z.string(),
-  name: z.string()
-}).strict();
-
 export const anomaly_labelCountOrderByAggregateInputSchema: z.ZodType<Prisma.anomaly_labelCountOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   name: z.lazy(() => SortOrderSchema).optional(),
   description: z.lazy(() => SortOrderSchema).optional(),
-  organizationId: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional()
 }).strict();
@@ -11927,7 +12502,6 @@ export const anomaly_labelMaxOrderByAggregateInputSchema: z.ZodType<Prisma.anoma
   id: z.lazy(() => SortOrderSchema).optional(),
   name: z.lazy(() => SortOrderSchema).optional(),
   description: z.lazy(() => SortOrderSchema).optional(),
-  organizationId: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional()
 }).strict();
@@ -11936,7 +12510,6 @@ export const anomaly_labelMinOrderByAggregateInputSchema: z.ZodType<Prisma.anoma
   id: z.lazy(() => SortOrderSchema).optional(),
   name: z.lazy(() => SortOrderSchema).optional(),
   description: z.lazy(() => SortOrderSchema).optional(),
-  organizationId: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional()
 }).strict();
@@ -12481,23 +13054,6 @@ export const servicing1SumOrderByAggregateInputSchema: z.ZodType<Prisma.servicin
   accPending: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
-export const JsonNullableFilterSchema: z.ZodType<Prisma.JsonNullableFilter> = z.object({
-  equals: InputJsonValueSchema.optional(),
-  path: z.string().array().optional(),
-  mode: z.lazy(() => QueryModeSchema).optional(),
-  string_contains: z.string().optional(),
-  string_starts_with: z.string().optional(),
-  string_ends_with: z.string().optional(),
-  array_starts_with: InputJsonValueSchema.optional().nullable(),
-  array_ends_with: InputJsonValueSchema.optional().nullable(),
-  array_contains: InputJsonValueSchema.optional().nullable(),
-  lt: InputJsonValueSchema.optional(),
-  lte: InputJsonValueSchema.optional(),
-  gt: InputJsonValueSchema.optional(),
-  gte: InputJsonValueSchema.optional(),
-  not: InputJsonValueSchema.optional()
-}).strict();
-
 export const Servicing1ScalarRelationFilterSchema: z.ZodType<Prisma.Servicing1ScalarRelationFilter> = z.object({
   is: z.lazy(() => servicing1WhereInputSchema).optional(),
   isNot: z.lazy(() => servicing1WhereInputSchema).optional()
@@ -12620,26 +13176,6 @@ export const servicing2SumOrderByAggregateInputSchema: z.ZodType<Prisma.servicin
   rowTotal: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
-export const JsonNullableWithAggregatesFilterSchema: z.ZodType<Prisma.JsonNullableWithAggregatesFilter> = z.object({
-  equals: InputJsonValueSchema.optional(),
-  path: z.string().array().optional(),
-  mode: z.lazy(() => QueryModeSchema).optional(),
-  string_contains: z.string().optional(),
-  string_starts_with: z.string().optional(),
-  string_ends_with: z.string().optional(),
-  array_starts_with: InputJsonValueSchema.optional().nullable(),
-  array_ends_with: InputJsonValueSchema.optional().nullable(),
-  array_contains: InputJsonValueSchema.optional().nullable(),
-  lt: InputJsonValueSchema.optional(),
-  lte: InputJsonValueSchema.optional(),
-  gt: InputJsonValueSchema.optional(),
-  gte: InputJsonValueSchema.optional(),
-  not: InputJsonValueSchema.optional(),
-  _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
-  _min: z.lazy(() => NestedJsonNullableFilterSchema).optional(),
-  _max: z.lazy(() => NestedJsonNullableFilterSchema).optional()
-}).strict();
-
 export const templeCountOrderByAggregateInputSchema: z.ZodType<Prisma.templeCountOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   name: z.lazy(() => SortOrderSchema).optional(),
@@ -12674,6 +13210,58 @@ export const templeMinOrderByAggregateInputSchema: z.ZodType<Prisma.templeMinOrd
   organizationId: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const TrainedModelCountOrderByAggregateInputSchema: z.ZodType<Prisma.TrainedModelCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  modelName: z.lazy(() => SortOrderSchema).optional(),
+  modelType: z.lazy(() => SortOrderSchema).optional(),
+  modelPath: z.lazy(() => SortOrderSchema).optional(),
+  precision: z.lazy(() => SortOrderSchema).optional(),
+  recall: z.lazy(() => SortOrderSchema).optional(),
+  f1Score: z.lazy(() => SortOrderSchema).optional(),
+  trainingDataSummary: z.lazy(() => SortOrderSchema).optional(),
+  experimentRunId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const TrainedModelAvgOrderByAggregateInputSchema: z.ZodType<Prisma.TrainedModelAvgOrderByAggregateInput> = z.object({
+  precision: z.lazy(() => SortOrderSchema).optional(),
+  recall: z.lazy(() => SortOrderSchema).optional(),
+  f1Score: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const TrainedModelMaxOrderByAggregateInputSchema: z.ZodType<Prisma.TrainedModelMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  modelName: z.lazy(() => SortOrderSchema).optional(),
+  modelType: z.lazy(() => SortOrderSchema).optional(),
+  modelPath: z.lazy(() => SortOrderSchema).optional(),
+  precision: z.lazy(() => SortOrderSchema).optional(),
+  recall: z.lazy(() => SortOrderSchema).optional(),
+  f1Score: z.lazy(() => SortOrderSchema).optional(),
+  experimentRunId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const TrainedModelMinOrderByAggregateInputSchema: z.ZodType<Prisma.TrainedModelMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  modelName: z.lazy(() => SortOrderSchema).optional(),
+  modelType: z.lazy(() => SortOrderSchema).optional(),
+  modelPath: z.lazy(() => SortOrderSchema).optional(),
+  precision: z.lazy(() => SortOrderSchema).optional(),
+  recall: z.lazy(() => SortOrderSchema).optional(),
+  f1Score: z.lazy(() => SortOrderSchema).optional(),
+  experimentRunId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const TrainedModelSumOrderByAggregateInputSchema: z.ZodType<Prisma.TrainedModelSumOrderByAggregateInput> = z.object({
+  precision: z.lazy(() => SortOrderSchema).optional(),
+  recall: z.lazy(() => SortOrderSchema).optional(),
+  f1Score: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const AccountCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.AccountCreateNestedManyWithoutUserInput> = z.object({
@@ -13107,20 +13695,6 @@ export const AiChatCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Pri
   connect: z.union([ z.lazy(() => AiChatWhereUniqueInputSchema),z.lazy(() => AiChatWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
-export const anomaly_eventCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventCreateNestedManyWithoutOrganizationInput> = z.object({
-  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventCreateWithoutOrganizationInputSchema).array(),z.lazy(() => anomaly_eventUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
-  connectOrCreate: z.union([ z.lazy(() => anomaly_eventCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
-  createMany: z.lazy(() => anomaly_eventCreateManyOrganizationInputEnvelopeSchema).optional(),
-  connect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
-
-export const anomaly_labelCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelCreateNestedManyWithoutOrganizationInput> = z.object({
-  create: z.union([ z.lazy(() => anomaly_labelCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelCreateWithoutOrganizationInputSchema).array(),z.lazy(() => anomaly_labelUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
-  connectOrCreate: z.union([ z.lazy(() => anomaly_labelCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
-  createMany: z.lazy(() => anomaly_labelCreateManyOrganizationInputEnvelopeSchema).optional(),
-  connect: z.union([ z.lazy(() => anomaly_labelWhereUniqueInputSchema),z.lazy(() => anomaly_labelWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
-
 export const BankAccountCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Prisma.BankAccountCreateNestedManyWithoutOrganizationInput> = z.object({
   create: z.union([ z.lazy(() => BankAccountCreateWithoutOrganizationInputSchema),z.lazy(() => BankAccountCreateWithoutOrganizationInputSchema).array(),z.lazy(() => BankAccountUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => BankAccountUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => BankAccountCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => BankAccountCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
@@ -13273,20 +13847,6 @@ export const AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema: z.Zo
   connectOrCreate: z.union([ z.lazy(() => AiChatCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => AiChatCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
   createMany: z.lazy(() => AiChatCreateManyOrganizationInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => AiChatWhereUniqueInputSchema),z.lazy(() => AiChatWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
-
-export const anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInput> = z.object({
-  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventCreateWithoutOrganizationInputSchema).array(),z.lazy(() => anomaly_eventUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
-  connectOrCreate: z.union([ z.lazy(() => anomaly_eventCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
-  createMany: z.lazy(() => anomaly_eventCreateManyOrganizationInputEnvelopeSchema).optional(),
-  connect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
-
-export const anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInput> = z.object({
-  create: z.union([ z.lazy(() => anomaly_labelCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelCreateWithoutOrganizationInputSchema).array(),z.lazy(() => anomaly_labelUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
-  connectOrCreate: z.union([ z.lazy(() => anomaly_labelCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
-  createMany: z.lazy(() => anomaly_labelCreateManyOrganizationInputEnvelopeSchema).optional(),
-  connect: z.union([ z.lazy(() => anomaly_labelWhereUniqueInputSchema),z.lazy(() => anomaly_labelWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
 export const BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema: z.ZodType<Prisma.BankAccountUncheckedCreateNestedManyWithoutOrganizationInput> = z.object({
@@ -13448,34 +14008,6 @@ export const AiChatUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Pri
   update: z.union([ z.lazy(() => AiChatUpdateWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => AiChatUpdateWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => AiChatUpdateManyWithWhereWithoutOrganizationInputSchema),z.lazy(() => AiChatUpdateManyWithWhereWithoutOrganizationInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => AiChatScalarWhereInputSchema),z.lazy(() => AiChatScalarWhereInputSchema).array() ]).optional(),
-}).strict();
-
-export const anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Prisma.anomaly_eventUpdateManyWithoutOrganizationNestedInput> = z.object({
-  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventCreateWithoutOrganizationInputSchema).array(),z.lazy(() => anomaly_eventUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
-  connectOrCreate: z.union([ z.lazy(() => anomaly_eventCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
-  upsert: z.union([ z.lazy(() => anomaly_eventUpsertWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUpsertWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
-  createMany: z.lazy(() => anomaly_eventCreateManyOrganizationInputEnvelopeSchema).optional(),
-  set: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
-  disconnect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
-  delete: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
-  connect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
-  update: z.union([ z.lazy(() => anomaly_eventUpdateWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUpdateWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
-  updateMany: z.union([ z.lazy(() => anomaly_eventUpdateManyWithWhereWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUpdateManyWithWhereWithoutOrganizationInputSchema).array() ]).optional(),
-  deleteMany: z.union([ z.lazy(() => anomaly_eventScalarWhereInputSchema),z.lazy(() => anomaly_eventScalarWhereInputSchema).array() ]).optional(),
-}).strict();
-
-export const anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Prisma.anomaly_labelUpdateManyWithoutOrganizationNestedInput> = z.object({
-  create: z.union([ z.lazy(() => anomaly_labelCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelCreateWithoutOrganizationInputSchema).array(),z.lazy(() => anomaly_labelUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
-  connectOrCreate: z.union([ z.lazy(() => anomaly_labelCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
-  upsert: z.union([ z.lazy(() => anomaly_labelUpsertWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUpsertWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
-  createMany: z.lazy(() => anomaly_labelCreateManyOrganizationInputEnvelopeSchema).optional(),
-  set: z.union([ z.lazy(() => anomaly_labelWhereUniqueInputSchema),z.lazy(() => anomaly_labelWhereUniqueInputSchema).array() ]).optional(),
-  disconnect: z.union([ z.lazy(() => anomaly_labelWhereUniqueInputSchema),z.lazy(() => anomaly_labelWhereUniqueInputSchema).array() ]).optional(),
-  delete: z.union([ z.lazy(() => anomaly_labelWhereUniqueInputSchema),z.lazy(() => anomaly_labelWhereUniqueInputSchema).array() ]).optional(),
-  connect: z.union([ z.lazy(() => anomaly_labelWhereUniqueInputSchema),z.lazy(() => anomaly_labelWhereUniqueInputSchema).array() ]).optional(),
-  update: z.union([ z.lazy(() => anomaly_labelUpdateWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUpdateWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
-  updateMany: z.union([ z.lazy(() => anomaly_labelUpdateManyWithWhereWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUpdateManyWithWhereWithoutOrganizationInputSchema).array() ]).optional(),
-  deleteMany: z.union([ z.lazy(() => anomaly_labelScalarWhereInputSchema),z.lazy(() => anomaly_labelScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
 export const BankAccountUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Prisma.BankAccountUpdateManyWithoutOrganizationNestedInput> = z.object({
@@ -13784,34 +14316,6 @@ export const AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema: z.Zo
   update: z.union([ z.lazy(() => AiChatUpdateWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => AiChatUpdateWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => AiChatUpdateManyWithWhereWithoutOrganizationInputSchema),z.lazy(() => AiChatUpdateManyWithWhereWithoutOrganizationInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => AiChatScalarWhereInputSchema),z.lazy(() => AiChatScalarWhereInputSchema).array() ]).optional(),
-}).strict();
-
-export const anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInput> = z.object({
-  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventCreateWithoutOrganizationInputSchema).array(),z.lazy(() => anomaly_eventUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
-  connectOrCreate: z.union([ z.lazy(() => anomaly_eventCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
-  upsert: z.union([ z.lazy(() => anomaly_eventUpsertWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUpsertWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
-  createMany: z.lazy(() => anomaly_eventCreateManyOrganizationInputEnvelopeSchema).optional(),
-  set: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
-  disconnect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
-  delete: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
-  connect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
-  update: z.union([ z.lazy(() => anomaly_eventUpdateWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUpdateWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
-  updateMany: z.union([ z.lazy(() => anomaly_eventUpdateManyWithWhereWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUpdateManyWithWhereWithoutOrganizationInputSchema).array() ]).optional(),
-  deleteMany: z.union([ z.lazy(() => anomaly_eventScalarWhereInputSchema),z.lazy(() => anomaly_eventScalarWhereInputSchema).array() ]).optional(),
-}).strict();
-
-export const anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Prisma.anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInput> = z.object({
-  create: z.union([ z.lazy(() => anomaly_labelCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelCreateWithoutOrganizationInputSchema).array(),z.lazy(() => anomaly_labelUncheckedCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUncheckedCreateWithoutOrganizationInputSchema).array() ]).optional(),
-  connectOrCreate: z.union([ z.lazy(() => anomaly_labelCreateOrConnectWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelCreateOrConnectWithoutOrganizationInputSchema).array() ]).optional(),
-  upsert: z.union([ z.lazy(() => anomaly_labelUpsertWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUpsertWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
-  createMany: z.lazy(() => anomaly_labelCreateManyOrganizationInputEnvelopeSchema).optional(),
-  set: z.union([ z.lazy(() => anomaly_labelWhereUniqueInputSchema),z.lazy(() => anomaly_labelWhereUniqueInputSchema).array() ]).optional(),
-  disconnect: z.union([ z.lazy(() => anomaly_labelWhereUniqueInputSchema),z.lazy(() => anomaly_labelWhereUniqueInputSchema).array() ]).optional(),
-  delete: z.union([ z.lazy(() => anomaly_labelWhereUniqueInputSchema),z.lazy(() => anomaly_labelWhereUniqueInputSchema).array() ]).optional(),
-  connect: z.union([ z.lazy(() => anomaly_labelWhereUniqueInputSchema),z.lazy(() => anomaly_labelWhereUniqueInputSchema).array() ]).optional(),
-  update: z.union([ z.lazy(() => anomaly_labelUpdateWithWhereUniqueWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUpdateWithWhereUniqueWithoutOrganizationInputSchema).array() ]).optional(),
-  updateMany: z.union([ z.lazy(() => anomaly_labelUpdateManyWithWhereWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUpdateManyWithWhereWithoutOrganizationInputSchema).array() ]).optional(),
-  deleteMany: z.union([ z.lazy(() => anomaly_labelScalarWhereInputSchema),z.lazy(() => anomaly_labelScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
 export const BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema: z.ZodType<Prisma.BankAccountUncheckedUpdateManyWithoutOrganizationNestedInput> = z.object({
@@ -14931,10 +15435,88 @@ export const NullableIntFieldUpdateOperationsInputSchema: z.ZodType<Prisma.Nulla
   divide: z.number().optional()
 }).strict();
 
-export const OrganizationCreateNestedOneWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.OrganizationCreateNestedOneWithoutAnomaly_eventInput> = z.object({
-  create: z.union([ z.lazy(() => OrganizationCreateWithoutAnomaly_eventInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutAnomaly_eventInputSchema) ]).optional(),
-  connectOrCreate: z.lazy(() => OrganizationCreateOrConnectWithoutAnomaly_eventInputSchema).optional(),
-  connect: z.lazy(() => OrganizationWhereUniqueInputSchema).optional()
+export const anomaly_eventCreateNestedManyWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventCreateNestedManyWithoutExperimentRunInput> = z.object({
+  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventCreateWithoutExperimentRunInputSchema).array(),z.lazy(() => anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => anomaly_eventCreateOrConnectWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventCreateOrConnectWithoutExperimentRunInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => anomaly_eventCreateManyExperimentRunInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const TrainedModelCreateNestedOneWithoutExperimentRunInputSchema: z.ZodType<Prisma.TrainedModelCreateNestedOneWithoutExperimentRunInput> = z.object({
+  create: z.union([ z.lazy(() => TrainedModelCreateWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUncheckedCreateWithoutExperimentRunInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => TrainedModelCreateOrConnectWithoutExperimentRunInputSchema).optional(),
+  connect: z.lazy(() => TrainedModelWhereUniqueInputSchema).optional()
+}).strict();
+
+export const anomaly_eventUncheckedCreateNestedManyWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedCreateNestedManyWithoutExperimentRunInput> = z.object({
+  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventCreateWithoutExperimentRunInputSchema).array(),z.lazy(() => anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => anomaly_eventCreateOrConnectWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventCreateOrConnectWithoutExperimentRunInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => anomaly_eventCreateManyExperimentRunInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const TrainedModelUncheckedCreateNestedOneWithoutExperimentRunInputSchema: z.ZodType<Prisma.TrainedModelUncheckedCreateNestedOneWithoutExperimentRunInput> = z.object({
+  create: z.union([ z.lazy(() => TrainedModelCreateWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUncheckedCreateWithoutExperimentRunInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => TrainedModelCreateOrConnectWithoutExperimentRunInputSchema).optional(),
+  connect: z.lazy(() => TrainedModelWhereUniqueInputSchema).optional()
+}).strict();
+
+export const EnumExperimentRunStatusFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumExperimentRunStatusFieldUpdateOperationsInput> = z.object({
+  set: z.lazy(() => ExperimentRunStatusSchema).optional()
+}).strict();
+
+export const anomaly_eventUpdateManyWithoutExperimentRunNestedInputSchema: z.ZodType<Prisma.anomaly_eventUpdateManyWithoutExperimentRunNestedInput> = z.object({
+  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventCreateWithoutExperimentRunInputSchema).array(),z.lazy(() => anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => anomaly_eventCreateOrConnectWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventCreateOrConnectWithoutExperimentRunInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => anomaly_eventUpsertWithWhereUniqueWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUpsertWithWhereUniqueWithoutExperimentRunInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => anomaly_eventCreateManyExperimentRunInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => anomaly_eventUpdateWithWhereUniqueWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUpdateWithWhereUniqueWithoutExperimentRunInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => anomaly_eventUpdateManyWithWhereWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUpdateManyWithWhereWithoutExperimentRunInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => anomaly_eventScalarWhereInputSchema),z.lazy(() => anomaly_eventScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const TrainedModelUpdateOneWithoutExperimentRunNestedInputSchema: z.ZodType<Prisma.TrainedModelUpdateOneWithoutExperimentRunNestedInput> = z.object({
+  create: z.union([ z.lazy(() => TrainedModelCreateWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUncheckedCreateWithoutExperimentRunInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => TrainedModelCreateOrConnectWithoutExperimentRunInputSchema).optional(),
+  upsert: z.lazy(() => TrainedModelUpsertWithoutExperimentRunInputSchema).optional(),
+  disconnect: z.union([ z.boolean(),z.lazy(() => TrainedModelWhereInputSchema) ]).optional(),
+  delete: z.union([ z.boolean(),z.lazy(() => TrainedModelWhereInputSchema) ]).optional(),
+  connect: z.lazy(() => TrainedModelWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => TrainedModelUpdateToOneWithWhereWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUpdateWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUncheckedUpdateWithoutExperimentRunInputSchema) ]).optional(),
+}).strict();
+
+export const anomaly_eventUncheckedUpdateManyWithoutExperimentRunNestedInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedUpdateManyWithoutExperimentRunNestedInput> = z.object({
+  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventCreateWithoutExperimentRunInputSchema).array(),z.lazy(() => anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => anomaly_eventCreateOrConnectWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventCreateOrConnectWithoutExperimentRunInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => anomaly_eventUpsertWithWhereUniqueWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUpsertWithWhereUniqueWithoutExperimentRunInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => anomaly_eventCreateManyExperimentRunInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => anomaly_eventWhereUniqueInputSchema),z.lazy(() => anomaly_eventWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => anomaly_eventUpdateWithWhereUniqueWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUpdateWithWhereUniqueWithoutExperimentRunInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => anomaly_eventUpdateManyWithWhereWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUpdateManyWithWhereWithoutExperimentRunInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => anomaly_eventScalarWhereInputSchema),z.lazy(() => anomaly_eventScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const TrainedModelUncheckedUpdateOneWithoutExperimentRunNestedInputSchema: z.ZodType<Prisma.TrainedModelUncheckedUpdateOneWithoutExperimentRunNestedInput> = z.object({
+  create: z.union([ z.lazy(() => TrainedModelCreateWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUncheckedCreateWithoutExperimentRunInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => TrainedModelCreateOrConnectWithoutExperimentRunInputSchema).optional(),
+  upsert: z.lazy(() => TrainedModelUpsertWithoutExperimentRunInputSchema).optional(),
+  disconnect: z.union([ z.boolean(),z.lazy(() => TrainedModelWhereInputSchema) ]).optional(),
+  delete: z.union([ z.boolean(),z.lazy(() => TrainedModelWhereInputSchema) ]).optional(),
+  connect: z.lazy(() => TrainedModelWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => TrainedModelUpdateToOneWithWhereWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUpdateWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUncheckedUpdateWithoutExperimentRunInputSchema) ]).optional(),
+}).strict();
+
+export const ExperimentRunCreateNestedOneWithoutAnomalyEventsInputSchema: z.ZodType<Prisma.ExperimentRunCreateNestedOneWithoutAnomalyEventsInput> = z.object({
+  create: z.union([ z.lazy(() => ExperimentRunCreateWithoutAnomalyEventsInputSchema),z.lazy(() => ExperimentRunUncheckedCreateWithoutAnomalyEventsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => ExperimentRunCreateOrConnectWithoutAnomalyEventsInputSchema).optional(),
+  connect: z.lazy(() => ExperimentRunWhereUniqueInputSchema).optional()
 }).strict();
 
 export const event_label_linkCreateNestedManyWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.event_label_linkCreateNestedManyWithoutAnomaly_eventInput> = z.object({
@@ -14963,12 +15545,14 @@ export const EnumAnomalyEventStatusFieldUpdateOperationsInputSchema: z.ZodType<P
   set: z.lazy(() => AnomalyEventStatusSchema).optional()
 }).strict();
 
-export const OrganizationUpdateOneRequiredWithoutAnomaly_eventNestedInputSchema: z.ZodType<Prisma.OrganizationUpdateOneRequiredWithoutAnomaly_eventNestedInput> = z.object({
-  create: z.union([ z.lazy(() => OrganizationCreateWithoutAnomaly_eventInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutAnomaly_eventInputSchema) ]).optional(),
-  connectOrCreate: z.lazy(() => OrganizationCreateOrConnectWithoutAnomaly_eventInputSchema).optional(),
-  upsert: z.lazy(() => OrganizationUpsertWithoutAnomaly_eventInputSchema).optional(),
-  connect: z.lazy(() => OrganizationWhereUniqueInputSchema).optional(),
-  update: z.union([ z.lazy(() => OrganizationUpdateToOneWithWhereWithoutAnomaly_eventInputSchema),z.lazy(() => OrganizationUpdateWithoutAnomaly_eventInputSchema),z.lazy(() => OrganizationUncheckedUpdateWithoutAnomaly_eventInputSchema) ]).optional(),
+export const ExperimentRunUpdateOneWithoutAnomalyEventsNestedInputSchema: z.ZodType<Prisma.ExperimentRunUpdateOneWithoutAnomalyEventsNestedInput> = z.object({
+  create: z.union([ z.lazy(() => ExperimentRunCreateWithoutAnomalyEventsInputSchema),z.lazy(() => ExperimentRunUncheckedCreateWithoutAnomalyEventsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => ExperimentRunCreateOrConnectWithoutAnomalyEventsInputSchema).optional(),
+  upsert: z.lazy(() => ExperimentRunUpsertWithoutAnomalyEventsInputSchema).optional(),
+  disconnect: z.union([ z.boolean(),z.lazy(() => ExperimentRunWhereInputSchema) ]).optional(),
+  delete: z.union([ z.boolean(),z.lazy(() => ExperimentRunWhereInputSchema) ]).optional(),
+  connect: z.lazy(() => ExperimentRunWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => ExperimentRunUpdateToOneWithWhereWithoutAnomalyEventsInputSchema),z.lazy(() => ExperimentRunUpdateWithoutAnomalyEventsInputSchema),z.lazy(() => ExperimentRunUncheckedUpdateWithoutAnomalyEventsInputSchema) ]).optional(),
 }).strict();
 
 export const event_label_linkUpdateManyWithoutAnomaly_eventNestedInputSchema: z.ZodType<Prisma.event_label_linkUpdateManyWithoutAnomaly_eventNestedInput> = z.object({
@@ -14999,12 +15583,6 @@ export const event_label_linkUncheckedUpdateManyWithoutAnomaly_eventNestedInputS
   deleteMany: z.union([ z.lazy(() => event_label_linkScalarWhereInputSchema),z.lazy(() => event_label_linkScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
-export const OrganizationCreateNestedOneWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.OrganizationCreateNestedOneWithoutAnomaly_labelInput> = z.object({
-  create: z.union([ z.lazy(() => OrganizationCreateWithoutAnomaly_labelInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutAnomaly_labelInputSchema) ]).optional(),
-  connectOrCreate: z.lazy(() => OrganizationCreateOrConnectWithoutAnomaly_labelInputSchema).optional(),
-  connect: z.lazy(() => OrganizationWhereUniqueInputSchema).optional()
-}).strict();
-
 export const event_label_linkCreateNestedManyWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.event_label_linkCreateNestedManyWithoutAnomaly_labelInput> = z.object({
   create: z.union([ z.lazy(() => event_label_linkCreateWithoutAnomaly_labelInputSchema),z.lazy(() => event_label_linkCreateWithoutAnomaly_labelInputSchema).array(),z.lazy(() => event_label_linkUncheckedCreateWithoutAnomaly_labelInputSchema),z.lazy(() => event_label_linkUncheckedCreateWithoutAnomaly_labelInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => event_label_linkCreateOrConnectWithoutAnomaly_labelInputSchema),z.lazy(() => event_label_linkCreateOrConnectWithoutAnomaly_labelInputSchema).array() ]).optional(),
@@ -15017,14 +15595,6 @@ export const event_label_linkUncheckedCreateNestedManyWithoutAnomaly_labelInputS
   connectOrCreate: z.union([ z.lazy(() => event_label_linkCreateOrConnectWithoutAnomaly_labelInputSchema),z.lazy(() => event_label_linkCreateOrConnectWithoutAnomaly_labelInputSchema).array() ]).optional(),
   createMany: z.lazy(() => event_label_linkCreateManyAnomaly_labelInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => event_label_linkWhereUniqueInputSchema),z.lazy(() => event_label_linkWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
-
-export const OrganizationUpdateOneRequiredWithoutAnomaly_labelNestedInputSchema: z.ZodType<Prisma.OrganizationUpdateOneRequiredWithoutAnomaly_labelNestedInput> = z.object({
-  create: z.union([ z.lazy(() => OrganizationCreateWithoutAnomaly_labelInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutAnomaly_labelInputSchema) ]).optional(),
-  connectOrCreate: z.lazy(() => OrganizationCreateOrConnectWithoutAnomaly_labelInputSchema).optional(),
-  upsert: z.lazy(() => OrganizationUpsertWithoutAnomaly_labelInputSchema).optional(),
-  connect: z.lazy(() => OrganizationWhereUniqueInputSchema).optional(),
-  update: z.union([ z.lazy(() => OrganizationUpdateToOneWithWhereWithoutAnomaly_labelInputSchema),z.lazy(() => OrganizationUpdateWithoutAnomaly_labelInputSchema),z.lazy(() => OrganizationUncheckedUpdateWithoutAnomaly_labelInputSchema) ]).optional(),
 }).strict();
 
 export const event_label_linkUpdateManyWithoutAnomaly_labelNestedInputSchema: z.ZodType<Prisma.event_label_linkUpdateManyWithoutAnomaly_labelNestedInput> = z.object({
@@ -15815,6 +16385,22 @@ export const OrganizationUpdateOneRequiredWithoutTempleNestedInputSchema: z.ZodT
   update: z.union([ z.lazy(() => OrganizationUpdateToOneWithWhereWithoutTempleInputSchema),z.lazy(() => OrganizationUpdateWithoutTempleInputSchema),z.lazy(() => OrganizationUncheckedUpdateWithoutTempleInputSchema) ]).optional(),
 }).strict();
 
+export const ExperimentRunCreateNestedOneWithoutTrainedModelInputSchema: z.ZodType<Prisma.ExperimentRunCreateNestedOneWithoutTrainedModelInput> = z.object({
+  create: z.union([ z.lazy(() => ExperimentRunCreateWithoutTrainedModelInputSchema),z.lazy(() => ExperimentRunUncheckedCreateWithoutTrainedModelInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => ExperimentRunCreateOrConnectWithoutTrainedModelInputSchema).optional(),
+  connect: z.lazy(() => ExperimentRunWhereUniqueInputSchema).optional()
+}).strict();
+
+export const ExperimentRunUpdateOneWithoutTrainedModelNestedInputSchema: z.ZodType<Prisma.ExperimentRunUpdateOneWithoutTrainedModelNestedInput> = z.object({
+  create: z.union([ z.lazy(() => ExperimentRunCreateWithoutTrainedModelInputSchema),z.lazy(() => ExperimentRunUncheckedCreateWithoutTrainedModelInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => ExperimentRunCreateOrConnectWithoutTrainedModelInputSchema).optional(),
+  upsert: z.lazy(() => ExperimentRunUpsertWithoutTrainedModelInputSchema).optional(),
+  disconnect: z.union([ z.boolean(),z.lazy(() => ExperimentRunWhereInputSchema) ]).optional(),
+  delete: z.union([ z.boolean(),z.lazy(() => ExperimentRunWhereInputSchema) ]).optional(),
+  connect: z.lazy(() => ExperimentRunWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => ExperimentRunUpdateToOneWithWhereWithoutTrainedModelInputSchema),z.lazy(() => ExperimentRunUpdateWithoutTrainedModelInputSchema),z.lazy(() => ExperimentRunUncheckedUpdateWithoutTrainedModelInputSchema) ]).optional(),
+}).strict();
+
 export const NestedStringFilterSchema: z.ZodType<Prisma.NestedStringFilter> = z.object({
   equals: z.string().optional(),
   in: z.string().array().optional(),
@@ -16133,6 +16719,40 @@ export const NestedIntNullableWithAggregatesFilterSchema: z.ZodType<Prisma.Neste
   _max: z.lazy(() => NestedIntNullableFilterSchema).optional()
 }).strict();
 
+export const NestedEnumExperimentRunStatusFilterSchema: z.ZodType<Prisma.NestedEnumExperimentRunStatusFilter> = z.object({
+  equals: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  in: z.lazy(() => ExperimentRunStatusSchema).array().optional(),
+  notIn: z.lazy(() => ExperimentRunStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => NestedEnumExperimentRunStatusFilterSchema) ]).optional(),
+}).strict();
+
+export const NestedJsonNullableFilterSchema: z.ZodType<Prisma.NestedJsonNullableFilter> = z.object({
+  equals: InputJsonValueSchema.optional(),
+  path: z.string().array().optional(),
+  mode: z.lazy(() => QueryModeSchema).optional(),
+  string_contains: z.string().optional(),
+  string_starts_with: z.string().optional(),
+  string_ends_with: z.string().optional(),
+  array_starts_with: InputJsonValueSchema.optional().nullable(),
+  array_ends_with: InputJsonValueSchema.optional().nullable(),
+  array_contains: InputJsonValueSchema.optional().nullable(),
+  lt: InputJsonValueSchema.optional(),
+  lte: InputJsonValueSchema.optional(),
+  gt: InputJsonValueSchema.optional(),
+  gte: InputJsonValueSchema.optional(),
+  not: InputJsonValueSchema.optional()
+}).strict();
+
+export const NestedEnumExperimentRunStatusWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumExperimentRunStatusWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  in: z.lazy(() => ExperimentRunStatusSchema).array().optional(),
+  notIn: z.lazy(() => ExperimentRunStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => NestedEnumExperimentRunStatusWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumExperimentRunStatusFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumExperimentRunStatusFilterSchema).optional()
+}).strict();
+
 export const NestedEnumAnomalyEventStatusFilterSchema: z.ZodType<Prisma.NestedEnumAnomalyEventStatusFilter> = z.object({
   equals: z.lazy(() => AnomalyEventStatusSchema).optional(),
   in: z.lazy(() => AnomalyEventStatusSchema).array().optional(),
@@ -16164,23 +16784,6 @@ export const NestedEnumAnomalyEventStatusWithAggregatesFilterSchema: z.ZodType<P
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumAnomalyEventStatusFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumAnomalyEventStatusFilterSchema).optional()
-}).strict();
-
-export const NestedJsonNullableFilterSchema: z.ZodType<Prisma.NestedJsonNullableFilter> = z.object({
-  equals: InputJsonValueSchema.optional(),
-  path: z.string().array().optional(),
-  mode: z.lazy(() => QueryModeSchema).optional(),
-  string_contains: z.string().optional(),
-  string_starts_with: z.string().optional(),
-  string_ends_with: z.string().optional(),
-  array_starts_with: InputJsonValueSchema.optional().nullable(),
-  array_ends_with: InputJsonValueSchema.optional().nullable(),
-  array_contains: InputJsonValueSchema.optional().nullable(),
-  lt: InputJsonValueSchema.optional(),
-  lte: InputJsonValueSchema.optional(),
-  gt: InputJsonValueSchema.optional(),
-  gte: InputJsonValueSchema.optional(),
-  not: InputJsonValueSchema.optional()
 }).strict();
 
 export const AccountCreateWithoutUserInputSchema: z.ZodType<Prisma.AccountCreateWithoutUserInput> = z.object({
@@ -17180,78 +17783,6 @@ export const AiChatCreateManyOrganizationInputEnvelopeSchema: z.ZodType<Prisma.A
   skipDuplicates: z.boolean().optional()
 }).strict();
 
-export const anomaly_eventCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventCreateWithoutOrganizationInput> = z.object({
-  id: z.string(),
-  eventId: z.string(),
-  meterId: z.string(),
-  eventTimestamp: z.coerce.date(),
-  detectionRule: z.string(),
-  score: z.number(),
-  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]),
-  status: z.lazy(() => AnomalyEventStatusSchema).optional(),
-  reviewerId: z.string().optional().nullable(),
-  reviewTimestamp: z.coerce.date().optional().nullable(),
-  justificationNotes: z.string().optional().nullable(),
-  createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date(),
-  event_label_link: z.lazy(() => event_label_linkCreateNestedManyWithoutAnomaly_eventInputSchema).optional()
-}).strict();
-
-export const anomaly_eventUncheckedCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedCreateWithoutOrganizationInput> = z.object({
-  id: z.string(),
-  eventId: z.string(),
-  meterId: z.string(),
-  eventTimestamp: z.coerce.date(),
-  detectionRule: z.string(),
-  score: z.number(),
-  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]),
-  status: z.lazy(() => AnomalyEventStatusSchema).optional(),
-  reviewerId: z.string().optional().nullable(),
-  reviewTimestamp: z.coerce.date().optional().nullable(),
-  justificationNotes: z.string().optional().nullable(),
-  createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date(),
-  event_label_link: z.lazy(() => event_label_linkUncheckedCreateNestedManyWithoutAnomaly_eventInputSchema).optional()
-}).strict();
-
-export const anomaly_eventCreateOrConnectWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventCreateOrConnectWithoutOrganizationInput> = z.object({
-  where: z.lazy(() => anomaly_eventWhereUniqueInputSchema),
-  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutOrganizationInputSchema) ]),
-}).strict();
-
-export const anomaly_eventCreateManyOrganizationInputEnvelopeSchema: z.ZodType<Prisma.anomaly_eventCreateManyOrganizationInputEnvelope> = z.object({
-  data: z.union([ z.lazy(() => anomaly_eventCreateManyOrganizationInputSchema),z.lazy(() => anomaly_eventCreateManyOrganizationInputSchema).array() ]),
-  skipDuplicates: z.boolean().optional()
-}).strict();
-
-export const anomaly_labelCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelCreateWithoutOrganizationInput> = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string().optional().nullable(),
-  createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date(),
-  event_label_link: z.lazy(() => event_label_linkCreateNestedManyWithoutAnomaly_labelInputSchema).optional()
-}).strict();
-
-export const anomaly_labelUncheckedCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelUncheckedCreateWithoutOrganizationInput> = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string().optional().nullable(),
-  createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date(),
-  event_label_link: z.lazy(() => event_label_linkUncheckedCreateNestedManyWithoutAnomaly_labelInputSchema).optional()
-}).strict();
-
-export const anomaly_labelCreateOrConnectWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelCreateOrConnectWithoutOrganizationInput> = z.object({
-  where: z.lazy(() => anomaly_labelWhereUniqueInputSchema),
-  create: z.union([ z.lazy(() => anomaly_labelCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUncheckedCreateWithoutOrganizationInputSchema) ]),
-}).strict();
-
-export const anomaly_labelCreateManyOrganizationInputEnvelopeSchema: z.ZodType<Prisma.anomaly_labelCreateManyOrganizationInputEnvelope> = z.object({
-  data: z.union([ z.lazy(() => anomaly_labelCreateManyOrganizationInputSchema),z.lazy(() => anomaly_labelCreateManyOrganizationInputSchema).array() ]),
-  skipDuplicates: z.boolean().optional()
-}).strict();
-
 export const BankAccountCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.BankAccountCreateWithoutOrganizationInput> = z.object({
   id: z.string().cuid().optional(),
   bankName: z.string(),
@@ -18182,70 +18713,6 @@ export const AiChatUpdateWithWhereUniqueWithoutOrganizationInputSchema: z.ZodTyp
 export const AiChatUpdateManyWithWhereWithoutOrganizationInputSchema: z.ZodType<Prisma.AiChatUpdateManyWithWhereWithoutOrganizationInput> = z.object({
   where: z.lazy(() => AiChatScalarWhereInputSchema),
   data: z.union([ z.lazy(() => AiChatUpdateManyMutationInputSchema),z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationInputSchema) ]),
-}).strict();
-
-export const anomaly_eventUpsertWithWhereUniqueWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventUpsertWithWhereUniqueWithoutOrganizationInput> = z.object({
-  where: z.lazy(() => anomaly_eventWhereUniqueInputSchema),
-  update: z.union([ z.lazy(() => anomaly_eventUpdateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUncheckedUpdateWithoutOrganizationInputSchema) ]),
-  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutOrganizationInputSchema) ]),
-}).strict();
-
-export const anomaly_eventUpdateWithWhereUniqueWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventUpdateWithWhereUniqueWithoutOrganizationInput> = z.object({
-  where: z.lazy(() => anomaly_eventWhereUniqueInputSchema),
-  data: z.union([ z.lazy(() => anomaly_eventUpdateWithoutOrganizationInputSchema),z.lazy(() => anomaly_eventUncheckedUpdateWithoutOrganizationInputSchema) ]),
-}).strict();
-
-export const anomaly_eventUpdateManyWithWhereWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventUpdateManyWithWhereWithoutOrganizationInput> = z.object({
-  where: z.lazy(() => anomaly_eventScalarWhereInputSchema),
-  data: z.union([ z.lazy(() => anomaly_eventUpdateManyMutationInputSchema),z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationInputSchema) ]),
-}).strict();
-
-export const anomaly_eventScalarWhereInputSchema: z.ZodType<Prisma.anomaly_eventScalarWhereInput> = z.object({
-  AND: z.union([ z.lazy(() => anomaly_eventScalarWhereInputSchema),z.lazy(() => anomaly_eventScalarWhereInputSchema).array() ]).optional(),
-  OR: z.lazy(() => anomaly_eventScalarWhereInputSchema).array().optional(),
-  NOT: z.union([ z.lazy(() => anomaly_eventScalarWhereInputSchema),z.lazy(() => anomaly_eventScalarWhereInputSchema).array() ]).optional(),
-  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  eventId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  meterId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  eventTimestamp: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  detectionRule: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  score: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
-  dataWindow: z.lazy(() => JsonFilterSchema).optional(),
-  status: z.union([ z.lazy(() => EnumAnomalyEventStatusFilterSchema),z.lazy(() => AnomalyEventStatusSchema) ]).optional(),
-  reviewerId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  reviewTimestamp: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
-  justificationNotes: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-}).strict();
-
-export const anomaly_labelUpsertWithWhereUniqueWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelUpsertWithWhereUniqueWithoutOrganizationInput> = z.object({
-  where: z.lazy(() => anomaly_labelWhereUniqueInputSchema),
-  update: z.union([ z.lazy(() => anomaly_labelUpdateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUncheckedUpdateWithoutOrganizationInputSchema) ]),
-  create: z.union([ z.lazy(() => anomaly_labelCreateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUncheckedCreateWithoutOrganizationInputSchema) ]),
-}).strict();
-
-export const anomaly_labelUpdateWithWhereUniqueWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelUpdateWithWhereUniqueWithoutOrganizationInput> = z.object({
-  where: z.lazy(() => anomaly_labelWhereUniqueInputSchema),
-  data: z.union([ z.lazy(() => anomaly_labelUpdateWithoutOrganizationInputSchema),z.lazy(() => anomaly_labelUncheckedUpdateWithoutOrganizationInputSchema) ]),
-}).strict();
-
-export const anomaly_labelUpdateManyWithWhereWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelUpdateManyWithWhereWithoutOrganizationInput> = z.object({
-  where: z.lazy(() => anomaly_labelScalarWhereInputSchema),
-  data: z.union([ z.lazy(() => anomaly_labelUpdateManyMutationInputSchema),z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationInputSchema) ]),
-}).strict();
-
-export const anomaly_labelScalarWhereInputSchema: z.ZodType<Prisma.anomaly_labelScalarWhereInput> = z.object({
-  AND: z.union([ z.lazy(() => anomaly_labelScalarWhereInputSchema),z.lazy(() => anomaly_labelScalarWhereInputSchema).array() ]).optional(),
-  OR: z.lazy(() => anomaly_labelScalarWhereInputSchema).array().optional(),
-  NOT: z.union([ z.lazy(() => anomaly_labelScalarWhereInputSchema),z.lazy(() => anomaly_labelScalarWhereInputSchema).array() ]).optional(),
-  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  organizationId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
-  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
 }).strict();
 
 export const BankAccountUpsertWithWhereUniqueWithoutOrganizationInputSchema: z.ZodType<Prisma.BankAccountUpsertWithWhereUniqueWithoutOrganizationInput> = z.object({
@@ -19224,8 +19691,6 @@ export const OrganizationCreateWithoutRelationshipManagersInputSchema: z.ZodType
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -19257,8 +19722,6 @@ export const OrganizationUncheckedCreateWithoutRelationshipManagersInputSchema: 
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -19386,8 +19849,6 @@ export const OrganizationUpdateWithoutRelationshipManagersInputSchema: z.ZodType
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -19419,8 +19880,6 @@ export const OrganizationUncheckedUpdateWithoutRelationshipManagersInputSchema: 
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -19608,8 +20067,6 @@ export const OrganizationCreateWithoutCustomersInputSchema: z.ZodType<Prisma.Org
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -19641,8 +20098,6 @@ export const OrganizationUncheckedCreateWithoutCustomersInputSchema: z.ZodType<P
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -20041,8 +20496,6 @@ export const OrganizationUpdateWithoutCustomersInputSchema: z.ZodType<Prisma.Org
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -20074,8 +20527,6 @@ export const OrganizationUncheckedUpdateWithoutCustomersInputSchema: z.ZodType<P
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -20221,8 +20672,6 @@ export const OrganizationCreateWithoutMembersInputSchema: z.ZodType<Prisma.Organ
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -20254,8 +20703,6 @@ export const OrganizationUncheckedCreateWithoutMembersInputSchema: z.ZodType<Pri
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -20360,8 +20807,6 @@ export const OrganizationUpdateWithoutMembersInputSchema: z.ZodType<Prisma.Organ
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -20393,8 +20838,6 @@ export const OrganizationUncheckedUpdateWithoutMembersInputSchema: z.ZodType<Pri
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -20546,8 +20989,6 @@ export const OrganizationCreateWithoutInvitationsInputSchema: z.ZodType<Prisma.O
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -20579,8 +21020,6 @@ export const OrganizationUncheckedCreateWithoutInvitationsInputSchema: z.ZodType
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -20691,8 +21130,6 @@ export const OrganizationUpdateWithoutInvitationsInputSchema: z.ZodType<Prisma.O
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -20724,8 +21161,6 @@ export const OrganizationUncheckedUpdateWithoutInvitationsInputSchema: z.ZodType
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -20757,8 +21192,6 @@ export const OrganizationCreateWithoutPurchasesInputSchema: z.ZodType<Prisma.Org
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -20790,8 +21223,6 @@ export const OrganizationUncheckedCreateWithoutPurchasesInputSchema: z.ZodType<P
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -20896,8 +21327,6 @@ export const OrganizationUpdateWithoutPurchasesInputSchema: z.ZodType<Prisma.Org
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -20929,8 +21358,6 @@ export const OrganizationUncheckedUpdateWithoutPurchasesInputSchema: z.ZodType<P
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -21024,8 +21451,6 @@ export const OrganizationCreateWithoutAiChatsInputSchema: z.ZodType<Prisma.Organ
   createdAt: z.coerce.date(),
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -21057,8 +21482,6 @@ export const OrganizationUncheckedCreateWithoutAiChatsInputSchema: z.ZodType<Pri
   createdAt: z.coerce.date(),
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -21163,8 +21586,6 @@ export const OrganizationUpdateWithoutAiChatsInputSchema: z.ZodType<Prisma.Organ
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -21196,8 +21617,6 @@ export const OrganizationUncheckedUpdateWithoutAiChatsInputSchema: z.ZodType<Pri
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -21340,8 +21759,6 @@ export const OrganizationCreateWithoutBankAccountsInputSchema: z.ZodType<Prisma.
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
   customers: z.lazy(() => CustomerCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -21373,8 +21790,6 @@ export const OrganizationUncheckedCreateWithoutBankAccountsInputSchema: z.ZodTyp
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   customers: z.lazy(() => CustomerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -21595,8 +22010,6 @@ export const OrganizationUpdateWithoutBankAccountsInputSchema: z.ZodType<Prisma.
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   customers: z.lazy(() => CustomerUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -21628,8 +22041,6 @@ export const OrganizationUncheckedUpdateWithoutBankAccountsInputSchema: z.ZodTyp
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   customers: z.lazy(() => CustomerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -21677,8 +22088,6 @@ export const OrganizationCreateWithoutExpensesInputSchema: z.ZodType<Prisma.Orga
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -21710,8 +22119,6 @@ export const OrganizationUncheckedCreateWithoutExpensesInputSchema: z.ZodType<Pr
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -21802,8 +22209,6 @@ export const OrganizationUpdateWithoutExpensesInputSchema: z.ZodType<Prisma.Orga
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -21835,8 +22240,6 @@ export const OrganizationUncheckedUpdateWithoutExpensesInputSchema: z.ZodType<Pr
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -21917,8 +22320,6 @@ export const OrganizationCreateWithoutProductsInputSchema: z.ZodType<Prisma.Orga
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -21950,8 +22351,6 @@ export const OrganizationUncheckedCreateWithoutProductsInputSchema: z.ZodType<Pr
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -22119,8 +22518,6 @@ export const OrganizationUpdateWithoutProductsInputSchema: z.ZodType<Prisma.Orga
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -22152,8 +22549,6 @@ export const OrganizationUncheckedUpdateWithoutProductsInputSchema: z.ZodType<Pr
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -22281,8 +22676,6 @@ export const OrganizationCreateWithoutProfitSharingInputSchema: z.ZodType<Prisma
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -22314,8 +22707,6 @@ export const OrganizationUncheckedCreateWithoutProfitSharingInputSchema: z.ZodTy
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -22486,8 +22877,6 @@ export const OrganizationUpdateWithoutProfitSharingInputSchema: z.ZodType<Prisma
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -22519,8 +22908,6 @@ export const OrganizationUncheckedUpdateWithoutProfitSharingInputSchema: z.ZodTy
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -22680,75 +23067,185 @@ export const CustomerUncheckedUpdateWithoutAssetTransactionsInputSchema: z.ZodTy
   profitSharing: z.lazy(() => ProfitSharingUncheckedUpdateManyWithoutCustomerNestedInputSchema).optional()
 }).strict();
 
-export const OrganizationCreateWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.OrganizationCreateWithoutAnomaly_eventInput> = z.object({
-  id: z.string().cuid().optional(),
-  name: z.string(),
-  slug: z.string().optional().nullable(),
-  logo: z.string().optional().nullable(),
-  createdAt: z.coerce.date(),
-  metadata: z.string().optional().nullable(),
-  paymentsCustomerId: z.string().optional().nullable(),
-  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  customers: z.lazy(() => CustomerCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  expenses: z.lazy(() => ExpenseCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  family: z.lazy(() => familyCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  family_member: z.lazy(() => family_memberCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  god_name: z.lazy(() => god_nameCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  invitations: z.lazy(() => InvitationCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  members: z.lazy(() => MemberCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  member_class: z.lazy(() => member_classCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  mgyear: z.lazy(() => mgyearCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  products: z.lazy(() => ProductCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  ProfitSharing: z.lazy(() => ProfitSharingCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  relationshipManagers: z.lazy(() => RelationshipManagerCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  service1: z.lazy(() => service1CreateNestedManyWithoutOrganizationInputSchema).optional(),
-  service2: z.lazy(() => service2CreateNestedManyWithoutOrganizationInputSchema).optional(),
-  servicing1: z.lazy(() => servicing1CreateNestedManyWithoutOrganizationInputSchema).optional(),
-  servicing2: z.lazy(() => servicing2CreateNestedManyWithoutOrganizationInputSchema).optional(),
-  temple: z.lazy(() => templeCreateNestedManyWithoutOrganizationInputSchema).optional()
+export const anomaly_eventCreateWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventCreateWithoutExperimentRunInput> = z.object({
+  id: z.string(),
+  eventId: z.string(),
+  meterId: z.string(),
+  eventTimestamp: z.coerce.date(),
+  detectionRule: z.string(),
+  score: z.number(),
+  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]),
+  status: z.lazy(() => AnomalyEventStatusSchema).optional(),
+  reviewerId: z.string().optional().nullable(),
+  reviewTimestamp: z.coerce.date().optional().nullable(),
+  justificationNotes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date(),
+  event_label_link: z.lazy(() => event_label_linkCreateNestedManyWithoutAnomaly_eventInputSchema).optional()
 }).strict();
 
-export const OrganizationUncheckedCreateWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.OrganizationUncheckedCreateWithoutAnomaly_eventInput> = z.object({
-  id: z.string().cuid().optional(),
-  name: z.string(),
-  slug: z.string().optional().nullable(),
-  logo: z.string().optional().nullable(),
-  createdAt: z.coerce.date(),
-  metadata: z.string().optional().nullable(),
-  paymentsCustomerId: z.string().optional().nullable(),
-  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  customers: z.lazy(() => CustomerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  expenses: z.lazy(() => ExpenseUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  family: z.lazy(() => familyUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  family_member: z.lazy(() => family_memberUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  god_name: z.lazy(() => god_nameUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  invitations: z.lazy(() => InvitationUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  members: z.lazy(() => MemberUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  member_class: z.lazy(() => member_classUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  mgyear: z.lazy(() => mgyearUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  ProfitSharing: z.lazy(() => ProfitSharingUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  service1: z.lazy(() => service1UncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  service2: z.lazy(() => service2UncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  servicing1: z.lazy(() => servicing1UncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  servicing2: z.lazy(() => servicing2UncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  temple: z.lazy(() => templeUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
+export const anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedCreateWithoutExperimentRunInput> = z.object({
+  id: z.string(),
+  eventId: z.string(),
+  meterId: z.string(),
+  eventTimestamp: z.coerce.date(),
+  detectionRule: z.string(),
+  score: z.number(),
+  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]),
+  status: z.lazy(() => AnomalyEventStatusSchema).optional(),
+  reviewerId: z.string().optional().nullable(),
+  reviewTimestamp: z.coerce.date().optional().nullable(),
+  justificationNotes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date(),
+  event_label_link: z.lazy(() => event_label_linkUncheckedCreateNestedManyWithoutAnomaly_eventInputSchema).optional()
 }).strict();
 
-export const OrganizationCreateOrConnectWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.OrganizationCreateOrConnectWithoutAnomaly_eventInput> = z.object({
-  where: z.lazy(() => OrganizationWhereUniqueInputSchema),
-  create: z.union([ z.lazy(() => OrganizationCreateWithoutAnomaly_eventInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutAnomaly_eventInputSchema) ]),
+export const anomaly_eventCreateOrConnectWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventCreateOrConnectWithoutExperimentRunInput> = z.object({
+  where: z.lazy(() => anomaly_eventWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema) ]),
+}).strict();
+
+export const anomaly_eventCreateManyExperimentRunInputEnvelopeSchema: z.ZodType<Prisma.anomaly_eventCreateManyExperimentRunInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => anomaly_eventCreateManyExperimentRunInputSchema),z.lazy(() => anomaly_eventCreateManyExperimentRunInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const TrainedModelCreateWithoutExperimentRunInputSchema: z.ZodType<Prisma.TrainedModelCreateWithoutExperimentRunInput> = z.object({
+  id: z.string().cuid().optional(),
+  modelName: z.string(),
+  modelType: z.string(),
+  modelPath: z.string(),
+  precision: z.number(),
+  recall: z.number(),
+  f1Score: z.number(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const TrainedModelUncheckedCreateWithoutExperimentRunInputSchema: z.ZodType<Prisma.TrainedModelUncheckedCreateWithoutExperimentRunInput> = z.object({
+  id: z.string().cuid().optional(),
+  modelName: z.string(),
+  modelType: z.string(),
+  modelPath: z.string(),
+  precision: z.number(),
+  recall: z.number(),
+  f1Score: z.number(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const TrainedModelCreateOrConnectWithoutExperimentRunInputSchema: z.ZodType<Prisma.TrainedModelCreateOrConnectWithoutExperimentRunInput> = z.object({
+  where: z.lazy(() => TrainedModelWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => TrainedModelCreateWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUncheckedCreateWithoutExperimentRunInputSchema) ]),
+}).strict();
+
+export const anomaly_eventUpsertWithWhereUniqueWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventUpsertWithWhereUniqueWithoutExperimentRunInput> = z.object({
+  where: z.lazy(() => anomaly_eventWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => anomaly_eventUpdateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUncheckedUpdateWithoutExperimentRunInputSchema) ]),
+  create: z.union([ z.lazy(() => anomaly_eventCreateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUncheckedCreateWithoutExperimentRunInputSchema) ]),
+}).strict();
+
+export const anomaly_eventUpdateWithWhereUniqueWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventUpdateWithWhereUniqueWithoutExperimentRunInput> = z.object({
+  where: z.lazy(() => anomaly_eventWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => anomaly_eventUpdateWithoutExperimentRunInputSchema),z.lazy(() => anomaly_eventUncheckedUpdateWithoutExperimentRunInputSchema) ]),
+}).strict();
+
+export const anomaly_eventUpdateManyWithWhereWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventUpdateManyWithWhereWithoutExperimentRunInput> = z.object({
+  where: z.lazy(() => anomaly_eventScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => anomaly_eventUpdateManyMutationInputSchema),z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutExperimentRunInputSchema) ]),
+}).strict();
+
+export const anomaly_eventScalarWhereInputSchema: z.ZodType<Prisma.anomaly_eventScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => anomaly_eventScalarWhereInputSchema),z.lazy(() => anomaly_eventScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => anomaly_eventScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => anomaly_eventScalarWhereInputSchema),z.lazy(() => anomaly_eventScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  eventId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  meterId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  eventTimestamp: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  detectionRule: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  score: z.union([ z.lazy(() => FloatFilterSchema),z.number() ]).optional(),
+  dataWindow: z.lazy(() => JsonFilterSchema).optional(),
+  status: z.union([ z.lazy(() => EnumAnomalyEventStatusFilterSchema),z.lazy(() => AnomalyEventStatusSchema) ]).optional(),
+  reviewerId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  reviewTimestamp: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  justificationNotes: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  experimentRunId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
+export const TrainedModelUpsertWithoutExperimentRunInputSchema: z.ZodType<Prisma.TrainedModelUpsertWithoutExperimentRunInput> = z.object({
+  update: z.union([ z.lazy(() => TrainedModelUpdateWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUncheckedUpdateWithoutExperimentRunInputSchema) ]),
+  create: z.union([ z.lazy(() => TrainedModelCreateWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUncheckedCreateWithoutExperimentRunInputSchema) ]),
+  where: z.lazy(() => TrainedModelWhereInputSchema).optional()
+}).strict();
+
+export const TrainedModelUpdateToOneWithWhereWithoutExperimentRunInputSchema: z.ZodType<Prisma.TrainedModelUpdateToOneWithWhereWithoutExperimentRunInput> = z.object({
+  where: z.lazy(() => TrainedModelWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => TrainedModelUpdateWithoutExperimentRunInputSchema),z.lazy(() => TrainedModelUncheckedUpdateWithoutExperimentRunInputSchema) ]),
+}).strict();
+
+export const TrainedModelUpdateWithoutExperimentRunInputSchema: z.ZodType<Prisma.TrainedModelUpdateWithoutExperimentRunInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelPath: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  precision: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  recall: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  f1Score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const TrainedModelUncheckedUpdateWithoutExperimentRunInputSchema: z.ZodType<Prisma.TrainedModelUncheckedUpdateWithoutExperimentRunInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  modelPath: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  precision: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  recall: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  f1Score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  trainingDataSummary: z.union([ z.lazy(() => JsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const ExperimentRunCreateWithoutAnomalyEventsInputSchema: z.ZodType<Prisma.ExperimentRunCreateWithoutAnomalyEventsInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  candidateCount: z.number().int().optional().nullable(),
+  positiveLabelCount: z.number().int().optional().nullable(),
+  negativeLabelCount: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  trainedModel: z.lazy(() => TrainedModelCreateNestedOneWithoutExperimentRunInputSchema).optional()
+}).strict();
+
+export const ExperimentRunUncheckedCreateWithoutAnomalyEventsInputSchema: z.ZodType<Prisma.ExperimentRunUncheckedCreateWithoutAnomalyEventsInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  candidateCount: z.number().int().optional().nullable(),
+  positiveLabelCount: z.number().int().optional().nullable(),
+  negativeLabelCount: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  trainedModel: z.lazy(() => TrainedModelUncheckedCreateNestedOneWithoutExperimentRunInputSchema).optional()
+}).strict();
+
+export const ExperimentRunCreateOrConnectWithoutAnomalyEventsInputSchema: z.ZodType<Prisma.ExperimentRunCreateOrConnectWithoutAnomalyEventsInput> = z.object({
+  where: z.lazy(() => ExperimentRunWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ExperimentRunCreateWithoutAnomalyEventsInputSchema),z.lazy(() => ExperimentRunUncheckedCreateWithoutAnomalyEventsInputSchema) ]),
 }).strict();
 
 export const event_label_linkCreateWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.event_label_linkCreateWithoutAnomaly_eventInput> = z.object({
@@ -22773,81 +23270,43 @@ export const event_label_linkCreateManyAnomaly_eventInputEnvelopeSchema: z.ZodTy
   skipDuplicates: z.boolean().optional()
 }).strict();
 
-export const OrganizationUpsertWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.OrganizationUpsertWithoutAnomaly_eventInput> = z.object({
-  update: z.union([ z.lazy(() => OrganizationUpdateWithoutAnomaly_eventInputSchema),z.lazy(() => OrganizationUncheckedUpdateWithoutAnomaly_eventInputSchema) ]),
-  create: z.union([ z.lazy(() => OrganizationCreateWithoutAnomaly_eventInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutAnomaly_eventInputSchema) ]),
-  where: z.lazy(() => OrganizationWhereInputSchema).optional()
+export const ExperimentRunUpsertWithoutAnomalyEventsInputSchema: z.ZodType<Prisma.ExperimentRunUpsertWithoutAnomalyEventsInput> = z.object({
+  update: z.union([ z.lazy(() => ExperimentRunUpdateWithoutAnomalyEventsInputSchema),z.lazy(() => ExperimentRunUncheckedUpdateWithoutAnomalyEventsInputSchema) ]),
+  create: z.union([ z.lazy(() => ExperimentRunCreateWithoutAnomalyEventsInputSchema),z.lazy(() => ExperimentRunUncheckedCreateWithoutAnomalyEventsInputSchema) ]),
+  where: z.lazy(() => ExperimentRunWhereInputSchema).optional()
 }).strict();
 
-export const OrganizationUpdateToOneWithWhereWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.OrganizationUpdateToOneWithWhereWithoutAnomaly_eventInput> = z.object({
-  where: z.lazy(() => OrganizationWhereInputSchema).optional(),
-  data: z.union([ z.lazy(() => OrganizationUpdateWithoutAnomaly_eventInputSchema),z.lazy(() => OrganizationUncheckedUpdateWithoutAnomaly_eventInputSchema) ]),
+export const ExperimentRunUpdateToOneWithWhereWithoutAnomalyEventsInputSchema: z.ZodType<Prisma.ExperimentRunUpdateToOneWithWhereWithoutAnomalyEventsInput> = z.object({
+  where: z.lazy(() => ExperimentRunWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => ExperimentRunUpdateWithoutAnomalyEventsInputSchema),z.lazy(() => ExperimentRunUncheckedUpdateWithoutAnomalyEventsInputSchema) ]),
 }).strict();
 
-export const OrganizationUpdateWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.OrganizationUpdateWithoutAnomaly_eventInput> = z.object({
+export const ExperimentRunUpdateWithoutAnomalyEventsInputSchema: z.ZodType<Prisma.ExperimentRunUpdateWithoutAnomalyEventsInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  logo: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => EnumExperimentRunStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  customers: z.lazy(() => CustomerUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  expenses: z.lazy(() => ExpenseUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  family: z.lazy(() => familyUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  family_member: z.lazy(() => family_memberUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  god_name: z.lazy(() => god_nameUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  invitations: z.lazy(() => InvitationUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  members: z.lazy(() => MemberUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  member_class: z.lazy(() => member_classUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  mgyear: z.lazy(() => mgyearUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  products: z.lazy(() => ProductUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  ProfitSharing: z.lazy(() => ProfitSharingUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  relationshipManagers: z.lazy(() => RelationshipManagerUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  service1: z.lazy(() => service1UpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  service2: z.lazy(() => service2UpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  servicing1: z.lazy(() => servicing1UpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  servicing2: z.lazy(() => servicing2UpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  temple: z.lazy(() => templeUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  trainedModel: z.lazy(() => TrainedModelUpdateOneWithoutExperimentRunNestedInputSchema).optional()
 }).strict();
 
-export const OrganizationUncheckedUpdateWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.OrganizationUncheckedUpdateWithoutAnomaly_eventInput> = z.object({
+export const ExperimentRunUncheckedUpdateWithoutAnomalyEventsInputSchema: z.ZodType<Prisma.ExperimentRunUncheckedUpdateWithoutAnomalyEventsInput> = z.object({
   id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  logo: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => EnumExperimentRunStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  customers: z.lazy(() => CustomerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  expenses: z.lazy(() => ExpenseUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  family: z.lazy(() => familyUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  family_member: z.lazy(() => family_memberUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  god_name: z.lazy(() => god_nameUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  invitations: z.lazy(() => InvitationUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  members: z.lazy(() => MemberUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  member_class: z.lazy(() => member_classUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  mgyear: z.lazy(() => mgyearUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  products: z.lazy(() => ProductUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  ProfitSharing: z.lazy(() => ProfitSharingUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  service1: z.lazy(() => service1UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  service2: z.lazy(() => service2UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  servicing1: z.lazy(() => servicing1UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  servicing2: z.lazy(() => servicing2UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  temple: z.lazy(() => templeUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  trainedModel: z.lazy(() => TrainedModelUncheckedUpdateOneWithoutExperimentRunNestedInputSchema).optional()
 }).strict();
 
 export const event_label_linkUpsertWithWhereUniqueWithoutAnomaly_eventInputSchema: z.ZodType<Prisma.event_label_linkUpsertWithWhereUniqueWithoutAnomaly_eventInput> = z.object({
@@ -22876,77 +23335,6 @@ export const event_label_linkScalarWhereInputSchema: z.ZodType<Prisma.event_labe
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
 }).strict();
 
-export const OrganizationCreateWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.OrganizationCreateWithoutAnomaly_labelInput> = z.object({
-  id: z.string().cuid().optional(),
-  name: z.string(),
-  slug: z.string().optional().nullable(),
-  logo: z.string().optional().nullable(),
-  createdAt: z.coerce.date(),
-  metadata: z.string().optional().nullable(),
-  paymentsCustomerId: z.string().optional().nullable(),
-  aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  customers: z.lazy(() => CustomerCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  expenses: z.lazy(() => ExpenseCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  family: z.lazy(() => familyCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  family_member: z.lazy(() => family_memberCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  god_name: z.lazy(() => god_nameCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  invitations: z.lazy(() => InvitationCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  members: z.lazy(() => MemberCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  member_class: z.lazy(() => member_classCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  mgyear: z.lazy(() => mgyearCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  products: z.lazy(() => ProductCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  ProfitSharing: z.lazy(() => ProfitSharingCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  relationshipManagers: z.lazy(() => RelationshipManagerCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  service1: z.lazy(() => service1CreateNestedManyWithoutOrganizationInputSchema).optional(),
-  service2: z.lazy(() => service2CreateNestedManyWithoutOrganizationInputSchema).optional(),
-  servicing1: z.lazy(() => servicing1CreateNestedManyWithoutOrganizationInputSchema).optional(),
-  servicing2: z.lazy(() => servicing2CreateNestedManyWithoutOrganizationInputSchema).optional(),
-  temple: z.lazy(() => templeCreateNestedManyWithoutOrganizationInputSchema).optional()
-}).strict();
-
-export const OrganizationUncheckedCreateWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.OrganizationUncheckedCreateWithoutAnomaly_labelInput> = z.object({
-  id: z.string().cuid().optional(),
-  name: z.string(),
-  slug: z.string().optional().nullable(),
-  logo: z.string().optional().nullable(),
-  createdAt: z.coerce.date(),
-  metadata: z.string().optional().nullable(),
-  paymentsCustomerId: z.string().optional().nullable(),
-  aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  customers: z.lazy(() => CustomerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  expenses: z.lazy(() => ExpenseUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  family: z.lazy(() => familyUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  family_member: z.lazy(() => family_memberUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  god_name: z.lazy(() => god_nameUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  invitations: z.lazy(() => InvitationUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  members: z.lazy(() => MemberUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  member_class: z.lazy(() => member_classUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  mgyear: z.lazy(() => mgyearUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  ProfitSharing: z.lazy(() => ProfitSharingUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  service1: z.lazy(() => service1UncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  service2: z.lazy(() => service2UncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  servicing1: z.lazy(() => servicing1UncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  servicing2: z.lazy(() => servicing2UncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  temple: z.lazy(() => templeUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional()
-}).strict();
-
-export const OrganizationCreateOrConnectWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.OrganizationCreateOrConnectWithoutAnomaly_labelInput> = z.object({
-  where: z.lazy(() => OrganizationWhereUniqueInputSchema),
-  create: z.union([ z.lazy(() => OrganizationCreateWithoutAnomaly_labelInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutAnomaly_labelInputSchema) ]),
-}).strict();
-
 export const event_label_linkCreateWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.event_label_linkCreateWithoutAnomaly_labelInput> = z.object({
   id: z.string(),
   createdAt: z.coerce.date().optional(),
@@ -22967,83 +23355,6 @@ export const event_label_linkCreateOrConnectWithoutAnomaly_labelInputSchema: z.Z
 export const event_label_linkCreateManyAnomaly_labelInputEnvelopeSchema: z.ZodType<Prisma.event_label_linkCreateManyAnomaly_labelInputEnvelope> = z.object({
   data: z.union([ z.lazy(() => event_label_linkCreateManyAnomaly_labelInputSchema),z.lazy(() => event_label_linkCreateManyAnomaly_labelInputSchema).array() ]),
   skipDuplicates: z.boolean().optional()
-}).strict();
-
-export const OrganizationUpsertWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.OrganizationUpsertWithoutAnomaly_labelInput> = z.object({
-  update: z.union([ z.lazy(() => OrganizationUpdateWithoutAnomaly_labelInputSchema),z.lazy(() => OrganizationUncheckedUpdateWithoutAnomaly_labelInputSchema) ]),
-  create: z.union([ z.lazy(() => OrganizationCreateWithoutAnomaly_labelInputSchema),z.lazy(() => OrganizationUncheckedCreateWithoutAnomaly_labelInputSchema) ]),
-  where: z.lazy(() => OrganizationWhereInputSchema).optional()
-}).strict();
-
-export const OrganizationUpdateToOneWithWhereWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.OrganizationUpdateToOneWithWhereWithoutAnomaly_labelInput> = z.object({
-  where: z.lazy(() => OrganizationWhereInputSchema).optional(),
-  data: z.union([ z.lazy(() => OrganizationUpdateWithoutAnomaly_labelInputSchema),z.lazy(() => OrganizationUncheckedUpdateWithoutAnomaly_labelInputSchema) ]),
-}).strict();
-
-export const OrganizationUpdateWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.OrganizationUpdateWithoutAnomaly_labelInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  logo: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  customers: z.lazy(() => CustomerUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  expenses: z.lazy(() => ExpenseUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  family: z.lazy(() => familyUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  family_member: z.lazy(() => family_memberUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  god_name: z.lazy(() => god_nameUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  invitations: z.lazy(() => InvitationUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  members: z.lazy(() => MemberUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  member_class: z.lazy(() => member_classUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  mgyear: z.lazy(() => mgyearUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  products: z.lazy(() => ProductUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  ProfitSharing: z.lazy(() => ProfitSharingUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  relationshipManagers: z.lazy(() => RelationshipManagerUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  service1: z.lazy(() => service1UpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  service2: z.lazy(() => service2UpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  servicing1: z.lazy(() => servicing1UpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  servicing2: z.lazy(() => servicing2UpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  temple: z.lazy(() => templeUpdateManyWithoutOrganizationNestedInputSchema).optional()
-}).strict();
-
-export const OrganizationUncheckedUpdateWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.OrganizationUncheckedUpdateWithoutAnomaly_labelInput> = z.object({
-  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  slug: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  logo: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  customers: z.lazy(() => CustomerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  expenses: z.lazy(() => ExpenseUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  family: z.lazy(() => familyUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  family_member: z.lazy(() => family_memberUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  god_name: z.lazy(() => god_nameUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  invitations: z.lazy(() => InvitationUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  members: z.lazy(() => MemberUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  member_class: z.lazy(() => member_classUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  mgyear: z.lazy(() => mgyearUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  products: z.lazy(() => ProductUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  ProfitSharing: z.lazy(() => ProfitSharingUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  purchases: z.lazy(() => PurchaseUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  relationshipManagers: z.lazy(() => RelationshipManagerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  service1: z.lazy(() => service1UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  service2: z.lazy(() => service2UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  servicing1: z.lazy(() => servicing1UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  servicing2: z.lazy(() => servicing2UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  temple: z.lazy(() => templeUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
 }).strict();
 
 export const event_label_linkUpsertWithWhereUniqueWithoutAnomaly_labelInputSchema: z.ZodType<Prisma.event_label_linkUpsertWithWhereUniqueWithoutAnomaly_labelInput> = z.object({
@@ -23096,8 +23407,6 @@ export const OrganizationCreateWithoutBorrow_godInputSchema: z.ZodType<Prisma.Or
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
   customers: z.lazy(() => CustomerCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -23129,8 +23438,6 @@ export const OrganizationUncheckedCreateWithoutBorrow_godInputSchema: z.ZodType<
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   customers: z.lazy(() => CustomerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -23209,8 +23516,6 @@ export const OrganizationUpdateWithoutBorrow_godInputSchema: z.ZodType<Prisma.Or
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   customers: z.lazy(() => CustomerUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -23242,8 +23547,6 @@ export const OrganizationUncheckedUpdateWithoutBorrow_godInputSchema: z.ZodType<
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   customers: z.lazy(() => CustomerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -23275,8 +23578,6 @@ export const OrganizationCreateWithoutBuddhistInputSchema: z.ZodType<Prisma.Orga
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   customers: z.lazy(() => CustomerCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -23308,8 +23609,6 @@ export const OrganizationUncheckedCreateWithoutBuddhistInputSchema: z.ZodType<Pr
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   customers: z.lazy(() => CustomerUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -23357,8 +23656,6 @@ export const OrganizationUpdateWithoutBuddhistInputSchema: z.ZodType<Prisma.Orga
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   customers: z.lazy(() => CustomerUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -23390,8 +23687,6 @@ export const OrganizationUncheckedUpdateWithoutBuddhistInputSchema: z.ZodType<Pr
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   customers: z.lazy(() => CustomerUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -23428,7 +23723,7 @@ export const anomaly_eventCreateWithoutEvent_label_linkInputSchema: z.ZodType<Pr
   justificationNotes: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date(),
-  organization: z.lazy(() => OrganizationCreateNestedOneWithoutAnomaly_eventInputSchema)
+  experimentRun: z.lazy(() => ExperimentRunCreateNestedOneWithoutAnomalyEventsInputSchema).optional()
 }).strict();
 
 export const anomaly_eventUncheckedCreateWithoutEvent_label_linkInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedCreateWithoutEvent_label_linkInput> = z.object({
@@ -23443,7 +23738,7 @@ export const anomaly_eventUncheckedCreateWithoutEvent_label_linkInputSchema: z.Z
   reviewerId: z.string().optional().nullable(),
   reviewTimestamp: z.coerce.date().optional().nullable(),
   justificationNotes: z.string().optional().nullable(),
-  organizationId: z.string(),
+  experimentRunId: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date()
 }).strict();
@@ -23458,15 +23753,13 @@ export const anomaly_labelCreateWithoutEvent_label_linkInputSchema: z.ZodType<Pr
   name: z.string(),
   description: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date(),
-  organization: z.lazy(() => OrganizationCreateNestedOneWithoutAnomaly_labelInputSchema)
+  updatedAt: z.coerce.date()
 }).strict();
 
 export const anomaly_labelUncheckedCreateWithoutEvent_label_linkInputSchema: z.ZodType<Prisma.anomaly_labelUncheckedCreateWithoutEvent_label_linkInput> = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().optional().nullable(),
-  organizationId: z.string(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date()
 }).strict();
@@ -23501,7 +23794,7 @@ export const anomaly_eventUpdateWithoutEvent_label_linkInputSchema: z.ZodType<Pr
   justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutAnomaly_eventNestedInputSchema).optional()
+  experimentRun: z.lazy(() => ExperimentRunUpdateOneWithoutAnomalyEventsNestedInputSchema).optional()
 }).strict();
 
 export const anomaly_eventUncheckedUpdateWithoutEvent_label_linkInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedUpdateWithoutEvent_label_linkInput> = z.object({
@@ -23516,7 +23809,7 @@ export const anomaly_eventUncheckedUpdateWithoutEvent_label_linkInputSchema: z.Z
   reviewerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   reviewTimestamp: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  experimentRunId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -23538,14 +23831,12 @@ export const anomaly_labelUpdateWithoutEvent_label_linkInputSchema: z.ZodType<Pr
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutAnomaly_labelNestedInputSchema).optional()
 }).strict();
 
 export const anomaly_labelUncheckedUpdateWithoutEvent_label_linkInputSchema: z.ZodType<Prisma.anomaly_labelUncheckedUpdateWithoutEvent_label_linkInput> = z.object({
   id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -23559,8 +23850,6 @@ export const OrganizationCreateWithoutFamilyInputSchema: z.ZodType<Prisma.Organi
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -23592,8 +23881,6 @@ export const OrganizationUncheckedCreateWithoutFamilyInputSchema: z.ZodType<Pris
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -23837,8 +24124,6 @@ export const OrganizationUpdateWithoutFamilyInputSchema: z.ZodType<Prisma.Organi
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -23870,8 +24155,6 @@ export const OrganizationUncheckedUpdateWithoutFamilyInputSchema: z.ZodType<Pris
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -23988,8 +24271,6 @@ export const OrganizationCreateWithoutFamily_memberInputSchema: z.ZodType<Prisma
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -24021,8 +24302,6 @@ export const OrganizationUncheckedCreateWithoutFamily_memberInputSchema: z.ZodTy
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -24113,8 +24392,6 @@ export const OrganizationUpdateWithoutFamily_memberInputSchema: z.ZodType<Prisma
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -24146,8 +24423,6 @@ export const OrganizationUncheckedUpdateWithoutFamily_memberInputSchema: z.ZodTy
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -24211,8 +24486,6 @@ export const OrganizationCreateWithoutGod_nameInputSchema: z.ZodType<Prisma.Orga
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -24244,8 +24517,6 @@ export const OrganizationUncheckedCreateWithoutGod_nameInputSchema: z.ZodType<Pr
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -24309,8 +24580,6 @@ export const OrganizationUpdateWithoutGod_nameInputSchema: z.ZodType<Prisma.Orga
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -24342,8 +24611,6 @@ export const OrganizationUncheckedUpdateWithoutGod_nameInputSchema: z.ZodType<Pr
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -24375,8 +24642,6 @@ export const OrganizationCreateWithoutMember_classInputSchema: z.ZodType<Prisma.
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -24408,8 +24673,6 @@ export const OrganizationUncheckedCreateWithoutMember_classInputSchema: z.ZodTyp
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -24457,8 +24720,6 @@ export const OrganizationUpdateWithoutMember_classInputSchema: z.ZodType<Prisma.
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -24490,8 +24751,6 @@ export const OrganizationUncheckedUpdateWithoutMember_classInputSchema: z.ZodTyp
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -24523,8 +24782,6 @@ export const OrganizationCreateWithoutMgyearInputSchema: z.ZodType<Prisma.Organi
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -24556,8 +24813,6 @@ export const OrganizationUncheckedCreateWithoutMgyearInputSchema: z.ZodType<Pris
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -24605,8 +24860,6 @@ export const OrganizationUpdateWithoutMgyearInputSchema: z.ZodType<Prisma.Organi
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -24638,8 +24891,6 @@ export const OrganizationUncheckedUpdateWithoutMgyearInputSchema: z.ZodType<Pris
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -24671,8 +24922,6 @@ export const OrganizationCreateWithoutService1InputSchema: z.ZodType<Prisma.Orga
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -24704,8 +24953,6 @@ export const OrganizationUncheckedCreateWithoutService1InputSchema: z.ZodType<Pr
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -24937,8 +25184,6 @@ export const OrganizationUpdateWithoutService1InputSchema: z.ZodType<Prisma.Orga
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -24970,8 +25215,6 @@ export const OrganizationUncheckedUpdateWithoutService1InputSchema: z.ZodType<Pr
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -25051,8 +25294,6 @@ export const OrganizationCreateWithoutService2InputSchema: z.ZodType<Prisma.Orga
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -25084,8 +25325,6 @@ export const OrganizationUncheckedCreateWithoutService2InputSchema: z.ZodType<Pr
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -25314,8 +25553,6 @@ export const OrganizationUpdateWithoutService2InputSchema: z.ZodType<Prisma.Orga
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -25347,8 +25584,6 @@ export const OrganizationUncheckedUpdateWithoutService2InputSchema: z.ZodType<Pr
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -25486,8 +25721,6 @@ export const OrganizationCreateWithoutServicing1InputSchema: z.ZodType<Prisma.Or
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -25519,8 +25752,6 @@ export const OrganizationUncheckedCreateWithoutServicing1InputSchema: z.ZodType<
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -25753,8 +25984,6 @@ export const OrganizationUpdateWithoutServicing1InputSchema: z.ZodType<Prisma.Or
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -25786,8 +26015,6 @@ export const OrganizationUncheckedUpdateWithoutServicing1InputSchema: z.ZodType<
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -25944,8 +26171,6 @@ export const OrganizationCreateWithoutServicing2InputSchema: z.ZodType<Prisma.Or
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -25977,8 +26202,6 @@ export const OrganizationUncheckedCreateWithoutServicing2InputSchema: z.ZodType<
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -26192,8 +26415,6 @@ export const OrganizationUpdateWithoutServicing2InputSchema: z.ZodType<Prisma.Or
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -26225,8 +26446,6 @@ export const OrganizationUncheckedUpdateWithoutServicing2InputSchema: z.ZodType<
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -26399,8 +26618,6 @@ export const OrganizationCreateWithoutTempleInputSchema: z.ZodType<Prisma.Organi
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -26432,8 +26649,6 @@ export const OrganizationUncheckedCreateWithoutTempleInputSchema: z.ZodType<Pris
   metadata: z.string().optional().nullable(),
   paymentsCustomerId: z.string().optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedCreateNestedManyWithoutOrganizationInputSchema).optional(),
@@ -26481,8 +26696,6 @@ export const OrganizationUpdateWithoutTempleInputSchema: z.ZodType<Prisma.Organi
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -26514,8 +26727,6 @@ export const OrganizationUncheckedUpdateWithoutTempleInputSchema: z.ZodType<Pris
   metadata: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   paymentsCustomerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   aiChats: z.lazy(() => AiChatUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_event: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
-  anomaly_label: z.lazy(() => anomaly_labelUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   bankAccounts: z.lazy(() => BankAccountUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   borrow_god: z.lazy(() => borrow_godUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   buddhist: z.lazy(() => buddhistUncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
@@ -26536,6 +26747,78 @@ export const OrganizationUncheckedUpdateWithoutTempleInputSchema: z.ZodType<Pris
   service2: z.lazy(() => service2UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   servicing1: z.lazy(() => servicing1UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional(),
   servicing2: z.lazy(() => servicing2UncheckedUpdateManyWithoutOrganizationNestedInputSchema).optional()
+}).strict();
+
+export const ExperimentRunCreateWithoutTrainedModelInputSchema: z.ZodType<Prisma.ExperimentRunCreateWithoutTrainedModelInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  candidateCount: z.number().int().optional().nullable(),
+  positiveLabelCount: z.number().int().optional().nullable(),
+  negativeLabelCount: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  anomalyEvents: z.lazy(() => anomaly_eventCreateNestedManyWithoutExperimentRunInputSchema).optional()
+}).strict();
+
+export const ExperimentRunUncheckedCreateWithoutTrainedModelInputSchema: z.ZodType<Prisma.ExperimentRunUncheckedCreateWithoutTrainedModelInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.lazy(() => ExperimentRunStatusSchema).optional(),
+  candidateCount: z.number().int().optional().nullable(),
+  positiveLabelCount: z.number().int().optional().nullable(),
+  negativeLabelCount: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  anomalyEvents: z.lazy(() => anomaly_eventUncheckedCreateNestedManyWithoutExperimentRunInputSchema).optional()
+}).strict();
+
+export const ExperimentRunCreateOrConnectWithoutTrainedModelInputSchema: z.ZodType<Prisma.ExperimentRunCreateOrConnectWithoutTrainedModelInput> = z.object({
+  where: z.lazy(() => ExperimentRunWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ExperimentRunCreateWithoutTrainedModelInputSchema),z.lazy(() => ExperimentRunUncheckedCreateWithoutTrainedModelInputSchema) ]),
+}).strict();
+
+export const ExperimentRunUpsertWithoutTrainedModelInputSchema: z.ZodType<Prisma.ExperimentRunUpsertWithoutTrainedModelInput> = z.object({
+  update: z.union([ z.lazy(() => ExperimentRunUpdateWithoutTrainedModelInputSchema),z.lazy(() => ExperimentRunUncheckedUpdateWithoutTrainedModelInputSchema) ]),
+  create: z.union([ z.lazy(() => ExperimentRunCreateWithoutTrainedModelInputSchema),z.lazy(() => ExperimentRunUncheckedCreateWithoutTrainedModelInputSchema) ]),
+  where: z.lazy(() => ExperimentRunWhereInputSchema).optional()
+}).strict();
+
+export const ExperimentRunUpdateToOneWithWhereWithoutTrainedModelInputSchema: z.ZodType<Prisma.ExperimentRunUpdateToOneWithWhereWithoutTrainedModelInput> = z.object({
+  where: z.lazy(() => ExperimentRunWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => ExperimentRunUpdateWithoutTrainedModelInputSchema),z.lazy(() => ExperimentRunUncheckedUpdateWithoutTrainedModelInputSchema) ]),
+}).strict();
+
+export const ExperimentRunUpdateWithoutTrainedModelInputSchema: z.ZodType<Prisma.ExperimentRunUpdateWithoutTrainedModelInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => EnumExperimentRunStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  anomalyEvents: z.lazy(() => anomaly_eventUpdateManyWithoutExperimentRunNestedInputSchema).optional()
+}).strict();
+
+export const ExperimentRunUncheckedUpdateWithoutTrainedModelInputSchema: z.ZodType<Prisma.ExperimentRunUncheckedUpdateWithoutTrainedModelInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  filteringParameters: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),z.record(z.any()) ]).optional(),
+  status: z.union([ z.lazy(() => ExperimentRunStatusSchema),z.lazy(() => EnumExperimentRunStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  positiveLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  negativeLabelCount: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  anomalyEvents: z.lazy(() => anomaly_eventUncheckedUpdateManyWithoutExperimentRunNestedInputSchema).optional()
 }).strict();
 
 export const AccountCreateManyUserInputSchema: z.ZodType<Prisma.AccountCreateManyUserInput> = z.object({
@@ -26877,30 +27160,6 @@ export const AiChatCreateManyOrganizationInputSchema: z.ZodType<Prisma.AiChatCre
   messages: z.union([ z.lazy(() => JsonNullValueInputSchema),z.array(z.object({ role: z.enum(['user', 'assistant']), content: z.string() })) ]).optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional()
-}).strict();
-
-export const anomaly_eventCreateManyOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventCreateManyOrganizationInput> = z.object({
-  id: z.string(),
-  eventId: z.string(),
-  meterId: z.string(),
-  eventTimestamp: z.coerce.date(),
-  detectionRule: z.string(),
-  score: z.number(),
-  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]),
-  status: z.lazy(() => AnomalyEventStatusSchema).optional(),
-  reviewerId: z.string().optional().nullable(),
-  reviewTimestamp: z.coerce.date().optional().nullable(),
-  justificationNotes: z.string().optional().nullable(),
-  createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date()
-}).strict();
-
-export const anomaly_labelCreateManyOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelCreateManyOrganizationInput> = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string().optional().nullable(),
-  createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date()
 }).strict();
 
 export const BankAccountCreateManyOrganizationInputSchema: z.ZodType<Prisma.BankAccountCreateManyOrganizationInput> = z.object({
@@ -27259,82 +27518,6 @@ export const AiChatUncheckedUpdateManyWithoutOrganizationInputSchema: z.ZodType<
   userId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   messages: z.union([ z.lazy(() => JsonNullValueInputSchema),z.array(z.object({ role: z.enum(['user', 'assistant']), content: z.string() })) ]).optional(),
-  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-}).strict();
-
-export const anomaly_eventUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventUpdateWithoutOrganizationInput> = z.object({
-  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  eventId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meterId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  eventTimestamp: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  detectionRule: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
-  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
-  status: z.union([ z.lazy(() => AnomalyEventStatusSchema),z.lazy(() => EnumAnomalyEventStatusFieldUpdateOperationsInputSchema) ]).optional(),
-  reviewerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  reviewTimestamp: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  event_label_link: z.lazy(() => event_label_linkUpdateManyWithoutAnomaly_eventNestedInputSchema).optional()
-}).strict();
-
-export const anomaly_eventUncheckedUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedUpdateWithoutOrganizationInput> = z.object({
-  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  eventId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meterId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  eventTimestamp: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  detectionRule: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
-  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
-  status: z.union([ z.lazy(() => AnomalyEventStatusSchema),z.lazy(() => EnumAnomalyEventStatusFieldUpdateOperationsInputSchema) ]).optional(),
-  reviewerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  reviewTimestamp: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  event_label_link: z.lazy(() => event_label_linkUncheckedUpdateManyWithoutAnomaly_eventNestedInputSchema).optional()
-}).strict();
-
-export const anomaly_eventUncheckedUpdateManyWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedUpdateManyWithoutOrganizationInput> = z.object({
-  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  eventId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meterId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  eventTimestamp: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  detectionRule: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
-  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
-  status: z.union([ z.lazy(() => AnomalyEventStatusSchema),z.lazy(() => EnumAnomalyEventStatusFieldUpdateOperationsInputSchema) ]).optional(),
-  reviewerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  reviewTimestamp: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-}).strict();
-
-export const anomaly_labelUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelUpdateWithoutOrganizationInput> = z.object({
-  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  event_label_link: z.lazy(() => event_label_linkUpdateManyWithoutAnomaly_labelNestedInputSchema).optional()
-}).strict();
-
-export const anomaly_labelUncheckedUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelUncheckedUpdateWithoutOrganizationInput> = z.object({
-  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-  event_label_link: z.lazy(() => event_label_linkUncheckedUpdateManyWithoutAnomaly_labelNestedInputSchema).optional()
-}).strict();
-
-export const anomaly_labelUncheckedUpdateManyWithoutOrganizationInputSchema: z.ZodType<Prisma.anomaly_labelUncheckedUpdateManyWithoutOrganizationInput> = z.object({
-  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -29520,6 +29703,72 @@ export const ProfitSharingUncheckedUpdateManyWithoutProductInputSchema: z.ZodTyp
   rm2RevenuePercent: z.union([ z.union([z.number(),z.string(),z.instanceof(Decimal),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => NullableDecimalFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
+export const anomaly_eventCreateManyExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventCreateManyExperimentRunInput> = z.object({
+  id: z.string(),
+  eventId: z.string(),
+  meterId: z.string(),
+  eventTimestamp: z.coerce.date(),
+  detectionRule: z.string(),
+  score: z.number(),
+  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]),
+  status: z.lazy(() => AnomalyEventStatusSchema).optional(),
+  reviewerId: z.string().optional().nullable(),
+  reviewTimestamp: z.coerce.date().optional().nullable(),
+  justificationNotes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date()
+}).strict();
+
+export const anomaly_eventUpdateWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventUpdateWithoutExperimentRunInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  eventId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meterId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  eventTimestamp: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  detectionRule: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
+  status: z.union([ z.lazy(() => AnomalyEventStatusSchema),z.lazy(() => EnumAnomalyEventStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  reviewerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  reviewTimestamp: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  event_label_link: z.lazy(() => event_label_linkUpdateManyWithoutAnomaly_eventNestedInputSchema).optional()
+}).strict();
+
+export const anomaly_eventUncheckedUpdateWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedUpdateWithoutExperimentRunInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  eventId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meterId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  eventTimestamp: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  detectionRule: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
+  status: z.union([ z.lazy(() => AnomalyEventStatusSchema),z.lazy(() => EnumAnomalyEventStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  reviewerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  reviewTimestamp: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  event_label_link: z.lazy(() => event_label_linkUncheckedUpdateManyWithoutAnomaly_eventNestedInputSchema).optional()
+}).strict();
+
+export const anomaly_eventUncheckedUpdateManyWithoutExperimentRunInputSchema: z.ZodType<Prisma.anomaly_eventUncheckedUpdateManyWithoutExperimentRunInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  eventId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meterId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  eventTimestamp: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  detectionRule: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  score: z.union([ z.number(),z.lazy(() => FloatFieldUpdateOperationsInputSchema) ]).optional(),
+  dataWindow: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
+  status: z.union([ z.lazy(() => AnomalyEventStatusSchema),z.lazy(() => EnumAnomalyEventStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  reviewerId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  reviewTimestamp: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  justificationNotes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
 export const event_label_linkCreateManyAnomaly_eventInputSchema: z.ZodType<Prisma.event_label_linkCreateManyAnomaly_eventInput> = z.object({
   id: z.string(),
   labelId: z.string(),
@@ -31690,6 +31939,58 @@ export const ammeter_logFindUniqueOrThrowArgsSchema: z.ZodType<Omit<Prisma.ammet
   where: ammeter_logWhereUniqueInputSchema,
 }).strict() ;
 
+export const ExperimentRunFindFirstArgsSchema: z.ZodType<Omit<Prisma.ExperimentRunFindFirstArgs, "select" | "include">> = z.object({
+  where: ExperimentRunWhereInputSchema.optional(),
+  orderBy: z.union([ ExperimentRunOrderByWithRelationInputSchema.array(),ExperimentRunOrderByWithRelationInputSchema ]).optional(),
+  cursor: ExperimentRunWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ExperimentRunScalarFieldEnumSchema,ExperimentRunScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const ExperimentRunFindFirstOrThrowArgsSchema: z.ZodType<Omit<Prisma.ExperimentRunFindFirstOrThrowArgs, "select" | "include">> = z.object({
+  where: ExperimentRunWhereInputSchema.optional(),
+  orderBy: z.union([ ExperimentRunOrderByWithRelationInputSchema.array(),ExperimentRunOrderByWithRelationInputSchema ]).optional(),
+  cursor: ExperimentRunWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ExperimentRunScalarFieldEnumSchema,ExperimentRunScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const ExperimentRunFindManyArgsSchema: z.ZodType<Omit<Prisma.ExperimentRunFindManyArgs, "select" | "include">> = z.object({
+  where: ExperimentRunWhereInputSchema.optional(),
+  orderBy: z.union([ ExperimentRunOrderByWithRelationInputSchema.array(),ExperimentRunOrderByWithRelationInputSchema ]).optional(),
+  cursor: ExperimentRunWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ExperimentRunScalarFieldEnumSchema,ExperimentRunScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const ExperimentRunAggregateArgsSchema: z.ZodType<Prisma.ExperimentRunAggregateArgs> = z.object({
+  where: ExperimentRunWhereInputSchema.optional(),
+  orderBy: z.union([ ExperimentRunOrderByWithRelationInputSchema.array(),ExperimentRunOrderByWithRelationInputSchema ]).optional(),
+  cursor: ExperimentRunWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const ExperimentRunGroupByArgsSchema: z.ZodType<Prisma.ExperimentRunGroupByArgs> = z.object({
+  where: ExperimentRunWhereInputSchema.optional(),
+  orderBy: z.union([ ExperimentRunOrderByWithAggregationInputSchema.array(),ExperimentRunOrderByWithAggregationInputSchema ]).optional(),
+  by: ExperimentRunScalarFieldEnumSchema.array(),
+  having: ExperimentRunScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const ExperimentRunFindUniqueArgsSchema: z.ZodType<Omit<Prisma.ExperimentRunFindUniqueArgs, "select" | "include">> = z.object({
+  where: ExperimentRunWhereUniqueInputSchema,
+}).strict() ;
+
+export const ExperimentRunFindUniqueOrThrowArgsSchema: z.ZodType<Omit<Prisma.ExperimentRunFindUniqueOrThrowArgs, "select" | "include">> = z.object({
+  where: ExperimentRunWhereUniqueInputSchema,
+}).strict() ;
+
 export const anomaly_eventFindFirstArgsSchema: z.ZodType<Omit<Prisma.anomaly_eventFindFirstArgs, "select" | "include">> = z.object({
   where: anomaly_eventWhereInputSchema.optional(),
   orderBy: z.union([ anomaly_eventOrderByWithRelationInputSchema.array(),anomaly_eventOrderByWithRelationInputSchema ]).optional(),
@@ -32468,6 +32769,58 @@ export const templeFindUniqueArgsSchema: z.ZodType<Omit<Prisma.templeFindUniqueA
 
 export const templeFindUniqueOrThrowArgsSchema: z.ZodType<Omit<Prisma.templeFindUniqueOrThrowArgs, "select" | "include">> = z.object({
   where: templeWhereUniqueInputSchema,
+}).strict() ;
+
+export const TrainedModelFindFirstArgsSchema: z.ZodType<Omit<Prisma.TrainedModelFindFirstArgs, "select" | "include">> = z.object({
+  where: TrainedModelWhereInputSchema.optional(),
+  orderBy: z.union([ TrainedModelOrderByWithRelationInputSchema.array(),TrainedModelOrderByWithRelationInputSchema ]).optional(),
+  cursor: TrainedModelWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ TrainedModelScalarFieldEnumSchema,TrainedModelScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const TrainedModelFindFirstOrThrowArgsSchema: z.ZodType<Omit<Prisma.TrainedModelFindFirstOrThrowArgs, "select" | "include">> = z.object({
+  where: TrainedModelWhereInputSchema.optional(),
+  orderBy: z.union([ TrainedModelOrderByWithRelationInputSchema.array(),TrainedModelOrderByWithRelationInputSchema ]).optional(),
+  cursor: TrainedModelWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ TrainedModelScalarFieldEnumSchema,TrainedModelScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const TrainedModelFindManyArgsSchema: z.ZodType<Omit<Prisma.TrainedModelFindManyArgs, "select" | "include">> = z.object({
+  where: TrainedModelWhereInputSchema.optional(),
+  orderBy: z.union([ TrainedModelOrderByWithRelationInputSchema.array(),TrainedModelOrderByWithRelationInputSchema ]).optional(),
+  cursor: TrainedModelWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ TrainedModelScalarFieldEnumSchema,TrainedModelScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const TrainedModelAggregateArgsSchema: z.ZodType<Prisma.TrainedModelAggregateArgs> = z.object({
+  where: TrainedModelWhereInputSchema.optional(),
+  orderBy: z.union([ TrainedModelOrderByWithRelationInputSchema.array(),TrainedModelOrderByWithRelationInputSchema ]).optional(),
+  cursor: TrainedModelWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const TrainedModelGroupByArgsSchema: z.ZodType<Prisma.TrainedModelGroupByArgs> = z.object({
+  where: TrainedModelWhereInputSchema.optional(),
+  orderBy: z.union([ TrainedModelOrderByWithAggregationInputSchema.array(),TrainedModelOrderByWithAggregationInputSchema ]).optional(),
+  by: TrainedModelScalarFieldEnumSchema.array(),
+  having: TrainedModelScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const TrainedModelFindUniqueArgsSchema: z.ZodType<Omit<Prisma.TrainedModelFindUniqueArgs, "select" | "include">> = z.object({
+  where: TrainedModelWhereUniqueInputSchema,
+}).strict() ;
+
+export const TrainedModelFindUniqueOrThrowArgsSchema: z.ZodType<Omit<Prisma.TrainedModelFindUniqueOrThrowArgs, "select" | "include">> = z.object({
+  where: TrainedModelWhereUniqueInputSchema,
 }).strict() ;
 
 export const UserCreateArgsSchema: z.ZodType<Omit<Prisma.UserCreateArgs, "select" | "include">> = z.object({
@@ -33390,6 +33743,52 @@ export const ammeter_logDeleteManyArgsSchema: z.ZodType<Prisma.ammeter_logDelete
   limit: z.number().optional(),
 }).strict() ;
 
+export const ExperimentRunCreateArgsSchema: z.ZodType<Omit<Prisma.ExperimentRunCreateArgs, "select" | "include">> = z.object({
+  data: z.union([ ExperimentRunCreateInputSchema,ExperimentRunUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const ExperimentRunUpsertArgsSchema: z.ZodType<Omit<Prisma.ExperimentRunUpsertArgs, "select" | "include">> = z.object({
+  where: ExperimentRunWhereUniqueInputSchema,
+  create: z.union([ ExperimentRunCreateInputSchema,ExperimentRunUncheckedCreateInputSchema ]),
+  update: z.union([ ExperimentRunUpdateInputSchema,ExperimentRunUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const ExperimentRunCreateManyArgsSchema: z.ZodType<Prisma.ExperimentRunCreateManyArgs> = z.object({
+  data: z.union([ ExperimentRunCreateManyInputSchema,ExperimentRunCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const ExperimentRunCreateManyAndReturnArgsSchema: z.ZodType<Prisma.ExperimentRunCreateManyAndReturnArgs> = z.object({
+  data: z.union([ ExperimentRunCreateManyInputSchema,ExperimentRunCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const ExperimentRunDeleteArgsSchema: z.ZodType<Omit<Prisma.ExperimentRunDeleteArgs, "select" | "include">> = z.object({
+  where: ExperimentRunWhereUniqueInputSchema,
+}).strict() ;
+
+export const ExperimentRunUpdateArgsSchema: z.ZodType<Omit<Prisma.ExperimentRunUpdateArgs, "select" | "include">> = z.object({
+  data: z.union([ ExperimentRunUpdateInputSchema,ExperimentRunUncheckedUpdateInputSchema ]),
+  where: ExperimentRunWhereUniqueInputSchema,
+}).strict() ;
+
+export const ExperimentRunUpdateManyArgsSchema: z.ZodType<Prisma.ExperimentRunUpdateManyArgs> = z.object({
+  data: z.union([ ExperimentRunUpdateManyMutationInputSchema,ExperimentRunUncheckedUpdateManyInputSchema ]),
+  where: ExperimentRunWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const ExperimentRunUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.ExperimentRunUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ ExperimentRunUpdateManyMutationInputSchema,ExperimentRunUncheckedUpdateManyInputSchema ]),
+  where: ExperimentRunWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const ExperimentRunDeleteManyArgsSchema: z.ZodType<Prisma.ExperimentRunDeleteManyArgs> = z.object({
+  where: ExperimentRunWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
 export const anomaly_eventCreateArgsSchema: z.ZodType<Omit<Prisma.anomaly_eventCreateArgs, "select" | "include">> = z.object({
   data: z.union([ anomaly_eventCreateInputSchema,anomaly_eventUncheckedCreateInputSchema ]),
 }).strict() ;
@@ -34077,5 +34476,51 @@ export const templeUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.templeUpdateM
 
 export const templeDeleteManyArgsSchema: z.ZodType<Prisma.templeDeleteManyArgs> = z.object({
   where: templeWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const TrainedModelCreateArgsSchema: z.ZodType<Omit<Prisma.TrainedModelCreateArgs, "select" | "include">> = z.object({
+  data: z.union([ TrainedModelCreateInputSchema,TrainedModelUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const TrainedModelUpsertArgsSchema: z.ZodType<Omit<Prisma.TrainedModelUpsertArgs, "select" | "include">> = z.object({
+  where: TrainedModelWhereUniqueInputSchema,
+  create: z.union([ TrainedModelCreateInputSchema,TrainedModelUncheckedCreateInputSchema ]),
+  update: z.union([ TrainedModelUpdateInputSchema,TrainedModelUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const TrainedModelCreateManyArgsSchema: z.ZodType<Prisma.TrainedModelCreateManyArgs> = z.object({
+  data: z.union([ TrainedModelCreateManyInputSchema,TrainedModelCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const TrainedModelCreateManyAndReturnArgsSchema: z.ZodType<Prisma.TrainedModelCreateManyAndReturnArgs> = z.object({
+  data: z.union([ TrainedModelCreateManyInputSchema,TrainedModelCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const TrainedModelDeleteArgsSchema: z.ZodType<Omit<Prisma.TrainedModelDeleteArgs, "select" | "include">> = z.object({
+  where: TrainedModelWhereUniqueInputSchema,
+}).strict() ;
+
+export const TrainedModelUpdateArgsSchema: z.ZodType<Omit<Prisma.TrainedModelUpdateArgs, "select" | "include">> = z.object({
+  data: z.union([ TrainedModelUpdateInputSchema,TrainedModelUncheckedUpdateInputSchema ]),
+  where: TrainedModelWhereUniqueInputSchema,
+}).strict() ;
+
+export const TrainedModelUpdateManyArgsSchema: z.ZodType<Prisma.TrainedModelUpdateManyArgs> = z.object({
+  data: z.union([ TrainedModelUpdateManyMutationInputSchema,TrainedModelUncheckedUpdateManyInputSchema ]),
+  where: TrainedModelWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const TrainedModelUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.TrainedModelUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ TrainedModelUpdateManyMutationInputSchema,TrainedModelUncheckedUpdateManyInputSchema ]),
+  where: TrainedModelWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const TrainedModelDeleteManyArgsSchema: z.ZodType<Prisma.TrainedModelDeleteManyArgs> = z.object({
+  where: TrainedModelWhereInputSchema.optional(),
   limit: z.number().optional(),
 }).strict() ;

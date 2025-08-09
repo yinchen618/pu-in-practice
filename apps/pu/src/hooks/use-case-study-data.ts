@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 // 定義類型接口
 export interface AnomalyEvent {
@@ -16,7 +16,6 @@ export interface AnomalyEvent {
 	reviewerId?: string;
 	reviewTimestamp?: string;
 	justificationNotes?: string;
-	organizationId: string;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -33,7 +32,6 @@ export interface AnomalyLabel {
 	id: string;
 	name: string;
 	description?: string;
-	organizationId: string;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -56,6 +54,7 @@ export interface EventFilters {
 	dateTo?: string;
 	page?: number;
 	limit?: number;
+	experimentRunId?: string;
 }
 
 export interface CreateEventData {
@@ -68,7 +67,6 @@ export interface CreateEventData {
 		timestamps: string[];
 		values: number[];
 	};
-	organizationId: string;
 }
 
 export interface ReviewEventData {
@@ -81,7 +79,6 @@ export interface ReviewEventData {
 export interface CreateLabelData {
 	name: string;
 	description?: string;
-	organizationId: string;
 }
 
 export interface UpdateLabelData {
@@ -91,28 +88,49 @@ export interface UpdateLabelData {
 
 // API 客戶端
 class CaseStudyAPIClient {
-	private baseUrl = "https://python.yinchen.tw";
+	private baseUrl = "http://localhost:8000/api/v1";
 
 	async getAnomalyEvents(
-		organizationId: string,
 		filters: EventFilters = {},
 	): Promise<AnomalyEventsResponse> {
-		const params = new URLSearchParams({
-			organization_id: organizationId,
-			...Object.fromEntries(
-				Object.entries(filters).filter(([_, v]) => v !== undefined),
-			),
-		});
+		// 將 camelCase 轉為後端 API 期望的 snake_case
+		const mapped: Record<string, any> = {};
+		for (const [k, v] of Object.entries(filters)) {
+			if (v === undefined) continue;
+			switch (k) {
+				case "meterId":
+					mapped.meter_id = v;
+					break;
+				case "dateFrom":
+					mapped.date_from = v;
+					break;
+				case "dateTo":
+					mapped.date_to = v;
+					break;
+				case "page":
+					mapped.page = v;
+					break;
+				case "limit":
+					mapped.limit = v;
+					break;
+				case "experimentRunId":
+					mapped.experiment_run_id = v;
+					break;
+				default:
+					mapped[k] = v;
+			}
+		}
 
-		const response = await fetch(
-			`${this.baseUrl}/api/case-study/events?${params}`,
-			{
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			},
+		const params = new URLSearchParams(
+			Object.fromEntries(Object.entries(mapped)),
 		);
+
+		const response = await fetch(`${this.baseUrl}/events?${params}`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
 
 		if (!response.ok) {
 			throw new Error(
@@ -128,15 +146,12 @@ class CaseStudyAPIClient {
 	}
 
 	async getAnomalyEventDetail(eventId: string): Promise<AnomalyEvent> {
-		const response = await fetch(
-			`${this.baseUrl}/api/case-study/events/${eventId}`,
-			{
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-				},
+		const response = await fetch(`${this.baseUrl}/events/${eventId}`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
 			},
-		);
+		});
 
 		if (!response.ok) {
 			throw new Error(
@@ -152,7 +167,7 @@ class CaseStudyAPIClient {
 	}
 
 	async createAnomalyEvent(data: CreateEventData): Promise<AnomalyEvent> {
-		const response = await fetch(`${this.baseUrl}/api/case-study/events`, {
+		const response = await fetch(`${this.baseUrl}/events`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -173,44 +188,13 @@ class CaseStudyAPIClient {
 		throw new Error("Invalid API response format");
 	}
 
-	async reviewAnomalyEvent(
-		eventId: string,
-		reviewData: ReviewEventData,
-	): Promise<AnomalyEvent> {
-		const response = await fetch(
-			`${this.baseUrl}/api/case-study/events/${eventId}/review`,
-			{
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(reviewData),
-			},
-		);
-
-		if (!response.ok) {
-			throw new Error(
-				`Failed to review anomaly event: ${response.status}`,
-			);
-		}
-
-		const result = await response.json();
-		if (result.success && result.data) {
-			return result.data;
-		}
-		throw new Error("Invalid API response format");
-	}
-
 	async deleteAnomalyEvent(eventId: string): Promise<void> {
-		const response = await fetch(
-			`${this.baseUrl}/api/case-study/events/${eventId}`,
-			{
-				method: "DELETE",
-				headers: {
-					"Content-Type": "application/json",
-				},
+		const response = await fetch(`${this.baseUrl}/events/${eventId}`, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
 			},
-		);
+		});
 
 		if (!response.ok) {
 			throw new Error(
@@ -219,16 +203,16 @@ class CaseStudyAPIClient {
 		}
 	}
 
-	async getAnomalyStats(organizationId: string): Promise<AnomalyStats> {
-		const response = await fetch(
-			`${this.baseUrl}/api/case-study/stats?organization_id=${organizationId}`,
-			{
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-				},
+	async getAnomalyStats(experimentRunId?: string): Promise<AnomalyStats> {
+		const url = experimentRunId
+			? `${this.baseUrl}/stats?experiment_run_id=${encodeURIComponent(experimentRunId)}`
+			: `${this.baseUrl}/stats`;
+		const response = await fetch(url, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
 			},
-		);
+		});
 
 		if (!response.ok) {
 			throw new Error(
@@ -243,16 +227,13 @@ class CaseStudyAPIClient {
 		throw new Error("Invalid API response format");
 	}
 
-	async getAnomalyLabels(organizationId: string): Promise<AnomalyLabel[]> {
-		const response = await fetch(
-			`${this.baseUrl}/api/case-study/labels?organization_id=${organizationId}`,
-			{
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-				},
+	async getAnomalyLabels(): Promise<AnomalyLabel[]> {
+		const response = await fetch(`${this.baseUrl}/labels`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
 			},
-		);
+		});
 
 		if (!response.ok) {
 			throw new Error(
@@ -268,7 +249,7 @@ class CaseStudyAPIClient {
 	}
 
 	async createAnomalyLabel(data: CreateLabelData): Promise<AnomalyLabel> {
-		const response = await fetch(`${this.baseUrl}/api/case-study/labels`, {
+		const response = await fetch(`${this.baseUrl}/labels`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -293,16 +274,13 @@ class CaseStudyAPIClient {
 		labelId: string,
 		data: UpdateLabelData,
 	): Promise<AnomalyLabel> {
-		const response = await fetch(
-			`${this.baseUrl}/api/case-study/labels/${labelId}`,
-			{
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(data),
+		const response = await fetch(`${this.baseUrl}/labels/${labelId}`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
 			},
-		);
+			body: JSON.stringify(data),
+		});
 
 		if (!response.ok) {
 			throw new Error(
@@ -318,10 +296,104 @@ class CaseStudyAPIClient {
 	}
 
 	async deleteAnomalyLabel(labelId: string): Promise<void> {
+		const response = await fetch(`${this.baseUrl}/labels/${labelId}`, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+
+		if (!response.ok) {
+			throw new Error(
+				`Failed to delete anomaly label: ${response.status}`,
+			);
+		}
+	}
+
+	async reviewAnomalyEvent(
+		eventId: string,
+		reviewData: {
+			status: string;
+			reviewerId: string;
+			justificationNotes?: string;
+		},
+	): Promise<AnomalyEvent> {
+		// 後端已提供 /events/{id}/label 作為標註端點
 		const response = await fetch(
-			`${this.baseUrl}/api/case-study/labels/${labelId}`,
+			`${this.baseUrl}/events/${eventId}/label`,
 			{
-				method: "DELETE",
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					status: reviewData.status,
+					reviewer_id: reviewData.reviewerId,
+					justification_notes: reviewData.justificationNotes,
+				}),
+			},
+		);
+
+		if (!response.ok) {
+			throw new Error(
+				`Failed to review anomaly event: ${response.status}`,
+			);
+		}
+
+		const result = await response.json();
+		if (result.success) {
+			// 後端此路由回應的是狀態訊息，重新讀取事件細節
+			return this.getAnomalyEventDetail(eventId);
+		}
+		throw new Error("Invalid API response format");
+	}
+
+	async getProjectInsights(): Promise<any> {
+		const response = await fetch(`${this.baseUrl}/project/insights`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+
+		if (!response.ok) {
+			throw new Error(
+				`Failed to fetch project insights: ${response.status}`,
+			);
+		}
+
+		const result = await response.json();
+		if (result.success && result.data) {
+			return result.data;
+		}
+		throw new Error("Invalid API response format");
+	}
+
+	async uploadEventsFile(file: File): Promise<any> {
+		const formData = new FormData();
+		formData.append("file", file);
+
+		const response = await fetch(`${this.baseUrl}/events/upload`, {
+			method: "POST",
+			body: formData,
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to upload file: ${response.status}`);
+		}
+
+		const result = await response.json();
+		if (result.success && result.data) {
+			return result.data;
+		}
+		throw new Error("Invalid API response format");
+	}
+
+	async getUploadStatus(taskId: string): Promise<any> {
+		const response = await fetch(
+			`${this.baseUrl}/events/upload/${taskId}/status`,
+			{
+				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -329,10 +401,14 @@ class CaseStudyAPIClient {
 		);
 
 		if (!response.ok) {
-			throw new Error(
-				`Failed to delete anomaly label: ${response.status}`,
-			);
+			throw new Error(`Failed to get upload status: ${response.status}`);
 		}
+
+		const result = await response.json();
+		if (result.success && result.data) {
+			return result.data;
+		}
+		throw new Error("Invalid API response format");
 	}
 }
 
@@ -352,49 +428,64 @@ export function useCaseStudyData() {
 	const [labelsLoading, setLabelsLoading] = useState(false);
 
 	// 載入異常事件列表
-	const loadEvents = async (
-		organizationId: string,
-		filters: EventFilters = {},
-	) => {
+	const loadEvents = useCallback(async (filters: EventFilters = {}) => {
 		setEventsLoading(true);
 		try {
-			const data = await caseStudyAPI.getAnomalyEvents(
-				organizationId,
-				filters,
-			);
+			const data = await caseStudyAPI.getAnomalyEvents(filters);
 			setEvents(data);
 		} catch (err) {
 			console.error("Failed to load anomaly events:", err);
+			// 設置空資料，防止界面卡住
+			setEvents({
+				events: [],
+				total: 0,
+				page: 1,
+				limit: 50,
+				totalPages: 0,
+			});
+			// 可以添加 toast 通知或其他錯誤處理
 		} finally {
 			setEventsLoading(false);
 		}
-	};
+	}, []);
 
 	// 載入統計資料
-	const loadStats = async (organizationId: string) => {
+	const loadStats = useCallback(async (experimentRunId?: string) => {
 		setStatsLoading(true);
 		try {
-			const data = await caseStudyAPI.getAnomalyStats(organizationId);
+			const data = await caseStudyAPI.getAnomalyStats(experimentRunId);
 			setStats(data);
 		} catch (err) {
 			console.error("Failed to load anomaly stats:", err);
+			// 設置預設統計資料
+			setStats({
+				totalEvents: 0,
+				unreviewedCount: 0,
+				confirmedCount: 0,
+				rejectedCount: 0,
+				avgScore: 0,
+				maxScore: 0,
+				uniqueMeters: 0,
+			});
 		} finally {
 			setStatsLoading(false);
 		}
-	};
+	}, []);
 
 	// 載入標籤列表
-	const loadLabels = async (organizationId: string) => {
+	const loadLabels = useCallback(async () => {
 		setLabelsLoading(true);
 		try {
-			const data = await caseStudyAPI.getAnomalyLabels(organizationId);
+			const data = await caseStudyAPI.getAnomalyLabels();
 			setLabels(data);
 		} catch (err) {
 			console.error("Failed to load anomaly labels:", err);
+			// 設置空標籤列表
+			setLabels([]);
 		} finally {
 			setLabelsLoading(false);
 		}
-	};
+	}, []);
 
 	return {
 		// Events data
@@ -420,6 +511,9 @@ export function useCaseStudyData() {
 		createLabel: caseStudyAPI.createAnomalyLabel.bind(caseStudyAPI),
 		updateLabel: caseStudyAPI.updateAnomalyLabel.bind(caseStudyAPI),
 		deleteLabel: caseStudyAPI.deleteAnomalyLabel.bind(caseStudyAPI),
+		getProjectInsights: caseStudyAPI.getProjectInsights.bind(caseStudyAPI),
+		uploadEventsFile: caseStudyAPI.uploadEventsFile.bind(caseStudyAPI),
+		getUploadStatus: caseStudyAPI.getUploadStatus.bind(caseStudyAPI),
 	};
 }
 

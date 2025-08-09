@@ -1,13 +1,6 @@
 "use client";
 
-import {
-	Brain,
-	FlaskConical,
-	Tag,
-	Target,
-	TrendingUp,
-	UserCheck,
-} from "lucide-react";
+import { Brain, FlaskConical, Tag, Target, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -15,9 +8,8 @@ export type TabKey =
 	| "problem"
 	| "methodology"
 	| "implementation"
-	| "results"
-	| "plabeling"
-	| "labeling-system";
+	| "data-exploration"
+	| "model-training";
 
 interface TabNavigationProps {
 	activeTab: TabKey;
@@ -49,22 +41,16 @@ const tabs: {
 		href: "/case-study?tab=implementation",
 	},
 	{
-		key: "results",
-		label: "Results & Insights",
-		icon: TrendingUp,
-		href: "/case-study?tab=results",
-	},
-	{
-		key: "plabeling",
-		label: "P Labeling (Internal)",
+		key: "data-exploration",
+		label: "Data Exploration & Labeling",
 		icon: Tag,
-		href: "/case-study?tab=plabeling",
+		href: "/case-study?tab=data-exploration",
 	},
 	{
-		key: "labeling-system",
-		label: "Anomaly Labeling System",
-		icon: UserCheck,
-		href: "/case-study?tab=labeling-system",
+		key: "model-training",
+		label: "Model Training & Results",
+		icon: TrendingUp,
+		href: "/case-study?tab=model-training",
 	},
 ];
 

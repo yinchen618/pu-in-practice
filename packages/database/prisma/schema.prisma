@@ -1,734 +1,783 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 generator zod {
-  provider         = "zod-prisma-types"
-  output           = "./zod"
-  addIncludeType   = "false"
-  addSelectType    = "false"
-  createInputTypes = "true"
+    provider         = "zod-prisma-types"
+    output           = "./zod"
+    addIncludeType   = "false"
+    addSelectType    = "false"
+    createInputTypes = "true"
 }
 
 generator json {
-  provider = "prisma-json-types-generator"
+    provider = "prisma-json-types-generator"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id                 String       @id @default(cuid())
-  name               String
-  email              String       @unique
-  emailVerified      Boolean
-  image              String?
-  createdAt          DateTime
-  updatedAt          DateTime
-  username           String?      @unique
-  role               String?
-  banned             Boolean?
-  banReason          String?
-  banExpires         DateTime?
-  onboardingComplete Boolean      @default(false)
-  paymentsCustomerId String?
-  locale             String?
-  twoFactorEnabled   Boolean?
-  accounts           Account[]
-  aiChats            AiChat[]
-  invitations        Invitation[]
-  members            Member[]
-  passkeys           Passkey[]
-  purchases          Purchase[]
-  sessions           Session[]
-  twofactors         TwoFactor[]
+    id                 String       @id @default(cuid())
+    name               String
+    email              String       @unique
+    emailVerified      Boolean
+    image              String?
+    createdAt          DateTime
+    updatedAt          DateTime
+    username           String?      @unique
+    role               String?
+    banned             Boolean?
+    banReason          String?
+    banExpires         DateTime?
+    onboardingComplete Boolean      @default(false)
+    paymentsCustomerId String?
+    locale             String?
+    twoFactorEnabled   Boolean?
+    accounts           Account[]
+    aiChats            AiChat[]
+    invitations        Invitation[]
+    members            Member[]
+    passkeys           Passkey[]
+    purchases          Purchase[]
+    sessions           Session[]
+    twofactors         TwoFactor[]
 
-  @@map("user")
+    @@map("user")
 }
 
 model Session {
-  id                   String   @id @default(cuid())
-  expiresAt            DateTime
-  ipAddress            String?
-  userAgent            String?
-  userId               String
-  impersonatedBy       String?
-  activeOrganizationId String?
-  token                String   @unique
-  createdAt            DateTime
-  updatedAt            DateTime
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                   String   @id @default(cuid())
+    expiresAt            DateTime
+    ipAddress            String?
+    userAgent            String?
+    userId               String
+    impersonatedBy       String?
+    activeOrganizationId String?
+    token                String   @unique
+    createdAt            DateTime
+    updatedAt            DateTime
+    user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("session")
+    @@map("session")
 }
 
 model Account {
-  id                    String    @id @default(cuid())
-  accountId             String
-  providerId            String
-  userId                String
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  expiresAt             DateTime?
-  password              String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  createdAt             DateTime
-  updatedAt             DateTime
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                    String    @id @default(cuid())
+    accountId             String
+    providerId            String
+    userId                String
+    accessToken           String?
+    refreshToken          String?
+    idToken               String?
+    expiresAt             DateTime?
+    password              String?
+    accessTokenExpiresAt  DateTime?
+    refreshTokenExpiresAt DateTime?
+    scope                 String?
+    createdAt             DateTime
+    updatedAt             DateTime
+    user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("account")
+    @@map("account")
 }
 
 model Verification {
-  id         String    @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
+    id         String    @id @default(cuid())
+    identifier String
+    value      String
+    expiresAt  DateTime
+    createdAt  DateTime?
+    updatedAt  DateTime?
 
-  @@map("verification")
+    @@map("verification")
 }
 
 model Passkey {
-  id           String    @id @default(cuid())
-  name         String?
-  publicKey    String
-  userId       String
-  credentialID String
-  counter      Int
-  deviceType   String
-  backedUp     Boolean
-  transports   String?
-  createdAt    DateTime?
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id           String    @id @default(cuid())
+    name         String?
+    publicKey    String
+    userId       String
+    credentialID String
+    counter      Int
+    deviceType   String
+    backedUp     Boolean
+    transports   String?
+    createdAt    DateTime?
+    user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("passkey")
+    @@map("passkey")
 }
 
 model TwoFactor {
-  id          String @id @default(cuid())
-  secret      String
-  backupCodes String
-  userId      String
-  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id          String @id @default(cuid())
+    secret      String
+    backupCodes String
+    userId      String
+    user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("twoFactor")
+    @@map("twoFactor")
 }
 
 model Organization {
-  id                   String                @id @default(cuid())
-  name                 String
-  slug                 String?               @unique
-  logo                 String?
-  createdAt            DateTime
-  metadata             String?
-  paymentsCustomerId   String?
-  aiChats              AiChat[]
-  anomaly_event        anomaly_event[]
-  anomaly_label        anomaly_label[]
-  bankAccounts         BankAccount[]
-  borrow_god           borrow_god[]
-  buddhist             buddhist[]
-  customers            Customer[]
-  expenses             Expense[]
-  family               family[]
-  family_member        family_member[]
-  god_name             god_name[]
-  invitations          Invitation[]
-  members              Member[]
-  member_class         member_class[]
-  mgyear               mgyear[]
-  products             Product[]
-  ProfitSharing        ProfitSharing[]
-  purchases            Purchase[]
-  relationshipManagers RelationshipManager[]
-  service1             service1[]
-  service2             service2[]
-  servicing1           servicing1[]
-  servicing2           servicing2[]
-  temple               temple[]
+    id                   String                @id @default(cuid())
+    name                 String
+    slug                 String?               @unique
+    logo                 String?
+    createdAt            DateTime
+    metadata             String?
+    paymentsCustomerId   String?
+    aiChats              AiChat[]
+    bankAccounts         BankAccount[]
+    borrow_god           borrow_god[]
+    buddhist             buddhist[]
+    customers            Customer[]
+    expenses             Expense[]
+    family               family[]
+    family_member        family_member[]
+    god_name             god_name[]
+    invitations          Invitation[]
+    members              Member[]
+    member_class         member_class[]
+    mgyear               mgyear[]
+    products             Product[]
+    ProfitSharing        ProfitSharing[]
+    purchases            Purchase[]
+    relationshipManagers RelationshipManager[]
+    service1             service1[]
+    service2             service2[]
+    servicing1           servicing1[]
+    servicing2           servicing2[]
+    temple               temple[]
 
-  @@map("organization")
+    @@map("organization")
 }
 
 model RelationshipManager {
-  id               String       @id @default(cuid())
-  name             String
-  email            String
-  phone            String?
-  status           String       @default("active")
-  customerCount    Int          @default(0)
-  joinDate         DateTime     @default(now())
-  organizationId   String
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
-  category         String       @default("RM")
-  resignDate       DateTime?
-  finder1Customers Customer[]   @relation("Finder1Customers")
-  finder2Customers Customer[]   @relation("Finder2Customers")
-  rm1Customers     Customer[]   @relation("RM1Customers")
-  rm2Customers     Customer[]   @relation("RM2Customers")
-  expenses         Expense[]    @relation("ExpenseRM")
-  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    id               String       @id @default(cuid())
+    name             String
+    email            String
+    phone            String?
+    status           String       @default("active")
+    customerCount    Int          @default(0)
+    joinDate         DateTime     @default(now())
+    organizationId   String
+    createdAt        DateTime     @default(now())
+    updatedAt        DateTime     @updatedAt
+    category         String       @default("RM")
+    resignDate       DateTime?
+    finder1Customers Customer[]   @relation("Finder1Customers")
+    finder2Customers Customer[]   @relation("Finder2Customers")
+    rm1Customers     Customer[]   @relation("RM1Customers")
+    rm2Customers     Customer[]   @relation("RM2Customers")
+    expenses         Expense[]    @relation("ExpenseRM")
+    organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@unique([organizationId, email])
-  @@map("relationship_manager")
+    @@unique([organizationId, email])
+    @@map("relationship_manager")
 }
 
 model Customer {
-  id                 String               @id @default(cuid())
-  name               String
-  email              String?
-  phone              String?
-  organizationId     String
-  rm1Id              String?
-  rm2Id              String?
-  finder1Id          String?
-  finder2Id          String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  finder1ProfitShare Decimal?             @db.Decimal(5, 2)
-  finder2ProfitShare Decimal?             @db.Decimal(5, 2)
-  rm1ProfitShare     Decimal?             @db.Decimal(5, 2)
-  rm2ProfitShare     Decimal?             @db.Decimal(5, 2)
-  code               String
-  assetTransactions  AssetTransaction[]
-  bankAccounts       BankAccount[]
-  finder1            RelationshipManager? @relation("Finder1Customers", fields: [finder1Id], references: [id])
-  finder2            RelationshipManager? @relation("Finder2Customers", fields: [finder2Id], references: [id])
-  organization       Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  rm1                RelationshipManager? @relation("RM1Customers", fields: [rm1Id], references: [id])
-  rm2                RelationshipManager? @relation("RM2Customers", fields: [rm2Id], references: [id])
-  profitSharing      ProfitSharing[]
+    id                 String               @id @default(cuid())
+    name               String
+    email              String?
+    phone              String?
+    organizationId     String
+    rm1Id              String?
+    rm2Id              String?
+    finder1Id          String?
+    finder2Id          String?
+    createdAt          DateTime             @default(now())
+    updatedAt          DateTime             @updatedAt
+    finder1ProfitShare Decimal?             @db.Decimal(5, 2)
+    finder2ProfitShare Decimal?             @db.Decimal(5, 2)
+    rm1ProfitShare     Decimal?             @db.Decimal(5, 2)
+    rm2ProfitShare     Decimal?             @db.Decimal(5, 2)
+    code               String
+    assetTransactions  AssetTransaction[]
+    bankAccounts       BankAccount[]
+    finder1            RelationshipManager? @relation("Finder1Customers", fields: [finder1Id], references: [id])
+    finder2            RelationshipManager? @relation("Finder2Customers", fields: [finder2Id], references: [id])
+    organization       Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    rm1                RelationshipManager? @relation("RM1Customers", fields: [rm1Id], references: [id])
+    rm2                RelationshipManager? @relation("RM2Customers", fields: [rm2Id], references: [id])
+    profitSharing      ProfitSharing[]
 
-  @@unique([organizationId, code])
-  @@map("customer")
+    @@unique([organizationId, code])
+    @@map("customer")
 }
 
 model Member {
-  id             String       @id @default(cuid())
-  organizationId String
-  userId         String
-  role           String
-  createdAt      DateTime
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id             String       @id @default(cuid())
+    organizationId String
+    userId         String
+    role           String
+    createdAt      DateTime
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([organizationId, userId])
-  @@map("member")
+    @@unique([organizationId, userId])
+    @@map("member")
 }
 
 model Invitation {
-  id             String       @id @default(cuid())
-  organizationId String
-  email          String
-  role           String?
-  status         String
-  expiresAt      DateTime
-  inviterId      String
-  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    id             String       @id @default(cuid())
+    organizationId String
+    email          String
+    role           String?
+    status         String
+    expiresAt      DateTime
+    inviterId      String
+    user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@map("invitation")
+    @@map("invitation")
 }
 
 model Purchase {
-  id             String        @id @default(cuid())
-  organizationId String?
-  userId         String?
-  type           PurchaseType
-  customerId     String
-  subscriptionId String?       @unique
-  productId      String
-  status         String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id             String        @id @default(cuid())
+    organizationId String?
+    userId         String?
+    type           PurchaseType
+    customerId     String
+    subscriptionId String?       @unique
+    productId      String
+    status         String?
+    createdAt      DateTime      @default(now())
+    updatedAt      DateTime      @updatedAt
+    organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([subscriptionId])
-  @@map("purchase")
+    @@index([subscriptionId])
+    @@map("purchase")
 }
 
 model AiChat {
-  id             String        @id @default(cuid())
-  organizationId String?
-  userId         String?
-  title          String?
-  /// [Array<{role: "user" | "assistant"; content: string;}>]
-  /// @zod.custom.use(z.array(z.object({ role: z.enum(['user', 'assistant']), content: z.string() })))
-  messages       Json          @default("[]")
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id             String        @id @default(cuid())
+    organizationId String?
+    userId         String?
+    title          String?
+    /// [Array<{role: "user" | "assistant"; content: string;}>]
+    /// @zod.custom.use(z.array(z.object({ role: z.enum(['user', 'assistant']), content: z.string() })))
+    messages       Json          @default("[]")
+    createdAt      DateTime      @default(now())
+    updatedAt      DateTime      @updatedAt
+    organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("ai_chat")
+    @@map("ai_chat")
 }
 
 model BankAccount {
-  id             String          @id @default(cuid())
-  bankName       String
-  accountName    String?
-  accountNumber  String
-  currency       String          @default("TWD")
-  balance        Decimal         @default(0) @db.Decimal(15, 2)
-  status         String          @default("active")
-  organizationId String
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  customerId     String?
-  customer       Customer?       @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  profitSharing  ProfitSharing[]
+    id             String          @id @default(cuid())
+    bankName       String
+    accountName    String?
+    accountNumber  String
+    currency       String          @default("TWD")
+    balance        Decimal         @default(0) @db.Decimal(15, 2)
+    status         String          @default("active")
+    organizationId String
+    createdAt      DateTime        @default(now())
+    updatedAt      DateTime        @updatedAt
+    customerId     String?
+    customer       Customer?       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+    organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    profitSharing  ProfitSharing[]
 
-  @@unique([organizationId, accountNumber])
-  @@map("bank_account")
+    @@unique([organizationId, accountNumber])
+    @@map("bank_account")
 }
 
 model Expense {
-  id             String               @id @default(cuid())
-  category       String
-  amount         Decimal              @db.Decimal(15, 2)
-  currency       String               @default("TWD")
-  exchangeRate   Decimal              @default(1) @db.Decimal(10, 4)
-  receiptUrl     String?
-  description    String?
-  date           DateTime             @default(now())
-  organizationId String
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-  receiptUrls    String[]             @default([])
-  sgdAmount      Decimal              @default(0) @db.Decimal(15, 2)
-  usdAmount      Decimal              @default(0) @db.Decimal(15, 2)
-  usdRate        Decimal              @default(1) @db.Decimal(10, 4)
-  rmId           String?
-  organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  rm             RelationshipManager? @relation("ExpenseRM", fields: [rmId], references: [id])
+    id             String               @id @default(cuid())
+    category       String
+    amount         Decimal              @db.Decimal(15, 2)
+    currency       String               @default("TWD")
+    exchangeRate   Decimal              @default(1) @db.Decimal(10, 4)
+    receiptUrl     String?
+    description    String?
+    date           DateTime             @default(now())
+    organizationId String
+    createdAt      DateTime             @default(now())
+    updatedAt      DateTime             @updatedAt
+    receiptUrls    String[]             @default([])
+    sgdAmount      Decimal              @default(0) @db.Decimal(15, 2)
+    usdAmount      Decimal              @default(0) @db.Decimal(15, 2)
+    usdRate        Decimal              @default(1) @db.Decimal(10, 4)
+    rmId           String?
+    organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    rm             RelationshipManager? @relation("ExpenseRM", fields: [rmId], references: [id])
 
-  @@map("expense")
+    @@map("expense")
 }
 
 model Product {
-  id               String          @id @default(cuid())
-  name             String
-  code             String
-  currency         String          @default("USD")
-  organizationId   String
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  distributionType String          @default("MONTHLY")
-  status           String          @default("active")
-  category         String
-  organization     Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  profitSharing    ProfitSharing[]
+    id               String          @id @default(cuid())
+    name             String
+    code             String
+    currency         String          @default("USD")
+    organizationId   String
+    createdAt        DateTime        @default(now())
+    updatedAt        DateTime        @updatedAt
+    distributionType String          @default("MONTHLY")
+    status           String          @default("active")
+    category         String
+    organization     Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    profitSharing    ProfitSharing[]
 
-  @@unique([organizationId, code])
-  @@map("product")
+    @@unique([organizationId, code])
+    @@map("product")
 }
 
 model ProfitSharing {
-  id                        String       @id @default(cuid())
-  customerId                String
-  bankAccountId             String?
-  organizationId            String
-  createdAt                 DateTime     @default(now())
-  updatedAt                 DateTime     @updatedAt
-  amount                    Decimal      @db.Decimal(15, 2)
-  productId                 String
-  profitDate                DateTime     @default(now())
-  companyProfitSharePercent Decimal      @default(50.00) @db.Decimal(5, 2)
-  companyRevenue            Decimal      @db.Decimal(15, 2)
-  companyRevenueOriginal    Decimal      @db.Decimal(15, 2)
-  currency                  String       @default("USD")
-  directTradeBookingFee     Decimal      @db.Decimal(15, 2)
-  finderProfitSharePercent  Decimal      @default(0.00) @db.Decimal(5, 2)
-  findersRevenueOriginal    Decimal      @db.Decimal(15, 2)
-  findersRevenueUSD         Decimal      @db.Decimal(15, 2)
-  fxRate                    Decimal      @db.Decimal(10, 5)
-  rmProfitSharePercent      Decimal      @default(50.00) @db.Decimal(5, 2)
-  rmRevenueOriginal         Decimal      @db.Decimal(15, 2)
-  rmRevenueUSD              Decimal      @db.Decimal(15, 2)
-  shareable                 Decimal      @db.Decimal(15, 2)
-  finder1Id                 String?
-  finder1Name               String?
-  finder1ProfitSharePercent Decimal?     @db.Decimal(5, 2)
-  finder1RevenueOriginal    Decimal?     @db.Decimal(15, 2)
-  finder1RevenueUSD         Decimal?     @db.Decimal(15, 2)
-  finder2Id                 String?
-  finder2Name               String?
-  finder2ProfitSharePercent Decimal?     @db.Decimal(5, 2)
-  finder2RevenueOriginal    Decimal?     @db.Decimal(15, 2)
-  finder2RevenueUSD         Decimal?     @db.Decimal(15, 2)
-  rm1Id                     String?
-  rm1Name                   String?
-  rm1ProfitSharePercent     Decimal?     @db.Decimal(5, 2)
-  rm1RevenueOriginal        Decimal?     @db.Decimal(15, 2)
-  rm1RevenueUSD             Decimal?     @db.Decimal(15, 2)
-  rm2Id                     String?
-  rm2Name                   String?
-  rm2ProfitSharePercent     Decimal?     @db.Decimal(5, 2)
-  rm2RevenueOriginal        Decimal?     @db.Decimal(15, 2)
-  rm2RevenueUSD             Decimal?     @db.Decimal(15, 2)
-  bankRetroPercent          Decimal      @default(50.00) @db.Decimal(5, 2)
-  companyFeePercent         Decimal?     @db.Decimal(5, 2)
-  companyRevenuePercent     Decimal?     @db.Decimal(5, 2)
-  finder1FeePercent         Decimal?     @db.Decimal(5, 2)
-  finder1RevenuePercent     Decimal?     @db.Decimal(5, 2)
-  finder2FeePercent         Decimal?     @db.Decimal(5, 2)
-  finder2RevenuePercent     Decimal?     @db.Decimal(5, 2)
-  rm1FeePercent             Decimal?     @db.Decimal(5, 2)
-  rm1RevenuePercent         Decimal?     @db.Decimal(5, 2)
-  rm2FeePercent             Decimal?     @db.Decimal(5, 2)
-  rm2RevenuePercent         Decimal?     @db.Decimal(5, 2)
-  BankAccount               BankAccount? @relation(fields: [bankAccountId], references: [id])
-  customer                  Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  organization              Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  product                   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+    id                        String       @id @default(cuid())
+    customerId                String
+    bankAccountId             String?
+    organizationId            String
+    createdAt                 DateTime     @default(now())
+    updatedAt                 DateTime     @updatedAt
+    amount                    Decimal      @db.Decimal(15, 2)
+    productId                 String
+    profitDate                DateTime     @default(now())
+    companyProfitSharePercent Decimal      @default(50.00) @db.Decimal(5, 2)
+    companyRevenue            Decimal      @db.Decimal(15, 2)
+    companyRevenueOriginal    Decimal      @db.Decimal(15, 2)
+    currency                  String       @default("USD")
+    directTradeBookingFee     Decimal      @db.Decimal(15, 2)
+    finderProfitSharePercent  Decimal      @default(0.00) @db.Decimal(5, 2)
+    findersRevenueOriginal    Decimal      @db.Decimal(15, 2)
+    findersRevenueUSD         Decimal      @db.Decimal(15, 2)
+    fxRate                    Decimal      @db.Decimal(10, 5)
+    rmProfitSharePercent      Decimal      @default(50.00) @db.Decimal(5, 2)
+    rmRevenueOriginal         Decimal      @db.Decimal(15, 2)
+    rmRevenueUSD              Decimal      @db.Decimal(15, 2)
+    shareable                 Decimal      @db.Decimal(15, 2)
+    finder1Id                 String?
+    finder1Name               String?
+    finder1ProfitSharePercent Decimal?     @db.Decimal(5, 2)
+    finder1RevenueOriginal    Decimal?     @db.Decimal(15, 2)
+    finder1RevenueUSD         Decimal?     @db.Decimal(15, 2)
+    finder2Id                 String?
+    finder2Name               String?
+    finder2ProfitSharePercent Decimal?     @db.Decimal(5, 2)
+    finder2RevenueOriginal    Decimal?     @db.Decimal(15, 2)
+    finder2RevenueUSD         Decimal?     @db.Decimal(15, 2)
+    rm1Id                     String?
+    rm1Name                   String?
+    rm1ProfitSharePercent     Decimal?     @db.Decimal(5, 2)
+    rm1RevenueOriginal        Decimal?     @db.Decimal(15, 2)
+    rm1RevenueUSD             Decimal?     @db.Decimal(15, 2)
+    rm2Id                     String?
+    rm2Name                   String?
+    rm2ProfitSharePercent     Decimal?     @db.Decimal(5, 2)
+    rm2RevenueOriginal        Decimal?     @db.Decimal(15, 2)
+    rm2RevenueUSD             Decimal?     @db.Decimal(15, 2)
+    bankRetroPercent          Decimal      @default(50.00) @db.Decimal(5, 2)
+    companyFeePercent         Decimal?     @db.Decimal(5, 2)
+    companyRevenuePercent     Decimal?     @db.Decimal(5, 2)
+    finder1FeePercent         Decimal?     @db.Decimal(5, 2)
+    finder1RevenuePercent     Decimal?     @db.Decimal(5, 2)
+    finder2FeePercent         Decimal?     @db.Decimal(5, 2)
+    finder2RevenuePercent     Decimal?     @db.Decimal(5, 2)
+    rm1FeePercent             Decimal?     @db.Decimal(5, 2)
+    rm1RevenuePercent         Decimal?     @db.Decimal(5, 2)
+    rm2FeePercent             Decimal?     @db.Decimal(5, 2)
+    rm2RevenuePercent         Decimal?     @db.Decimal(5, 2)
+    BankAccount               BankAccount? @relation(fields: [bankAccountId], references: [id])
+    customer                  Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+    organization              Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    product                   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@map("profit_sharing")
+    @@map("profit_sharing")
 }
 
 model AssetTransaction {
-  id          String   @id @default(cuid())
-  customerId  String
-  date        DateTime @default(now())
-  currency    String   @default("USD")
-  type        String
-  amount      Decimal  @db.Decimal(15, 2)
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+    id          String   @id @default(cuid())
+    customerId  String
+    date        DateTime @default(now())
+    currency    String   @default("USD")
+    type        String
+    amount      Decimal  @db.Decimal(15, 2)
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
-  @@map("asset_transaction")
+    @@map("asset_transaction")
 }
 
 model ammeter {
-  id                  String    @id @db.VarChar
-  electricMeterNumber String    @db.VarChar
-  electricMeterName   String    @db.VarChar
-  deviceNumber        String    @unique @db.VarChar
-  factory             String?   @db.VarChar
-  device              String?   @db.VarChar
-  voltage             Float?
-  currents            Float?
-  power               Float?
-  battery             Float?
-  switchState         Int?
-  networkState        Int?
-  lastUpdated         DateTime? @db.Timestamp(6)
-  organizationId      String?   @db.VarChar
-  createdAt           DateTime? @db.Timestamp(6)
-  updatedAt           DateTime? @db.Timestamp(6)
+    id                  String    @id @db.VarChar
+    electricMeterNumber String    @db.VarChar
+    electricMeterName   String    @db.VarChar
+    deviceNumber        String    @unique @db.VarChar
+    factory             String?   @db.VarChar
+    device              String?   @db.VarChar
+    voltage             Float?
+    currents            Float?
+    power               Float?
+    battery             Float?
+    switchState         Int?
+    networkState        Int?
+    lastUpdated         DateTime? @db.Timestamp(6)
+    organizationId      String?   @db.VarChar
+    createdAt           DateTime? @db.Timestamp(6)
+    updatedAt           DateTime? @db.Timestamp(6)
 }
 
 model ammeter_log {
-  id             String    @id @db.VarChar
-  deviceNumber   String    @db.VarChar
-  action         String    @db.VarChar
-  factory        String?   @db.VarChar
-  device         String?   @db.VarChar
-  voltage        Float?
-  currents       Float?
-  power          Float?
-  battery        Float?
-  switchState    Int?
-  networkState   Int?
-  lastUpdated    DateTime? @db.Timestamp(6)
-  requestData    String?
-  responseData   String?
-  statusCode     Int?
-  success        Boolean
-  errorMessage   String?
-  responseTime   Int?
-  ipAddress      String?   @db.VarChar
-  userAgent      String?   @db.VarChar
-  userId         String?   @db.VarChar
-  organizationId String?   @db.VarChar
-  createdAt      DateTime? @db.Timestamp(6)
+    id             String    @id @db.VarChar
+    deviceNumber   String    @db.VarChar
+    action         String    @db.VarChar
+    factory        String?   @db.VarChar
+    device         String?   @db.VarChar
+    voltage        Float?
+    currents       Float?
+    power          Float?
+    battery        Float?
+    switchState    Int?
+    networkState   Int?
+    lastUpdated    DateTime? @db.Timestamp(6)
+    requestData    String?
+    responseData   String?
+    statusCode     Int?
+    success        Boolean
+    errorMessage   String?
+    responseTime   Int?
+    ipAddress      String?   @db.VarChar
+    userAgent      String?   @db.VarChar
+    userId         String?   @db.VarChar
+    organizationId String?   @db.VarChar
+    createdAt      DateTime? @db.Timestamp(6)
+}
+
+model ExperimentRun {
+    id          String  @id @default(cuid())
+    name        String // 人工命名的實驗名稱, e.g., "夏季尖峰分析-寬鬆規則"
+    description String? // 對此實驗的詳細描述
+
+    // Stage 1 的篩選參數，以JSON格式完整保存
+    /// [Object]
+    /// @zod.custom.use(z.record(z.any()))
+    filteringParameters Json?
+
+    // Stage 2 的標註結果統計
+    status             ExperimentRunStatus @default(CONFIGURING) // CONFIGURING, LABELING, COMPLETED
+    candidateCount     Int?
+    positiveLabelCount Int?
+    negativeLabelCount Int?
+
+    // 一個實驗批次會產生多個異常事件候選
+    anomalyEvents anomaly_event[]
+
+    // 一個實驗批次最終會訓練出一個模型
+    trainedModel TrainedModel?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("experiment_run")
 }
 
 model anomaly_event {
-  id                 String             @id
-  eventId            String             @unique
-  meterId            String
-  eventTimestamp     DateTime
-  detectionRule      String
-  score              Float
-  dataWindow         Json
-  status             AnomalyEventStatus @default(UNREVIEWED)
-  reviewerId         String?
-  reviewTimestamp    DateTime?
-  justificationNotes String?
-  organizationId     String
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime
-  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  event_label_link   event_label_link[]
+    id                 String             @id
+    eventId            String             @unique
+    meterId            String
+    eventTimestamp     DateTime
+    detectionRule      String
+    score              Float
+    dataWindow         Json
+    status             AnomalyEventStatus @default(UNREVIEWED)
+    reviewerId         String?
+    reviewTimestamp    DateTime?
+    justificationNotes String?
+    experimentRunId    String?
+    createdAt          DateTime           @default(now())
+    updatedAt          DateTime
+    experimentRun      ExperimentRun?     @relation(fields: [experimentRunId], references: [id], onDelete: SetNull)
+    event_label_link   event_label_link[]
 }
 
 model anomaly_label {
-  id               String             @id
-  name             String
-  description      String?
-  organizationId   String
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime
-  organization     Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  event_label_link event_label_link[]
+    id               String             @id
+    name             String
+    description      String?
+    createdAt        DateTime           @default(now())
+    updatedAt        DateTime
+    event_label_link event_label_link[]
 
-  @@unique([organizationId, name])
+    @@unique([name])
 }
 
 model borrow_god {
-  id             String       @id
-  godNameId      String
-  applyName      String?
-  startDate      DateTime
-  endDate        DateTime?
-  typeId         String       @default("1")
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  god_name       god_name     @relation(fields: [godNameId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    id             String       @id
+    godNameId      String
+    applyName      String?
+    startDate      DateTime
+    endDate        DateTime?
+    typeId         String       @default("1")
+    organizationId String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    god_name       god_name     @relation(fields: [godNameId], references: [id], onDelete: Cascade)
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model buddhist {
-  id             String       @id
-  name           String
-  cellphone      String?
-  phone          String?
-  templeNowText  String?
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    id             String       @id
+    name           String
+    cellphone      String?
+    phone          String?
+    templeNowText  String?
+    organizationId String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model event_label_link {
-  id            String        @id
-  eventId       String
-  labelId       String
-  createdAt     DateTime      @default(now())
-  anomaly_event anomaly_event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  anomaly_label anomaly_label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+    id            String        @id
+    eventId       String
+    labelId       String
+    createdAt     DateTime      @default(now())
+    anomaly_event anomaly_event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    anomaly_label anomaly_label @relation(fields: [labelId], references: [id], onDelete: Cascade)
 
-  @@unique([eventId, labelId])
+    @@unique([eventId, labelId])
 }
 
 model family {
-  id             String          @id
-  name           String
-  address        String?
-  phone          String?
-  mobile         String?
-  email          String?
-  note           String?
-  postalCode     String?
-  organizationId String
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime
-  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  family_member  family_member[]
-  servicing1     servicing1[]
-  servicing2     servicing2[]
+    id             String          @id
+    name           String
+    address        String?
+    phone          String?
+    mobile         String?
+    email          String?
+    note           String?
+    postalCode     String?
+    organizationId String
+    createdAt      DateTime        @default(now())
+    updatedAt      DateTime
+    organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    family_member  family_member[]
+    servicing1     servicing1[]
+    servicing2     servicing2[]
 }
 
 model family_member {
-  id             String       @id
-  name           String
-  relation       String?
-  birthday       DateTime?
-  lunarDate      String?
-  gender         String?
-  note           String?
-  mainPerson     String       @default("-1")
-  mailThis       String       @default("-1")
-  isLive         String       @default("1")
-  postcode       String?
-  addr           String?
-  familyId       String
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  family         family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    id             String       @id
+    name           String
+    relation       String?
+    birthday       DateTime?
+    lunarDate      String?
+    gender         String?
+    note           String?
+    mainPerson     String       @default("-1")
+    mailThis       String       @default("-1")
+    isLive         String       @default("1")
+    postcode       String?
+    addr           String?
+    familyId       String
+    organizationId String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    family         family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model god_name {
-  id             String       @id
-  value          String
-  price          Decimal      @default(0) @db.Decimal(15, 2)
-  order          Int          @default(0)
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  borrow_god     borrow_god[]
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    id             String       @id
+    value          String
+    price          Decimal      @default(0) @db.Decimal(15, 2)
+    order          Int          @default(0)
+    organizationId String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    borrow_god     borrow_god[]
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model member_class {
-  id             String       @id
-  name           String
-  type           String
-  level          Int          @default(0)
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    id             String       @id
+    name           String
+    type           String
+    level          Int          @default(0)
+    organizationId String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 model mgyear {
-  id             String       @id
-  order          Int          @default(0)
-  mgyear         String
-  year           String
-  nowUse         String       @default("0")
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    id             String       @id
+    order          Int          @default(0)
+    mgyear         String
+    year           String
+    nowUse         String       @default("0")
+    organizationId String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@unique([organizationId, mgyear])
-  @@unique([organizationId, year])
+    @@unique([organizationId, mgyear])
+    @@unique([organizationId, year])
 }
 
 model service1 {
-  id             String       @id
-  name           String
-  type           String
-  level          Int          @default(0)
-  nowUse         String       @default("-1")
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  service2       service2[]
-  servicing1     servicing1[]
-  servicing2     servicing2[]
+    id             String       @id
+    name           String
+    type           String
+    level          Int          @default(0)
+    nowUse         String       @default("-1")
+    organizationId String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    service2       service2[]
+    servicing1     servicing1[]
+    servicing2     servicing2[]
 }
 
 model service2 {
-  id             String       @id
-  name           String
-  level          Int          @default(0)
-  nowUse         String       @default("-1")
-  service1Id     String
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  service1       service1     @relation(fields: [service1Id], references: [id], onDelete: Cascade)
-  servicing1     servicing1[]
-  servicing2     servicing2[]
+    id             String       @id
+    name           String
+    level          Int          @default(0)
+    nowUse         String       @default("-1")
+    service1Id     String
+    organizationId String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    service1       service1     @relation(fields: [service1Id], references: [id], onDelete: Cascade)
+    servicing1     servicing1[]
+    servicing2     servicing2[]
 }
 
 model servicing1 {
-  id             String       @id
-  familyId       String
-  organizationId String
-  ordernum       String
-  year           String
-  applyDate      DateTime
-  applyText      String
-  cellphone      String?
-  addr           String?
-  printType1Id   String?
-  service1Id     String
-  service2Id     String?
-  serial         String?
-  accReceivable  Decimal      @default(0) @db.Decimal(15, 2)
-  accReceived    Decimal      @default(0) @db.Decimal(15, 2)
-  accPending     Decimal      @default(0) @db.Decimal(15, 2)
-  payStatus      String?
-  payMethod      String?
-  payCurrency    String       @default("TWD")
-  receiptNum     String?
-  booksNum       String?
-  payee          String?
-  advisePeople   String?
-  ps             String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  family         family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  service1       service1     @relation(fields: [service1Id], references: [id], onDelete: Cascade)
-  service2       service2?    @relation(fields: [service2Id], references: [id])
-  servicing2     servicing2[]
+    id             String       @id
+    familyId       String
+    organizationId String
+    ordernum       String
+    year           String
+    applyDate      DateTime
+    applyText      String
+    cellphone      String?
+    addr           String?
+    printType1Id   String?
+    service1Id     String
+    service2Id     String?
+    serial         String?
+    accReceivable  Decimal      @default(0) @db.Decimal(15, 2)
+    accReceived    Decimal      @default(0) @db.Decimal(15, 2)
+    accPending     Decimal      @default(0) @db.Decimal(15, 2)
+    payStatus      String?
+    payMethod      String?
+    payCurrency    String       @default("TWD")
+    receiptNum     String?
+    booksNum       String?
+    payee          String?
+    advisePeople   String?
+    ps             String?
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    family         family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    service1       service1     @relation(fields: [service1Id], references: [id], onDelete: Cascade)
+    service2       service2?    @relation(fields: [service2Id], references: [id])
+    servicing2     servicing2[]
 
-  @@unique([organizationId, ordernum, year])
+    @@unique([organizationId, ordernum, year])
 }
 
 model servicing2 {
-  id             String       @id
-  familyId       String
-  organizationId String
-  servicing1Id   String
-  ordernum       String
-  year           String
-  service1Id     String
-  service2Id     String?
-  serial         String?
-  praytypeId     String?
-  printType1Id   String?
-  printType2Id   String?
-  livename       String?
-  people1        Json?
-  passname       String?
-  passname1      String?
-  passname2      String?
-  passname3      String?
-  passname4      String?
-  people0        Json?
-  name           String?
-  sexualId       String?
-  sexualText     String?
-  liveYear       Int?
-  boxNum         String?
-  rowTotal       Decimal      @default(0) @db.Decimal(15, 2)
-  bornYear       String?
-  bornMonth      String?
-  bornDay        String?
-  bornTime       String?
-  addr           String?
-  ps             String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  family         family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  service1       service1     @relation(fields: [service1Id], references: [id], onDelete: Cascade)
-  service2       service2?    @relation(fields: [service2Id], references: [id])
-  servicing1     servicing1   @relation(fields: [servicing1Id], references: [id], onDelete: Cascade)
+    id             String       @id
+    familyId       String
+    organizationId String
+    servicing1Id   String
+    ordernum       String
+    year           String
+    service1Id     String
+    service2Id     String?
+    serial         String?
+    praytypeId     String?
+    printType1Id   String?
+    printType2Id   String?
+    livename       String?
+    people1        Json?
+    passname       String?
+    passname1      String?
+    passname2      String?
+    passname3      String?
+    passname4      String?
+    people0        Json?
+    name           String?
+    sexualId       String?
+    sexualText     String?
+    liveYear       Int?
+    boxNum         String?
+    rowTotal       Decimal      @default(0) @db.Decimal(15, 2)
+    bornYear       String?
+    bornMonth      String?
+    bornDay        String?
+    bornTime       String?
+    addr           String?
+    ps             String?
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    family         family       @relation(fields: [familyId], references: [id], onDelete: Cascade)
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    service1       service1     @relation(fields: [service1Id], references: [id], onDelete: Cascade)
+    service2       service2?    @relation(fields: [service2Id], references: [id])
+    servicing1     servicing1   @relation(fields: [servicing1Id], references: [id], onDelete: Cascade)
 }
 
 model temple {
-  id             String       @id
-  name           String
-  address        String?
-  phone          String?
-  email          String?
-  description    String?
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    id             String       @id
+    name           String
+    address        String?
+    phone          String?
+    email          String?
+    description    String?
+    organizationId String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 enum PurchaseType {
-  SUBSCRIPTION
-  ONE_TIME
+    SUBSCRIPTION
+    ONE_TIME
+}
+
+model TrainedModel {
+    id                  String         @id @default(cuid())
+    modelName           String         @unique
+    modelType           String // "uPU" or "nnPU"
+    modelPath           String // 儲存模型檔案(.joblib)的路徑
+    precision           Float
+    recall              Float
+    f1Score             Float
+    /// [Object]
+    /// @zod.custom.use(z.record(z.any()))
+    trainingDataSummary Json // JSON 格式的訓練數據摘要
+    experimentRunId     String?        @unique
+    createdAt           DateTime       @default(now())
+    updatedAt           DateTime       @updatedAt
+    experimentRun       ExperimentRun? @relation(fields: [experimentRunId], references: [id], onDelete: SetNull)
+
+    @@map("trained_model")
 }
 
 enum AnomalyEventStatus {
-  UNREVIEWED
-  CONFIRMED_POSITIVE
-  REJECTED_NORMAL
+    UNREVIEWED
+    CONFIRMED_POSITIVE
+    REJECTED_NORMAL
+}
+
+enum ExperimentRunStatus {
+    CONFIGURING
+    LABELING
+    COMPLETED
 }

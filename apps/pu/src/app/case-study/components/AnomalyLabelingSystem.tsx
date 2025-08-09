@@ -1,7 +1,7 @@
 "use client";
 
-import { BarChart3, Database, Info, UserCheck } from "lucide-react";
-import { useCallback, useState } from "react";
+import { Info, Target } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { Alert, AlertDescription } from "../../../components/ui/alert";
 import { Badge } from "../../../components/ui/badge";
 import {
@@ -10,234 +10,385 @@ import {
 	CardHeader,
 	CardTitle,
 } from "../../../components/ui/card";
-import { AnomalyCandidatesPanel } from "./AnomalyCandidatesPanel";
-import { ReviewDecisionPanel } from "./ReviewDecisionPanel";
-import { TimeSeriesAnalysisPanel } from "./TimeSeriesAnalysisPanel";
+import { useCaseStudyData } from "../../../hooks/use-case-study-data";
+import { DecisionPanel } from "./shared/DecisionPanel";
+import { EventList } from "./shared/EventList";
+import { StatsDashboard } from "./shared/StatsDashboard";
+import { TimeSeriesChart } from "./shared/TimeSeriesChart";
 import type { AnomalyEvent, AnomalyEventStats } from "./types";
 
-export function AnomalyLabelingSystem() {
+interface FilterParams {
+	startDate: Date;
+	endDate: Date;
+	zScoreThreshold: number;
+	spikePercentage: number;
+	minEventDuration: number;
+	weekendHolidayDetection: boolean;
+	maxTimeGap: number;
+	peerAggWindow: number;
+	peerExceedPercentage: number;
+}
+
+interface AnomalyLabelingSystemProps {
+	candidateCount?: number;
+	filterParams?: FilterParams;
+	experimentRunId?: string;
+	onLabelingProgress?: (positive: number, normal: number) => void;
+}
+
+export function AnomalyLabelingSystem({
+	candidateCount = 0,
+	filterParams,
+	experimentRunId,
+	onLabelingProgress,
+}: AnomalyLabelingSystemProps) {
 	const [selectedEvent, setSelectedEvent] = useState<AnomalyEvent | null>(
 		null,
 	);
 	const [stats, setStats] = useState<AnomalyEventStats | null>(null);
-	const [refreshKey, setRefreshKey] = useState(0);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [currentFilters, setCurrentFilters] = useState({});
+	const [chartLoading, setChartLoading] = useState(false);
+	const [meterLabelMap, setMeterLabelMap] = useState<Record<string, string>>(
+		{},
+	);
 
-	// 模擬組織ID，實際使用時應該從認證系統獲取
-	const organizationId = "demo-org-id";
+	// use case study data hook
+	const {
+		events,
+		eventsLoading,
+		loadEvents,
+		reviewEvent,
+		loadStats,
+		getEventDetail,
+	} = useCaseStudyData();
 
-	// 處理事件選擇
-	const handleEventSelect = useCallback((event: AnomalyEvent) => {
-		setSelectedEvent(event);
-	}, []);
+	// handle event select
+	const handleEventSelect = useCallback(
+		async (event: AnomalyEvent) => {
+			setSelectedEvent(event);
+			setChartLoading(true);
+			try {
+				const full = await getEventDetail(event.id);
+				setSelectedEvent(full);
+			} finally {
+				setChartLoading(false);
+			}
+		},
+		[getEventDetail],
+	);
 
-	// 處理統計更新
+	// handle stats update
 	const handleStatsUpdate = useCallback((newStats: AnomalyEventStats) => {
 		setStats(newStats);
 	}, []);
 
-	// 處理審核提交完成
-	const handleReviewSubmitted = useCallback(() => {
-		// 觸發重新載入
-		setRefreshKey((prev) => prev + 1);
+	// handle label submit
+	const handleLabelSubmit = useCallback(
+		async (eventId: string, label: string, notes?: string) => {
+			setIsSubmitting(true);
+			try {
+				await reviewEvent(eventId, {
+					status: label,
+					reviewerId: "demo-reviewer",
+					justificationNotes: notes,
+				});
 
-		// 如果當前選中的事件被審核了，可以選擇清除選擇或保持選中
-		// 這裡我們保持選中狀態，讓用戶可以看到更新後的狀態
+				// 重新載入事件列表
+				await loadEvents();
+
+				// 更新選中的事件狀態
+				if (selectedEvent?.id === eventId) {
+					setSelectedEvent({
+						...selectedEvent,
+						status: label as
+							| "CONFIRMED_POSITIVE"
+							| "REJECTED_NORMAL"
+							| "UNREVIEWED",
+						justificationNotes: notes,
+						reviewTimestamp: new Date().toISOString(),
+						reviewerId: "demo-reviewer",
+					});
+				}
+			} finally {
+				setIsSubmitting(false);
+			}
+		},
+		[reviewEvent, loadEvents, selectedEvent],
+	);
+
+	// handle filter changes
+	const handleFiltersChange = useCallback(
+		async (filters: any) => {
+			const merged = experimentRunId
+				? { ...filters, experimentRunId }
+				: filters;
+			setCurrentFilters(merged);
+			await loadEvents(merged);
+		},
+		[loadEvents, experimentRunId],
+	);
+
+	// handle pagination
+	const handlePageChange = useCallback(
+		async (page: number) => {
+			const merged = experimentRunId
+				? { ...currentFilters, experimentRunId }
+				: currentFilters;
+			await loadEvents({ ...merged, page });
+		},
+		[loadEvents, currentFilters, experimentRunId],
+	);
+
+	// handle refresh
+	const handleRefresh = useCallback(async () => {
+		const merged = experimentRunId
+			? { ...currentFilters, experimentRunId }
+			: currentFilters;
+		await loadEvents(merged);
+		await loadStats(experimentRunId);
+	}, [loadEvents, loadStats, currentFilters, experimentRunId]);
+
+	// initial load; re-run when candidateCount changes
+	useEffect(() => {
+		const baseFilters = experimentRunId ? { experimentRunId } : {};
+		if (candidateCount > 0) {
+			setSelectedEvent(null);
+			setStats(null);
+			setTimeout(() => {
+				setCurrentFilters(baseFilters);
+				loadEvents(baseFilters as any);
+				loadStats(experimentRunId);
+			}, 1000);
+		} else {
+			setCurrentFilters(baseFilters);
+			loadEvents(baseFilters as any);
+			loadStats(experimentRunId);
+		}
+	}, [loadEvents, loadStats, candidateCount, experimentRunId]);
+
+	// load meter label map (deviceNumber -> electricMeterName)
+	useEffect(() => {
+		async function loadAmmeterMap() {
+			try {
+				const res = await fetch("http://localhost:8000/api/ammeters", {
+					method: "GET",
+					headers: { "Content-Type": "application/json" },
+				});
+				if (!res.ok) return;
+				const json = await res.json();
+				if (json?.success && Array.isArray(json.data)) {
+					const map: Record<string, string> = {};
+					for (const item of json.data) {
+						const info = item?.deviceInfo;
+						if (info?.deviceNumber && info?.electricMeterName) {
+							map[info.deviceNumber] =
+								info.electricMeterName as string;
+						}
+					}
+					setMeterLabelMap(map);
+				}
+			} catch {
+				// ignore mapping errors
+			}
+		}
+
+		loadAmmeterMap();
 	}, []);
+
+	// propagate stats & progress to parent
+	useEffect(() => {
+		if (events) {
+			const statsData: AnomalyEventStats = {
+				total: events.total,
+				unreviewed: events.events.filter(
+					(e) => e.status === "UNREVIEWED",
+				).length,
+				confirmed: events.events.filter(
+					(e) => e.status === "CONFIRMED_POSITIVE",
+				).length,
+				rejected: events.events.filter(
+					(e) => e.status === "REJECTED_NORMAL",
+				).length,
+				avgScore:
+					events.events.reduce((sum, e) => sum + e.score, 0) /
+						events.events.length || 0,
+				maxScore: Math.max(...events.events.map((e) => e.score), 0),
+				uniqueMeters: new Set(events.events.map((e) => e.meterId)).size,
+			};
+			setStats(statsData);
+
+			// Update parent component with labeling progress
+			if (onLabelingProgress) {
+				onLabelingProgress(statsData.confirmed, statsData.rejected);
+			}
+		}
+	}, [events, onLabelingProgress]);
 
 	return (
 		<div className="space-y-6">
-			{/* 系統介紹 */}
+			{/* Debug Panel removed as requested */}
+			{/* System Introduction */}
 			<div className="space-y-4">
 				<div className="text-center">
 					<h2 className="text-2xl font-bold text-gray-900 mb-2">
-						異常事件標記系統
+						Anomaly Event Labeling System
 					</h2>
 					<p className="text-gray-600 max-w-3xl mx-auto">
-						這是一個專為電錶異常檢測研究設計的標記系統。
-						研究員可以審核由演算法檢測到的異常候選事件，並為確認的異常事件添加標籤，
-						以建立高品質的訓練資料集用於進一步的機器學習研究。
+						This is a specialized labeling system designed for smart
+						meter anomaly detection research. Researchers can review
+						candidate anomaly events detected by algorithms and add
+						labels to confirmed anomalies, creating high-quality
+						training datasets for further machine learning research.
 					</p>
 				</div>
 
 				<Alert>
 					<Info className="size-4" />
 					<AlertDescription>
-						<strong>使用流程：</strong>
-						1. 從左側選擇待審核的事件 → 2.
-						在中間查看詳細的時序資料分析 → 3.
-						在右側做出審核決策並添加標籤
+						<strong>Workflow:</strong>
+						1. Select events for review from the left panel → 2.
+						View detailed time series analysis in the center → 3.
+						Make review decisions and add labels on the right panel
 					</AlertDescription>
 				</Alert>
 
-				{/* 統計概覽 */}
-				{stats && (
-					<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-						<Card>
-							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									總事件數
-								</CardTitle>
-								<Database className="size-4 text-muted-foreground" />
-							</CardHeader>
-							<CardContent>
-								<div className="text-2xl font-bold">
-									{stats.total}
+				{/* Candidate Data Information */}
+				{candidateCount > 0 && (
+					<Alert className="bg-blue-50 border-blue-200">
+						<Target className="h-4 w-4 text-blue-600" />
+						<AlertDescription>
+							<strong>Candidate Data Source:</strong> This
+							labeling system is working with{" "}
+							<span className="font-semibold text-blue-700">
+								{candidateCount.toLocaleString()}
+							</span>{" "}
+							candidate anomaly events identified from Stage 1
+							multi-dimensional filtering.
+							{filterParams && (
+								<div className="mt-2 text-sm">
+									<strong>Filter Configuration:</strong> Date
+									range:{" "}
+									{filterParams.startDate.toLocaleDateString()}{" "}
+									-{" "}
+									{filterParams.endDate.toLocaleDateString()},
+									Z-Score threshold:{" "}
+									{filterParams.zScoreThreshold}, Spike
+									threshold: {filterParams.spikePercentage}%
 								</div>
-							</CardContent>
-						</Card>
-
-						<Card>
-							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									待審核
-								</CardTitle>
-								<UserCheck className="size-4 text-orange-500" />
-							</CardHeader>
-							<CardContent>
-								<div className="text-2xl font-bold text-orange-600">
-									{stats.unreviewed}
-								</div>
-								<p className="text-xs text-muted-foreground">
-									剩餘{" "}
-									{(
-										(stats.unreviewed / stats.total) *
-										100
-									).toFixed(1)}
-									%
-								</p>
-							</CardContent>
-						</Card>
-
-						<Card>
-							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									已確認異常
-								</CardTitle>
-								<BarChart3 className="size-4 text-green-500" />
-							</CardHeader>
-							<CardContent>
-								<div className="text-2xl font-bold text-green-600">
-									{stats.confirmed}
-								</div>
-								<p className="text-xs text-muted-foreground">
-									{(
-										(stats.confirmed / stats.total) *
-										100
-									).toFixed(1)}
-									% 異常率
-								</p>
-							</CardContent>
-						</Card>
-
-						<Card>
-							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									已駁回正常
-								</CardTitle>
-								<BarChart3 className="size-4 text-red-500" />
-							</CardHeader>
-							<CardContent>
-								<div className="text-2xl font-bold text-red-600">
-									{stats.rejected}
-								</div>
-								<p className="text-xs text-muted-foreground">
-									{(
-										(stats.rejected / stats.total) *
-										100
-									).toFixed(1)}
-									% 誤檢率
-								</p>
-							</CardContent>
-						</Card>
-					</div>
+							)}
+						</AlertDescription>
+					</Alert>
 				)}
+
+				{/* Statistics Overview */}
+				<StatsDashboard stats={stats} />
 			</div>
 
-			{/* 主要標記界面 */}
+			{/* Main Labeling Interface */}
 			<Card>
 				<CardHeader>
 					<div className="flex items-center justify-between">
 						<CardTitle className="text-lg">
-							異常事件標記工作台
+							Anomaly Event Labeling Workbench
 						</CardTitle>
 						<div className="flex items-center gap-2">
-							<Badge variant="outline">實時資料</Badge>
-							<Badge variant="outline">智慧標記</Badge>
+							<Badge variant="outline">Real-time Data</Badge>
+							<Badge variant="outline">Smart Labeling</Badge>
 						</div>
 					</div>
 				</CardHeader>
 				<CardContent className="p-0">
 					<div className="h-[800px] flex">
-						{/* 左側：異常候選事件列表 */}
-						<div className="w-80 flex-shrink-0">
-							<AnomalyCandidatesPanel
-								key={`candidates-${refreshKey}`}
-								organizationId={organizationId}
+						{/* Left: Anomaly Candidate Event List */}
+						<div className="w-80 flex-shrink-0 p-4 border-r">
+							<EventList
+								events={events?.events || []}
 								selectedEventId={selectedEvent?.id}
+								isLoading={eventsLoading}
 								onEventSelect={handleEventSelect}
-								onStatsUpdate={handleStatsUpdate}
+								onRefresh={handleRefresh}
+								showSearch={true}
+								showStatusFilter={true}
+								total={events?.total || 0}
+								page={events?.page || 1}
+								limit={events?.limit || 50}
+								onPageChange={handlePageChange}
+								onFiltersChange={handleFiltersChange}
+								meterLabelMap={meterLabelMap}
 							/>
 						</div>
 
-						{/* 中間：時序資料分析 */}
-						<div className="flex-1">
-							<TimeSeriesAnalysisPanel
+						{/* Center: Time Series Data Analysis */}
+						<div className="flex-1 p-4">
+							<TimeSeriesChart
 								selectedEvent={selectedEvent}
+								isLoading={chartLoading}
 							/>
 						</div>
 
-						{/* 右側：審核決策面板 */}
-						<div className="w-80 flex-shrink-0">
-							<ReviewDecisionPanel
+						{/* Right: Review Decision Panel */}
+						<div className="w-80 flex-shrink-0 p-4 border-l">
+							<DecisionPanel
 								selectedEvent={selectedEvent}
-								organizationId={organizationId}
-								onReviewSubmitted={handleReviewSubmitted}
+								onLabelSubmit={handleLabelSubmit}
+								isSubmitting={isSubmitting}
 							/>
 						</div>
 					</div>
 				</CardContent>
 			</Card>
 
-			{/* 技術說明 */}
+			{/* Technical Documentation */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-lg">技術架構說明</CardTitle>
+					<CardTitle className="text-lg">
+						Technical Architecture Overview
+					</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 						<div>
 							<h4 className="font-semibold text-gray-900 mb-2">
-								資料處理流程
+								Data Processing Pipeline
 							</h4>
 							<ul className="text-sm text-gray-600 space-y-1">
-								<li>• 自動化異常檢測演算法</li>
-								<li>• Z-score 與統計偏差分析</li>
-								<li>• 時序模式識別</li>
-								<li>• 候選事件自動生成</li>
+								<li>
+									• Automated anomaly detection algorithms
+								</li>
+								<li>
+									• Z-score and statistical deviation analysis
+								</li>
+								<li>• Time series pattern recognition</li>
+								<li>• Candidate event auto-generation</li>
 							</ul>
 						</div>
 
 						<div>
 							<h4 className="font-semibold text-gray-900 mb-2">
-								標記系統特色
+								Labeling System Features
 							</h4>
 							<ul className="text-sm text-gray-600 space-y-1">
-								<li>• 人機協作標記界面</li>
-								<li>• 多維度標籤分類</li>
-								<li>• 審核歷史追蹤</li>
-								<li>• 品質控制機制</li>
+								<li>
+									• Human-AI collaborative labeling interface
+								</li>
+								<li>
+									• Multi-dimensional label classification
+								</li>
+								<li>• Review history tracking</li>
+								<li>• Quality control mechanisms</li>
 							</ul>
 						</div>
 
 						<div>
 							<h4 className="font-semibold text-gray-900 mb-2">
-								研究應用價值
+								Research Application Value
 							</h4>
 							<ul className="text-sm text-gray-600 space-y-1">
-								<li>• 訓練資料品質提升</li>
-								<li>• PU Learning 效能優化</li>
-								<li>• 領域知識整合</li>
-								<li>• 可解釋性增強</li>
+								<li>• Training data quality improvement</li>
+								<li>• PU Learning performance optimization</li>
+								<li>• Domain knowledge integration</li>
+								<li>• Explainability enhancement</li>
 							</ul>
 						</div>
 					</div>

@@ -3,13 +3,12 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Badge } from "../../../components/ui/badge";
-import { AnomalyLabelingSystem } from "./AnomalyLabelingSystem";
 import { BottomNavigation } from "./BottomNavigation";
+import { DataExplorationPhase } from "./DataExplorationPhase";
 import { ImplementationPhase } from "./ImplementationPhase";
 import { MethodologyPhase } from "./MethodologyPhase";
-import { PLabelingPhase } from "./PLabelingPhase";
+import { ModelTrainingPhase } from "./ModelTrainingPhase";
 import { ProblemPhase } from "./ProblemPhase";
-import { ResultsPhase } from "./ResultsPhase";
 import TabNavigation, { type TabKey } from "./TabNavigation";
 
 export default function CaseStudyPageContent() {
@@ -28,9 +27,8 @@ export default function CaseStudyPageContent() {
 				"problem",
 				"methodology",
 				"implementation",
-				"results",
-				"plabeling",
-				"labeling-system",
+				"data-exploration",
+				"model-training",
 			].includes(tab)
 		) {
 			setActivePhase(tab);
@@ -61,9 +59,8 @@ export default function CaseStudyPageContent() {
 				{activePhase === "problem" && <ProblemPhase />}
 				{activePhase === "methodology" && <MethodologyPhase />}
 				{activePhase === "implementation" && <ImplementationPhase />}
-				{activePhase === "results" && <ResultsPhase />}
-				{activePhase === "plabeling" && <PLabelingPhase />}
-				{activePhase === "labeling-system" && <AnomalyLabelingSystem />}
+				{activePhase === "data-exploration" && <DataExplorationPhase />}
+				{activePhase === "model-training" && <ModelTrainingPhase />}
 
 				{/* Bottom Navigation */}
 				<BottomNavigation />

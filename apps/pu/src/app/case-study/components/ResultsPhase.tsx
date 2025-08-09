@@ -1,9 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
 import {
 	BarChart3,
 	Brain,
@@ -13,6 +9,15 @@ import {
 	Zap,
 } from "lucide-react";
 import { useState } from "react";
+import { Badge } from "../../../components/ui/badge";
+import { Button } from "../../../components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "../../../components/ui/card";
+import { Slider } from "../../../components/ui/slider";
 import { InteractiveModelComparison } from "./interactive-model-comparison";
 import { PerformanceMetricsComparison } from "./performance-metrics-comparison";
 

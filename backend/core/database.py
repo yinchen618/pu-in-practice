@@ -71,6 +71,14 @@ class DatabaseManager:
     def __init__(self):
         self.session_factory = async_session
 
+    def get_session(self):
+        """獲取資料庫會話"""
+        return self.session_factory()
+    
+    def get_async_session(self):
+        """獲取異步資料庫會話"""
+        return self.session_factory()
+
     async def save_ammeter_data(self, ammeter_data: Dict[str, Any]) -> Optional[str]:
         async with self.session_factory() as session:
             # 依 deviceNumber 查找

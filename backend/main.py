@@ -5,6 +5,9 @@ from routes.ammeters import ammeters_router
 from routes.pu_learning import router as pu_learning_router
 from routes.testbed import router as testbed_router
 from routes.casestudy import router as casestudy_router
+from routes.candidates import router as candidates_router
+from routes.experiment_runs import router as experiment_runs_router
+from routes.models import router as models_router
 from ai_api import router as ai_router
 import asyncio
 import argparse
@@ -33,6 +36,12 @@ app.include_router(pu_learning_router)
 app.include_router(testbed_router)
 # 包含 Case Study 路由
 app.include_router(casestudy_router)
+# 包含新的候選事件 API
+app.include_router(candidates_router)
+# 包含實驗批次管理 API
+app.include_router(experiment_runs_router)
+# 包含新的模型訓練 API
+app.include_router(models_router)
 
 # 導入並包含完整的 coding 應用程式
 import sys

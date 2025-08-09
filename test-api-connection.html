@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 連接測試</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            white-space: pre-wrap;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>API 連接測試頁面</h1>
+    <p>測試前端與 Python 後端 <code>localhost:8000/api</code> 的連接</p>
+
+    <div class="test-section">
+        <h3>測試 1: 獲取異常事件列表</h3>
+        <button onclick="testGetEvents()">測試 GET /api/v1/events</button>
+        <button onclick="testGetEventsWithPagination()">測試分頁 (第2頁)</button>
+        <button onclick="testGetEventsWithFilter()">測試篩選 (只看待審核)</button>
+        <div id="events-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>測試 2: 獲取統計資料</h3>
+        <button onclick="testGetStats()">測試 GET /api/v1/stats</button>
+        <div id="stats-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>測試 3: 獲取標籤列表</h3>
+        <button onclick="testGetLabels()">測試 GET /api/v1/labels</button>
+        <div id="labels-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>測試 4: 獲取單個事件詳情</h3>
+        <input type="text" id="event-id" placeholder="輸入事件 ID" style="margin-right: 10px;">
+        <button onclick="testGetEventDetail()">測試 GET /api/v1/events/{id}</button>
+        <div id="event-detail-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>測試 5: 成果與洞察</h3>
+        <button onclick="testGetInsights()">測試 GET /api/v1/project/insights</button>
+        <div id="insights-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>測試 6: 檔案上傳</h3>
+        <input type="file" id="file-input" accept=".csv,.json,.parquet">
+        <button onclick="testFileUpload()">測試檔案上傳</button>
+        <div id="upload-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>測試 7: 審核事件</h3>
+        <button onclick="testReviewEvent()">測試審核事件 (標記為異常)</button>
+        <div id="review-result" class="result"></div>
+    </div>
+
+    <script>
+        const baseUrl = 'http://localhost:8000/api';
+
+        async function makeRequest(url, options = {}) {
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    ...options
+                });
+                
+                const contentType = response.headers.get('content-type');
+                let data;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+                
+                return {
+                    ok: response.ok,
+                    status: response.status,
+                    data: data
+                };
+            } catch (error) {
+                return {
+                    ok: false,
+                    status: 0,
+                    error: error.message
+                };
+            }
+        }
+
+        function displayResult(elementId, result) {
+            const element = document.getElementById(elementId);
+            const className = result.ok ? 'success' : 'error';
+            
+            let content = `狀態碼: ${result.status}\n`;
+            
+            if (result.error) {
+                content += `錯誤: ${result.error}\n`;
+            }
+            
+            if (result.data) {
+                content += `回應內容:\n${JSON.stringify(result.data, null, 2)}`;
+            }
+            
+            element.className = `result ${className}`;
+            element.textContent = content;
+        }
+
+        async function testGetEvents() {
+            console.log('測試獲取異常事件列表...');
+            const result = await makeRequest(`${baseUrl}/v1/events`);
+            displayResult('events-result', result);
+        }
+
+        async function testGetEventsWithPagination() {
+            console.log('測試分頁功能...');
+            const result = await makeRequest(`${baseUrl}/v1/events?page=2&limit=10`);
+            displayResult('events-result', result);
+        }
+
+        async function testGetEventsWithFilter() {
+            console.log('測試篩選功能...');
+            const result = await makeRequest(`${baseUrl}/v1/events?status=UNREVIEWED&limit=10`);
+            displayResult('events-result', result);
+        }
+
+        async function testGetStats() {
+            console.log('測試獲取統計資料...');
+            const result = await makeRequest(`${baseUrl}/v1/stats`);
+            displayResult('stats-result', result);
+        }
+
+        async function testGetLabels() {
+            console.log('測試獲取標籤列表...');
+            const result = await makeRequest(`${baseUrl}/v1/labels`);
+            displayResult('labels-result', result);
+        }
+
+        async function testGetEventDetail() {
+            const eventId = document.getElementById('event-id').value;
+            if (!eventId) {
+                alert('請輸入事件 ID');
+                return;
+            }
+            
+            console.log(`測試獲取事件詳情: ${eventId}`);
+            const result = await makeRequest(`${baseUrl}/v1/events/${eventId}`);
+            displayResult('event-detail-result', result);
+        }
+
+        async function testGetInsights() {
+            console.log('測試獲取專案洞察...');
+            const result = await makeRequest(`${baseUrl}/v1/project/insights`);
+            displayResult('insights-result', result);
+        }
+
+        async function testFileUpload() {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('請選擇檔案');
+                return;
+            }
+            
+            console.log(`測試檔案上傳: ${file.name}`);
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch(`${baseUrl}/v1/events/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                displayResult('upload-result', result);
+                
+                // 如果上傳成功，可以測試查詢狀態
+                if (result.success && result.data.taskId) {
+                    setTimeout(() => testUploadStatus(result.data.taskId), 2000);
+                }
+            } catch (error) {
+                displayResult('upload-result', { error: error.message }, 'error');
+            }
+        }
+
+        async function testUploadStatus(taskId) {
+            console.log(`測試查詢上傳狀態: ${taskId}`);
+            const result = await makeRequest(`${baseUrl}/v1/events/upload/${taskId}/status`);
+            displayResult('upload-result', { ...result, note: '上傳狀態查詢結果' });
+        }
+
+        async function testReviewEvent() {
+            console.log('測試審核事件...');
+            
+            // 先獲取第一個事件的ID來進行審核測試
+            try {
+                const eventsResult = await makeRequest(`${baseUrl}/v1/events?limit=1`);
+                if (eventsResult.success && eventsResult.data.events.length > 0) {
+                    const eventId = eventsResult.data.events[0].id;
+                    
+                    const reviewData = {
+                        status: 'CONFIRMED_POSITIVE',
+                        reviewer_id: 'test-reviewer',
+                        justification_notes: '測試審核：明顯的異常模式'
+                    };
+                    
+                    const result = await makeRequest(`${baseUrl}/v1/events/${eventId}/review`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(reviewData)
+                    });
+                    
+                    displayResult('review-result', result);
+                } else {
+                    displayResult('review-result', { error: '沒有可用的事件進行審核測試' }, 'error');
+                }
+            } catch (error) {
+                displayResult('review-result', { error: error.message }, 'error');
+            }
+        }
+
+        // 頁面載入時自動測試基本連接
+        window.onload = function() {
+            console.log('頁面載入完成，開始自動測試...');
+            testGetEvents();
+        };
+    </script>
+</body>
+</html>

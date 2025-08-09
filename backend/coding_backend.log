@@ -288,3 +288,534 @@
 2025-07-29 17:36:39,280 - INFO - 列出 Session 2220c914-91a5-48ec-8ead-9b9752540634 的檔案
 2025-07-29 17:52:39,378 - INFO - 列出 Session 4e338784-556b-4981-a234-55975fb9ef2a 的檔案
 2025-07-29 17:52:58,176 - INFO - 列出 Session 4e338784-556b-4981-a234-55975fb9ef2a 的檔案
+2025-08-08 09:32:03,562 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2024, 12, 1), 'end_date': datetime.date(2024, 12, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 09:32:03,563 - INFO - 載入原始電表數據...
+2025-08-08 09:32:03,563 - INFO - 生成模擬電表數據...
+2025-08-08 09:32:03,584 - INFO - 生成了 2160 筆模擬數據
+2025-08-08 09:32:03,586 - INFO - Applied date filter: 2024-12-01 to 2024-12-08, filtered to 0 records
+2025-08-08 09:50:50,912 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 09:50:50,913 - INFO - Loading real smart meter data from database...
+2025-08-08 09:50:50,913 - ERROR - Failed to load real data: Cannot run the event loop while another loop is running
+2025-08-08 09:50:50,914 - ERROR - Failed to calculate candidate events: 'timestamp'
+2025-08-08 09:53:32,030 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 09:53:32,030 - INFO - Loading real smart meter data from database...
+2025-08-08 09:53:32,031 - ERROR - Failed to load real data: Cannot run the event loop while another loop is running
+2025-08-08 09:53:32,032 - ERROR - Failed to calculate candidate events: 'timestamp'
+2025-08-08 09:55:46,110 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 09:55:46,110 - INFO - Loading real smart meter data from database...
+2025-08-08 09:56:04,822 - INFO - Loaded 14084 real smart meter records from 88 devices
+2025-08-08 09:56:04,822 - INFO - Date range: 2025-08-05 07:51:32.587476 to 2025-08-05 13:34:07.978488
+2025-08-08 09:56:04,865 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14084 records
+2025-08-08 09:56:04,866 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 09:56:05,256 - INFO - Estimated total candidates: 2185
+2025-08-08 09:56:05,257 - INFO - Estimated candidate event count: 2185
+2025-08-08 09:56:40,403 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 09:56:40,405 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14084 records
+2025-08-08 09:56:40,405 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 09:56:40,807 - INFO - Estimated total candidates: 2185
+2025-08-08 09:56:40,809 - INFO - Estimated candidate event count: 2185
+2025-08-08 09:56:46,611 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 09:56:46,612 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14084 records
+2025-08-08 09:56:46,612 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 09:56:47,020 - INFO - Estimated total candidates: 2185
+2025-08-08 09:56:47,022 - INFO - Estimated candidate event count: 2185
+2025-08-08 10:10:16,696 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:10:16,697 - INFO - Loading real smart meter data from database...
+2025-08-08 10:10:33,380 - INFO - Loaded 14084 real smart meter records from 88 devices
+2025-08-08 10:10:33,380 - INFO - Date range: 2025-08-05 07:51:32.587476 to 2025-08-05 13:34:07.978488
+2025-08-08 10:10:33,424 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14084 records
+2025-08-08 10:10:33,424 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:10:33,820 - INFO - Estimated total candidates: 2185
+2025-08-08 10:10:33,821 - INFO - Estimated candidate event count: 2185
+2025-08-08 10:17:42,966 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:17:42,970 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14084 records
+2025-08-08 10:17:42,970 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:17:43,398 - INFO - Estimated total candidates: 2185
+2025-08-08 10:17:43,399 - INFO - Estimated candidate event count: 2185
+2025-08-08 10:22:20,732 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:22:20,734 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14084 records
+2025-08-08 10:22:20,735 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:22:21,231 - INFO - Estimated total candidates: 2185
+2025-08-08 10:22:21,233 - INFO - Estimated candidate event count: 2185
+2025-08-08 10:24:20,897 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:24:20,903 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14084 records
+2025-08-08 10:24:20,903 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:24:21,338 - INFO - Estimated total candidates: 2185
+2025-08-08 10:24:21,341 - INFO - Estimated candidate event count: 2185
+2025-08-08 10:33:23,164 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:33:23,168 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14084 records
+2025-08-08 10:33:23,169 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:33:23,604 - INFO - Estimated total candidates: 2185
+2025-08-08 10:33:23,606 - INFO - Estimated candidate event count: 2185
+2025-08-08 10:43:12,274 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2024, 8, 5), 'end_date': datetime.date(2024, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:43:12,274 - INFO - Loading real smart meter data from database...
+2025-08-08 10:43:33,197 - INFO - Loaded 14084 real smart meter records from 88 devices
+2025-08-08 10:43:33,198 - INFO - Date range: 2025-08-05 07:51:32.587476 to 2025-08-05 13:34:07.978488
+2025-08-08 10:43:33,244 - INFO - Applied date filter: 2024-08-05 to 2024-08-08, filtered to 0 records
+2025-08-08 10:43:38,555 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2024, 7, 1), 'end_date': datetime.date(2024, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:43:38,557 - INFO - Applied date filter: 2024-07-01 to 2024-08-08, filtered to 0 records
+2025-08-08 10:55:16,593 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2024, 8, 7), 'end_date': datetime.date(2024, 8, 8), 'z_score_threshold': 2.0, 'spike_percentage': 150.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:55:16,596 - INFO - Applied date filter: 2024-08-07 to 2024-08-08, filtered to 0 records
+2025-08-08 10:55:35,121 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:55:35,125 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14084 records
+2025-08-08 10:55:35,126 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 10:55:35,563 - INFO - Estimated total candidates: 2185
+2025-08-08 10:55:35,564 - INFO - Estimated candidate event count: 2185
+2025-08-08 19:29:00,026 - INFO - Creating new experiment run: Dataset 2025-08-08 11:29
+2025-08-08 19:29:00,073 - ERROR - Failed to create experiment run: (sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.ConnectionDoesNotExistError'>: connection was closed in the middle of operation
+[SQL: 
+                INSERT INTO experiment_run (
+                    id, name, description, status, "createdAt", "updatedAt"
+                ) VALUES (
+                    $1, $2, $3, 'CONFIGURING', NOW(), NOW()
+                )
+            ]
+[parameters: ('11246ed3-2da2-45c8-a872-5815635100e2', 'Dataset 2025-08-08 11:29', None)]
+(Background on this error at: https://sqlalche.me/e/20/dbapi)
+2025-08-08 19:31:33,802 - ERROR - Failed to get experiment run: (sqlalchemy.dialects.postgresql.asyncpg.ProgrammingError) <class 'asyncpg.exceptions.UndefinedColumnError'>: column "organizationId" does not exist
+[SQL: 
+                SELECT 
+                    id, name, description, status, "filteringParameters",
+                    "candidateCount", "positiveLabelCount", "negativeLabelCount",
+                    "organizationId", "createdAt", "updatedAt"
+                FROM experiment_run
+                WHERE id = $1
+            ]
+[parameters: ('6c1e3f83-1d49-417a-b5d2-0681232356cd',)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-08-08 19:31:37,838 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:31:37,839 - INFO - Loading real smart meter data from database...
+2025-08-08 19:32:00,502 - INFO - Loaded 14840 real smart meter records from 80 devices
+2025-08-08 19:32:00,503 - INFO - Date range: 2025-08-08 05:55:09.503862 to 2025-08-08 11:30:39.699565
+2025-08-08 19:32:00,546 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14840 records
+2025-08-08 19:32:00,546 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:32:00,951 - INFO - Estimated total candidates: 2483
+2025-08-08 19:32:00,953 - INFO - Estimated candidate event count: 2483
+2025-08-08 19:33:45,719 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:33:45,725 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14840 records
+2025-08-08 19:33:45,726 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:33:46,162 - INFO - Estimated total candidates: 2483
+2025-08-08 19:33:46,164 - INFO - Estimated candidate event count: 2483
+2025-08-08 19:34:03,117 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:34:03,124 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14840 records
+2025-08-08 19:34:03,125 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:34:03,573 - INFO - Estimated total candidates: 2483
+2025-08-08 19:34:03,576 - INFO - Estimated candidate event count: 2483
+2025-08-08 19:34:15,153 - ERROR - Failed to get experiment run: (sqlalchemy.dialects.postgresql.asyncpg.ProgrammingError) <class 'asyncpg.exceptions.UndefinedColumnError'>: column "organizationId" does not exist
+[SQL: 
+                SELECT 
+                    id, name, description, status, "filteringParameters",
+                    "candidateCount", "positiveLabelCount", "negativeLabelCount",
+                    "organizationId", "createdAt", "updatedAt"
+                FROM experiment_run
+                WHERE id = $1
+            ]
+[parameters: ('6c1e3f83-1d49-417a-b5d2-0681232356cd',)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-08-08 19:34:17,512 - INFO - Generating candidates for experiment run: 6c1e3f83-1d49-417a-b5d2-0681232356cd
+2025-08-08 19:34:17,704 - ERROR - 候選事件生成失敗: 0313108c-d06d-4e6b-b395-49d598bed65a, 實驗批次: 6c1e3f83-1d49-417a-b5d2-0681232356cd, 錯誤: fromisoformat: argument must be str
+2025-08-08 19:39:27,877 - ERROR - Failed to list experiment runs: (sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.ConnectionDoesNotExistError'>: connection was closed in the middle of operation
+[SQL: 
+                SELECT 
+                    id, name, description, status, "candidateCount", 
+                    "positiveLabelCount", "negativeLabelCount",
+                    "createdAt", "updatedAt"
+                FROM experiment_run
+                WHERE 1=1
+                ORDER BY "createdAt" DESC
+                LIMIT $1 OFFSET $2
+            ]
+[parameters: (50, 0)]
+(Background on this error at: https://sqlalche.me/e/20/dbapi)
+2025-08-08 19:39:54,146 - ERROR - Failed to get experiment run: (sqlalchemy.dialects.postgresql.asyncpg.ProgrammingError) <class 'asyncpg.exceptions.UndefinedColumnError'>: column "organizationId" does not exist
+[SQL: 
+                SELECT 
+                    id, name, description, status, "filteringParameters",
+                    "candidateCount", "positiveLabelCount", "negativeLabelCount",
+                    "organizationId", "createdAt", "updatedAt"
+                FROM experiment_run
+                WHERE id = $1
+            ]
+[parameters: ('6c1e3f83-1d49-417a-b5d2-0681232356cd',)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-08-08 19:40:02,688 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:40:02,699 - INFO - Applied date filter: 2025-08-07 to 2025-08-08, filtered to 14840 records
+2025-08-08 19:40:02,700 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:40:03,145 - INFO - Estimated total candidates: 2483
+2025-08-08 19:40:03,147 - INFO - Estimated candidate event count: 2483
+2025-08-08 19:40:15,004 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 6), 'end_date': datetime.date(2025, 8, 7), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:40:15,011 - INFO - Applied date filter: 2025-08-06 to 2025-08-07, filtered to 0 records
+2025-08-08 19:44:51,511 - INFO - Creating new experiment run: Dataset 2025-08-08 11:44
+2025-08-08 19:44:55,311 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:44:55,311 - INFO - Loading real smart meter data from database...
+2025-08-08 19:45:15,831 - INFO - Loaded 14831 real smart meter records from 78 devices
+2025-08-08 19:45:15,831 - INFO - Date range: 2025-08-08 06:09:09.724801 to 2025-08-08 11:44:33.213688
+2025-08-08 19:45:15,875 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14831 records
+2025-08-08 19:45:15,875 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:45:16,298 - INFO - Estimated total candidates: 2232
+2025-08-08 19:45:16,300 - INFO - Estimated candidate event count: 2232
+2025-08-08 19:45:19,518 - INFO - Generating candidates for experiment run: 8706ef67-ac1d-4e98-98e0-90764fc5c3f6
+2025-08-08 19:45:19,774 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 14831 records
+2025-08-08 19:45:19,775 - INFO - 開始異常檢測，使用參數: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 19:45:19,785 - INFO - 處理設備 402A8FB0028B，共 291 個數據點
+2025-08-08 19:45:19,795 - ERROR - 候選事件生成失敗: 60c18b3b-ec94-45f4-ac10-355b1dbfd898, 實驗批次: 8706ef67-ac1d-4e98-98e0-90764fc5c3f6, 錯誤: 'AnomalyRulesService' object has no attribute '_detect_time_anomalies'
+2025-08-08 22:08:50,164 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 22:08:50,165 - INFO - Loading real smart meter data from database...
+2025-08-08 22:09:30,762 - INFO - Loaded 14616 real smart meter records from 76 devices
+2025-08-08 22:09:30,762 - INFO - Date range: 2025-08-08 08:32:34.804226 to 2025-08-08 14:08:34.345931
+2025-08-08 22:09:30,804 - ERROR - Failed to load real data: 
+2025-08-08 22:09:30,811 - ERROR - Failed to calculate candidate events: 'timestamp'
+2025-08-08 22:43:15,053 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 22:43:15,053 - INFO - Loading real smart meter data from database...
+2025-08-08 22:44:04,674 - INFO - Loaded 14706 real smart meter records from 77 devices
+2025-08-08 22:44:04,674 - INFO - Date range: 2025-08-08 09:04:50.961372 to 2025-08-08 14:42:25.882760
+2025-08-08 22:44:04,721 - INFO - Applied date filter: 2025-08-07 to 2025-08-08, filtered to 14706 records
+2025-08-08 22:44:04,721 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 22:44:05,132 - INFO - Estimated total candidates: 1958
+2025-08-08 22:44:05,134 - INFO - Estimated candidate event count: 1958
+2025-08-08 22:44:23,195 - INFO - Generating candidates for experiment run: 8706ef67-ac1d-4e98-98e0-90764fc5c3f6
+2025-08-08 22:44:23,620 - INFO - Applied date filter: 2025-08-07 to 2025-08-08, filtered to 14706 records
+2025-08-08 22:44:23,620 - INFO - 開始異常檢測，使用參數: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-08 22:44:23,637 - INFO - 處理設備 402A8FB0028B，共 289 個數據點
+2025-08-08 22:44:23,651 - ERROR - 候選事件生成失敗: 822a9ef3-9cc9-43bc-b424-bbe0b8368bd3, 實驗批次: 8706ef67-ac1d-4e98-98e0-90764fc5c3f6, 錯誤: 'AnomalyRulesService' object has no attribute '_detect_time_anomalies'
+2025-08-09 05:33:35,280 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 5), 'end_date': datetime.date(2025, 8, 8), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 05:33:35,280 - INFO - Loading real smart meter data from database...
+2025-08-09 05:34:33,327 - INFO - Loaded 18011 real smart meter records from 84 devices
+2025-08-09 05:34:33,327 - INFO - Date range: 2025-08-08 15:57:02.115924 to 2025-08-08 21:32:36.665307
+2025-08-09 05:34:33,372 - INFO - Applied date filter: 2025-08-05 to 2025-08-08, filtered to 18011 records
+2025-08-09 05:34:33,372 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 05:34:33,829 - INFO - Estimated total candidates: 2972
+2025-08-09 05:34:33,831 - INFO - Estimated candidate event count: 2972
+2025-08-09 05:40:07,111 - ERROR - Failed to list experiment runs: (sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.ConnectionDoesNotExistError'>: connection was closed in the middle of operation
+[SQL: 
+                SELECT 
+                    id, name, description, status, "candidateCount", 
+                    "positiveLabelCount", "negativeLabelCount",
+                    "createdAt", "updatedAt"
+                FROM experiment_run
+                WHERE 1=1
+                ORDER BY "createdAt" DESC
+                LIMIT $1 OFFSET $2
+            ]
+[parameters: (50, 0)]
+(Background on this error at: https://sqlalche.me/e/20/dbapi)
+2025-08-09 05:45:20,750 - ERROR - Failed to save experiment parameters: Object of type date is not JSON serializable
+2025-08-09 05:49:53,122 - ERROR - Failed to save experiment parameters: Object of type date is not JSON serializable
+2025-08-09 05:50:31,135 - ERROR - Failed to save experiment parameters: Object of type date is not JSON serializable
+2025-08-09 06:02:18,711 - ERROR - Failed to list experiment runs: (sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.ConnectionDoesNotExistError'>: connection was closed in the middle of operation
+[SQL: 
+                SELECT 
+                    id, name, description, status, "candidateCount", 
+                    "positiveLabelCount", "negativeLabelCount",
+                    "createdAt", "updatedAt"
+                FROM experiment_run
+                WHERE 1=1
+                ORDER BY "createdAt" DESC
+                LIMIT $1 OFFSET $2
+            ]
+[parameters: (50, 0)]
+(Background on this error at: https://sqlalche.me/e/20/dbapi)
+2025-08-09 06:11:54,930 - INFO - Creating new experiment run: Dataset 2025-08-08 22:11
+2025-08-09 06:12:19,634 - INFO - [SaveParams] incoming filtering_parameters: {'start_date': datetime.date(2025, 8, 2), 'end_date': datetime.date(2025, 8, 3), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 06:12:19,635 - INFO - [SaveParams] serializable filtering_parameters: {'start_date': '2025-08-02', 'end_date': '2025-08-03', 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 06:12:32,018 - INFO - Creating new experiment run: Dataset 2025-08-08 22:12
+2025-08-09 06:12:52,042 - INFO - [SaveParams] incoming filtering_parameters: {'start_date': datetime.date(2025, 8, 3), 'end_date': datetime.date(2025, 8, 4), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 06:12:52,043 - INFO - [SaveParams] serializable filtering_parameters: {'start_date': '2025-08-03', 'end_date': '2025-08-04', 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 06:13:16,493 - INFO - [SaveParams] incoming filtering_parameters: {'start_date': datetime.date(2025, 8, 2), 'end_date': datetime.date(2025, 8, 3), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 06:13:16,493 - INFO - [SaveParams] serializable filtering_parameters: {'start_date': '2025-08-02', 'end_date': '2025-08-03', 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 06:45:10,905 - ERROR - Failed to list experiment runs: (sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.ConnectionDoesNotExistError'>: connection was closed in the middle of operation
+[SQL: 
+                SELECT 
+                    id, name, description, status, "candidateCount", 
+                    "positiveLabelCount", "negativeLabelCount",
+                    "createdAt", "updatedAt"
+                FROM experiment_run
+                WHERE 1=1
+                ORDER BY "createdAt" DESC
+                LIMIT $1 OFFSET $2
+            ]
+[parameters: (50, 0)]
+(Background on this error at: https://sqlalche.me/e/20/dbapi)
+2025-08-09 07:02:57,834 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 3), 'end_date': datetime.date(2025, 8, 4), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:02:57,835 - INFO - Loading real smart meter data from database...
+2025-08-09 07:03:36,580 - INFO - Loaded 18468 real smart meter records from 85 devices
+2025-08-09 07:03:36,581 - INFO - Date range: 2025-08-08 17:26:19.302273 to 2025-08-08 23:01:46.870878
+2025-08-09 07:03:36,624 - INFO - Applied date filter: 2025-08-03 to 2025-08-04, filtered to 0 records
+2025-08-09 07:05:22,014 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 3), 'end_date': datetime.date(2025, 8, 4), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:05:22,023 - INFO - Applied date filter: 2025-08-03 to 2025-08-04, filtered to 0 records
+2025-08-09 07:05:45,453 - INFO - [SaveParams] incoming filtering_parameters: {'start_date': datetime.date(2025, 7, 29), 'end_date': datetime.date(2025, 8, 1), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:05:45,453 - INFO - [SaveParams] serializable filtering_parameters: {'start_date': '2025-07-29', 'end_date': '2025-08-01', 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:05:55,223 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 7, 29), 'end_date': datetime.date(2025, 8, 1), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:05:55,231 - INFO - Applied date filter: 2025-07-29 to 2025-08-01, filtered to 0 records
+2025-08-09 07:05:57,254 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 7, 29), 'end_date': datetime.date(2025, 8, 1), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:05:57,262 - INFO - Applied date filter: 2025-07-29 to 2025-08-01, filtered to 0 records
+2025-08-09 07:06:22,185 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 7, 29), 'end_date': datetime.date(2025, 8, 1), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:06:22,188 - INFO - Applied date filter: 2025-07-29 to 2025-08-01, filtered to 0 records
+2025-08-09 07:06:23,965 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 7, 29), 'end_date': datetime.date(2025, 8, 1), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:06:23,971 - INFO - Applied date filter: 2025-07-29 to 2025-08-01, filtered to 0 records
+2025-08-09 07:06:24,990 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 7, 29), 'end_date': datetime.date(2025, 8, 1), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:06:24,996 - INFO - Applied date filter: 2025-07-29 to 2025-08-01, filtered to 0 records
+2025-08-09 07:06:43,744 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 7, 29), 'end_date': datetime.date(2025, 8, 1), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:06:43,752 - INFO - Applied date filter: 2025-07-29 to 2025-08-01, filtered to 0 records
+2025-08-09 07:06:44,741 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 7, 29), 'end_date': datetime.date(2025, 8, 1), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:06:44,746 - INFO - Applied date filter: 2025-07-29 to 2025-08-01, filtered to 0 records
+2025-08-09 07:07:01,823 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 1), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:07:01,830 - INFO - Applied date filter: 2025-08-01 to 2025-08-09, filtered to 18468 records
+2025-08-09 07:07:01,830 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:07:02,337 - INFO - Estimated total candidates: 2779
+2025-08-09 07:07:02,340 - INFO - Estimated candidate event count: 2779
+2025-08-09 07:07:16,447 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 3), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:07:16,450 - INFO - Applied date filter: 2025-08-03 to 2025-08-09, filtered to 18468 records
+2025-08-09 07:07:16,450 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:07:16,949 - INFO - Estimated total candidates: 2779
+2025-08-09 07:07:16,952 - INFO - Estimated candidate event count: 2779
+2025-08-09 07:07:25,987 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 6), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:07:25,994 - INFO - Applied date filter: 2025-08-06 to 2025-08-09, filtered to 18468 records
+2025-08-09 07:07:25,994 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:07:26,503 - INFO - Estimated total candidates: 2779
+2025-08-09 07:07:26,506 - INFO - Estimated candidate event count: 2779
+2025-08-09 07:08:03,622 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 8), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:08:03,627 - INFO - Applied date filter: 2025-08-08 to 2025-08-09, filtered to 18468 records
+2025-08-09 07:08:03,628 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:08:04,148 - INFO - Estimated total candidates: 2779
+2025-08-09 07:08:04,151 - INFO - Estimated candidate event count: 2779
+2025-08-09 07:08:18,820 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 9), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:08:18,827 - INFO - Applied date filter: 2025-08-09 to 2025-08-09, filtered to 0 records
+2025-08-09 07:08:27,329 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 8), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:08:27,337 - INFO - Applied date filter: 2025-08-08 to 2025-08-09, filtered to 18468 records
+2025-08-09 07:08:27,338 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:08:27,838 - INFO - Estimated total candidates: 2779
+2025-08-09 07:08:27,840 - INFO - Estimated candidate event count: 2779
+2025-08-09 07:08:31,461 - INFO - [SaveParams] incoming filtering_parameters: {'start_date': datetime.date(2025, 8, 8), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:08:31,461 - INFO - [SaveParams] serializable filtering_parameters: {'start_date': '2025-08-08', 'end_date': '2025-08-09', 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:08:34,682 - INFO - Generating candidates for experiment run: 8706ef67-ac1d-4e98-98e0-90764fc5c3f6
+2025-08-09 07:08:34,962 - INFO - [Generate] filtering_params: {'start_date': datetime.date(2025, 8, 8), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:08:34,966 - INFO - Applied date filter: 2025-08-08 to 2025-08-09, filtered to 18468 records
+2025-08-09 07:08:34,966 - INFO - [Generate] normalized_params: {'start_date': datetime.date(2025, 8, 8), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0, 'zscore_threshold': 3.0, 'min_duration_minutes': 30}
+2025-08-09 07:08:34,967 - INFO - 開始異常檢測，使用參數: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'start_date': datetime.date(2025, 8, 8), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:08:34,984 - INFO - 處理設備 402A8FB0028B，共 289 個數據點
+2025-08-09 07:08:35,001 - ERROR - 候選事件生成失敗: 421e37f0-fa2b-4cf9-97ec-4f8d8fe3f346, 實驗批次: 8706ef67-ac1d-4e98-98e0-90764fc5c3f6, 錯誤: 'AnomalyRulesService' object has no attribute '_detect_data_gaps'
+2025-08-09 07:10:47,215 - INFO - Generating candidates for experiment run: 8706ef67-ac1d-4e98-98e0-90764fc5c3f6
+2025-08-09 07:10:47,622 - INFO - [Generate] filtering_params: {'start_date': datetime.date(2025, 8, 8), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:10:47,632 - INFO - Applied date filter: 2025-08-08 to 2025-08-09, filtered to 18468 records
+2025-08-09 07:10:47,633 - INFO - [Generate] normalized_params: {'start_date': datetime.date(2025, 8, 8), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0, 'zscore_threshold': 3.0, 'min_duration_minutes': 30}
+2025-08-09 07:10:47,634 - INFO - 開始異常檢測，使用參數: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'start_date': datetime.date(2025, 8, 8), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 175.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 07:10:47,653 - INFO - 處理設備 402A8FB0028B，共 289 個數據點
+2025-08-09 07:10:47,665 - ERROR - 候選事件生成失敗: df6816a4-5646-4e38-b901-1c7c7982cc6f, 實驗批次: 8706ef67-ac1d-4e98-98e0-90764fc5c3f6, 錯誤: 'AnomalyRulesService' object has no attribute '_detect_data_gaps'
+2025-08-09 08:54:12,341 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 7, 29), 'end_date': datetime.date(2025, 8, 1), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:54:12,341 - INFO - Loading real smart meter data from database...
+2025-08-09 08:55:00,926 - INFO - Loaded 18464 real smart meter records from 83 devices
+2025-08-09 08:55:00,927 - INFO - Date range: 2025-08-08 19:18:38.692756 to 2025-08-09 00:53:50.290596
+2025-08-09 08:55:00,972 - INFO - Applied date filter: 2025-07-29 to 2025-08-01, filtered to 0 records
+2025-08-09 08:55:46,402 - INFO - [SaveParams] incoming filtering_parameters: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:55:46,402 - INFO - [SaveParams] serializable filtering_parameters: {'start_date': '2025-08-07', 'end_date': '2025-08-09', 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:55:50,119 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:55:50,122 - INFO - Applied date filter: 2025-08-07 to 2025-08-09, filtered to 18464 records
+2025-08-09 08:55:50,123 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 60, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:55:50,643 - INFO - Estimated total candidates: 3782
+2025-08-09 08:55:50,646 - INFO - Estimated candidate event count: 3782
+2025-08-09 08:55:59,388 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:55:59,398 - INFO - Applied date filter: 2025-08-07 to 2025-08-09, filtered to 18464 records
+2025-08-09 08:55:59,398 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 30, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:55:59,930 - INFO - Estimated total candidates: 3786
+2025-08-09 08:55:59,934 - INFO - Estimated candidate event count: 3786
+2025-08-09 08:56:12,409 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 2.2, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:56:12,419 - INFO - Applied date filter: 2025-08-07 to 2025-08-09, filtered to 18464 records
+2025-08-09 08:56:12,420 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 2.2, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:56:12,947 - INFO - Estimated total candidates: 4899
+2025-08-09 08:56:12,952 - INFO - Estimated candidate event count: 4899
+2025-08-09 08:56:28,077 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:56:28,080 - INFO - Applied date filter: 2025-08-07 to 2025-08-09, filtered to 18464 records
+2025-08-09 08:56:28,080 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 3.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:56:28,596 - INFO - Estimated total candidates: 3786
+2025-08-09 08:56:28,599 - INFO - Estimated candidate event count: 3786
+2025-08-09 08:56:36,379 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 4.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:56:36,388 - INFO - Applied date filter: 2025-08-07 to 2025-08-09, filtered to 18464 records
+2025-08-09 08:56:36,388 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 4.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:56:36,930 - INFO - Estimated total candidates: 3786
+2025-08-09 08:56:36,934 - INFO - Estimated candidate event count: 3786
+2025-08-09 08:56:38,834 - INFO - Generating candidates for experiment run: f82db212-a9c0-4f26-94bb-77bb799ef689
+2025-08-09 08:56:39,018 - INFO - [Generate] filtering_params: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 4.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:56:39,029 - INFO - Applied date filter: 2025-08-07 to 2025-08-09, filtered to 18464 records
+2025-08-09 08:56:39,030 - INFO - [Generate] normalized_params: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 4.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0, 'zscore_threshold': 4.0, 'min_duration_minutes': 15}
+2025-08-09 08:56:39,030 - INFO - 開始異常檢測，使用參數: {'zscore_threshold': 4.0, 'time_window_hours': 24, 'min_duration_minutes': 15, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 4.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 08:56:39,050 - INFO - 處理設備 402A8FB0028B，共 289 個數據點
+2025-08-09 08:56:39,071 - INFO - 處理設備 402A8FB00493，共 55 個數據點
+2025-08-09 08:56:39,085 - WARNING - 設備 402A8FB004C5 數據點不足，跳過檢測
+2025-08-09 08:56:39,089 - INFO - 處理設備 402A8FB00975，共 290 個數據點
+2025-08-09 08:56:39,110 - INFO - 處理設備 402A8FB00C51，共 290 個數據點
+2025-08-09 08:56:39,121 - INFO - 處理設備 402A8FB00D46，共 237 個數據點
+2025-08-09 08:56:39,134 - INFO - 處理設備 402A8FB00E04，共 290 個數據點
+2025-08-09 08:56:39,150 - INFO - 處理設備 402A8FB00EB9，共 290 個數據點
+2025-08-09 08:56:39,161 - INFO - 處理設備 402A8FB01202，共 289 個數據點
+2025-08-09 08:56:39,173 - INFO - 處理設備 402A8FB0150F，共 290 個數據點
+2025-08-09 08:56:39,187 - INFO - 處理設備 402A8FB01676，共 290 個數據點
+2025-08-09 08:56:39,200 - INFO - 處理設備 402A8FB0172D，共 290 個數據點
+2025-08-09 08:56:39,212 - INFO - 處理設備 402A8FB0188F，共 289 個數據點
+2025-08-09 08:56:39,224 - INFO - 處理設備 402A8FB01891，共 290 個數據點
+2025-08-09 08:56:39,239 - INFO - 處理設備 402A8FB01A1F，共 290 個數據點
+2025-08-09 08:56:39,250 - INFO - 處理設備 402A8FB01AFA，共 290 個數據點
+2025-08-09 08:56:39,263 - INFO - 處理設備 402A8FB01AFD，共 290 個數據點
+2025-08-09 08:56:39,275 - WARNING - 設備 402A8FB01B4E 數據點不足，跳過檢測
+2025-08-09 08:56:39,278 - INFO - 處理設備 402A8FB01D85，共 290 個數據點
+2025-08-09 08:56:39,292 - INFO - 處理設備 402A8FB020AD，共 290 個數據點
+2025-08-09 08:56:39,305 - INFO - 處理設備 402A8FB02104，共 49 個數據點
+2025-08-09 08:56:39,318 - INFO - 處理設備 402A8FB0235E，共 290 個數據點
+2025-08-09 08:56:39,329 - INFO - 處理設備 402A8FB02444，共 290 個數據點
+2025-08-09 08:56:39,341 - INFO - 處理設備 402A8FB024B2，共 289 個數據點
+2025-08-09 08:56:39,352 - INFO - 處理設備 402A8FB0271E，共 210 個數據點
+2025-08-09 08:56:39,363 - INFO - 處理設備 402A8FB02865，共 289 個數據點
+2025-08-09 08:56:39,378 - INFO - 處理設備 402A8FB02DDF，共 290 個數據點
+2025-08-09 08:56:39,390 - INFO - 處理設備 402A8FB02EC3，共 290 個數據點
+2025-08-09 08:56:39,402 - INFO - 處理設備 402A8FB02FBA，共 290 個數據點
+2025-08-09 08:56:39,413 - INFO - 處理設備 402A8FB02FD7，共 290 個數據點
+2025-08-09 08:56:39,426 - WARNING - 設備 402A8FB03097 數據點不足，跳過檢測
+2025-08-09 08:56:39,429 - INFO - 處理設備 402A8FB031C2，共 290 個數據點
+2025-08-09 08:56:39,441 - INFO - 處理設備 402A8FB031FA，共 290 個數據點
+2025-08-09 08:56:39,454 - INFO - 處理設備 402A8FB03252，共 290 個數據點
+2025-08-09 08:56:39,467 - INFO - 處理設備 402A8FB0328D，共 228 個數據點
+2025-08-09 08:56:39,479 - INFO - 處理設備 402A8FB034FB，共 267 個數據點
+2025-08-09 08:56:39,491 - INFO - 處理設備 402A8FB034FE，共 290 個數據點
+2025-08-09 08:56:39,503 - INFO - 處理設備 402A8FB0381A，共 289 個數據點
+2025-08-09 08:56:39,520 - INFO - 處理設備 402A8FB038C7，共 290 個數據點
+2025-08-09 08:56:39,537 - INFO - 處理設備 402A8FB03BB4，共 290 個數據點
+2025-08-09 08:56:39,549 - INFO - 處理設備 402A8FB03BC2，共 290 個數據點
+2025-08-09 08:56:39,561 - WARNING - 設備 402A8FB03D2F 數據點不足，跳過檢測
+2025-08-09 08:56:39,564 - INFO - 處理設備 402A8FB04228，共 290 個數據點
+2025-08-09 08:56:39,579 - INFO - 處理設備 402A8FB042E3，共 164 個數據點
+2025-08-09 08:56:39,591 - INFO - 處理設備 402A8FB044AE，共 232 個數據點
+2025-08-09 08:56:39,603 - INFO - 處理設備 402A8FB04525，共 81 個數據點
+2025-08-09 08:56:39,614 - WARNING - 設備 402A8FB04624 數據點不足，跳過檢測
+2025-08-09 08:56:39,618 - INFO - 處理設備 402A8FB0464B，共 290 個數據點
+2025-08-09 08:56:39,630 - INFO - 處理設備 402A8FB04705，共 290 個數據點
+2025-08-09 08:56:39,642 - WARNING - 設備 402A8FB04712 數據點不足，跳過檢測
+2025-08-09 08:56:39,645 - INFO - 處理設備 402A8FB0473B，共 87 個數據點
+2025-08-09 08:56:39,656 - INFO - 處理設備 402A8FB047F8，共 289 個數據點
+2025-08-09 08:56:39,670 - INFO - 處理設備 402A8FB0481B，共 289 個數據點
+2025-08-09 08:56:39,682 - INFO - 處理設備 402A8FB048AA，共 191 個數據點
+2025-08-09 08:56:39,694 - INFO - 處理設備 402A8FB048DF，共 290 個數據點
+2025-08-09 08:56:39,706 - INFO - 處理設備 402A8FB04B14，共 290 個數據點
+2025-08-09 08:56:39,718 - INFO - 處理設備 402A8FB04D18，共 289 個數據點
+2025-08-09 08:56:39,730 - INFO - 處理設備 402A8FB04D63，共 163 個數據點
+2025-08-09 08:56:39,742 - INFO - 處理設備 402A8FB04F58，共 290 個數據點
+2025-08-09 08:56:39,753 - WARNING - 設備 402A8FB04F89 數據點不足，跳過檢測
+2025-08-09 08:56:39,756 - WARNING - 設備 402A8FB04FE3 數據點不足，跳過檢測
+2025-08-09 08:56:39,758 - WARNING - 設備 402A8FB050FD 數據點不足，跳過檢測
+2025-08-09 08:56:39,760 - INFO - 處理設備 402A8FB05156，共 224 個數據點
+2025-08-09 08:56:39,773 - INFO - 處理設備 402A8FB051EF，共 290 個數據點
+2025-08-09 08:56:39,785 - INFO - 處理設備 E8FDF8B43B3F，共 160 個數據點
+2025-08-09 08:56:39,796 - INFO - 處理設備 E8FDF8B43CA5，共 290 個數據點
+2025-08-09 08:56:39,808 - WARNING - 設備 E8FDF8B442AB 數據點不足，跳過檢測
+2025-08-09 08:56:39,811 - INFO - 處理設備 E8FDF8B442F7，共 289 個數據點
+2025-08-09 08:56:39,823 - INFO - 處理設備 E8FDF8B442FB，共 289 個數據點
+2025-08-09 08:56:39,836 - INFO - 處理設備 E8FDF8B44756，共 290 個數據點
+2025-08-09 08:56:39,850 - INFO - 處理設備 E8FDF8B447BB，共 289 個數據點
+2025-08-09 08:56:39,861 - INFO - 處理設備 E8FDF8B44877，共 290 個數據點
+2025-08-09 08:56:39,874 - INFO - 處理設備 E8FDF8B451BD，共 290 個數據點
+2025-08-09 08:56:39,885 - INFO - 處理設備 E8FDF8B455D9，共 265 個數據點
+2025-08-09 08:56:39,899 - INFO - 處理設備 E8FDF8B458ED，共 287 個數據點
+2025-08-09 08:56:39,911 - INFO - 處理設備 E8FDF8B46F02，共 100 個數據點
+2025-08-09 08:56:39,922 - WARNING - 設備 E8FDF8B47815 數據點不足，跳過檢測
+2025-08-09 08:56:39,925 - INFO - 處理設備 E8FDF8B47BF1，共 290 個數據點
+2025-08-09 08:56:39,938 - INFO - 處理設備 E8FDF8B47C65，共 289 個數據點
+2025-08-09 08:56:39,950 - INFO - 處理設備 E8FDF8B48159，共 289 個數據點
+2025-08-09 08:56:39,964 - INFO - 處理設備 E8FDF8B4AEE2，共 70 個數據點
+2025-08-09 08:56:39,976 - WARNING - 設備 E8FDF8B4DBAF 數據點不足，跳過檢測
+2025-08-09 08:56:39,979 - INFO - 處理設備 E8FDF8B4DD72，共 289 個數據點
+2025-08-09 08:56:40,086 - INFO - 檢測完成，共發現 166 個候選異常事件
+2025-08-09 08:57:05,135 - INFO - 候選事件生成完成: 7987e70c-8029-4d67-acce-875d806f0636, 實驗批次: f82db212-a9c0-4f26-94bb-77bb799ef689, 儲存了 166 個事件
+2025-08-09 09:25:35,168 - INFO - Calculating candidate event count with parameters: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 4.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 09:25:35,173 - INFO - Applied date filter: 2025-08-07 to 2025-08-09, filtered to 18464 records
+2025-08-09 09:25:35,173 - INFO - Enhanced candidate count calculation with params: {'zscore_threshold': 3.0, 'time_window_hours': 24, 'min_duration_minutes': 30, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'z_score_threshold': 4.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 09:25:35,660 - INFO - Estimated total candidates: 3786
+2025-08-09 09:25:35,664 - INFO - Estimated candidate event count: 3786
+2025-08-09 09:25:37,095 - INFO - Generating candidates for experiment run: f82db212-a9c0-4f26-94bb-77bb799ef689
+2025-08-09 09:25:37,269 - INFO - [Generate] filtering_params: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 4.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 09:25:37,271 - INFO - Applied date filter: 2025-08-07 to 2025-08-09, filtered to 18464 records
+2025-08-09 09:25:37,271 - INFO - [Generate] normalized_params: {'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 4.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0, 'zscore_threshold': 4.0, 'min_duration_minutes': 15}
+2025-08-09 09:25:37,272 - INFO - 開始異常檢測，使用參數: {'zscore_threshold': 4.0, 'time_window_hours': 24, 'min_duration_minutes': 15, 'power_threshold_multiplier': 2.0, 'night_hour_start': 23, 'night_hour_end': 6, 'weekend_factor': 1.5, 'moving_average_window': 12, 'start_date': datetime.date(2025, 8, 7), 'end_date': datetime.date(2025, 8, 9), 'z_score_threshold': 4.0, 'spike_percentage': 200.0, 'min_event_duration_minutes': 15, 'detect_holiday_pattern': True, 'max_time_gap_minutes': 30, 'peer_agg_window_minutes': 5, 'peer_exceed_percentage': 150.0}
+2025-08-09 09:25:37,279 - INFO - 處理設備 402A8FB0028B，共 289 個數據點
+2025-08-09 09:25:37,291 - INFO - 處理設備 402A8FB00493，共 55 個數據點
+2025-08-09 09:25:37,302 - WARNING - 設備 402A8FB004C5 數據點不足，跳過檢測
+2025-08-09 09:25:37,305 - INFO - 處理設備 402A8FB00975，共 290 個數據點
+2025-08-09 09:25:37,320 - INFO - 處理設備 402A8FB00C51，共 290 個數據點
+2025-08-09 09:25:37,331 - INFO - 處理設備 402A8FB00D46，共 237 個數據點
+2025-08-09 09:25:37,342 - INFO - 處理設備 402A8FB00E04，共 290 個數據點
+2025-08-09 09:25:37,355 - INFO - 處理設備 402A8FB00EB9，共 290 個數據點
+2025-08-09 09:25:37,367 - INFO - 處理設備 402A8FB01202，共 289 個數據點
+2025-08-09 09:25:37,378 - INFO - 處理設備 402A8FB0150F，共 290 個數據點
+2025-08-09 09:25:37,391 - INFO - 處理設備 402A8FB01676，共 290 個數據點
+2025-08-09 09:25:37,403 - INFO - 處理設備 402A8FB0172D，共 290 個數據點
+2025-08-09 09:25:37,415 - INFO - 處理設備 402A8FB0188F，共 289 個數據點
+2025-08-09 09:25:37,426 - INFO - 處理設備 402A8FB01891，共 290 個數據點
+2025-08-09 09:25:37,446 - INFO - 處理設備 402A8FB01A1F，共 290 個數據點
+2025-08-09 09:25:37,465 - INFO - 處理設備 402A8FB01AFA，共 290 個數據點
+2025-08-09 09:25:37,484 - INFO - 處理設備 402A8FB01AFD，共 290 個數據點
+2025-08-09 09:25:37,505 - WARNING - 設備 402A8FB01B4E 數據點不足，跳過檢測
+2025-08-09 09:25:37,510 - INFO - 處理設備 402A8FB01D85，共 290 個數據點
+2025-08-09 09:25:37,530 - INFO - 處理設備 402A8FB020AD，共 290 個數據點
+2025-08-09 09:25:37,549 - INFO - 處理設備 402A8FB02104，共 49 個數據點
+2025-08-09 09:25:37,560 - INFO - 處理設備 402A8FB0235E，共 290 個數據點
+2025-08-09 09:25:37,577 - INFO - 處理設備 402A8FB02444，共 290 個數據點
+2025-08-09 09:25:37,592 - INFO - 處理設備 402A8FB024B2，共 289 個數據點
+2025-08-09 09:25:37,602 - INFO - 處理設備 402A8FB0271E，共 210 個數據點
+2025-08-09 09:25:37,613 - INFO - 處理設備 402A8FB02865，共 289 個數據點
+2025-08-09 09:25:37,626 - INFO - 處理設備 402A8FB02DDF，共 290 個數據點
+2025-08-09 09:25:37,636 - INFO - 處理設備 402A8FB02EC3，共 290 個數據點
+2025-08-09 09:25:37,647 - INFO - 處理設備 402A8FB02FBA，共 290 個數據點
+2025-08-09 09:25:37,658 - INFO - 處理設備 402A8FB02FD7，共 290 個數據點
+2025-08-09 09:25:37,668 - WARNING - 設備 402A8FB03097 數據點不足，跳過檢測
+2025-08-09 09:25:37,671 - INFO - 處理設備 402A8FB031C2，共 290 個數據點
+2025-08-09 09:25:37,682 - INFO - 處理設備 402A8FB031FA，共 290 個數據點
+2025-08-09 09:25:37,692 - INFO - 處理設備 402A8FB03252，共 290 個數據點
+2025-08-09 09:25:37,704 - INFO - 處理設備 402A8FB0328D，共 228 個數據點
+2025-08-09 09:25:37,714 - INFO - 處理設備 402A8FB034FB，共 267 個數據點
+2025-08-09 09:25:37,725 - INFO - 處理設備 402A8FB034FE，共 290 個數據點
+2025-08-09 09:25:37,737 - INFO - 處理設備 402A8FB0381A，共 289 個數據點
+2025-08-09 09:25:37,751 - INFO - 處理設備 402A8FB038C7，共 290 個數據點
+2025-08-09 09:25:37,766 - INFO - 處理設備 402A8FB03BB4，共 290 個數據點
+2025-08-09 09:25:37,777 - INFO - 處理設備 402A8FB03BC2，共 290 個數據點
+2025-08-09 09:25:37,788 - WARNING - 設備 402A8FB03D2F 數據點不足，跳過檢測
+2025-08-09 09:25:37,791 - INFO - 處理設備 402A8FB04228，共 290 個數據點
+2025-08-09 09:25:37,804 - INFO - 處理設備 402A8FB042E3，共 164 個數據點
+2025-08-09 09:25:37,815 - INFO - 處理設備 402A8FB044AE，共 232 個數據點
+2025-08-09 09:25:37,826 - INFO - 處理設備 402A8FB04525，共 81 個數據點
+2025-08-09 09:25:37,836 - WARNING - 設備 402A8FB04624 數據點不足，跳過檢測
+2025-08-09 09:25:37,839 - INFO - 處理設備 402A8FB0464B，共 290 個數據點
+2025-08-09 09:25:37,851 - INFO - 處理設備 402A8FB04705，共 290 個數據點
+2025-08-09 09:25:37,861 - WARNING - 設備 402A8FB04712 數據點不足，跳過檢測
+2025-08-09 09:25:37,865 - INFO - 處理設備 402A8FB0473B，共 87 個數據點
+2025-08-09 09:25:37,874 - INFO - 處理設備 402A8FB047F8，共 289 個數據點
+2025-08-09 09:25:37,887 - INFO - 處理設備 402A8FB0481B，共 289 個數據點
+2025-08-09 09:25:37,899 - INFO - 處理設備 402A8FB048AA，共 191 個數據點
+2025-08-09 09:25:37,909 - INFO - 處理設備 402A8FB048DF，共 290 個數據點
+2025-08-09 09:25:37,920 - INFO - 處理設備 402A8FB04B14，共 290 個數據點
+2025-08-09 09:25:37,931 - INFO - 處理設備 402A8FB04D18，共 289 個數據點
+2025-08-09 09:25:37,942 - INFO - 處理設備 402A8FB04D63，共 163 個數據點
+2025-08-09 09:25:37,954 - INFO - 處理設備 402A8FB04F58，共 290 個數據點
+2025-08-09 09:25:37,965 - WARNING - 設備 402A8FB04F89 數據點不足，跳過檢測
+2025-08-09 09:25:37,968 - WARNING - 設備 402A8FB04FE3 數據點不足，跳過檢測
+2025-08-09 09:25:37,970 - WARNING - 設備 402A8FB050FD 數據點不足，跳過檢測
+2025-08-09 09:25:37,972 - INFO - 處理設備 402A8FB05156，共 224 個數據點
+2025-08-09 09:25:37,986 - INFO - 處理設備 402A8FB051EF，共 290 個數據點
+2025-08-09 09:25:37,997 - INFO - 處理設備 E8FDF8B43B3F，共 160 個數據點
+2025-08-09 09:25:38,009 - INFO - 處理設備 E8FDF8B43CA5，共 290 個數據點
+2025-08-09 09:25:38,020 - WARNING - 設備 E8FDF8B442AB 數據點不足，跳過檢測
+2025-08-09 09:25:38,023 - INFO - 處理設備 E8FDF8B442F7，共 289 個數據點
+2025-08-09 09:25:38,035 - INFO - 處理設備 E8FDF8B442FB，共 289 個數據點
+2025-08-09 09:25:38,046 - INFO - 處理設備 E8FDF8B44756，共 290 個數據點
+2025-08-09 09:25:38,060 - INFO - 處理設備 E8FDF8B447BB，共 289 個數據點
+2025-08-09 09:25:38,071 - INFO - 處理設備 E8FDF8B44877，共 290 個數據點
+2025-08-09 09:25:38,082 - INFO - 處理設備 E8FDF8B451BD，共 290 個數據點
+2025-08-09 09:25:38,092 - INFO - 處理設備 E8FDF8B455D9，共 265 個數據點
+2025-08-09 09:25:38,105 - INFO - 處理設備 E8FDF8B458ED，共 287 個數據點
+2025-08-09 09:25:38,116 - INFO - 處理設備 E8FDF8B46F02，共 100 個數據點
+2025-08-09 09:25:38,126 - WARNING - 設備 E8FDF8B47815 數據點不足，跳過檢測
+2025-08-09 09:25:38,129 - INFO - 處理設備 E8FDF8B47BF1，共 290 個數據點
+2025-08-09 09:25:38,140 - INFO - 處理設備 E8FDF8B47C65，共 289 個數據點
+2025-08-09 09:25:38,152 - INFO - 處理設備 E8FDF8B48159，共 289 個數據點
+2025-08-09 09:25:38,166 - INFO - 處理設備 E8FDF8B4AEE2，共 70 個數據點
+2025-08-09 09:25:38,175 - WARNING - 設備 E8FDF8B4DBAF 數據點不足，跳過檢測
+2025-08-09 09:25:38,179 - INFO - 處理設備 E8FDF8B4DD72，共 289 個數據點
+2025-08-09 09:25:38,285 - INFO - 檢測完成，共發現 166 個候選異常事件
+2025-08-09 09:26:03,784 - INFO - 候選事件生成完成: 443d461c-29dd-4140-aedc-1c4cbc8f8065, 實驗批次: f82db212-a9c0-4f26-94bb-77bb799ef689, 儲存了 166 個事件

@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import Column, String, Float, Integer, DateTime, Boolean, Text, ForeignKey
+from sqlalchemy import Column, String, Float, Integer, DateTime, Boolean, Text, ForeignKey, JSON, Index
 from sqlalchemy.future import select
 import uuid
 
@@ -248,5 +248,71 @@ class DatabaseManager:
             "onlineRate": sum(1 for s in network_states if s == 1) / len(network_states) if network_states else 0,
             "activeRate": sum(1 for s in switch_states if s == 1) / len(switch_states) if switch_states else 0
         }
+
+# 異常事件相關表
+class AnomalyEvent(Base):
+    __tablename__ = "anomaly_events"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    event_id = Column(String, nullable=False, unique=True)
+    meter_id = Column(String, nullable=False)
+    event_timestamp = Column(DateTime, nullable=False)
+    detection_rule = Column(String, nullable=False)
+    score = Column(Float, nullable=False)
+    data_window = Column(JSON)  # 存儲時間序列資料
+    status = Column(String, nullable=False, default="UNREVIEWED")  # UNREVIEWED, CONFIRMED_POSITIVE, REJECTED_NORMAL
+    reviewer_id = Column(String)
+    review_timestamp = Column(DateTime)
+    justification_notes = Column(Text)
+    organization_id = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 為效能建立索引
+    __table_args__ = (
+        Index('idx_anomaly_event_meter_timestamp', 'meter_id', 'event_timestamp'),
+        Index('idx_anomaly_event_status', 'status'),
+        Index('idx_anomaly_event_org', 'organization_id'),
+        Index('idx_anomaly_event_timestamp', 'event_timestamp'),
+    )
+
+class AnomalyLabel(Base):
+    __tablename__ = "anomaly_labels"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String, nullable=False)
+    description = Column(Text)
+    color = Column(String, default="#6B7280")  # 標籤顏色
+    organization_id = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class EventLabelLink(Base):
+    __tablename__ = "event_label_links"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    event_id = Column(String, ForeignKey('anomaly_events.id'), nullable=False)
+    label_id = Column(String, ForeignKey('anomaly_labels.id'), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # 確保同一事件和標籤的組合唯一
+    __table_args__ = (
+        Index('idx_event_label_unique', 'event_id', 'label_id', unique=True),
+    )
+
+# 時間序列資料表（用於存儲詳細的感測器資料）
+class TimeSeriesData(Base):
+    __tablename__ = "timeseries_data"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    device_id = Column(String, nullable=False)
+    timestamp = Column(DateTime, nullable=False)
+    metric_name = Column(String, nullable=False)  # voltage, current, power, etc.
+    value = Column(Float, nullable=False)
+    unit = Column(String)  # V, A, W, etc.
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # 為查詢效能建立關鍵索引
+    __table_args__ = (
+        Index('idx_timeseries_device_timestamp', 'device_id', 'timestamp'),
+        Index('idx_timeseries_timestamp', 'timestamp'),
+        Index('idx_timeseries_device_metric', 'device_id', 'metric_name'),
+    )
 
 db_manager = DatabaseManager() 
