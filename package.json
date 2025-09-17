@@ -34,8 +34,8 @@
 		}
 	},
 	"dependencies": {
-		"@prisma/client": "^6.11.1",
-		"decimal.js": "^10.5.0",
-		"use-debounce": "^10.0.5"
+		"@prisma/client": "^6.16.2",
+		"decimal.js": "^10.6.0",
+		"use-debounce": "^10.0.6"
 	}
 }
