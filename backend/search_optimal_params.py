@@ -33,7 +33,7 @@ def test_configuration(hidden_dim, lambda_reg, algorithm="nnPU"):
 
     try:
         response = requests.post(
-            "https://python.yinchen.tw/api/pu-learning/run-simulation",
+            "https://weakrisk.yinchen.tw/api/pu-learning/run-simulation",
             json=config,
             timeout=60
         )

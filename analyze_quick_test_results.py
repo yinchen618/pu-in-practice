@@ -7,7 +7,7 @@ import json
 
 class ResultAnalyzer:
     def __init__(self):
-        self.api_base = "https://python.yinchen.tw"
+        self.api_base = "https://weakrisk.yinchen.tw"
 
     def extract_model_performance(self, model_data):
         """從模型數據中提取性能指標"""

@@ -64,16 +64,19 @@ export default function LessonsPractice() {
 					>
 						<div className="space-y-2">
 							<p>
-								<strong>Chronological order</strong> is the
-								inviolable first principle
+								Temporal order is <strong>inviolable</strong>{" "}
+								(no leakage across time).
 							</p>
 							<p>
-								Any operation disrupting this order ={" "}
-								<strong>disaster</strong>
+								<strong>Split-first, process-later</strong> is
+								the first principle.
 							</p>
 							<p>
-								<strong>Time is sacred</strong> in sequential
-								data analysis
+								Any op that breaks chronology ⇒{" "}
+								<strong>invalid evaluation</strong>.
+							</p>
+							<p>
+								Time is the ground truth in sequential analysis.
 							</p>
 						</div>
 					</LearningPoint>
@@ -81,20 +84,22 @@ export default function LessonsPractice() {
 					<LearningPoint
 						icon={ShieldAlert}
 						title="Data Leakage is a Silent Killer"
-						subtitle="Prevention is better than detection"
+						subtitle="Prevention > detection"
 					>
 						<div className="space-y-2">
+							<p>Prevention &gt; detection.</p>
 							<p>
-								<strong>"Split first, process later"</strong> is
-								the iron law
+								<strong>
+									Time-based split → then feature engineering
+								</strong>
+								.
 							</p>
 							<p>
-								<strong>Temporal splitting before</strong>{" "}
-								feature engineering
+								Fit scalers/priors on{" "}
+								<strong>train only</strong>.
 							</p>
 							<p>
-								Ensures{" "}
-								<strong>authentic evaluation results</strong>
+								Guarantees <strong>PU-aware</strong> evaluation.
 							</p>
 						</div>
 					</LearningPoint>
@@ -106,18 +111,16 @@ export default function LessonsPractice() {
 					>
 						<div className="space-y-2">
 							<p>
-								<strong>
-									Same features, scalers, architecture
-								</strong>{" "}
-								across pipeline
+								Train/val/test must share the{" "}
+								<strong>same features/scaler/arch</strong>.
 							</p>
 							<p>
-								Establish <strong>shared code</strong>{" "}
-								(shared_models.py)
+								One shared codepath (e.g.,{" "}
+								<code>shared_models.py</code>).
 							</p>
 							<p>
-								<strong>Best engineering practice</strong> for
-								alignment
+								Reproducible configs = comparable{" "}
+								<strong>risk</strong>.
 							</p>
 						</div>
 					</LearningPoint>
@@ -128,18 +131,16 @@ export default function LessonsPractice() {
 						subtitle="Critical thinking over blind acceptance"
 					>
 						<div className="space-y-2">
+							<p>"Successful run" ≠ correct results.</p>
 							<p>
-								<strong>"Successful execution"</strong> ≠
-								correct results
+								<strong>Inflated F1 (≥0.9) under PU</strong> is
+								suspicious.
 							</p>
 							<p>
-								<strong>Inflated metrics</strong> (F1 &gt; 0.9)
-								are dangerous
+								Pattern: Recall≈1.0 &amp; TN≈0 ⇒{" "}
+								<strong>hidden positives in U</strong>.
 							</p>
-							<p>
-								<strong>Mindless predictions</strong> (Recall =
-								1.0, TN = 0) = red flags
-							</p>
+							<p>Always inspect error composition.</p>
 						</div>
 					</LearningPoint>
 
@@ -149,18 +150,18 @@ export default function LessonsPractice() {
 						subtitle="Micro-level implementation determines macro-level success"
 					>
 						<div className="space-y-2">
+							<p>Micro-impl → macro-success.</p>
 							<p>
-								<strong>PyTorch gotchas:</strong>{" "}
-								<code>.cpu()</code> and <code>grad_fn</code>{" "}
-								issues
+								PyTorch gotchas: <code>.cpu()</code>,{" "}
+								<code>grad_fn</code>, RNG seeds.
 							</p>
 							<p>
-								<strong>Dimension mismatches:</strong>{" "}
-								<code>BatchNorm1d</code> input shapes
+								<code>BatchNorm1d</code> expects{" "}
+								<code>[N, C]</code> not <code>[N, T, C]</code>.
 							</p>
 							<p>
-								<strong>Micro-details</strong> determine macro
-								success
+								Small mismatches → large <strong>risk</strong>{" "}
+								drift.
 							</p>
 						</div>
 					</LearningPoint>

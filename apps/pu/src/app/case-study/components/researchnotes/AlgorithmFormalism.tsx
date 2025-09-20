@@ -15,6 +15,10 @@ export default function AlgorithmFormalism() {
 					<CardTitle className="text-3xl font-bold text-gray-800">
 						Algorithm & Mathematical Formalism
 					</CardTitle>
+					<p className="text-gray-500 text-sm mb-2">
+						All preprocessing respects chronology (split-first,
+						process-later) to avoid time leakage.
+					</p>
 					<p className="text-lg text-gray-500 pt-2">
 						A formal definition of the end-to-end methodology, from
 						feature extraction to the nnPU learning objective.
@@ -55,6 +59,11 @@ export default function AlgorithmFormalism() {
 								to learn a classifier <LaTeX>{"f"}</LaTeX>
 								using only <LaTeX>{"\\mathcal{P}"}</LaTeX> and{" "}
 								<LaTeX>{"\\mathcal{U}"}</LaTeX>.
+							</p>
+							<p>
+								We evaluate with PU-aware metrics: TP Recall and
+								Precision (PU-aware), acknowledging that "0" in
+								U ≠ confirmed negative.
 							</p>
 						</div>
 					</div>
@@ -126,26 +135,32 @@ export default function AlgorithmFormalism() {
 							3. Learning Objective: nnPU Risk Minimization
 						</h4>
 						<p className="text-gray-600 mb-3">
-							The model parameters <LaTeX>{"\\theta"}</LaTeX> are
-							optimized by minimizing the non-negative
-							Positive-Unlabeled (nnPU) risk estimator,
-							<LaTeX>{"\\hat{R}_{pu}(f_\\theta)"}</LaTeX>. Given a
-							loss function <LaTeX>{"\\ell(p, y)"}</LaTeX> and a
-							class prior <LaTeX>{"\\pi_p"}</LaTeX>, the estimator
-							is defined as:
+							The non-negative PU (nnPU) risk for classifier f_θ
+							with class-prior π_p is
 						</p>
 						<div className="my-3 p-4 bg-green-50 border border-green-200 rounded-lg text-center">
 							<LaTeX displayMode={true}>
-								{
-									"\\hat{R}_{pu}(f_\\theta) = \\pi_p \\hat{R}_p^+(f_\\theta) + \\max(0, \\hat{R}_u^-(f_\\theta) - \\pi_p \\hat{R}_u^+(f_\\theta))"
-								}
+								{String.raw`
+\widehat{R}_{\mathrm{pu}}(f_\theta)
+= \pi_p\,\widehat{R}_{p}^{+}(f_\theta)
+  + \max\!\bigl\{0,\;\widehat{R}_{u}^{-}(f_\theta) - \pi_p\,\widehat{R}_{p}^{-}(f_\theta)\bigr\}.
+`}
 							</LaTeX>
 						</div>
+						<p className="text-gray-600">
+							Here, <LaTeX>{"\\widehat{R}_{p}^{+}"}</LaTeX> is the
+							positive risk on P,{" "}
+							<LaTeX>{"\\widehat{R}_{u}^{-}"}</LaTeX> the negative
+							risk on U, and{" "}
+							<LaTeX>{"\\widehat{R}_{p}^{-}"}</LaTeX> the negative
+							risk on P. The max(0,·) clamp prevents negative
+							risk.
+						</p>
 						<p className="text-gray-600">
 							The optimization objective is thus{" "}
 							<LaTeX>
 								{
-									"\\theta^* = \\arg\\min_{\\theta} \\hat{R}_{pu}(f_\\theta)"
+									"\\theta^* = \\arg\\min_{\\theta} \\widehat{R}_{\\mathrm{pu}}(f_\\theta)"
 								}
 							</LaTeX>
 							.
@@ -179,6 +194,12 @@ export default function AlgorithmFormalism() {
 							</p>
 							<div className="border-t border-slate-300 my-3" />
 							<ol className="list-decimal list-inside space-y-2">
+								<li>
+									<strong>Prior Estimation:</strong> Estimate
+									class-prior π_p on{" "}
+									<LaTeX>{"\\mathcal{Z}_{train}"}</LaTeX>{" "}
+									(e.g., KM/Alpha-max).
+								</li>
 								<li>
 									<strong>Data Preparation:</strong> Merge{" "}
 									<LaTeX>{"\\mathcal{P}"}</LaTeX> and{" "}
@@ -267,11 +288,14 @@ export default function AlgorithmFormalism() {
 											<strong>end for</strong>
 										</p>
 										<p>
-											Perform validation on{" "}
+											Perform PU-aware validation on{" "}
 											<LaTeX>
 												{"\\mathcal{Z}_{val}"}
 											</LaTeX>{" "}
-											and check for early stopping.
+											using TP recall, precision on
+											labeled positives, and negative risk
+											diagnostics; check for early
+											stopping.
 										</p>
 									</div>
 									<p>

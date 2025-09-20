@@ -471,7 +471,7 @@ live_preview_router = APIRouter(
 async def live_preview_static_files(session_id: str, file_path: str):
     """
     提供靜態檔案服務，讓 temp_workspaces 目錄可以透過 HTTP 直接存取
-    例如：https://python.yinchen.tw/live-preview/sessionId/index.html
+    例如：https://weakrisk.yinchen.tw/live-preview/sessionId/index.html
     """
     try:
         # 安全性檢查：防止路徑遍歷攻擊
@@ -562,5 +562,5 @@ app.include_router(live_preview_router)
 if __name__ == "__main__":
     import uvicorn
     logger.info("啟動後端伺服器，請先確認 Ollama 服務已在本地運行。")
-    logger.info("在瀏覽器中開啟 https://python.yinchen.tw/docs 查看 API 文件。")
+    logger.info("在瀏覽器中開啟 https://weakrisk.yinchen.tw/docs 查看 API 文件。")
     uvicorn.run(app, host="0.0.0.0", port=8000)

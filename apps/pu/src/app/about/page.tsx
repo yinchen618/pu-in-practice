@@ -180,25 +180,28 @@ export default function AboutPage() {
 						<GraduationCap className="h-12 w-12" />
 					</div>
 					<h1 className="text-4xl md:text-5xl font-bold text-slate-800">
-						Yin‑Chen Chen
+						Yin-Chen Chen
 					</h1>
 					<h2 className="mt-2 text-xl md:text-2xl font-semibold text-slate-600">
-						Prospective PhD Student – Machine Learning & IoT Systems
+						PhD Applicant in Weak Supervision & Robust Learning —
+						Architect of a 95-Unit Real-World IoT Testbed
 					</h2>
-					{/* Updated Hero Statement */}
+					{/* Updated Hero Statement (for Prof. Ishida) */}
 					<p className="text-lg text-slate-700 max-w-4xl mx-auto leading-relaxed mt-6">
 						I run a 95-unit smart-residential testbed that generates
 						high-frequency, real-world IoT time series at scale. My
-						research focuses on advancing weakly supervised learning
-						(PU/nnPU) to address covariate shift and label noise,
-						directly aligned with
+						research centers on{" "}
 						<strong>
-							{" "}
-							Prof. Masashi Sugiyama's lab at UTokyo GSFS
+							weak supervision and learning with noisy labels
 						</strong>
-						. My goal is to bridge theory and deployment, creating
-						reliable ML systems for dynamic, human-centered
-						environments.
+						—including PU/nnPU, complementary labels, partial-label
+						learning, and risk correction under covariate shift
+						(importance weighting / density-ratio estimation). These
+						directions are closely aligned with themes in{" "}
+						<strong>Prof. Ishida's group at UTokyo (GSFS)</strong>.
+						I aim to bridge learning-theory guarantees and
+						deployment to build reliable ML systems for dynamic,
+						human-centered environments.
 					</p>
 					<div className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-slate-500 mb-8">
 						<div className="flex items-center gap-2">
@@ -207,7 +210,10 @@ export default function AboutPage() {
 						</div>
 						<div className="flex items-center gap-2">
 							<Building className="h-4 w-4" />
-							<span>Target: UTokyo GSFS, Schedule B 2026</span>
+							<span>
+								Target: UTokyo GSFS (Ishida Lab), Schedule B
+								2026
+							</span>
 						</div>
 						<div className="flex items-center gap-2">
 							<Calendar className="h-4 w-4" />
@@ -230,7 +236,7 @@ export default function AboutPage() {
 					</div>
 				</div>
 
-				{/* --- [NEW] Motivation & About Section --- */}
+				{/* --- Motivation & About Section (for Prof. Ishida) --- */}
 				<div className="mb-16">
 					<h2 className="text-3xl font-bold text-center mb-8 text-slate-800">
 						Motivation & About
@@ -240,11 +246,30 @@ export default function AboutPage() {
 							<CardContent className="">
 								<p className="text-lg text-slate-700 leading-relaxed text-center">
 									With 10+ years architecting enterprise IoT
-									systems and independent research, I am
-									seeking a PhD to tackle core problems in
-									robust ML. I aim to bridge theory and
-									deployment at scale by applying PU/nnPU to
-									noisy, non-stationary data with UTokyo GSFS.
+									systems and independent research, I seek a
+									PhD to tackle core problems in{" "}
+									<strong>
+										robust learning from weak/biased
+										supervision
+									</strong>
+									. Specifically, I'm interested in{" "}
+									<strong>complementary-label</strong> and{" "}
+									<strong>partial-label learning</strong>,{" "}
+									<strong>
+										label-noise robustness
+										(open-/instance-dependent)
+									</strong>
+									, and{" "}
+									<strong>
+										importance weighting under covariate
+										shift (density-ratio estimation)
+									</strong>
+									. I hope to pursue these topics under{" "}
+									<strong>
+										Prof. Ishida's guidance at UTokyo GSFS
+									</strong>
+									, connecting theoretical guarantees with
+									deployment at scale.
 								</p>
 							</CardContent>
 						</Card>
@@ -257,7 +282,7 @@ export default function AboutPage() {
 						Academic & Professional Trajectory
 					</h2>
 					<div className="max-w-4xl mx-auto space-y-8">
-						{/* --- [ENHANCED] Research Experience --- */}
+						{/* --- Research Experience --- */}
 						<Card className="border-slate-200">
 							<CardHeader>
 								<CardTitle className="text-xl text-slate-800 flex items-center gap-2">
@@ -275,39 +300,50 @@ export default function AboutPage() {
 										2015 - Present
 									</p>
 									<p className="text-slate-600 mt-2 italic text-sm">
-										A self-directed research initiative to
-										create a living laboratory for studying
-										human dynamics and robust machine
-										learning with real-world, high-frequency
-										data.
+										A living laboratory for studying human
+										dynamics and{" "}
+										<strong>robust weak-supervision</strong>{" "}
+										with real-world, high-frequency data.
 									</p>
 									<ul className="text-slate-600 mt-2 space-y-1">
 										<li>
 											• <strong>Architected</strong> and{" "}
 											<strong>deployed</strong> a 95-unit
-											smart residential IoT testbed from
-											the ground up.
+											smart-residential IoT testbed.
 										</li>
 										<li>
-											• <strong>Developed</strong> a full
-											data pipeline for collecting,
-											processing, and analyzing multimodal
-											time series data (power,
+											• Built a full data pipeline for
+											multimodal time series (power,
 											environment, etc.).
 										</li>
 										<li>
-											• <strong>Applied</strong>{" "}
-											weakly-supervised learning
-											(uPU/nnPU) to validate theoretical
-											models against non-stationary,
-											real-world data streams.
+											• <strong>Applied</strong> PU/nnPU,{" "}
+											<strong>
+												complementary-label learning
+											</strong>
+											, and{" "}
+											<strong>
+												label-noise correction
+											</strong>{" "}
+											to validate theory under
+											non-stationary streams, with
+											covariate-shift-aware evaluation.
+										</li>
+										<li>
+											• <strong>Identified</strong> key
+											failure modes (e.g., silent
+											performance degradation under
+											covariate shift), motivating robust{" "}
+											<strong>risk estimators</strong> and
+											theoretically grounded adaptation
+											methods.
 										</li>
 									</ul>
 								</div>
 							</CardContent>
 						</Card>
 
-						{/* --- [ENHANCED] Professional Experience --- */}
+						{/* --- Professional Experience --- */}
 						<Card className="border-slate-200">
 							<CardHeader>
 								<CardTitle className="text-xl text-slate-800 flex items-center gap-2">
@@ -379,7 +415,7 @@ export default function AboutPage() {
 												<li>
 													• On-site presence in Japan
 													from{" "}
-													<strong>2017-2019</strong>
+													<strong>2017–2019</strong>
 												</li>
 												<li>
 													• Built comprehensive
@@ -432,7 +468,8 @@ export default function AboutPage() {
 								</div>
 							</CardContent>
 						</Card>
-						{/* --- [ENHANCED] Teaching Experience Card with Syllabi Links --- */}
+
+						{/* --- Teaching Experience --- */}
 						<Card className="border-slate-200">
 							<CardHeader>
 								<CardTitle className="text-xl text-slate-800 flex items-center gap-2">
@@ -459,7 +496,7 @@ export default function AboutPage() {
 											non-STEM students.
 										</li>
 										<li>
-											• <strong>2024/7–2025/6,</strong>
+											• <strong>2024/7–2025/6</strong>
 											<div className="bg-green-50 border border-green-200 rounded-lg p-3 ml-4 mb-2">
 												<p className="text-sm text-green-800">
 													<strong>
@@ -475,6 +512,11 @@ export default function AboutPage() {
 													students
 												</p>
 											</div>
+											<p className="text-sm text-slate-700 mt-1">
+												<strong>Awarded:</strong>{" "}
+												University-Level Excellent
+												Course Design (2024, 2025).
+											</p>
 										</li>
 										<li>
 											• Since 2022: evaluations weighted
@@ -482,8 +524,6 @@ export default function AboutPage() {
 											<strong>12</strong> sections,{" "}
 											<strong>545</strong> students.
 										</li>
-										{/* --- [NEW] Syllabi Links --- */}
-										{/* --- [FINAL] Syllabi Links with Nested List & Badges --- */}
 										<li className="pt-1">
 											<div className="flex">
 												<span className="mr-2">•</span>
@@ -551,7 +591,7 @@ export default function AboutPage() {
 											</div>
 										</li>
 										<li>
-											• <strong>Awards:</strong>
+											• <strong>Awards:</strong>{" "}
 											University-Level Excellent Course
 											Design (2024, 2025).
 										</li>
@@ -559,7 +599,8 @@ export default function AboutPage() {
 								</div>
 							</CardContent>
 						</Card>
-						{/* --- [ENHANCED] Education Section --- */}
+
+						{/* --- Education Section --- */}
 						<Card className="border-slate-200">
 							<CardHeader>
 								<CardTitle className="text-xl text-slate-800 flex items-center gap-2">
@@ -604,9 +645,9 @@ export default function AboutPage() {
 									</p>
 									<p className="text-slate-600 mt-1 italic text-sm">
 										I withdrew to fulfill national service
-										and gain industry experience, a decision
-										that provided the practical foundation
-										for my current research interests.
+										and gain industry experience—background
+										that now informs my research on reliable
+										weak supervision.
 									</p>
 								</div>
 							</CardContent>
@@ -614,7 +655,7 @@ export default function AboutPage() {
 					</div>
 				</div>
 
-				{/* --- [MODIFIED] Publications Section with Thematic Categories --- */}
+				{/* --- Publications Section --- */}
 				<div className="mb-16" id="publications">
 					<h2 className="text-3xl font-bold text-center mb-8 text-slate-800">
 						Key Research Publications
@@ -624,11 +665,10 @@ export default function AboutPage() {
 							<CardHeader>
 								<p className="text-slate-600 italic text-sm">
 									Note: Earlier publications were published
-									under the name "Ying‑Chen Chen".
+									under the name "Ying-Chen Chen".
 								</p>
 							</CardHeader>
 							<CardContent className="space-y-8">
-								{/* Category 1: Recent Work */}
 								{recentPubs.length > 0 && (
 									<div>
 										<h3 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-300 pb-2">
@@ -638,8 +678,6 @@ export default function AboutPage() {
 										<PublicationsList items={recentPubs} />
 									</div>
 								)}
-
-								{/* Category 2: Foundational Work */}
 								{foundationalPubs.length > 0 && (
 									<div>
 										<h3 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-300 pb-2">
@@ -672,16 +710,20 @@ export default function AboutPage() {
 										</h4>
 										<div className="flex flex-wrap gap-2">
 											<Badge variant="secondary">
-												PU Learning
+												Complementary Labels
+											</Badge>
+											<Badge variant="secondary">
+												Label-Noise Robustness
+											</Badge>
+											<Badge variant="secondary">
+												PU / nnPU
 											</Badge>
 											<Badge variant="secondary">
 												Time-Series Analysis
-											</Badge>{" "}
-											{/* <-- New */}
+											</Badge>
 											<Badge variant="secondary">
 												Domain Adaptation
-											</Badge>{" "}
-											{/* <-- New */}
+											</Badge>
 											<Badge variant="secondary">
 												PyTorch
 											</Badge>
@@ -781,8 +823,32 @@ export default function AboutPage() {
 						<Card className="border-slate-200">
 							<CardContent className="pt-6">
 								<p className="text-slate-700 leading-relaxed">
-									弱教師あり学習（PU/nnPU）を用いて、ノイズや分布変動（covariate
-									shift）が存在する実環境IoTデータに対する堅牢なリスク最小化に取り組みます。95戸のスマート住宅テストベッド（高頻度マルチモーダル時系列）を運用し、重要度重み付け（密度比推定）やシフト認識型の評価指標を実装しています。実データの制約を踏まえ、理論的仮定を損なわないデータガバナンスと再現性のある評価系を整備し、実装と理論の架橋に貢献します。東京大学GSFS（杉山研究室）の研究テーマと強く整合しており、共同研究の形で価値を提供できます。
+									本志望では、<strong>弱教師あり学習</strong>
+									と<strong>ラベルノイズ学習</strong>
+									（PU/nnPU、
+									<strong>
+										補助ラベル（complementary labels）
+									</strong>
+									、<strong>部分ラベル学習</strong>、
+									<strong>インスタンス依存ノイズ</strong>
+									、分布変動下の
+									<strong>
+										重要度重み付け（密度比推定）
+									</strong>
+									）を軸に、実環境IoTデータ（95戸スマート住宅、⾼頻度マルチモーダル時系列）における堅牢な
+									<strong>リスク推定と</strong>
+									リスク最小化を探究します。
+									<br />
+									密度比推定やシフト認識型の評価指標を用いて、
+									<strong>
+										理論の仮定を保ちながら現場データに適用可能な手法
+									</strong>
+									を整備します。これらは
+									<strong>東京大学GSFS・石田研究室</strong>
+									の研究テーマと強く整合しており、
+									<strong>学習理論の保証</strong>と
+									<strong>実装・運用</strong>
+									の往還を通じて共同研究に貢献できると考えています。
 								</p>
 							</CardContent>
 						</Card>

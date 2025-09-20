@@ -1,8 +1,9 @@
 "use client";
 
 import ModelConfigurationControls from "@/app/pu-learning/components/ModelConfigurationControls";
+import { LaTeX } from "@/components/LaTeX";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronDown, ChevronRight, HelpCircle, Info } from "lucide-react";
+import { ChevronDown, ChevronRight, Info } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import DataVisualization from "./DataVisualization";
@@ -48,69 +49,6 @@ interface DemoTabProps {
 	handleBlindsEffectSetup: () => void;
 }
 
-// 交通號誌燈號組件
-function TrafficLight({
-	value,
-	thresholds,
-	type,
-}: {
-	value: number;
-	thresholds: { green: number; yellow: number };
-	type: "prior" | "error";
-}) {
-	let light = "🔴"; // 預設紅燈
-
-	if (type === "prior") {
-		const diff = Math.abs(value - 0.3); // 假設真實先驗為0.3
-		if (diff <= thresholds.green) {
-			light = "🟢";
-		} else if (diff <= thresholds.yellow) {
-			light = "🟡";
-		}
-	} else if (type === "error") {
-		if (value <= thresholds.green) {
-			light = "🟢";
-		} else if (value <= thresholds.yellow) {
-			light = "🟡";
-		}
-	}
-
-	return <span className="ml-2">{light}</span>;
-}
-
-// 統一的指標顯示組件
-function MetricDisplay({
-	label,
-	value,
-	tooltip,
-	trafficLight,
-	subText,
-}: {
-	label: string;
-	value: string | number;
-	tooltip: string;
-	trafficLight?: React.ReactNode;
-	subText?: string;
-}) {
-	return (
-		<div className="flex justify-between items-start">
-			<span>{label}</span>
-			<div className="flex flex-col items-end gap-1">
-				<div className="flex items-center gap-1">
-					<span className="font-medium">{value}</span>
-					<span className="inline-block cursor-help" title={tooltip}>
-						<HelpCircle className="h-3 w-3 text-slate-400" />
-					</span>
-					{trafficLight}
-				</div>
-				{subText && (
-					<span className="text-xs text-slate-600">{subText}</span>
-				)}
-			</div>
-		</div>
-	);
-}
-
 export default function DemoTab({
 	algorithm,
 	setAlgorithm,
@@ -147,15 +85,23 @@ export default function DemoTab({
 	return (
 		<div className="space-y-12">
 			<div className="text-center space-y-4">
-				<h1 className="text-4xl font-bold text-slate-800 mb-4">Demo</h1>
+				<h1 className="text-4xl font-bold text-slate-800 mb-4">
+					Risk Demo
+				</h1>
 				<h2 className="text-2xl font-semibold text-slate-700">
-					Interactive PU Learning in Practice
+					Interactive Risk Estimation with uPU & nnPU
 				</h2>
-				{/* <p className="text-lg text-slate-700 max-w-3xl mx-auto">
-					An interactive sandbox demonstrating Positive–Unlabeled
-					learning. Compare uPU and nnPU algorithms and explore
-					feature settings, later applied to real IoT testbed data.
-				</p> */}
+				<p className="text-lg text-slate-700 max-w-3xl mx-auto">
+					A lightweight sandbox validating{" "}
+					<strong>unbiased risk estimation</strong> under controllable
+					settings. Adjust data and model knobs, then observe how the
+					estimated risk{" "}
+					<LaTeX displayMode={false}>{"\\hat{R}"}</LaTeX> relates to
+					the true risk <LaTeX displayMode={false}>{"R"}</LaTeX>, and
+					how prior estimation{" "}
+					<LaTeX displayMode={false}>{"\\hat{\\pi}_p"}</LaTeX> impacts
+					stability.
+				</p>
 			</div>
 
 			{/* C3: 互動 Demo 主區域 */}
@@ -282,6 +228,17 @@ export default function DemoTab({
 
 				{/* C3.2: 右欄 - 視覺化與結果 (70%) */}
 				<div className="lg:col-span-2 space-y-6">
+					{/* Ground Truth Reference */}
+					<div className="bg-blue-50 p-3 rounded-lg border border-blue-200 text-center">
+						<p className="text-sm text-blue-800">
+							<strong>Ground Truth Reference:</strong> Class prior{" "}
+							<LaTeX displayMode={false}>{"\\pi_p = 0.30"}</LaTeX>{" "}
+							(30%) - Use this as baseline for{" "}
+							<LaTeX displayMode={false}>{"\\hat{\\pi}_p"}</LaTeX>{" "}
+							accuracy evaluation
+						</p>
+					</div>
+
 					{/* 視覺化圖表 */}
 					<DataVisualization results={results} />
 
@@ -333,7 +290,15 @@ export default function DemoTab({
 													</span>
 												</div>
 												<div className="flex justify-between">
-													<span>Sample Size:</span>
+													<span>
+														Positive Samples (
+														<LaTeX
+															displayMode={false}
+														>
+															{"n_p"}
+														</LaTeX>
+														):
+													</span>
 													<span className="font-medium">
 														{
 															currentConfig.sampleSize
@@ -341,7 +306,15 @@ export default function DemoTab({
 													</span>
 												</div>
 												<div className="flex justify-between">
-													<span>Positive Ratio:</span>
+													<span>
+														Class Prior (
+														<LaTeX
+															displayMode={false}
+														>
+															{"\\pi_p"}
+														</LaTeX>
+														):
+													</span>
 													<span className="font-medium">
 														{(
 															currentConfig.positiveRatio *
@@ -351,7 +324,9 @@ export default function DemoTab({
 													</span>
 												</div>
 												<div className="flex justify-between">
-													<span>Label Freq:</span>
+													<span title="Probability a positive is labeled">
+														Labeling Rate:
+													</span>
 													<span className="font-medium">
 														{(
 															currentConfig.labelFrequency *
@@ -375,12 +350,24 @@ export default function DemoTab({
 										{results.metrics && (
 											<div className="space-y-2">
 												<div className="font-medium text-slate-800 mb-2">
-													Results
+													Risk Metrics
 												</div>
 												<div className="space-y-1">
-													{/* Est. Prior */}
+													{/* Prior Estimate */}
 													<div className="flex justify-between">
-														<span>Est. Prior:</span>
+														<span>
+															Prior Estimate (
+															<LaTeX
+																displayMode={
+																	false
+																}
+															>
+																{
+																	"\\hat{\\pi}_p"
+																}
+															</LaTeX>
+															):
+														</span>
 														<span className="font-medium">
 															{(
 																results.metrics
@@ -391,9 +378,19 @@ export default function DemoTab({
 														</span>
 													</div>
 
-													{/* Error Rate */}
+													{/* Empirical Risk */}
 													<div className="flex justify-between">
-														<span>Error Rate:</span>
+														<span>
+															Empirical Risk (
+															<LaTeX
+																displayMode={
+																	false
+																}
+															>
+																{"\\hat{R}"}
+															</LaTeX>
+															):
+														</span>
 														<span className="font-medium">
 															{(
 																results.metrics
@@ -407,12 +404,21 @@ export default function DemoTab({
 													{/* Training Error */}
 													<div className="flex justify-between">
 														<span>
-															Training Error:
+															Training{" "}
+															<LaTeX
+																displayMode={
+																	false
+																}
+															>
+																{"\\hat{R}"}
+															</LaTeX>
+															:
 														</span>
 														<span className="font-medium">
 															{results.metrics.trainingErrorRate.toFixed(
 																2,
 															)}
+															%
 														</span>
 													</div>
 

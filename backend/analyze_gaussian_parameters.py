@@ -28,7 +28,7 @@ from collections import defaultdict
 
 class ParameterAnalyzer:
     def __init__(self):
-        self.url = "https://python.yinchen.tw/api/pu-learning/run-simulation"
+        self.url = "https://weakrisk.yinchen.tw/api/pu-learning/run-simulation"
         self.base_config = {
             "algorithm": "nnPU",
             "data_params": {

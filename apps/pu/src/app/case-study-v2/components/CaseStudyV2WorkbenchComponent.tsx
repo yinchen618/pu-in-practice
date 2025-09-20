@@ -95,21 +95,21 @@ export function CaseStudyV2WorkbenchComponent() {
 		{
 			id: "stage-1",
 			title: "Candidate Generation",
-			description: "Filter and identify potential anomaly events",
+			description: "Generate anomaly candidates (time-ordered)",
 			icon: Settings,
 			enabled: true,
 		},
 		{
 			id: "stage-2",
 			title: "Expert Labeling",
-			description: "Review candidates and establish ground truth",
+			description: "Confirm positives (P); keep others as Unlabeled (U)",
 			icon: Play,
 			enabled: selectedRun?.status !== "CONFIGURING",
 		},
 		{
 			id: "stage-3",
 			title: "Training Workbench",
-			description: "Configure and execute model training",
+			description: "Train/evaluate nnPU; estimate πₚ on train only",
 			icon: BarChart,
 			enabled:
 				selectedRun?.status === "COMPLETED" ||
@@ -119,7 +119,7 @@ export function CaseStudyV2WorkbenchComponent() {
 		{
 			id: "stage-4",
 			title: "Results Analysis",
-			description: "Analyze and compare experiment outcomes",
+			description: "Compare runs with PU-aware metrics & target-risk",
 			icon: BarChart,
 			enabled: (history?.trained_models?.length || 0) > 0,
 		},
@@ -154,8 +154,8 @@ export function CaseStudyV2WorkbenchComponent() {
 					Data Workbench
 				</h2>
 				<p className="text-lg text-slate-600 max-w-3xl mx-auto">
-					Advanced experimental workbench for LTSM + PU Learning
-					research with dynamic four-stage workflow
+					Advanced, risk-estimation–driven workbench for LSTM + PU
+					Learning (nnPU) with a four-stage, leakage-safe workflow
 				</p>
 			</div>
 
@@ -167,8 +167,8 @@ export function CaseStudyV2WorkbenchComponent() {
 						Experiment Configuration
 					</CardTitle>
 					<CardDescription>
-						Select or create an experiment run to begin the research
-						workflow
+						Select or create an experiment run to start a
+						chronological, leakage-safe pipeline.
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -329,231 +329,251 @@ export function CaseStudyV2WorkbenchComponent() {
 						)}
 					</TabsContent>
 				</Tabs>
-			) : (<>				
-			<Card>
-					<CardHeader>
-						<CardTitle>Welcome to Data Workbench</CardTitle>
-						<CardDescription>
-							Create a new experiment run or select an existing
-							one to begin your research workflow
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<p className="text-muted-foreground">
-							This workbench provides a structured four-stage
-							approach to PU Learning research:
-						</p>
-						<ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-							<li>
-								• <strong>Stage 1:</strong> Generate anomaly
-								candidates from raw data using configurable
-								filtering rules
-							</li>
-							<li>
-								• <strong>Stage 2:</strong> Review and label
-								candidates to establish ground truth
-							</li>
-							<li>
-								• <strong>Stage 3:</strong> Train and evaluate
-								PU Learning models with real-time monitoring
-							</li>
-							<li>
-								• <strong>Stage 4:</strong> Analyze results and
-								compare different experimental approaches
-							</li>
-						</ul>
-					</CardContent>
-				</Card>
+			) : (
+				<>
+					<Card>
+						<CardHeader>
+							<CardTitle>Welcome to Data Workbench</CardTitle>
+							<CardDescription>
+								Create a new experiment or select an existing
+								one to begin.
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<p className="text-muted-foreground">
+								This workbench follows a structured, PU-aware
+								four-stage flow:
+							</p>
+							<ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+								<li>
+									•{" "}
+									<strong>
+										Stage 1 — Candidate Generation:
+									</strong>{" "}
+									derive anomaly candidates from raw streams
+									via configurable filters (time-ordered).
+								</li>
+								<li>
+									• <strong>Stage 2 — Label Review:</strong>{" "}
+									confirm positives (P); keep the rest as
+									Unlabeled (U).
+								</li>
+								<li>
+									• <strong>Stage 3 — Model Training:</strong>{" "}
+									train/evaluate nnPU with real-time
+									monitoring; estimate class prior πp on train
+									only.
+								</li>
+								<li>
+									• <strong>Stage 4 — Analysis:</strong>{" "}
+									compare runs, inspect PU-aware metrics, and
+									validate target-domain risk.
+								</li>
+							</ul>
+							<p className="mt-4 text-sm text-muted-foreground">
+								<strong>Note:</strong> All preprocessing is
+								split-first, process-later to prevent time
+								leakage.
+							</p>
+						</CardContent>
+					</Card>
 
-			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-3">
-						<span className="text-2xl">🏢</span>
-						Dataset Overview: Room A-310 (R029)
-					</CardTitle>
-					<CardDescription>
-						Comprehensive analysis of anomaly detection dataset
-						distribution and characteristics
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					{/* 視覺化圖表 */}
-					<div className="bg-white p-6 rounded-lg border border-slate-200">
-						<div className="text-center mb-6">
-							<div className="grid grid-cols-2 gap-4 text-sm text-slate-600 mb-4">
-								<div>
-									<strong>Location:</strong> Building-A - 3F -
-									Room-10
+					<Card>
+						<CardHeader>
+							<CardTitle className="flex items-center gap-3">
+								<span className="text-2xl">🏢</span>
+								Dataset Overview: Room A-310 (R029)
+							</CardTitle>
+							<CardDescription>
+								Comprehensive, PU-aware view of dataset
+								distribution and characteristics
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							{/* 視覺化圖表 */}
+							<div className="bg-white p-6 rounded-lg border border-slate-200">
+								<div className="text-center mb-6">
+									<div className="grid grid-cols-2 gap-4 text-sm text-slate-600 mb-4">
+										<div>
+											<strong>Location:</strong>{" "}
+											Building-A - 3F - Room-10
+										</div>
+										<div>
+											<strong>Type:</strong> Student
+											Activity Room
+										</div>
+										<div>
+											<strong>Period:</strong> 2025/7/21 -
+											2025/8/17 (28 days)
+										</div>
+										<div>
+											<strong>Total Records:</strong>{" "}
+											16,078 data points
+										</div>
+										<div className="text-sm text-slate-600 mt-2">
+											Estimated class prior (window): πp ≈
+											0.100 (1,607 P / 16,078 processed);
+											note: prior may drift over time.
+										</div>
+									</div>
 								</div>
-								<div>
-									<strong>Type:</strong> Student Activity Room
-								</div>
-								<div>
-									<strong>Period:</strong> 2025/7/21 -
-									2025/8/17 (28 days)
-								</div>
-								<div>
-									<strong>Total Records:</strong> 16,078 data
-									points
-								</div>
-							</div>
-						</div>
 
-						{/* 數據比例視覺化 */}
-						<div className="space-y-4">
-							{/* 理論筆數 */}
-							<div className="flex items-center gap-4">
-								<div className="w-32 text-sm text-slate-700 font-medium">
-									Theoretical Maximum
+								{/* 數據比例視覺化 */}
+								<div className="space-y-4">
+									{/* 理論筆數 */}
+									<div className="flex items-center gap-4">
+										<div className="w-32 text-sm text-slate-700 font-medium">
+											Theoretical Maximum
+										</div>
+										<div className="flex-1 bg-gray-200 rounded-full h-8 relative overflow-hidden">
+											<div
+												className="bg-gray-400 h-full rounded-full"
+												style={{
+													width: "100%",
+												}}
+											/>
+											<div className="absolute inset-0 flex items-center justify-center text-white text-sm font-bold">
+												40,320 points (100%)
+											</div>
+										</div>
+									</div>
+
+									{/* 實際收集到的數據 */}
+									<div className="flex items-center gap-4">
+										<div className="w-32 text-sm text-slate-700 font-medium">
+											Processed Dataset
+										</div>
+										<div className="flex-1 bg-gray-200 rounded-full h-8 relative overflow-hidden">
+											<div
+												className="bg-blue-500 h-full rounded-full"
+												style={{
+													width: "39.9%",
+												}}
+											/>
+											<div className="absolute inset-0 flex items-center justify-center pl-24 text-slate-700 text-sm font-bold">
+												16,078 points (39.9% of
+												theoretical)
+											</div>
+										</div>
+									</div>
+
+									{/* Expert 標註的異常 - 使用實際處理數據作為基準 */}
+									<div className="flex items-center gap-4">
+										<div className="w-32 text-sm text-slate-700 font-medium">
+											Positive (P) — Confirmed Anomalies
+										</div>
+										<div className="flex-1 bg-gray-200 rounded-full h-8 relative overflow-hidden">
+											<div
+												className="bg-red-400 h-full rounded-full"
+												style={{
+													width: "3.9%",
+												}}
+											/>
+											<div className="absolute inset-0 flex items-center justify-start pl-10 text-slate-700 text-sm font-bold">
+												1,607 points (10.0% of Processed
+												Dataset)
+											</div>
+										</div>
+									</div>
+
+									{/* 未標註數據 - 使用實際處理數據作為基準 */}
+									<div className="flex items-center gap-4">
+										<div className="w-32 text-sm text-slate-700 font-medium">
+											Unlabeled (U) — Unknown Status
+										</div>
+										<div className="flex-1 bg-gray-200 rounded-full h-8 relative overflow-hidden">
+											<div
+												className="bg-amber-400 h-full rounded-full"
+												style={{
+													width: "35.9%",
+												}}
+											/>
+											<div className="absolute inset-0 flex items-center justify-center pl-22 text-slate-700 text-sm font-bold">
+												14,471 points (90.0% of
+												Processed Dataset)
+											</div>
+										</div>
+									</div>
 								</div>
-								<div className="flex-1 bg-gray-200 rounded-full h-8 relative overflow-hidden">
-									<div
-										className="bg-gray-400 h-full rounded-full"
-										style={{
-											width: "100%",
-										}}
-									/>
-									<div className="absolute inset-0 flex items-center justify-center text-white text-sm font-bold">
-										40,320 points (100%)
+
+								{/* 說明文字 */}
+								<div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+									<div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+										<div className="text-gray-800 font-semibold text-sm">
+											Theoretical Maximum
+										</div>
+										<div className="text-gray-700 text-xs mt-1">
+											Expected 1 point/minute over 28 days
+										</div>
+									</div>
+									<div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+										<div className="text-blue-800 font-semibold text-sm">
+											Processed Dataset
+										</div>
+										<div className="text-blue-700 text-xs mt-1">
+											Post-ETL, leak-safe after Golden
+											Window selection
+										</div>
+									</div>
+									<div className="bg-red-50 p-3 rounded-lg border border-red-200">
+										<div className="text-red-800 font-semibold text-sm">
+											Positive (P)
+										</div>
+										<div className="text-red-700 text-xs mt-1">
+											Expert-verified anomaly samples
+										</div>
+									</div>
+									<div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
+										<div className="text-amber-800 font-semibold text-sm">
+											Unlabeled (U)
+										</div>
+										<div className="text-amber-700 text-xs mt-1">
+											Unconfirmed samples (may contain
+											hidden positives)
+										</div>
 									</div>
 								</div>
 							</div>
 
-							{/* 實際收集到的數據 */}
-							<div className="flex items-center gap-4">
-								<div className="w-32 text-sm text-slate-700 font-medium">
-									Processed Dataset
-								</div>
-								<div className="flex-1 bg-gray-200 rounded-full h-8 relative overflow-hidden">
-									<div
-										className="bg-blue-500 h-full rounded-full"
-										style={{
-											width: "39.9%",
-										}}
-									/>
-									<div className="absolute inset-0 flex items-center justify-center pl-24 text-slate-700 text-sm font-bold">
-										16,078 points (39.9% of theoretical)
+							{/* Room A-310 特性分析 */}
+							<div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 mt-6">
+								<h6 className="font-semibold text-indigo-800 mb-3">
+									Room A-310 (R029) Characteristics
+								</h6>
+								<div className="grid md:grid-cols-3 gap-4 text-sm">
+									<div>
+										<div className="font-medium text-indigo-700">
+											PU Prior (Window)
+										</div>
+										<div className="text-slate-600">
+											πp ≈ 10% (vs. typical &lt;0.1%);
+											expect drift by season
+										</div>
+									</div>
+									<div>
+										<div className="font-medium text-indigo-700">
+											Domain Notes
+										</div>
+										<div className="text-slate-600">
+											Student activity room; usage differs
+											from office-worker domain
+										</div>
+									</div>
+									<div>
+										<div className="font-medium text-indigo-700">
+											ETL Recovery (Leak-Safe)
+										</div>
+										<div className="text-slate-600">
+											39.9% kept after Golden Window
+											selection
+										</div>
 									</div>
 								</div>
 							</div>
-
-							{/* Expert 標註的異常 - 使用實際處理數據作為基準 */}
-							<div className="flex items-center gap-4">
-								<div className="w-32 text-sm text-slate-700 font-medium">
-									Known Anomalies
-								</div>
-								<div className="flex-1 bg-gray-200 rounded-full h-8 relative overflow-hidden">
-									<div
-										className="bg-red-400 h-full rounded-full"
-										style={{
-											width: "3.9%",
-										}}
-									/>
-									<div className="absolute inset-0 flex items-center justify-start pl-10 text-slate-700 text-sm font-bold">
-										1,607 points (10.0% of Processed
-										Dataset)
-									</div>
-								</div>
-							</div>
-
-							{/* 未標註數據 - 使用實際處理數據作為基準 */}
-							<div className="flex items-center gap-4">
-								<div className="w-32 text-sm text-slate-700 font-medium">
-									Unlabeled Data
-								</div>
-								<div className="flex-1 bg-gray-200 rounded-full h-8 relative overflow-hidden">
-									<div
-										className="bg-amber-400 h-full rounded-full"
-										style={{
-											width: "35.9%",
-										}}
-									/>
-									<div className="absolute inset-0 flex items-center justify-center pl-22 text-slate-700 text-sm font-bold">
-										14,471 points (90.0% of Processed
-										Dataset)
-									</div>
-								</div>
-							</div>
-						</div>
-
-						{/* 說明文字 */}
-						<div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-							<div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-								<div className="text-gray-800 font-semibold text-sm">
-									Theoretical Maximum
-								</div>
-								<div className="text-gray-700 text-xs mt-1">
-									Expected 1 point/minute over 28 days
-								</div>
-							</div>
-							<div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-								<div className="text-blue-800 font-semibold text-sm">
-									Processed Dataset
-								</div>
-								<div className="text-blue-700 text-xs mt-1">
-									Post-ETL clean data after Golden Window
-									selection
-								</div>
-							</div>
-							<div className="bg-red-50 p-3 rounded-lg border border-red-200">
-								<div className="text-red-800 font-semibold text-sm">
-									Known Anomalies
-								</div>
-								<div className="text-red-700 text-xs mt-1">
-									Expert-identified positive samples
-								</div>
-							</div>
-							<div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
-								<div className="text-amber-800 font-semibold text-sm">
-									Unlabeled Data
-								</div>
-								<div className="text-amber-700 text-xs mt-1">
-									Unknown classification status
-								</div>
-							</div>
-						</div>
-					</div>
-
-					{/* Room A-310 特性分析 */}
-					<div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200 mt-6">
-						<h6 className="font-semibold text-indigo-800 mb-3">
-							Room A-310 (R029) Characteristics
-						</h6>
-						<div className="grid md:grid-cols-3 gap-4 text-sm">
-							<div>
-								<div className="font-medium text-indigo-700">
-									High Anomaly Rate
-								</div>
-								<div className="text-slate-600">
-									10.0% known anomalies vs. typical &lt;0.1%
-								</div>
-							</div>
-							<div>
-								<div className="font-medium text-indigo-700">
-									Student Activity Room
-								</div>
-								<div className="text-slate-600">
-									Irregular usage patterns, equipment
-									experiments
-								</div>
-							</div>
-							<div>
-								<div className="font-medium text-indigo-700">
-									ETL Recovery Rate
-								</div>
-								<div className="text-slate-600">
-									39.9% data recovery from Golden Window
-									selection
-								</div>
-							</div>
-						</div>
-					</div>
-				</CardContent>
-			</Card>
+						</CardContent>
+					</Card>
 				</>
-
 			)}
-
 		</div>
 	);
 }

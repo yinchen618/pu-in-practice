@@ -64,7 +64,7 @@ export default function TabNavigation({
 				<div className="flex items-center justify-between">
 					<div>
 						<h1 className="text-xl font-bold text-slate-800">
-							LSTM + PU Learning Case Study
+							Risk-Estimation–Driven PU Learning with LSTM
 						</h1>
 					</div>
 					<div className="flex space-x-4">

@@ -38,8 +38,8 @@ if [ ! -f "testbed_service.py" ]; then
 fi
 
 echo "✅ 所有檔案檢查完成"
-echo "🌐 啟動服務器於 https://python.yinchen.tw"
-echo "📖 API 文檔可訪問: https://python.yinchen.tw/docs"
+echo "🌐 啟動服務器於 https://weakrisk.yinchen.tw"
+echo "📖 API 文檔可訪問: https://weakrisk.yinchen.tw/docs"
 echo ""
 echo "主要 API 端點:"
 echo "  - GET  /api/testbed/overview         - 獲取概覽統計"

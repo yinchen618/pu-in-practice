@@ -64,7 +64,13 @@ export default function ResearchNotesTab() {
 							</h1>
 							<p className="text-sm text-slate-600">
 								Key learnings, algorithm formalism, and research
-								highlights
+								highlights from a
+								<strong>risk-estimation–driven</strong> PU
+								learning pipeline (nnPU; class-prior{" "}
+								<em>
+									π<sub>p</sub>
+								</em>
+								).
 							</p>
 						</div>
 

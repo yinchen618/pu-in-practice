@@ -30,7 +30,7 @@ export default function DataSplitStrategyRevised() {
 				</CardTitle>
 				<CardDescription className="text-md pt-1">
 					A crucial step to prevent data leakage and ensure the
-					validity of PU Learning experiments by maintaining a
+					validity of PU learning experiments by maintaining a
 					balanced sample distribution across all data splits.
 				</CardDescription>
 			</CardHeader>
@@ -73,11 +73,18 @@ export default function DataSplitStrategyRevised() {
 							corresponding splits are merged back together.
 						</p>
 						<ul className="list-disc list-inside space-y-1 text-xs text-green-700 font-medium">
-							<li>Guarantees P and U samples in all sets.</li>
 							<li>
-								Ensures stable model training and validation.
+								Guarantees P and U in all sets (no positive-only
+								folds).
 							</li>
-							<li>Enables meaningful and reliable evaluation.</li>
+							<li>
+								Keeps π_p approximately consistent across splits
+								(reduces risk bias).
+							</li>
+							<li>
+								Stabilizes nnPU training and enables reliable,
+								prior-aware evaluation.
+							</li>
 						</ul>
 					</div>
 				</div>

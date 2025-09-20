@@ -22,12 +22,13 @@ export default function ModelEvaluationRevised() {
 			<CardHeader>
 				<CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-3">
 					<ClipboardCheck className="h-7 w-7 text-blue-600" />
-					Evaluation Metrics for PU Learning
+					Evaluation Metrics for PU learning
 				</CardTitle>
 				<CardDescription className="text-md pt-1">
-					Standard metrics are often misleading in PU scenarios. I
-					adopt a dual-metric approach for a more accurate and
-					meaningful assessment of model performance.
+					Standard metrics can be misleading in PU because U mixes
+					unknown positives/negatives. I adopt a dual-metric approach
+					for a more accurate and meaningful assessment of model
+					performance.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="grid md:grid-cols-2 gap-6">
@@ -55,19 +56,31 @@ export default function ModelEvaluationRevised() {
 					</h4>
 					<ul className="list-disc list-inside space-y-2 text-sm text-gray-700">
 						<li>
-							<strong>True Positive Recall:</strong> Measures the
-							fraction of confirmed positive samples correctly
-							identified. This is my most reliable metric as it is
-							immune to the ambiguity of the unlabeled set.
+							<strong>
+								True Positive Recall (on labeled P):
+							</strong>{" "}
+							fraction of confirmed positives correctly identified
+							— immune to U ambiguity.
 						</li>
 						<li>
-							<strong>Estimated Positive Rate in U:</strong> The
-							proportion of the unlabeled set classified as
-							positive. Comparing this to the class prior (
-							<LaTeX>{"$\\pi_p$"}</LaTeX>) helps validate if the
-							model has learned the underlying data distribution.
+							<strong>Estimated Positive Rate in U:</strong>{" "}
+							proportion of U predicted positive; compared against
+							π_p to diagnose over/under-prediction.
+						</li>
+						<li>
+							<strong>
+								Prior-Adjusted Precision (Elkan–Noto style):
+							</strong>{" "}
+							estimate precision by correcting for the expected
+							positive mass in U under π_p.
 						</li>
 					</ul>
+					<p className="text-sm text-gray-700 mt-3">
+						I also report a{" "}
+						<strong>"PU-AUC-PR (diagnostic)"</strong> computed with
+						prior-adjusted counts to visualize trade-offs under the
+						assumed π_p.
+					</p>
 				</div>
 			</CardContent>
 		</Card>

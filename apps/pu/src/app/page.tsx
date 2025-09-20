@@ -1,5 +1,6 @@
 "use client";
 
+import { LaTeX } from "@/components/LaTeX";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -12,19 +13,18 @@ import {
 	Activity,
 	Brain,
 	Cpu,
-	FileText, // Replaced Settings for model display
+	FileText,
 	FlaskConical,
 	Layers,
 	type LucideIcon,
 	Microscope,
 	Network,
-	Rocket, // New icon for impact
+	Rocket,
 	Target,
 	TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 
-// No changes to the interface
 interface FeatureCardData {
 	icon: LucideIcon;
 	title: string;
@@ -47,47 +47,71 @@ export default function HomePage() {
 					<Brain className="h-10 w-10" />
 				</div>
 				<h1 className="text-4xl md:text-5xl font-bold mb-4 text-slate-800">
-					PU Learning in Practice
+					Risk Estimation in Practice
 				</h1>
 				<h2 className="text-xl md:text-2xl text-slate-600 mb-6 font-medium">
-					From nnPU Theory to a Real-World Smart Grid: An AI-Powered
+					From Unbiased Theory to Real-World Deployment: An AI-Powered
 					Testbed
 				</h2>
 				<p className="text-lg text-slate-600 max-w-5xl mx-auto leading-relaxed mb-8">
 					In this project, I demonstrate the practical application of{" "}
-					<strong>Prof. Masashi Sugiyama's</strong> nnPU Learning
-					theory on a 95-unit smart residential testbed. By
-					integrating advanced models, I achieved significant results
-					in a real-world, non-stationary environment.
+					<strong>Prof. Takashi Ishida&rsquo;s</strong> framework for{" "}
+					<strong>unbiased risk estimation</strong> on a 95-unit smart
+					residential testbed. By estimating and controlling risk, the
+					system diagnoses and corrects <strong>domain shift</strong>,
+					enabling reliable deployment in complex, non-stationary
+					environments.
 				</p>
 
 				{/* --- Highlighted Models Section (NEW) --- */}
 				<div className="max-w-4xl mx-auto mb-8">
 					<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
-						{/* Main Highlight: LSTM + PU Learning */}
-						<div className="lg:col-span-2 bg-white border-2 border-slate-700 rounded-lg p-6 text-left shadow-lg">
+						{/* Main Highlight: LSTM + PU learning */}
+						<div className="lg:col-span-2 bg-white border-2 border-slate-700 rounded-lg p-8 text-left shadow-lg">
 							<div className="flex items-start">
-								<div className="bg-slate-700 text-white rounded-full h-12 w-12 flex-shrink-0 flex items-center justify-center mr-4">
+								<div className="bg-slate-700 text-white rounded-full h-12 w-12 flex-shrink-0 flex items-center justify-center mr-4 mt-2">
 									<Cpu className="h-6 w-6" />
 								</div>
 								<div>
-									<h3 className="text-xl font-bold text-slate-800 mb-1 mt-2">
-										Core Implementation: LSTM + PU Learning
+									<h3 className="text-xl font-bold text-slate-800 mb-2 mt-2">
+										Core Implementation: Risk Estimation +
+										PU learning
 									</h3>
-									<p className="text-slate-600 mb-5 mt-4">
-										Leveraging the strength of{" "}
+									{/* 技術標籤 */}
+									<div className="flex flex-wrap gap-2 mt-3 mb-4">
+										<span className="px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+											LSTM
+										</span>
+										<span className="px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+											nnPU
+										</span>
+										<span className="px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+											Unlabeled-only
+										</span>
+										<span className="px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+											Domain Shift
+										</span>
+										<span className="px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+											Risk Estimation
+										</span>
+									</div>
+									<p className="text-slate-600 mb-5 mt-6">
+										Combining <strong>LSTM</strong> with{" "}
+										<strong>PU learning</strong>, I used
 										<strong>
-											Long Short-Term Memory (LSTM)
-										</strong>{" "}
-										networks in sequential data, I
-										successfully modeled energy consumption
-										patterns, leading to robust anomaly
-										detection.
+											{" "}
+											unlabeled data to estimate
+											deployment risk
+										</strong>
+										, not just to classify. This{" "}
+										<strong>risk-aware</strong> approach
+										enabled robust anomaly detection under
+										domain shift.
 									</p>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
 										<div className="bg-slate-100 border border-slate-200 rounded-lg p-3">
 											<div className="font-bold text-slate-800">
-												F1-Score 73.9%
+												F1-score 73.9%
 											</div>
 											<div className="text-slate-600">
 												ERM Baseline
@@ -95,10 +119,10 @@ export default function HomePage() {
 										</div>
 										<div className="bg-slate-100 border border-slate-200 rounded-lg p-3">
 											<div className="font-bold text-slate-800">
-												F1-Score 77.9%
+												F1-score 77.9%
 											</div>
 											<div className="text-slate-600">
-												Domain Adaptation
+												Risk-Aware Adaptation
 											</div>
 										</div>
 									</div>
@@ -113,18 +137,28 @@ export default function HomePage() {
 							<div className="space-y-3">
 								<div className="bg-white p-3 rounded-md border border-slate-200">
 									<p className="font-semibold text-slate-700">
-										XGBoost + PU Learning
+										Extend to Complementary Labels
 									</p>
 									<p className="text-xs text-slate-500">
-										For structured data & feature importance
+										Unbiased risk with restricted feedback
 									</p>
 								</div>
 								<div className="bg-white p-3 rounded-md border border-slate-200">
 									<p className="font-semibold text-slate-700">
-										Transformer + PU Learning
+										Handle Noisy Labels
 									</p>
 									<p className="text-xs text-slate-500">
-										For complex long-range dependencies
+										Noise-robust unbiased estimators
+									</p>
+								</div>
+								<div className="bg-white p-3 rounded-md border border-slate-200">
+									<p className="font-semibold text-slate-700">
+										Build Online Risk Monitoring &
+										Adaptation
+									</p>
+									<p className="text-xs text-slate-500">
+										Real-time estimation for adaptive
+										deployment
 									</p>
 								</div>
 							</div>
@@ -133,9 +167,9 @@ export default function HomePage() {
 				</div>
 
 				<p className="text-lg text-slate-600 max-w-5xl mx-auto leading-relaxed mb-12">
-					This interactive platform bridges the gap between
-					cutting-edge theory and complex reality, providing concrete
-					data and insights for practical PU Learning implementation.
+					This interactive platform bridges theory and real-world
+					practice, offering transparent inspection and concrete
+					evidence for <strong>risk-aware weak supervision</strong>.
 				</p>
 			</div>
 
@@ -147,37 +181,63 @@ export default function HomePage() {
 				<div className="text-lg text-slate-600 text-center mb-12 max-w-3xl mx-auto">
 					<p className="mb-2">A three-stage journey:</p>
 					<ul className="list-none space-y-1">
-						<li>• Mastering the core theory</li>
-						<li>• Understanding the real-world environment</li>
-						<li>• Implementing an advanced PU Learning model</li>
+						<li>
+							• Master the principles of unbiased risk estimation
+						</li>
+						<li>• Understand the real-world environment</li>
+						<li>• Implement a risk-aware PU learning model</li>
 					</ul>
 				</div>
 
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-					{/* Card 1: PU Learning Theory (MODIFIED) */}
+					{/* Card 1: PU learning Theory (MODIFIED) */}
 					<Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-slate-200 hover:border-slate-300">
 						<CardHeader className="text-center pb-4">
 							<div className="w-16 h-16 bg-slate-600 rounded-full flex items-center justify-center mx-auto mb-4">
 								<FlaskConical className="h-8 w-8 text-white" />
 							</div>
 							<CardTitle className="text-xl text-slate-800 group-hover:text-slate-700 transition-colors">
-								① Synthetic Sandbox: uPU vs. nnPU
+								① Synthetic Sandbox: Theory Validation (uPU /
+								nnPU)
 							</CardTitle>
 						</CardHeader>
 						<CardContent className="text-center">
 							<CardDescription className="text-base mb-6 leading-relaxed text-slate-600">
-								<p className="mb-3">Replicating Prof. Sugiyama's foundational algorithms:</p>
+								<p className="mb-3">
+									Replicating unbiased risk estimation under
+									controlled conditions:
+								</p>
 								<ul className="text-sm list-none space-y-1 text-left">
-									<li>• Understanding uPU vs. nnPU performance</li>
-									<li>• Exploring hyperparameter impacts</li>
-									<li>• Testing class-prior and model complexity</li>
-									<li>• Controlled environment validation</li>
+									<li>
+										• Compare estimated risk{" "}
+										<LaTeX displayMode={false}>
+											{"\\hat{R}"}
+										</LaTeX>{" "}
+										vs. true risk{" "}
+										<LaTeX displayMode={false}>{"R"}</LaTeX>
+									</li>
+									<li>
+										• Quantify{" "}
+										<LaTeX displayMode={false}>
+											{"\\mathrm{corr}(\\hat{R}, R)"}
+										</LaTeX>{" "}
+										(correspondence)
+									</li>
+									<li>
+										• Validate theoretical guarantees (uPU
+										vs. nnPU)
+									</li>
+									<li>• Controlled environment evaluation</li>
 								</ul>
 							</CardDescription>
 							<div className="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-6">
 								<p className="text-sm text-slate-700 font-medium">
-									🎯 Goal: Deep dive into the core mechanisms
-									of PU algorithms.
+									🎯 Goal: Show that{" "}
+									<strong>
+										risk estimation works without target
+										labels
+									</strong>
+									.
 								</p>
 							</div>
 							<Button
@@ -205,12 +265,23 @@ export default function HomePage() {
 						</CardHeader>
 						<CardContent className="text-center">
 							<CardDescription className="text-base mb-6 leading-relaxed text-slate-600">
-								<p className="mb-3">95-unit smart residential testbed features:</p>
+								<p className="mb-3">
+									95-unit smart residential testbed:
+								</p>
 								<ul className="text-sm list-none space-y-1 text-left">
-									<li>• Non-stationary environment</li>
-									<li>• Diverse users: students & office workers</li>
+									<li>
+										• Non-stationary, domain-shifted
+										environments
+									</li>
+									<li>
+										• Diverse users: students & office
+										workers
+									</li>
 									<li>• Live data streams monitoring</li>
-									<li>• Real-world data collection challenges</li>
+									<li>
+										• Realistic data quality and collection
+										issues
+									</li>
 								</ul>
 							</CardDescription>
 							<div className="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-6">
@@ -225,7 +296,7 @@ export default function HomePage() {
 								asChild
 							>
 								<Link href="/testbed">
-									Explore The Environment
+									Explore the Environment
 									<Activity className="ml-2 h-4 w-4" />
 								</Link>
 							</Button>
@@ -239,23 +310,37 @@ export default function HomePage() {
 								<Target className="h-8 w-8 text-white" />
 							</div>
 							<CardTitle className="text-xl text-slate-800 group-hover:text-slate-700 transition-colors">
-								③ LSTM+PU Training & Evaluation
+								③ Risk-Aware Training & Evaluation (LSTM + PU)
 							</CardTitle>
 						</CardHeader>
 						<CardContent className="text-center">
 							<CardDescription className="text-base mb-6 leading-relaxed text-slate-600">
-								<p className="mb-3">LSTM+PU Learning implementation:</p>
+								<p className="mb-3">
+									Implement PU-based unbiased risk estimation
+									for adaptation:
+								</p>
 								<ul className="text-sm list-none space-y-1 text-left">
-									<li>• Process collected real-world data</li>
-									<li>• Train LSTM+PU model</li>
-									<li>• Evaluate against ERM & Domain Adaptation</li>
-									<li>• Validate effectiveness with rigorous testing</li>
+									<li>
+										• Process real-world sequential data
+									</li>
+									<li>
+										• Train LSTM + PU with risk-aware
+										correction
+									</li>
+									<li>
+										• Evaluate against ERM & standard domain
+										adaptation
+									</li>
+									<li>
+										• Validate effectiveness with rigorous
+										testing
+									</li>
 								</ul>
 							</CardDescription>
 							<div className="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-6">
 								<p className="text-sm text-slate-700 font-medium">
-									⚡ Core Model: Achieving F1-Score of 77.9%
-									with LSTM.
+									⚡ Result: <strong>F1-score 77.9%</strong>,
+									recovered from failure under domain shift.
 								</p>
 							</div>
 							<Button
@@ -284,12 +369,18 @@ export default function HomePage() {
 							<FlaskConical className="h-6 w-6 text-white" />
 						</div>
 						<h3 className="font-semibold mb-2 text-slate-800">
-							Theory to Practice
+							From Theory to Risk Estimation
 						</h3>
 						<ul className="text-sm text-slate-600 list-none space-y-1 text-left">
-							<li>• Bridged nnPU theory gap</li>
-							<li>• Applied to noisy real-world data</li>
-							<li>• Validated practical effectiveness</li>
+							<li>
+								• Bridged Ishida&rsquo;s framework to
+								deployments
+							</li>
+							<li>
+								• Applied risk estimation to domain-shift
+								failures
+							</li>
+							<li>• Demonstrated practical effectiveness</li>
 						</ul>
 					</div>
 					<div className="text-center p-6 bg-white border border-slate-200 rounded-lg">
@@ -297,12 +388,25 @@ export default function HomePage() {
 							<Network className="h-6 w-6 text-white" />
 						</div>
 						<h3 className="font-semibold mb-2 text-slate-800">
-							Non-Negative Risk in the Wild
+							Unbiased Risk in the Wild
 						</h3>
 						<ul className="text-sm text-slate-600 list-none space-y-1 text-left">
-							<li>• Demonstrated <strong>nnPU</strong> core principle</li>
-							<li>• Prevented overfitting effectively</li>
-							<li>• Handled non-stationary time-series</li>
+							<li>
+								• Implemented unbiased estimators with PU data
+							</li>
+							<li>
+								•{" "}
+								<strong>
+									Prevented silent deployment failures
+								</strong>
+							</li>
+							<li>
+								• Quantified{" "}
+								<LaTeX displayMode={false}>
+									{"\\mathrm{corr}(\\hat{R}, R)"}
+								</LaTeX>{" "}
+								correspondence
+							</li>
 						</ul>
 					</div>
 					<div className="text-center p-6 bg-white border border-slate-200 rounded-lg">
@@ -313,9 +417,12 @@ export default function HomePage() {
 							Deep Learning Integration
 						</h3>
 						<ul className="text-sm text-slate-600 list-none space-y-1 text-left">
-							<li>• Successfully integrated LSTM</li>
-							<li>• Combined with PU learning framework</li>
-							<li>• Handled complex sequential data</li>
+							<li>
+								• Integrated <strong>LSTM</strong> with PU-based
+								risk estimation
+							</li>
+							<li>• Handled sequential, non-stationary data</li>
+							<li>• Adapted without target-domain labels</li>
 						</ul>
 					</div>
 					<div className="text-center p-6 bg-white border border-slate-200 rounded-lg">
@@ -323,12 +430,12 @@ export default function HomePage() {
 							<Layers className="h-6 w-6 text-white" />
 						</div>
 						<h3 className="font-semibold mb-2 text-slate-800">
-							Open & Reproducible
+							Open & Transparent
 						</h3>
 						<ul className="text-sm text-slate-600 list-none space-y-1 text-left">
-							<li>• Transparent experiment inspection</li>
+							<li>• Interactive risk inspection</li>
 							<li>• Reproducible key results</li>
-							<li>• Interactive platform access</li>
+							<li>• Clear trace from theory to practice</li>
 						</ul>
 					</div>
 				</div>
@@ -342,15 +449,16 @@ export default function HomePage() {
 					</h3>
 					<p className="text-slate-600 mb-4 max-w-4xl mx-auto">
 						This interactive research prototype was developed by{" "}
-						<strong>Yin-Chen Chen</strong> as a demonstration of
-						research capabilities in machine learning engineering
-						and practical application. The project's methodology is
-						designed to align with the research focus of{" "}
+						<strong>Yin-Chen Chen</strong> to demonstrate
+						capabilities in{" "}
+						<strong>risk estimation and weak supervision</strong>.
+						The methodology aligns with the research focus of{" "}
 						<strong>
-							Prof. Masashi Sugiyama's lab at the University of
-							Tokyo
+							Prof. Takashi Ishida&rsquo;s lab at the University
+							of Tokyo
 						</strong>
-						.
+						, bridging unbiased theory with real-world deployment
+						challenges.
 					</p>
 
 					<div className="mb-6">

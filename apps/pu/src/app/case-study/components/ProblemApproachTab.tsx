@@ -26,8 +26,11 @@ export default function ProblemApproachTab() {
 				</h1>
 				<p className="text-lg text-slate-600 max-w-3xl mx-auto">
 					Identifying the domain shift challenge in anomaly detection
-					and presenting my systematic approach to overcome it through
-					PU Learning and domain adaptation.
+					and presenting a systematic
+					<strong>risk estimation–driven</strong> approach to overcome
+					it through
+					<strong> PU learning</strong> and{" "}
+					<strong>domain adaptation</strong>.
 				</p>
 			</div>
 
@@ -68,7 +71,11 @@ export default function ProblemApproachTab() {
 							</li>
 							<li className="flex items-start gap-1">
 								<span className="text-red-600 mt-1">•</span>
-								<span>Office worker model ≠ Student model</span>
+								<span>
+									Model trained on the office-worker domain{" "}
+									<strong>fails to transfer</strong> to the
+									student domain
+								</span>
 							</li>
 							<li className="flex items-start gap-1">
 								<span className="text-red-600 mt-1">•</span>
@@ -99,6 +106,25 @@ export default function ProblemApproachTab() {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-6">
+					<div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+						<p className="text-sm font-semibold text-slate-700 mb-2">
+							Success Criteria
+						</p>
+						<ul className="text-sm text-slate-600 list-disc ml-5 space-y-1">
+							<li>
+								Target-domain performance ↑ (e.g.,{" "}
+								<strong>AUC-PR</strong>, balanced accuracy)
+							</li>
+							<li>
+								Scenario 3 &gt; Scenario 2 by a statistically
+								meaningful margin
+							</li>
+							<li>
+								Expected <strong>target risk</strong> ↓ relative
+								to ERM transfer
+							</li>
+						</ul>
+					</div>
 					{/* Performance Metrics Comparison Cards */}
 					<div className="grid md:grid-cols-3 gap-4 text-center">
 						{/* ERM Baseline */}
@@ -240,8 +266,13 @@ export default function ProblemApproachTab() {
 										<li className="flex items-start gap-2">
 											<ArrowRight className="h-3 w-3 mt-1 flex-shrink-0" />
 											<span>
-												U_source + P_target strategy
-												works
+												U<sub>source</sub> + P
+												<sub>target</sub> strategy works
+												(with target class-prior{" "}
+												<strong>
+													π<sub>p</sub>
+												</strong>{" "}
+												estimation)
 											</span>
 										</li>
 									</ul>
@@ -284,8 +315,9 @@ export default function ProblemApproachTab() {
 						Methodological Framework
 					</CardTitle>
 					<p className="text-lg text-slate-600 pt-2 text-center">
-						Two complementary ML paradigms addressing label scarcity
-						and domain shift
+						Two complementary ML paradigms for label scarcity and
+						domain shift, under a<strong>risk-estimation</strong>{" "}
+						perspective
 					</p>
 				</CardHeader>
 				<CardContent>
@@ -328,6 +360,19 @@ export default function ProblemApproachTab() {
 										Robust to label noise and uncertainty
 									</span>
 								</li>
+								<li className="flex items-start gap-2">
+									<span className="text-green-600 mt-1">
+										✓
+									</span>
+									<span>
+										Requires class-prior{" "}
+										<strong>
+											π<sub>p</sub>
+										</strong>{" "}
+										(misestimation impacts risk); nnPU clamp
+										prevents negative risk
+									</span>
+								</li>
 							</ul>
 						</div>
 
@@ -366,6 +411,19 @@ export default function ProblemApproachTab() {
 										✓
 									</span>
 									<span>Enables scalable deployment</span>
+								</li>
+								<li className="flex items-start gap-2">
+									<span className="text-blue-600 mt-1">
+										✓
+									</span>
+									<span>
+										Importance weighting{" "}
+										<em>
+											w(x)=p<sub>t</sub>(x)/p<sub>s</sub>
+											(x)
+										</em>{" "}
+										via density-ratio estimation
+									</span>
 								</li>
 							</ul>
 						</div>

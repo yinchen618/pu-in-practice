@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 
 # 配置
-API_BASE = "https://python.yinchen.tw"
+API_BASE = "https://weakrisk.yinchen.tw"
 EXPERIMENT_RUN_ID = "bc38412a-ead9-4aec-b5fe-b2526d4ca478"  # 從用戶提供的 ID
 MAX_WAIT_TIME = 600  # 最長等待 10 分鐘
 POLL_INTERVAL = 10  # 每 10 秒檢查一次

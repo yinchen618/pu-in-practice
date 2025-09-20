@@ -14,7 +14,7 @@ import asyncio
 from typing import Dict, List, Tuple, Optional
 
 # API 配置
-API_BASE = "https://python.yinchen.tw/api/v2"
+API_BASE = "https://weakrisk.yinchen.tw/api/v2"
 
 class ERMBaselineHyperparameterSearch:
     def __init__(self):
@@ -604,7 +604,7 @@ def main():
             return
     except Exception as e:
         print(f"❌ 無法連接到後端服務: {e}")
-        print("請確保後端服務運行在 https://python.yinchen.tw")
+        print("請確保後端服務運行在 https://weakrisk.yinchen.tw")
         return
 
     # 開始搜索

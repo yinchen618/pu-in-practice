@@ -9,7 +9,7 @@ import json
 import time
 import sys
 
-BASE_URL = "https://python.yinchen.tw/api/v2"
+BASE_URL = "https://weakrisk.yinchen.tw/api/v2"
 
 def test_quick_training():
     print("🔬 Quick Test: Fixed Training System")

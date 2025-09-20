@@ -21,8 +21,8 @@ fi
 cd "$(dirname "$0")"
 
 echo "🔧 啟動後端服務..."
-echo "📝 服務將在 https://python.yinchen.tw 啟動"
-echo "📖 API 文件將在 https://python.yinchen.tw/docs 提供"
+echo "📝 服務將在 https://weakrisk.yinchen.tw 啟動"
+echo "📖 API 文件將在 https://weakrisk.yinchen.tw/docs 提供"
 echo ""
 
 # 啟動後端服務
@@ -33,7 +33,7 @@ echo "⏳ 等待服務啟動..."
 sleep 3
 
 # 檢查服務是否正常運行
-if curl -s https://python.yinchen.tw/ > /dev/null; then
+if curl -s https://weakrisk.yinchen.tw/ > /dev/null; then
     echo "✅ 後端服務啟動成功！"
 else
     echo "❌ 後端服務啟動失敗"
@@ -48,9 +48,9 @@ python3 test_live_preview.py
 echo ""
 echo "🌐 測試完成！"
 echo "📋 你可以在瀏覽器中開啟以下 URL 來測試："
-echo "   - 後端服務: https://python.yinchen.tw"
-echo "   - API 文件: https://python.yinchen.tw/docs"
-echo "   - 測試檔案: https://python.yinchen.tw/live-preview/{sessionId}/test_live_preview.html"
+echo "   - 後端服務: https://weakrisk.yinchen.tw"
+echo "   - API 文件: https://weakrisk.yinchen.tw/docs"
+echo "   - 測試檔案: https://weakrisk.yinchen.tw/live-preview/{sessionId}/test_live_preview.html"
 echo ""
 echo "💡 提示："
 echo "   - 按 Ctrl+C 停止後端服務"

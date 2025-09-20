@@ -1345,6 +1345,10 @@ function TrainedModelItem({
 								</span>
 								<span>{testSetInfo}</span>
 							</div>
+							<div className="text-xs text-muted-foreground">
+								Metrics reported on PU mixture; focus on
+								Recall(P) & target-risk
+							</div>
 						</div>
 					);
 				})()}
@@ -1690,6 +1694,9 @@ function EvaluationResults({
 													)}
 												</span>
 											</div>
+										</div>
+										<div className="text-xs text-muted-foreground mt-1">
+											Zero-shot transfer (no adaptation)
 										</div>
 
 										{/* Evaluation Performance Metrics - Compact Display */}
@@ -2465,7 +2472,7 @@ export function Stage3TrainingWorkbench({
 	const loadTrainedModels = async () => {
 		try {
 			const response = await fetch(
-				`https://python.yinchen.tw/api/v2/trained-models?experiment_run_id=${experimentRun.id}`,
+				`https://weakrisk.yinchen.tw/api/v2/trained-models?experiment_run_id=${experimentRun.id}`,
 			);
 			if (response.ok) {
 				const models = await response.json();
@@ -2509,7 +2516,7 @@ export function Stage3TrainingWorkbench({
 	const loadEvaluationRuns = async () => {
 		try {
 			const response = await fetch(
-				`https://python.yinchen.tw/api/v2/evaluation-runs?experiment_run_id=${experimentRun.id}`,
+				`https://weakrisk.yinchen.tw/api/v2/evaluation-runs?experiment_run_id=${experimentRun.id}`,
 			);
 			if (response.ok) {
 				const runs = await response.json();
@@ -2523,7 +2530,7 @@ export function Stage3TrainingWorkbench({
 	const loadAvailableDatasets = async () => {
 		try {
 			const response = await fetch(
-				"https://python.yinchen.tw/api/v2/analysis-datasets",
+				"https://weakrisk.yinchen.tw/api/v2/analysis-datasets",
 			);
 			if (response.ok) {
 				const datasets = await response.json();
@@ -2609,7 +2616,7 @@ export function Stage3TrainingWorkbench({
 			console.log("🗑️ Delete model request:", modelId);
 
 			const response = await fetch(
-				`https://python.yinchen.tw/api/v2/trained-models/${modelId}`,
+				`https://weakrisk.yinchen.tw/api/v2/trained-models/${modelId}`,
 				{
 					method: "DELETE",
 				},
@@ -2673,7 +2680,7 @@ export function Stage3TrainingWorkbench({
 			);
 
 			const response = await fetch(
-				`https://python.yinchen.tw/api/v2/trained-models/${modelId}/rename`,
+				`https://weakrisk.yinchen.tw/api/v2/trained-models/${modelId}/rename`,
 				{
 					method: "PATCH",
 					headers: {
@@ -2728,7 +2735,7 @@ export function Stage3TrainingWorkbench({
 
 		try {
 			const response = await fetch(
-				`https://python.yinchen.tw/api/v2/evaluation-runs/${evaluationId}`,
+				`https://weakrisk.yinchen.tw/api/v2/evaluation-runs/${evaluationId}`,
 				{
 					method: "DELETE",
 				},
@@ -2793,7 +2800,7 @@ export function Stage3TrainingWorkbench({
 			);
 
 			const response = await fetch(
-				`https://python.yinchen.tw/api/v2/evaluation-runs/${evaluationId}/rename`,
+				`https://weakrisk.yinchen.tw/api/v2/evaluation-runs/${evaluationId}/rename`,
 				{
 					method: "PATCH",
 					headers: {
@@ -2904,7 +2911,7 @@ export function Stage3TrainingWorkbench({
 				.replace(/:/g, "-");
 
 			const response = await fetch(
-				"https://python.yinchen.tw/api/v2/trained-models",
+				"https://weakrisk.yinchen.tw/api/v2/trained-models",
 				{
 					method: "POST",
 					headers: {
@@ -3026,7 +3033,7 @@ export function Stage3TrainingWorkbench({
 				.replace(/:/g, "-");
 
 			const response = await fetch(
-				"https://python.yinchen.tw/api/v2/evaluation-runs",
+				"https://weakrisk.yinchen.tw/api/v2/evaluation-runs",
 				{
 					method: "POST",
 					headers: {
@@ -3237,6 +3244,8 @@ export function Stage3TrainingWorkbench({
 												→ {filteringParams.endDate}{" "}
 												{filteringParams.endTime ||
 													"23:59"}
+												. Stratified time-based split
+												applied downstream.
 											</div>
 										)}
 
@@ -3255,7 +3264,7 @@ export function Stage3TrainingWorkbench({
 												0}
 										</div>
 										<div>
-											<strong>Unlabeled Labels:</strong>{" "}
+											<strong>Unlabeled (U):</strong>{" "}
 											{(
 												(experimentRun.total_data_pool_size ||
 													0) -
@@ -3490,6 +3499,8 @@ export function Stage3TrainingWorkbench({
 													→ {filteringParams.endDate}{" "}
 													{filteringParams.endTime ||
 														"23:59"}
+													. Stratified time-based
+													split applied downstream.
 												</div>
 											)}
 
@@ -3581,7 +3592,7 @@ export function Stage3TrainingWorkbench({
 								{/* Total Data Pool Statistics */}
 								<div className="pt-2 border-t border-blue-200">
 									<div>
-										<strong>Unlabeled Labels:</strong>{" "}
+										<strong>Unlabeled (U):</strong>{" "}
 										{(() => {
 											const selectedDataset =
 												availableDatasets.find(
@@ -3647,8 +3658,8 @@ export function Stage3TrainingWorkbench({
 							<span>0.200 (Common)</span>
 						</div>
 						<p className="text-xs text-blue-700">
-							True positive proportion estimate, this is the most
-							important parameter in nnPU
+							Proportion of positives in training data; used in
+							nnPU risk. Estimate on train only.
 						</p>
 					</div>
 				</div>
@@ -3682,8 +3693,8 @@ export function Stage3TrainingWorkbench({
 							<span>240 (Long)</span>
 						</div>
 						<p className="text-xs text-green-700">
-							Time series length input to the model, must be
-							sufficient to capture complete behavioral patterns
+							Input length (minutes). Must capture full behavioral
+							patterns.
 						</p>
 					</div>
 				</div>
@@ -4057,7 +4068,7 @@ export function Stage3TrainingWorkbench({
 						Stage 3: Model Training & Evaluation Workbench
 					</CardTitle>
 					<CardDescription>
-						Configure and execute model training and evaluation as
+						Configure and execute nnPU training and evaluation as
 						two distinct, monitorable tasks
 					</CardDescription>
 				</CardHeader>
@@ -4069,7 +4080,7 @@ export function Stage3TrainingWorkbench({
 							</h3>
 							<div className="space-y-1 text-sm">
 								<div>
-									Total Data Pool:{" "}
+									Total Records:{" "}
 									<Badge
 										variant="default"
 										className="bg-blue-600"
@@ -4081,7 +4092,7 @@ export function Stage3TrainingWorkbench({
 									</Badge>
 								</div>
 								<div>
-									Positive Labels:{" "}
+									Positive (P):{" "}
 									<Badge
 										variant="outline"
 										className="text-orange-600 border-orange-300"
@@ -4091,7 +4102,7 @@ export function Stage3TrainingWorkbench({
 									</Badge>
 								</div>
 								<div>
-									Unlabeled Count:{" "}
+									Unlabeled (U):{" "}
 									<Badge
 										variant="outline"
 										className="text-gray-600 border-gray-300"
@@ -4103,6 +4114,19 @@ export function Stage3TrainingWorkbench({
 												0)
 										).toLocaleString()}
 									</Badge>
+								</div>
+								<div className="text-xs text-slate-600 mt-2">
+									Window prior estimate: πₚ ≈{" "}
+									{(
+										((experimentRun.positive_label_count ||
+											0) /
+											(experimentRun.total_data_pool_size ||
+												1)) *
+										100
+									).toFixed(3)}
+									% ({experimentRun.positive_label_count || 0}{" "}
+									/ {experimentRun.total_data_pool_size || 0}
+									); prior may drift over time
 								</div>
 							</div>
 						</div>
@@ -4192,7 +4216,7 @@ export function Stage3TrainingWorkbench({
 												htmlFor="erm-baseline"
 												className="cursor-pointer text-sm font-medium"
 											>
-												ERM Baseline
+												Standard in-domain training
 											</Label>
 											<p className="text-xs text-muted-foreground mt-0.5">
 												Standard training approach
@@ -4210,7 +4234,7 @@ export function Stage3TrainingWorkbench({
 												htmlFor="gen-challenge"
 												className="cursor-pointer text-sm font-medium"
 											>
-												Generalization Challenge
+												Direct transfer to a new domain
 											</Label>
 											<p className="text-xs text-muted-foreground mt-0.5">
 												Test generalization across
@@ -4229,7 +4253,7 @@ export function Stage3TrainingWorkbench({
 												htmlFor="domain-adapt"
 												className="cursor-pointer text-sm font-medium"
 											>
-												Domain Adaptation
+												U_source + P_target (nnPU)
 											</Label>
 											<p className="text-xs text-muted-foreground mt-0.5">
 												Adapt across conditions
@@ -4250,7 +4274,7 @@ export function Stage3TrainingWorkbench({
 							</CardTitle>
 							<CardDescription>
 								{scenarioType === "ERM_BASELINE" &&
-									"Source data information"}
+									"Source data & filters (leak-safe)"}
 								{scenarioType === "GENERALIZATION_CHALLENGE" &&
 									"Model and dataset selection"}
 								{scenarioType === "DOMAIN_ADAPTATION" &&
@@ -4289,6 +4313,9 @@ export function Stage3TrainingWorkbench({
 									<BarChart3 className="h-4 w-4" />
 									Data Split Strategy
 								</CardTitle>
+								<CardDescription>
+									Leak-safe, stratified time-based split
+								</CardDescription>
 							</CardHeader>
 							<CardContent className="space-y-4">
 								<div className="space-y-3">
@@ -4397,7 +4424,7 @@ export function Stage3TrainingWorkbench({
 								<div className="space-y-2 pt-3 border-t border-gray-200">
 									<div>
 										<Label className="text-xs font-medium">
-											Training Data Sampling
+											U Mini-batch Ratio
 										</Label>
 										<div className="flex items-center space-x-2 mt-1">
 											<Label className="text-xs text-muted-foreground min-w-0">
@@ -4429,10 +4456,9 @@ export function Stage3TrainingWorkbench({
 											</span>
 										</div>
 										<p className="text-xs text-muted-foreground mt-1">
-											Percentage of unlabeled (U) samples
-											to use for training. Lower values
-											reduce training time but may affect
-											model performance.
+											Percent of U sampled per step. Lower
+											= faster; too low can hurt risk
+											estimation.
 										</p>
 									</div>
 								</div>

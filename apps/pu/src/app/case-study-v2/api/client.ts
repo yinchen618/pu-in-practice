@@ -12,7 +12,7 @@ import type {
   TrainingJobResponse,
 } from '../types'
 
-const API_BASE = 'https://python.yinchen.tw/api/v2'
+const API_BASE = 'https://weakrisk.yinchen.tw/api/v2'
 
 class CaseStudyV2API {
   // ========== Experiment Runs ==========

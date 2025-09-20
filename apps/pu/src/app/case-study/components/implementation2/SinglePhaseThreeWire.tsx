@@ -77,15 +77,21 @@ export default function SinglePhaseThreeWireRevised() {
 							.
 						</li>
 						<li>
-							<strong>Temporal Synchronization:</strong> Implement
-							an ETL process that resamples data to uniform
-							1-minute intervals to correct for clock drift.
+							<strong>Temporal Synchronization:</strong> ETL
+							resamples to uniform 1-minute intervals and aligns
+							clocks; preserves class-prior estimates by avoiding
+							leakage across splits.
 						</li>
 						<li>
 							<strong>Hybrid Gap-Filling:</strong> A strategy that
 							forward-fills short gaps (≤3 mins) to maintain data
 							continuity, while removing longer, unreliable
 							periods.
+						</li>
+						<li>
+							<strong>Prior-Stability Check:</strong> Track
+							estimated π_p over time windows to monitor shift and
+							guard against biased risk estimates.
 						</li>
 					</ul>
 				</div>

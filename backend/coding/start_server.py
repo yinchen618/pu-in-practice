@@ -19,8 +19,8 @@ if __name__ == "__main__":
     print("   2. 已安裝 deepseek-coder 模型")
     print("   3. 執行: ollama run deepseek-coder")
     print("")
-    print("🌐 API 文件: https://python.yinchen.tw/docs")
-    print("🔗 健康檢查: https://python.yinchen.tw/coding/health")
+    print("🌐 API 文件: https://weakrisk.yinchen.tw/docs")
+    print("🔗 健康檢查: https://weakrisk.yinchen.tw/coding/health")
     print("")
 
     try:

@@ -8,7 +8,7 @@ import json
 
 def simple_test():
     """簡單測試一個配置"""
-    url = "https://python.yinchen.tw/api/pu-learning/run-simulation"
+    url = "https://weakrisk.yinchen.tw/api/pu-learning/run-simulation"
 
     payload = {
         "algorithm": "nnPU",

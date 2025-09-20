@@ -85,7 +85,7 @@ export function DemoSection() {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 30000)
 
-      const API_URL = 'https://python.yinchen.tw'
+      const API_URL = 'https://weakrisk.yinchen.tw'
       const response = await fetch(`${API_URL}/api/pu-learning/run-simulation`, {
         method: 'POST',
         headers: {

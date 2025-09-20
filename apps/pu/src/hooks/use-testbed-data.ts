@@ -85,7 +85,7 @@ export interface ResidentialUnitItem {
 
 // API 客戶端
 class TestbedAPIClient {
-  private baseUrl = 'https://python.yinchen.tw'
+  private baseUrl = 'https://weakrisk.yinchen.tw'
 
   // 移除 getTestbedOverview 方法，overview 資料現在由 hook 直接提供
 
@@ -182,7 +182,7 @@ const getAmmeterHistoryDataWithTime = async (
     end_datetime: endDateTime,
   })
 
-  const response = await fetch(`https://python.yinchen.tw/api/testbed/ammeter-history?${params}`, {
+  const response = await fetch(`https://weakrisk.yinchen.tw/api/testbed/ammeter-history?${params}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

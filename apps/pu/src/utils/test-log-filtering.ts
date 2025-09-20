@@ -13,20 +13,20 @@ function testApiLogFiltering() {
 
   // 測試各種日誌類型
   console.log('\n1. 測試 API Request 日誌 (應該被過濾):')
-  apiLogger.request('https://python.yinchen.tw/api/test', 'GET', {
+  apiLogger.request('https://weakrisk.yinchen.tw/api/test', 'GET', {
     test: true,
   })
 
   console.log('\n2. 測試 API Response 日誌 (應該被過濾):')
-  apiLogger.response('https://python.yinchen.tw/api/test', 200, {
+  apiLogger.response('https://weakrisk.yinchen.tw/api/test', 200, {
     result: 'success',
   })
 
   console.log('\n3. 測試 API Cached 日誌 (應該被過濾):')
-  apiLogger.cached('https://python.yinchen.tw/api/test', { fromCache: true })
+  apiLogger.cached('https://weakrisk.yinchen.tw/api/test', { fromCache: true })
 
   console.log('\n4. 測試 API Error 日誌 (應該顯示):')
-  apiLogger.error('https://python.yinchen.tw/api/test', new Error('Test error'))
+  apiLogger.error('https://weakrisk.yinchen.tw/api/test', new Error('Test error'))
 
   console.log('\n5. 測試一般 debug 日誌 (應該顯示):')
   logger.debug('這是一般的 debug 訊息', { data: 'test' }, 'Component')

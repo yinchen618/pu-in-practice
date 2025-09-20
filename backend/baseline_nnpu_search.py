@@ -11,7 +11,7 @@ import json
 
 def test_nnpu_config(config):
     """測試單一 nnPU 配置"""
-    url = "https://python.yinchen.tw/api/pu-learning/run-simulation"
+    url = "https://weakrisk.yinchen.tw/api/pu-learning/run-simulation"
 
     payload = {
         "algorithm": "nnPU",

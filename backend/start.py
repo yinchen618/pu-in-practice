@@ -137,7 +137,7 @@ def main():
             return
 
     print("\n🎯 准备启动服务...")
-    print("📍 后端地址: https://python.yinchen.tw")
+    print("📍 后端地址: https://weakrisk.yinchen.tw")
     print("📍 前端地址: http://localhost:3000")
     print("📍 按 Ctrl+C 停止服务")
 

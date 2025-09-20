@@ -9,7 +9,7 @@ async function testApiDeduplication() {
   console.log('🧪 開始測試 API 調用去重效果...')
 
   // 測試同時發起多個相同的請求
-  const testUrl = 'https://python.yinchen.tw/api/v1/experiment-runs'
+  const testUrl = 'https://weakrisk.yinchen.tw/api/v1/experiment-runs'
 
   console.log('📡 同時發起 5 個相同的 API 請求...')
   const startTime = Date.now()
@@ -47,7 +47,7 @@ async function testApiDeduplication() {
 async function testApiCaching() {
   console.log('🗃️ 開始測試 API 緩存機制...')
 
-  const testUrl = 'https://python.yinchen.tw/api/v1/experiment-runs'
+  const testUrl = 'https://weakrisk.yinchen.tw/api/v1/experiment-runs'
 
   // 第一次請求
   console.log('📡 發起第一次請求...')

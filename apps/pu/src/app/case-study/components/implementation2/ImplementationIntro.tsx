@@ -15,33 +15,34 @@ export default function ImplementationIntroRevised() {
 						A Framework for Real-World Anomaly Detection
 					</CardTitle>
 					<p className="text-lg text-gray-500 pt-2">
-						Detailing the synergy between deep learning's temporal
-						insight and PU Learning's label tolerance to address the
-						challenges of industrial time-series data.
+						Detailing the synergy between LSTM's temporal modeling
+						and risk-estimation–driven weak supervision (PU/nnPU) to
+						address industrial time-series under label noise and
+						distribution shift.
 					</p>
 				</CardHeader>
 				<CardContent className="space-y-6">
 					<div className="p-4 rounded-lg border bg-slate-50/70">
 						<h4 className="text-xl font-semibold text-sky-800 flex items-center gap-3 mb-3">
 							<BrainCircuit className="h-6 w-6" />
-							Why PU Learning? — Embracing Label Sparsity
+							Why PU learning? — Embracing Weak/Noisy Supervision
 						</h4>
 						<ul className="space-y-2 list-disc list-inside text-gray-700">
 							<li>
 								<strong>Handles Asymmetric Information:</strong>{" "}
-								Specifically designed for scenarios with few
-								confirmed positive (P) labels and vast amounts
-								of unlabeled (U) data.
+								Specifically designed for scarce P labels with
+								abundant U and potential label noise.
 							</li>
 							<li>
-								<strong>Reduces Manual Effort:</strong>{" "}
-								Eliminates the need for exhaustive and often
-								impractical negative (N) labeling.
+								<strong>Reduces Manual Effort:</strong> Avoids
+								exhaustive N labeling; compatible with
+								complementary/partial labels.
 							</li>
 							<li>
-								<strong>Robust Implementation:</strong> Utilizes
-								the non-negative PU (nnPU) algorithm to reduce
-								estimation bias and enhance training stability.
+								<strong>Risk-Correct Learning:</strong> Uses
+								non-negative PU (nnPU) with explicit class-prior
+								(π_p) estimation; clamps negative risk and
+								mitigates prior mis-specification.
 							</li>
 						</ul>
 					</div>
@@ -54,9 +55,9 @@ export default function ImplementationIntroRevised() {
 						</h4>
 						<ul className="space-y-2 list-disc list-inside text-gray-700">
 							<li>
-								<strong>Sequential Awareness:</strong> RNN
-								(Recurrent Neural Networks) are inherently
-								suited for processing time-series data.
+								<strong>Sequential Awareness:</strong> RNNs are
+								inherently suited for processing time-series
+								data.
 							</li>
 							<li>
 								<strong>Long-Term Dependencies:</strong> Learns
@@ -82,6 +83,16 @@ export default function ImplementationIntroRevised() {
 							temporal dynamics with nnPU's ability to learn from
 							sparse labels, I create a powerful and practical
 							framework for real-world anomaly detection.
+						</p>
+						<p className="text-gray-700 mt-3 text-sm">
+							<strong>
+								Assumptions & Guarantees (Ishida-style framing):
+							</strong>{" "}
+							I make assumptions explicit: (i) class-prior π_p
+							exists and is estimable, (ii) covariate shift
+							p_t(x)≠p_s(x) is handled via weighting, and (iii)
+							label noise may be instance-dependent. The pipeline
+							reports sensitivity to (i)–(iii) in ablations.
 						</p>
 					</div>
 				</CardContent>

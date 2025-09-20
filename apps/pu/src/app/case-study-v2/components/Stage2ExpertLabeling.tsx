@@ -156,7 +156,7 @@ export function Stage2ExpertLabeling({
 		try {
 			const offset = (page - 1) * itemsPerPage;
 			const response = await fetch(
-				`https://python.yinchen.tw/api/v2/anomaly-events?experiment_run_id=${experimentRun.id}&status=UNREVIEWED&limit=${itemsPerPage}&offset=${offset}`,
+				`https://weakrisk.yinchen.tw/api/v2/anomaly-events?experiment_run_id=${experimentRun.id}&status=UNREVIEWED&limit=${itemsPerPage}&offset=${offset}`,
 			);
 			if (response.ok) {
 				const data = await response.json();
@@ -164,7 +164,7 @@ export function Stage2ExpertLabeling({
 
 				// Get total count for pagination (separate API call if needed)
 				const totalResponse = await fetch(
-					`https://python.yinchen.tw/api/v2/anomaly-events?experiment_run_id=${experimentRun.id}&status=UNREVIEWED&count_only=true`,
+					`https://weakrisk.yinchen.tw/api/v2/anomaly-events?experiment_run_id=${experimentRun.id}&status=UNREVIEWED&count_only=true`,
 				);
 				if (totalResponse.ok) {
 					const totalData = await totalResponse.json();
@@ -220,7 +220,7 @@ export function Stage2ExpertLabeling({
 
 			// Use new API endpoint with time range parameters
 			const response = await fetch(
-				`https://python.yinchen.tw/api/v2/anomaly-events/${event.id}/data?start_time=${encodeURIComponent(startTime)}&end_time=${encodeURIComponent(endTime)}`,
+				`https://weakrisk.yinchen.tw/api/v2/anomaly-events/${event.id}/data?start_time=${encodeURIComponent(startTime)}&end_time=${encodeURIComponent(endTime)}`,
 			);
 			if (response.ok) {
 				const data = await response.json();
@@ -252,7 +252,7 @@ export function Stage2ExpertLabeling({
 		setSubmitting(true);
 		try {
 			const response = await fetch(
-				`https://python.yinchen.tw/api/v2/anomaly-events/${selectedEvent.id}/review`,
+				`https://weakrisk.yinchen.tw/api/v2/anomaly-events/${selectedEvent.id}/review`,
 				{
 					method: "PATCH",
 					headers: {
@@ -340,7 +340,7 @@ export function Stage2ExpertLabeling({
 		try {
 			// Send bulk review request for all unreviewed events in the experiment
 			const response = await fetch(
-				"https://python.yinchen.tw/api/v2/anomaly-events/bulk-review-by-experiment",
+				"https://weakrisk.yinchen.tw/api/v2/anomaly-events/bulk-review-by-experiment",
 				{
 					method: "POST",
 					headers: {
@@ -406,7 +406,7 @@ export function Stage2ExpertLabeling({
 		setSubmitting(true);
 		try {
 			const response = await fetch(
-				`https://python.yinchen.tw/api/v2/experiment-runs/${experimentRun.id}/status`,
+				`https://weakrisk.yinchen.tw/api/v2/experiment-runs/${experimentRun.id}/status`,
 				{
 					method: "PATCH",
 					headers: {
@@ -462,7 +462,7 @@ export function Stage2ExpertLabeling({
 		try {
 			// Send bulk review request for current page items
 			const response = await fetch(
-				"https://python.yinchen.tw/api/v2/anomaly-events/bulk-review",
+				"https://weakrisk.yinchen.tw/api/v2/anomaly-events/bulk-review",
 				{
 					method: "POST",
 					headers: {

@@ -51,70 +51,33 @@ export default function ModelTrainingRevised() {
 				<div className="p-4 rounded-lg border bg-slate-50/70">
 					<h4 className="font-semibold text-slate-800 mb-3 flex items-center gap-2 text-lg">
 						<Calculator className="h-5 w-5" />
-						The nnPU Learning Paradigm
+						The nnPU learning Paradigm
 					</h4>
 					<p className="text-sm text-gray-700 mb-3">
-						The non-negative PU (nnPU) loss function enables
-						learning without explicit negative labels. It estimates
-						the classification risk by statistically correcting for
-						the bias of treating unlabeled data as negative.
+						The non-negative PU (nnPU) objective estimates
+						classification risk without explicit negatives and
+						clamps it at 0 to avoid overfitting:
 					</p>
 					<div className="p-4 bg-white rounded-md border">
 						<div className="text-center mb-3">
-							<LaTeX>
-								{
-									"R_{\\text{pu}}(f) = \\pi_p R_p^+(f) + \\max(0, R_u^-(f) - \\pi_p R_p^-(f))"
-								}
+							<LaTeX displayMode>
+								{String.raw`
+\tilde{R}_{\text{pu}}(f)
+= \pi_p \,\widehat{R}_{p}^{+}(f)
+ + \max\!\left\{0,\; \widehat{R}_{u}^{-}(f) - \pi_p \,\widehat{R}_{p}^{-}(f)\right\}.
+`}
 							</LaTeX>
 						</div>
-						<div className="text-xs text-gray-600 space-y-2">
-							<p className="flex items-center gap-2">
-								<span className="font-medium">Where:</span>
-							</p>
-							<ul className="space-y-1 ml-4">
-								<li className="flex items-start gap-2">
-									<span className="text-blue-600">•</span>
-									<span>
-										<LaTeX>{"\\pi_p"}</LaTeX> is the{" "}
-										<strong>class prior</strong> (proportion
-										of positive samples)
-									</span>
-								</li>
-								<li className="flex items-start gap-2">
-									<span className="text-green-600">•</span>
-									<span>
-										<LaTeX>{"R_p^+(f)"}</LaTeX> represents
-										the <strong>positive risk</strong> on
-										labeled positive set
-									</span>
-								</li>
-								<li className="flex items-start gap-2">
-									<span className="text-orange-600">•</span>
-									<span>
-										<LaTeX>{"R_u^-(f)"}</LaTeX> represents
-										the <strong>negative risk</strong> on
-										unlabeled set
-									</span>
-								</li>
-								<li className="flex items-start gap-2">
-									<span className="text-purple-600">•</span>
-									<span>
-										<LaTeX>{"R_p^-(f)"}</LaTeX> represents
-										the <strong>negative risk</strong> on
-										labeled positive set
-									</span>
-								</li>
-								<li className="flex items-start gap-2">
-									<span className="text-red-600">•</span>
-									<span>
-										The <LaTeX>{"\\max(0, \\cdot)"}</LaTeX>{" "}
-										constraint ensures{" "}
-										<strong>non-negative risk</strong> and
-										enhances training stability
-									</span>
-								</li>
-							</ul>
-						</div>
+						<p className="text-sm text-slate-600">
+							Here, π_p is the class prior;{" "}
+							<LaTeX>{"\\widehat{R}_{p}^{+}"}</LaTeX> is the
+							positive risk on labeled P;
+							<LaTeX>{"\\widehat{R}_{u}^{-}"}</LaTeX> is the
+							negative risk estimated on U;{" "}
+							<LaTeX>{"\\widehat{R}_{p}^{-}"}</LaTeX> is the
+							negative risk on P. I estimate π_p and report
+							sensitivity analyses (±Δ around the estimate).
+						</p>
 					</div>
 				</div>
 
@@ -141,6 +104,12 @@ export default function ModelTrainingRevised() {
 							for 10 consecutive epochs. The model state with the
 							highest validation F1-score is saved and used for
 							final evaluation.
+						</li>
+						<li>
+							<strong>Prior Sensitivity:</strong> For robustness,
+							I sweep π_p within a plausible range and choose
+							models whose validation risk is stable under small
+							prior perturbations.
 						</li>
 					</ul>
 				</div>

@@ -13,9 +13,9 @@ export default function DataPreprocessingEnglish() {
 						Features
 					</h3>
 					<p className="text-md text-gray-500 pt-2">
-						This process details how I transform raw, discrete data
-						points into rich, context-aware feature vectors suitable
-						for my LSTM model.
+						This process produces context-aware feature vectors
+						while preserving the validity of π_p estimation and
+						downstream PU risk.
 					</p>
 				</CardHeader>
 				<CardContent className="grid gap-6">
@@ -60,6 +60,12 @@ export default function DataPreprocessingEnglish() {
 							and ensure a balanced distribution of P/U samples in
 							validation/test sets, I designed a "Stratified
 							Time-based Split" strategy.
+						</p>
+						<p className="text-sm text-gray-600 mt-2">
+							<strong>Prior-Consistent Splits:</strong> Each fold
+							maintains similar P:U mixture to keep π_p estimates
+							comparable across train/val/test, which stabilizes
+							nnPU optimization.
 						</p>
 						<div className="bg-green-50 border-l-4 border-green-500 p-3 rounded-r-lg">
 							<p className="text-sm text-green-800">

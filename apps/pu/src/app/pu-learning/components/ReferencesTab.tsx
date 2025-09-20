@@ -5,6 +5,52 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, School } from "lucide-react";
 import React from "react";
 
+function ReferenceItem({
+	title,
+	authors,
+	venue,
+	note,
+	link,
+	tone = "info",
+}: {
+	title: string;
+	authors: string;
+	venue: string;
+	note: string;
+	link?: string;
+	tone?: "info" | "success";
+}) {
+	const toneClass = {
+		info: "bg-blue-50 border-blue-500 text-blue-700",
+		success: "bg-green-50 border-green-500 text-green-700",
+	}[tone];
+	return (
+		<div className="pt-6">
+			<h4 className="text-xl font-bold text-slate-800 mb-2">{title}</h4>
+			<p className="text-sm text-slate-500 mb-3">
+				{authors}. {venue}.
+				{link && (
+					<>
+						{" — "}
+						<a
+							className="text-blue-600 hover:underline"
+							href={link}
+							target="_blank"
+							rel="noopener noreferrer nofollow"
+							aria-label={`${title} paper link`}
+						>
+							Paper
+						</a>
+					</>
+				)}
+			</p>
+			<div className={`border-l-4 p-3 rounded-r-md text-xs ${toneClass}`}>
+				{note}
+			</div>
+		</div>
+	);
+}
+
 export default function ReferencesTab() {
 	return (
 		<div className="max-w-4xl mx-auto space-y-12">
@@ -22,275 +68,203 @@ export default function ReferencesTab() {
 			</div>
 
 			{/* 2. Core Papers Analysis */}
-			<Card className="shadow-lg border">
-				<CardHeader>
-					<CardTitle className="text-2xl font-semibold text-slate-800 flex items-center gap-3">
-						<BookOpen className="h-6 w-6 text-blue-700" />
-						Core Foundations: uPU & nnPU
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-6 divide-y">
-					{/* uPU */}
-					<div className="pt-6">
-						<h4 className="text-xl font-bold text-slate-800 mb-2">
-							[1] Analysis of Learning from Positive and Unlabeled
-							Data
-						</h4>
-						<p className="text-sm text-slate-500 mb-3">
-							du Plessis, M. C., Niu, G., & Sugiyama, M. NIPS 2014
-						</p>
-						<p className="text-slate-700 text-sm mb-3">
-							Introduced the unbiased PU (uPU) risk estimator,
-							enabling classification with only positive and
-							unlabeled data. Presented at Neural Information
-							Processing Systems (NIPS2014), Montreal, Quebec,
-							Canada.
-						</p>
-						<div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-md text-xs text-blue-700">
-							Used as baseline in my experiments to highlight
-							stability improvements in nnPU.
-						</div>
-					</div>
-
-					{/* nnPU */}
-					<div className="pt-6">
-						<h4 className="text-xl font-bold text-slate-800 mb-2">
-							[2] Positive-Unlabeled Learning with Non-Negative
-							Risk Estimator
-						</h4>
-						<p className="text-sm text-slate-500 mb-3">
-							Kiryo, R., du Plessis, M. C., Niu, G., & Sugiyama,
-							M. NIPS 2017
-						</p>
-						<p className="text-slate-700 text-sm mb-3">
-							Proposed the non-negative PU (nnPU) risk estimator,
-							preventing negative risk and stabilizing training
-							for deep models. Presented at Neural Information
-							Processing Systems (NIPS2017), Long Beach,
-							California, USA.
-						</p>
-						<div className="bg-green-50 border-l-4 border-green-500 p-3 rounded-r-md text-xs text-green-700">
-							Core method implemented in this project, enabling
-							LSTM training without overfitting.
-						</div>
-					</div>
-				</CardContent>
-			</Card>
+			<section aria-labelledby="foundations-heading">
+				<Card className="shadow-lg border">
+					<CardHeader>
+						<CardTitle
+							id="foundations-heading"
+							className="text-2xl font-semibold text-slate-800 flex items-center gap-3"
+						>
+							<BookOpen className="h-6 w-6 text-blue-700" />
+							Core Foundations: uPU & nnPU
+						</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-6 divide-y divide-slate-200">
+						<ReferenceItem
+							title="Analysis of Learning from Positive and Unlabeled Data"
+							authors="du Plessis, M. C., Niu, G., and Sugiyama, M."
+							venue="NeurIPS 2014"
+							note="Widely used as the unbiased baseline risk estimator; we contrast its properties with nnPU in our demo."
+							link="https://www.ms.k.u-tokyo.ac.jp/sugi/2014/NIPS2014b.pdf"
+							tone="info"
+						/>
+						<ReferenceItem
+							title="Positive-Unlabeled Learning with Non-Negative Risk Estimator"
+							authors="Kiryo, R., du Plessis, M. C., Niu, G., and Sugiyama, M."
+							venue="NeurIPS 2017"
+							note="The demo adopts the nnPU estimator to avoid negative-risk issues and stabilize training."
+							link="https://proceedings.neurips.cc/paper/2017/hash/7cce53cf90577442771720a370c3c723-Abstract.html"
+							tone="success"
+						/>
+					</CardContent>
+				</Card>
+			</section>
 
 			{/* 3. Theoretical Summary & Comparison */}
-			<Card className="shadow-lg border">
-				<CardHeader>
-					<CardTitle className="text-2xl font-semibold text-slate-800">
-						Theoretical Summary: uPU vs. nnPU
-					</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="overflow-x-auto">
-						<table className="w-full text-sm">
-							<thead>
-								<tr className="border-b">
-									<th className="text-left p-3 font-semibold text-slate-600 w-1/4">
-										Aspect
-									</th>
-									<th className="text-left p-3 font-semibold text-slate-800">
-										Unbiased PU Learning (uPU)
-									</th>
-									<th className="text-left p-3 font-semibold text-slate-800">
-										Non-negative PU Learning (nnPU)
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr className="border-b">
-									<td className="p-3 font-medium text-slate-600">
-										Risk Estimator
-									</td>
-									<td className="p-3 font-mono">
-										<LaTeX displayMode={false}>
-											{
-												"\\hat{R}_{\\text{pu}} = \\pi_p \\hat{R}_{p}^{+} - \\pi_p \\hat{R}_{p}^{-} + \\hat{R}_{u}^{-}"
-											}
-										</LaTeX>
-									</td>
-									<td className="p-3 font-mono">
-										<LaTeX displayMode={false}>
-											{
-												"\\tilde{R}_{\\text{pu}} = \\pi_p \\hat{R}_{p}^{+} + \\max\\{0, \\hat{R}_{u}^{-} - \\pi_p \\hat{R}_{p}^{-}\\}"
-											}
-										</LaTeX>
-									</td>
-								</tr>
-								<tr className="border-b">
-									<td className="p-3 font-medium text-slate-600">
-										Key Idea
-									</td>
-									<td className="p-3 text-slate-700">
-										Unbiasedly estimates risk without
-										negative labels.
-									</td>
-									<td className="p-3 text-slate-700">
-										Adds a non-negative constraint to
-										prevent overfitting.
-									</td>
-								</tr>
-								<tr className="border-b">
-									<td className="p-3 font-medium text-slate-600">
-										Primary Loss
-									</td>
-									<td className="p-3 text-slate-700">
-										Typically Squared Loss for a closed-form
-										solution.
-									</td>
-									<td className="p-3 text-slate-700">
-										Any classification loss (e.g.,
-										Sigmoid/Logistic) for gradient-based
-										optimization.
-									</td>
-								</tr>
-								<tr>
-									<td className="p-3 font-medium text-slate-600">
-										Failure Mode
-									</td>
-									<td className="p-3 text-red-600">
-										Risk can become negative, leading to
-										severe overfitting, especially with
-										complex models.
-									</td>
-									<td className="p-3 text-slate-700">
-										Relatively robust, but still sensitive
-										to severe class prior misestimation.
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</CardContent>
-			</Card>
-			<Card className="shadow-lg border">
-				<CardHeader>
-					<CardTitle className="text-2xl font-semibold text-slate-800">
-						Theoretical Summary: uPU vs. nnPU
-					</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="overflow-x-auto">
-						<table className="w-full text-sm border border-slate-200">
-							<thead>
-								<tr className="bg-slate-50 border-b">
-									<th className="text-left p-3 font-semibold text-slate-600 w-1/4">
-										Aspect
-									</th>
-									<th className="text-left p-3 font-semibold text-blue-800">
-										uPU (NIPS 2014)
-									</th>
-									<th className="text-left p-3 font-semibold text-green-800">
-										nnPU (NIPS 2017)
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr className="border-b">
-									<td className="p-3 font-medium text-slate-600">
-										PU Risk Definition
-									</td>
-									<td className="p-3 font-mono">
-										<LaTeX displayMode={false}>
-											{
-												"\\hat{R}_{\\text{pu}} = \\pi_p \\hat{R}_{p}^{+} - \\pi_p \\hat{R}_{p}^{-} + \\hat{R}_{u}^{-}"
-											}
-										</LaTeX>
-									</td>
-									<td className="p-3 font-mono">
-										<LaTeX displayMode={false}>
-											{
-												"\\tilde{R}_{\\text{pu}} = \\pi_p \\hat{R}_{p}^{+} + \\max\\{0, \\hat{R}_{u}^{-} - \\pi_p \\hat{R}_{p}^{-}\\}"
-											}
-										</LaTeX>
-									</td>
-								</tr>
-								<tr className="border-b">
-									<td className="p-3 font-medium text-slate-600">
-										Risk Estimator
-									</td>
-									<td className="p-3 text-slate-700">
-										Unbiased, but can go negative
-									</td>
-									<td className="p-3 text-slate-700">
-										Non-negative constraint
-									</td>
-								</tr>
-								<tr className="border-b">
-									<td className="p-3 font-medium text-slate-600">
-										Key Strength
-									</td>
-									<td className="p-3 text-slate-700">
-										Theoretically sound baseline
-									</td>
-									<td className="p-3 text-slate-700">
-										Stable with deep models
-									</td>
-								</tr>
-								<tr>
-									<td className="p-3 font-medium text-slate-600">
-										Failure Mode
-									</td>
-									<td className="p-3 text-red-600">
-										Overfitting when risk &lt; 0
-									</td>
-									<td className="p-3 text-slate-700">
-										Robust, but class prior sensitive
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</CardContent>
-			</Card>
+			<section aria-labelledby="theory-heading">
+				<Card className="shadow-lg border">
+					<CardHeader>
+						<CardTitle
+							id="theory-heading"
+							className="text-2xl font-semibold text-slate-800"
+						>
+							Theoretical Summary: uPU vs. nnPU
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="overflow-x-auto">
+							<table className="w-full text-sm border border-slate-200">
+								<caption className="sr-only">
+									Comparison of uPU and nnPU risk estimators
+								</caption>
+								<thead>
+									<tr className="bg-slate-50 border-b">
+										<th
+											scope="col"
+											className="text-left p-3 font-semibold text-slate-600 w-1/4"
+										>
+											Aspect
+										</th>
+										<th
+											scope="col"
+											className="text-left p-3 font-semibold text-blue-800"
+										>
+											uPU (NeurIPS 2014)
+										</th>
+										<th
+											scope="col"
+											className="text-left p-3 font-semibold text-green-800"
+										>
+											nnPU (NeurIPS 2017)
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr className="border-b">
+										<th
+											scope="row"
+											className="p-3 font-medium text-slate-600 text-left"
+										>
+											PU Risk Definition
+										</th>
+										<td className="p-3 font-mono whitespace-pre-wrap">
+											<LaTeX displayMode={false}>
+												{
+													"\\hat{R}_{\\text{pu}} = \\pi_p \\hat{R}_{p}^{+} - \\pi_p \\hat{R}_{p}^{-} + \\hat{R}_{u}^{-}"
+												}
+											</LaTeX>
+										</td>
+										<td className="p-3 font-mono whitespace-pre-wrap">
+											<LaTeX displayMode={false}>
+												{
+													"\\tilde{R}_{\\text{pu}} = \\pi_p \\hat{R}_{p}^{+} + \\max\\{0, \\hat{R}_{u}^{-} - \\pi_p \\hat{R}_{p}^{-}\\}"
+												}
+											</LaTeX>
+										</td>
+									</tr>
+									<tr className="border-b">
+										<th
+											scope="row"
+											className="p-3 font-medium text-slate-600 text-left"
+										>
+											Risk Estimator
+										</th>
+										<td className="p-3 text-slate-700">
+											Unbiased, but can go negative
+										</td>
+										<td className="p-3 text-slate-700">
+											Non-negative constraint
+										</td>
+									</tr>
+									<tr className="border-b">
+										<th
+											scope="row"
+											className="p-3 font-medium text-slate-600 text-left"
+										>
+											Key Strength
+										</th>
+										<td className="p-3 text-slate-700">
+											Theoretically sound unbiased
+											baseline
+										</td>
+										<td className="p-3 text-slate-700">
+											Stable with deep models
+										</td>
+									</tr>
+									<tr>
+										<th
+											scope="row"
+											className="p-3 font-medium text-slate-600 text-left"
+										>
+											Failure Mode
+										</th>
+										<td className="p-3 text-red-600">
+											Overfitting when risk &lt; 0
+										</td>
+										<td className="p-3 text-slate-700">
+											Robust, but sensitive to class-prior
+											misestimation
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</CardContent>
+				</Card>
+			</section>
 
 			{/* 4. Implementation Resources */}
-			{/* 4. Implementation Resources */}
-			<Card className="shadow-lg border">
-				<CardHeader>
-					<CardTitle className="text-2xl font-semibold text-slate-800">
-						Implementation Notes & Resources
-					</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<p className="text-slate-700 mb-4">
-						The nnPU risk estimator implemented in this demo is
-						directly adapted from{" "}
-						<strong>Sugiyama Lab’s official PU code</strong>(
-						<code>PU.zip</code>). I modified and extended the
-						original implementation to integrate sequential models
-						(LSTM) and evaluate on my 95-unit smart residential
-						testbed.
-					</p>
-					<ul className="text-sm space-y-2">
-						<li>
-							<a
-								href="https://www.ms.k.u-tokyo.ac.jp/sugi/software/PU/PU.zip"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="flex items-center gap-2 text-blue-600 hover:underline"
-							>
-								<BookOpen className="h-4 w-4" /> Official PU
-								Code (Sugiyama Lab)
-							</a>
-						</li>
-						<li>
-							<a
-								href="https://www.ms.k.u-tokyo.ac.jp/sugi/"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="flex items-center gap-2 text-blue-600 hover:underline"
-							>
-								<School className="h-4 w-4" /> Sugiyama Lab
-								Homepage
-							</a>
-						</li>
-					</ul>
-				</CardContent>
-			</Card>
+			<section aria-labelledby="resources-heading">
+				<Card className="shadow-lg border">
+					<CardHeader>
+						<CardTitle
+							id="resources-heading"
+							className="text-2xl font-semibold text-slate-800"
+						>
+							Implementation Notes & Resources
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<p className="text-slate-700 mb-4 text-sm">
+							The nnPU risk estimator in this demo is adapted from
+							the Sugiyama Lab’s reference PU implementation (
+							<code>PU.zip</code>
+							). The core logic was integrated with an LSTM model
+							for the smart residential testbed.
+						</p>
+						<p className="text-xs text-slate-500 mb-4">
+							Please follow the license/terms in the original
+							package when reusing the code.
+						</p>
+						<ul className="text-sm space-y-2">
+							<li>
+								<a
+									href="https://www.ms.k.u-tokyo.ac.jp/sugi/software/PU/PU.zip"
+									target="_blank"
+									rel="noopener noreferrer nofollow"
+									className="flex items-center gap-2 text-blue-600 hover:underline"
+									aria-label="Download reference PU implementation from Sugiyama Lab"
+								>
+									<BookOpen className="h-4 w-4" /> Download
+									Reference PU Implementation (PU.zip)
+								</a>
+							</li>
+							<li>
+								<a
+									href="https://www.ms.k.u-tokyo.ac.jp/sugi/"
+									target="_blank"
+									rel="noopener noreferrer nofollow"
+									className="flex items-center gap-2 text-blue-600 hover:underline"
+									aria-label="Visit Sugiyama Lab Homepage"
+								>
+									<School className="h-4 w-4" /> Sugiyama Lab
+									Homepage
+								</a>
+							</li>
+						</ul>
+					</CardContent>
+				</Card>
+			</section>
 		</div>
 	);
 }

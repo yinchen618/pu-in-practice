@@ -252,7 +252,7 @@ export function Stage1CandidateGeneration({
 		setIsLoadingDatasets(true);
 		try {
 			const response = await fetch(
-				"https://python.yinchen.tw/api/v2/analysis-datasets",
+				"https://weakrisk.yinchen.tw/api/v2/analysis-datasets",
 			);
 			if (response.ok) {
 				const datasets = await response.json();
@@ -304,7 +304,7 @@ export function Stage1CandidateGeneration({
 
 		try {
 			const response = await fetch(
-				"https://python.yinchen.tw/api/v2/generate-candidates",
+				"https://weakrisk.yinchen.tw/api/v2/generate-candidates",
 				{
 					method: "POST",
 					headers: {
@@ -375,7 +375,7 @@ export function Stage1CandidateGeneration({
 			};
 
 			const response = await fetch(
-				"https://python.yinchen.tw/api/v2/generate-candidates",
+				"https://weakrisk.yinchen.tw/api/v2/generate-candidates",
 				{
 					method: "POST",
 					headers: {

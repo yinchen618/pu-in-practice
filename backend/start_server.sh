@@ -31,8 +31,8 @@ fi
 # 啟動服務
 echo ""
 echo "🔥 啟動服務..."
-echo "服務地址: https://python.yinchen.tw"
-echo "API 文檔: https://python.yinchen.tw/docs"
+echo "服務地址: https://weakrisk.yinchen.tw"
+echo "API 文檔: https://weakrisk.yinchen.tw/docs"
 echo "PU Learning 前端: http://localhost:3001/pu-learning"
 echo ""
 echo "按 Ctrl+C 停止服務"

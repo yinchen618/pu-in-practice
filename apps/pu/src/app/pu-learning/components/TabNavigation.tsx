@@ -53,7 +53,7 @@ export default function TabNavigation({
 				<div className="flex items-center justify-between">
 					<div>
 						<h1 className="text-xl font-bold text-slate-800">
-							PU Principle - Interactive Demonstrator
+							Risk Principle - Interactive Demonstrator
 						</h1>
 					</div>
 					<div className="flex space-x-6">

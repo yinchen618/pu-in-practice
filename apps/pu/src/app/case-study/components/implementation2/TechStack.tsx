@@ -96,8 +96,25 @@ export default function TechStackRevised() {
 
 class ModelEvaluator:
     # Conducts multi-scenario evaluation (ERM, Generalization, Adaptation)
-    async def evaluate_model(self, model_id, scenario) -> EvaluationResult`}</CodeBlock>
+    async def evaluate_model(self, model_id, scenario) -> EvaluationResult
+
+class PriorEstimator:
+    # Estimates class prior (π_p) with held-out anchors / EM-style mixture modeling
+    # Exposes sensitivity sweep for robustness analysis
+    def estimate(self, dataset) -> float`}</CodeBlock>
 					</div>
+				</div>
+
+				{/* Section: Ablations & Robustness */}
+				<div>
+					<h4 className="text-lg font-semibold text-gray-700 mb-3">
+						Ablations & Robustness
+					</h4>
+					<p className="text-sm text-gray-600 mb-3">
+						(i) prior sweep (±Δ), (ii) label-noise stress
+						(instance-dependent corruption), (iii)
+						complementary-label drop-in variant.
+					</p>
 				</div>
 
 				{/* Section 3: Environment */}

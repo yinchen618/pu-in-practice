@@ -10,7 +10,7 @@ import time
 import uuid
 from datetime import datetime
 
-BASE_URL = "https://python.yinchen.tw/api/v2"
+BASE_URL = "https://weakrisk.yinchen.tw/api/v2"
 
 def print_separator(title):
     """打印分隔線"""
@@ -413,7 +413,7 @@ def main():
 
     except requests.exceptions.ConnectionError:
         print("❌ Error: Cannot connect to backend server")
-        print("   Please make sure the backend is running on https://python.yinchen.tw")
+        print("   Please make sure the backend is running on https://weakrisk.yinchen.tw")
     except Exception as e:
         print(f"❌ Unexpected error: {str(e)}")
 

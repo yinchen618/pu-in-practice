@@ -89,7 +89,7 @@ export interface UpdateLabelData {
 
 // API 客戶端
 class CaseStudyAPIClient {
-  private baseUrl = 'https://python.yinchen.tw/api/v1'
+  private baseUrl = 'https://weakrisk.yinchen.tw/api/v1'
 
   async getAnomalyEvents(filters: EventFilters = {}): Promise<AnomalyEventsResponse> {
     // 將 camelCase 轉為後端 API 期望的 snake_case
@@ -486,8 +486,8 @@ export function useCaseStudyData() {
 
       apiLogger.request(
         experimentRunId
-          ? `https://python.yinchen.tw/api/v1/stats?experiment_run_id=${experimentRunId}`
-          : 'https://python.yinchen.tw/api/v1/stats',
+          ? `https://weakrisk.yinchen.tw/api/v1/stats?experiment_run_id=${experimentRunId}`
+          : 'https://weakrisk.yinchen.tw/api/v1/stats',
         'GET',
         {
           experimentRunId,
@@ -503,8 +503,8 @@ export function useCaseStudyData() {
         if (cached && now - cached.timestamp < STATS_CACHE_DURATION) {
           apiLogger.cached(
             experimentRunId
-              ? `https://python.yinchen.tw/api/v1/stats?experiment_run_id=${experimentRunId}`
-              : 'https://python.yinchen.tw/api/v1/stats',
+              ? `https://weakrisk.yinchen.tw/api/v1/stats?experiment_run_id=${experimentRunId}`
+              : 'https://weakrisk.yinchen.tw/api/v1/stats',
             { experimentRunId, logId, source: 'useCaseStudyData' }
           )
           setStats(cached.data)
@@ -521,8 +521,8 @@ export function useCaseStudyData() {
 
         apiLogger.response(
           experimentRunId
-            ? `https://python.yinchen.tw/api/v1/stats?experiment_run_id=${experimentRunId}`
-            : 'https://python.yinchen.tw/api/v1/stats',
+            ? `https://weakrisk.yinchen.tw/api/v1/stats?experiment_run_id=${experimentRunId}`
+            : 'https://weakrisk.yinchen.tw/api/v1/stats',
           200,
           {
             experimentRunId,
@@ -535,8 +535,8 @@ export function useCaseStudyData() {
         console.error('Failed to load anomaly stats:', err)
         apiLogger.error(
           experimentRunId
-            ? `https://python.yinchen.tw/api/v1/stats?experiment_run_id=${experimentRunId}`
-            : 'https://python.yinchen.tw/api/v1/stats',
+            ? `https://weakrisk.yinchen.tw/api/v1/stats?experiment_run_id=${experimentRunId}`
+            : 'https://weakrisk.yinchen.tw/api/v1/stats',
           {
             error: err,
             experimentRunId,

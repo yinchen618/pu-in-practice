@@ -21,12 +21,17 @@ export default function EvaluationTab() {
 			{/* 1. Tab-specific heading */}
 			<div className="text-center mb-8">
 				<h2 className="text-4xl font-bold text-slate-800 mb-4">
-					Experimental Results: A Story of Domain Adaptation
+					Experimental Results — Risk-Estimation–Driven Domain
+					Adaptation
 				</h2>
 				<p className="text-lg text-slate-600 max-w-3xl mx-auto">
-					This section presents a three-scenario experiment designed
-					to demonstrate the challenge of domain shift and validate my
-					proposed adaptation strategy.
+					Three scenarios under distribution shift, evaluated with a{" "}
+					<strong>PU-aware, risk-estimation</strong> lens (nnPU;
+					target class-prior{" "}
+					<em>
+						π<sub>p</sub>
+					</em>
+					).
 				</p>
 			</div>
 
@@ -35,14 +40,21 @@ export default function EvaluationTab() {
 				<CardHeader>
 					<CardTitle className="text-2xl font-semibold text-slate-800 flex items-center gap-2">
 						<BarChart3 className="h-6 w-6 text-blue-600" />
-						Results Analysis Dashboard
+						Results Dashboard (PU-aware)
 					</CardTitle>
 					<CardDescription>
-						A side-by-side comparison of the three experimental
-						scenarios.
+						Side-by-side comparison with <strong>PU caveats</strong>
+						: "0" in U ≠ confirmed negative; precision can be
+						deflated by hidden positives.
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-6">
+					<div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+						<strong>PU Note.</strong> In test/eval, "0" denotes{" "}
+						<em>Unlabeled</em>, not confirmed negative. Precision is
+						PU-aware; TP Recall is unaffected by unlabeled
+						ambiguity.
+					</div>
 					{/* Performance Metrics Comparison Cards */}
 					<div className="grid md:grid-cols-3 gap-4 text-center">
 						{/* ERM Baseline */}
@@ -70,7 +82,7 @@ export default function EvaluationTab() {
 											61.9%
 										</p>
 										<p className="text-xs text-slate-500">
-											Precision
+											Precision (PU-aware)
 										</p>
 									</div>
 									<div>
@@ -78,7 +90,7 @@ export default function EvaluationTab() {
 											91.8%
 										</p>
 										<p className="text-xs text-slate-500">
-											Recall
+											TP Recall
 										</p>
 									</div>
 								</div>
@@ -132,7 +144,7 @@ export default function EvaluationTab() {
 											10.0%
 										</p>
 										<p className="text-xs text-slate-500">
-											Precision
+											Precision (PU-aware)
 										</p>
 									</div>
 									<div>
@@ -140,7 +152,7 @@ export default function EvaluationTab() {
 											100.0%
 										</p>
 										<p className="text-xs text-slate-500">
-											Recall
+											TP Recall
 										</p>
 									</div>
 								</div>
@@ -196,7 +208,7 @@ export default function EvaluationTab() {
 											63.8%
 										</p>
 										<p className="text-xs text-slate-500">
-											Precision
+											Precision (PU-aware)
 										</p>
 									</div>
 									<div>
@@ -204,7 +216,7 @@ export default function EvaluationTab() {
 											99.8%
 										</p>
 										<p className="text-xs text-slate-500">
-											Recall
+											TP Recall
 										</p>
 									</div>
 								</div>
@@ -268,13 +280,11 @@ export default function EvaluationTab() {
 							</div>
 							<p className="font-semibold">Analysis:</p>
 							<blockquote className="border-l-2 pl-4 text-slate-600 italic">
-								This is a robust benchmark. The high Recall
-								(91.8%) shows the model is adept at finding
-								anomalies, at the cost of a slightly lower
-								Precision (61.9%), which indicates some false
-								positives—a common trade-off. This result serves
-								as my <strong>"gold standard"</strong> for
-								comparison.
+								Strong in-domain <em>risk baseline</em>: high TP
+								Recall (91.8%) with moderate Precision (PU-aware
+								61.9%)—a standard recall/precision trade-off for
+								anomaly search. This result serves as my{" "}
+								<strong>"gold standard"</strong> for comparison.
 							</blockquote>
 						</div>
 					</CardContent>
@@ -308,9 +318,11 @@ export default function EvaluationTab() {
 							</div>
 							<p className="font-semibold">Analysis:</p>
 							<blockquote className="border-l-2 pl-4 text-slate-600 italic">
-								The performance collapse (F1 score of 18.2%) is
-								entirely expected and is the key finding. It
-								powerfully demonstrates the existence of{" "}
+								Severe <em>target-risk</em> increase under
+								shift: F1 18.2% with 100% TP Recall / 10.0%
+								Precision (PU-aware)—the model flags unfamiliar
+								target patterns as anomalies. It powerfully
+								demonstrates the existence of{" "}
 								<strong>Domain Shift</strong>. The combination
 								of 100% Recall and 10.0% Precision is a classic
 								signal that the model, knowing only "office
@@ -340,7 +352,11 @@ export default function EvaluationTab() {
 							worker) and labeled positive data (P) from the
 							target domain (student). This is a highly effective
 							semi-supervised domain adaptation method for PU
-							Learning.
+							learning. Includes target class-prior estimation (
+							<em>
+								π<sub>p</sub>
+							</em>
+							) for nnPU stability.
 						</p>
 						<div>
 							<div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -351,18 +367,17 @@ export default function EvaluationTab() {
 							</div>
 							<p className="font-semibold">Analysis:</p>
 							<blockquote className="border-l-2 pl-4 text-slate-600 italic">
-								This is a resounding success. The F1-score not
-								only recovered but{" "}
-								<strong>
-									outperformed the original benchmark (77.9%
-									&gt; 73.9%)
-								</strong>
-								. The model successfully learned to identify
-								student anomalies. This superior performance is
-								likely because the model leveraged the large
-								pool of unlabeled source data as a rich
-								"background context," helping it form a more
-								robust decision boundary.
+								Target-risk reduced and generalization restored:
+								F1 77.9% (&gt; 73.9% baseline). Leveraging U
+								<sub>source</sub> as background + P
+								<sub>target</sub> with nnPU (clamped risk)
+								yields a more reliable boundary. The model
+								successfully learned to identify student
+								anomalies. This superior performance is likely
+								because the model leveraged the large pool of
+								unlabeled source data as a rich "background
+								context," helping it form a more robust decision
+								boundary.
 							</blockquote>
 						</div>
 					</CardContent>
@@ -374,7 +389,7 @@ export default function EvaluationTab() {
 				<CardHeader>
 					<CardTitle className="flex items-center gap-3">
 						<Sparkles className="h-6 w-6 text-yellow-400" />
-						Conclusion: A Complete & Compelling Storyline
+						Conclusion: Risk-Estimation Takeaways
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -409,6 +424,10 @@ export default function EvaluationTab() {
 									<li>
 										• Created "gold standard" for comparison
 									</li>
+									<li>
+										→ establishes an in-domain risk
+										baseline.
+									</li>
 								</ul>
 							</div>
 						</div>
@@ -438,6 +457,10 @@ export default function EvaluationTab() {
 									<li>
 										• Identified critical limitation of
 										single-domain models
+									</li>
+									<li>
+										→ evidences target-risk inflation caused
+										by shift.
 									</li>
 								</ul>
 							</div>
@@ -469,6 +492,10 @@ export default function EvaluationTab() {
 									<li>
 										• Outperformed original benchmark by 4.0
 										percentage points
+									</li>
+									<li>
+										→ achieves target-risk reduction via
+										U_source + P_target (nnPU).
 									</li>
 								</ul>
 							</div>
