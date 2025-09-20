@@ -1,0 +1,134 @@
+給你面向「杉山」版的最小修改片段。逐段替換即可。
+
+## 1) Hero 區塊
+
+```diff
+- <h2 className="mt-2 text-xl md:text-2xl font-semibold text-slate-600">
+-   Prospective PhD Student – Machine Learning & IoT Systems
+- </h2>
++ <h2 className="mt-2 text-xl md:text-2xl font-semibold text-slate-600">
++   Prospective PhD Student – Weak Supervision & Covariate Shift
++ </h2>
+
+- <p className="text-lg text-slate-700 max-w-4xl mx-auto leading-relaxed mt-6">
+-   I run a 95-unit smart-residential testbed...
+-   ... Prof. Masashi Sugiyama's lab at UTokyo GSFS ...
+- </p>
++ <p className="text-lg text-slate-700 max-w-4xl mx-auto leading-relaxed mt-6">
++   I operate a 95-unit smart-residential testbed for non-stationary time series. 
++   My research targets <strong>trustworthy weak supervision under shift</strong>: 
++   importance-weighted risk minimization via <strong>density-ratio estimation</strong>, 
++   and <strong>uPU/nnPU</strong> for label scarcity. 
++   I link theory to deployment with auditable pipelines on real data streams, 
++   directly aligned with <strong>Prof. Masashi Sugiyama’s lab (UTokyo GSFS)</strong>.
++ </p>
+```
+
+## 2) Motivation 卡片
+
+```diff
+- <p className="text-lg text-slate-700 leading-relaxed text-center">
+-   With 10+ years architecting enterprise IoT systems...
+- </p>
++ <div className="text-slate-700 leading-relaxed text-center px-4">
++   <p className="mb-4">
++     After a decade building IoT systems, I study a central question: 
++     <strong>How to estimate and control risk when distributions shift and labels are scarce?</strong>
++   </p>
++   <ul className="text-left list-disc list-inside space-y-1 inline-block">
++     <li><strong>Methods:</strong> density-ratio estimation (importance weighting), prior-shift correction, uPU/nnPU.</li>
++     <li><strong>Validation:</strong> label-free model selection via estimated risk \u005eR with correlation/calibration/CI coverage.</li>
++     <li><strong>Goal:</strong> deployable, auditable ML under covariate and class-prior shift, aligned with Sugiyama Lab.</li>
++   </ul>
++ </div>
+```
+
+## 3) Research bullets（Independent Research）
+
+```diff
+- • <strong>Applied</strong> weakly-supervised learning (uPU/nnPU) ...
++ • <strong>Engineered</strong> importance-weighted learners using <strong>density-ratio estimation</strong> for covariate/class-prior shift.
++ • <strong>Validated</strong> <strong>uPU/nnPU</strong> risk estimators for label-free hyperparameter selection on real streams.
++ • <strong>Quantified reliability</strong> by R̂–R correlation, calibration, and 95% CI coverage; produced audit-ready reports.
+```
+
+## 4) Publications：加入 Demo 並支援 `demo` 標籤
+
+在 `papers.publications` 陣列開頭插入：
+
+```ts
+{
+  key: "weakrisk_demo_2025",
+  category: "recent",
+  authors: ["Yin-Chen Chen"],
+  title: "WeakRisk Benchmark: PU/nnPU and Importance-Weighted Risk under Shift",
+  venue: "Interactive demo and auditable benchmark",
+  year: 2025,
+  type: "demo",
+  pdf_url: "/bench",
+  scholar_url: null,
+  citations: null,
+  citations_last_verified: null
+},
+```
+
+在 `PublicationsList` 的型別徽章改為支援 demo：
+
+```diff
+- <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.type === "journal" ? "...blue..." : "...green..."}`}>
+-   {p.type === "journal" ? "Journal" : "Conference"}
+- </span>
++ {(() => {
++   const map:any = {
++     journal: { label: "Journal", cls: "bg-blue-100 text-blue-800 border border-blue-200" },
++     conference: { label: "Conference", cls: "bg-green-100 text-green-800 border border-green-200" },
++     demo: { label: "Demo", cls: "bg-purple-100 text-purple-800 border border-purple-200" }
++   };
++   const t = map[p.type] ?? map.conference;
++   return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${t.cls}`}>{t.label}</span>;
++ })()}
+```
+
+把 demo 連結文字改清楚：
+
+```diff
+- {p.pdf_url && (<a ...>[PDF]</a>)}
++ {p.pdf_url && (
++   <a href={p.pdf_url} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline font-semibold">
++     {p.type === "demo" ? "[Interactive Demo]" : "[PDF]"}
++   </a>
++ )}
+```
+
+## 5) 技能徽章（Machine Learning 欄）
+
+```diff
+- <Badge variant="secondary">PU Learning</Badge>
++ <Badge variant="secondary">PU / nnPU</Badge>
++ <Badge variant="secondary">Density-Ratio Estimation</Badge>
++ <Badge variant="secondary">Importance Weighting</Badge>
+<Badge variant="secondary">Time-Series Analysis</Badge>
+<Badge variant="secondary">Domain Adaptation</Badge>
++ <Badge variant="secondary">Calibration</Badge>
+```
+
+## 6) 日文要約（面向杉山）
+
+```diff
+- ... 東京大学GSFS（杉山研究室）...
++ 弱教師あり学習における<u>無偏なリスク推定</u>と<u>分布シフト下での重要度重み付け</u>に取り組んでいます。
++ uPU/nnPU と密度比推定（importance weighting）を用い、ラベルに依存しないモデル選択を実現。
++ R̂–R の相関・校正・95%信頼区間被覆率で信頼性を定量化し、実データの監査可能な評価系を構築しました。
++ これは東京大学GSFS <strong>杉山雅祥研究室</strong>の「密度比推定・分布シフト・PU学習」の研究と強く整合します。
+```
+
+## 7) Hero 底部資訊列
+
+保留 `Target: UTokyo GSFS, Schedule B 2026` 不變即可。若要更精確可改：
+
+```diff
+- Target: UTokyo GSFS, Schedule B 2026
++ Target: UTokyo GSFS (Sugiyama Lab), Schedule B 2026
+```
+
+以上改完，即為「杉山版」：以密度比推定與重要度重み付け為核心，搭配 uPU/nnPU、R̂ 指標與可稽核流程，語義與用詞對齊 Sugiyama 的研究脈絡。
